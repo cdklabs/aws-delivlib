@@ -7,7 +7,7 @@ building, testing and publishing code libraries through AWS CodeBuild and AWS
 CodePipeline.
 
 This guide will walk you through setting up a delivlib pipeline and utilizing
-all it's features.
+all its features.
 
 A delivlib pipeline consists of the following sequential stages. Each stage will
 execute all tasks concurrently:
@@ -436,10 +436,9 @@ to access old versions of the docs if they wish).
 
 NOTE: static website content can grow big. If you use the same repository for
 your source code and GitHub pages, your repo clones will get exponentially large
-due to the fact the GitHub Pages do not allow force pushing commits into a
-gh-pages branch. This means that we are storing each version both historically
-and vertically under the `${version}/` directory. It is recommended to publish
-docs into a separate repository.
+due to the fact that we are storing each version both historically and
+vertically under the `${version}/` directory. It is recommended to publish docs
+into a separate repository.
 
 This publisher depends on the following artifacts:
 
@@ -487,4 +486,4 @@ To obtain an SSH key for GitHub:
 
 ## License
 
-This library is licensed under the Apache 2.0 License. 
+This library is licensed under the Apache 2.0 License.
