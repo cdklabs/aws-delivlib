@@ -167,7 +167,7 @@ The default image is a union of the following official AWS CodeBuild images:
 
 - [node.js-8.11.0](https://github.com/aws/aws-codebuild-docker-images/tree/master/ubuntu/nodejs/8.11.0)
 - [java-openjdk-8](https://github.com/aws/aws-codebuild-docker-images/tree/master/ubuntu/java/openjdk-8)
-- [dotnet-core-2](https://github.com/aws/aws-codebuild-docker-images/tree/master/ubuntu/dot-net/core-2)
+- [dotnet-core-2.1](https://github.com/aws/aws-codebuild-docker-images/tree/master/ubuntu/dot-net/core-2.1)
 - [python-3.6.5](https://github.com/aws/aws-codebuild-docker-images/tree/master/ubuntu/python/3.6.5)
 - [ruby-2.5.1](https://github.com/aws/aws-codebuild-docker-images/blob/master/ubuntu/ruby/2.5.1)
 
