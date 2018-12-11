@@ -1,0 +1,39 @@
+{
+  "name": "aws-delivlib",
+  "version": "0.1.0",
+  "description": "A fabulous library for defining continuous pipelines for building, testing and releasing code libraries.",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "scripts": {
+    "build": "tsc && tslint --fix --project .",
+    "package": "/bin/bash ./package.sh",
+    "watch": "tsc -w",
+    "test": "/bin/bash test/run-test.sh",
+    "cdk": "cdk",
+    "pipeline-update": "npm run build && cdk -a pipeline/delivlib.js deploy",
+    "pipeline-diff": "npm run build && cdk -a pipeline/delivlib.js diff"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "aws-cdk": "^0.19.0",
+    "@types/node": "^10.12.12",
+    "@types/nodeunit": "0.0.30",
+    "nodeunit": "^0.11.3",
+    "tslint": "^5.11.0",
+    "typescript": "^3.2.2"
+  },
+  "dependencies": {
+    "@aws-cdk/assert": "^0.19.0",
+    "@aws-cdk/assets": "^0.19.0",
+    "@aws-cdk/aws-cloudformation": "^0.19.0",
+    "@aws-cdk/aws-codebuild": "^0.19.0",
+    "@aws-cdk/aws-codecommit": "^0.19.0",
+    "@aws-cdk/aws-codepipeline": "^0.19.0",
+    "@aws-cdk/aws-ecs": "^0.19.0",
+    "@aws-cdk/aws-lambda": "^0.19.0",
+    "@aws-cdk/aws-sns": "^0.19.0",
+    "@aws-cdk/cdk": "^0.19.0"
+  }
+}
