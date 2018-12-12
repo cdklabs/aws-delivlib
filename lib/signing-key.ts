@@ -31,7 +31,7 @@ export interface SigningKeyProps {
  * The KMS key is there to control access to the secret, as the secret
  * itself doesn't support resource policies yet.
  */
-export class SigningKey extends cdk.Construct {
+export class OpenPgpKey extends cdk.Construct {
   public readonly scope: string;
 
   private readonly key: kms.EncryptionKeyRef;

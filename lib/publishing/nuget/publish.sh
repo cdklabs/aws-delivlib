@@ -19,17 +19,23 @@ if [ -n "${CODE_SIGNING_SECRET_ID:-}" ]; then
     echo "Preparing code-signing certificate..."
     cert=$(mktemp -d)
     CLEANUP+=("echo '🚮 Cleaning code-signing certificate'" "rm -fr ${cert}")
-    aws secretsmanager get-secret-value --secret-id "${CODE_SIGNING_SECRET_ID}" | jq -r .SecretString > "${cert}/data.json"
+
     # Transform the certificate into the format expected by signcode
-    SIGNCODE_SPC="${cert}/certificate.spc"
-    jq -r .Certificate "${cert}/data.json" > "${SIGNCODE_SPC}.pem"
-    openssl crl2pkcs7 -nocrl -certfile "${SIGNCODE_SPC}.pem" -outform DER -out "${SIGNCODE_SPC}"
+    echo "Reading certificate from SSM parameter: ${CODE_SIGNING_PARAMETER_NAME}"
+    signcode_spc="${cert}/certificate.spc"
+    aws ssm get-parameter --name "${CODE_SIGNING_PARAMETER_NAME}" | jq -r '.Parameter.Value' > "${signcode_spc}.pem"
+    openssl crl2pkcs7 -nocrl -certfile "${signcode_spc}.pem" -outform DER -out "${signcode_spc}"
+    echo "Successfully converted certificate from PEM to DER (.spc)"
+
     # Transform the private key into the format expected by signcode
-    SIGNCODE_PVK="${cert}/certificate.pvk"
-    jq -r .PrivateKey "${cert}/data.json" > "${SIGNCODE_PVK}.pem"
-    openssl rsa -in "${SIGNCODE_PVK}.pem" -outform PVK -pvk-none -out "${SIGNCODE_PVK}"
+    echo "Reading signing key from secret ID: ${CODE_SIGNING_SECRET_ID}"
+    signcode_pvk="${cert}/certificate.pvk"
+    aws secretsmanager get-secret-value --secret-id "${CODE_SIGNING_SECRET_ID}" | jq -r '.SecretString' > "${signcode_pvk}.pem"
+    openssl rsa -in "${signcode_pvk}.pem" -outform PVK -pvk-none -out "${signcode_pvk}"
+    echo "Successfully converted signing key from PEM to PVK"
+
     # Set the timestamp server
-    SIGNCODE_TSS="${CODE_SIGNING_TIMESTAMP_SERVER:-http://timestamp.digicert.com}"
+    signcode_tss="${CODE_SIGNING_TIMESTAMP_SERVER:-http://timestamp.digicert.com}"
 fi
 
 echo "Publishing NuGet packages..."
@@ -51,7 +57,7 @@ found=false
 for NUGET_PACKAGE_PATH in $(find dotnet -name *.nupkg -not -iname *.symbols.nupkg); do
     found=true
     if [ -n "${CODE_SIGNING_SECRET_ID:-}" ]; then
-        ./sign.sh "${NUGET_PACKAGE_PATH}" "${SIGNCODE_SPC}" "${SIGNCODE_PVK}" "${SIGNCODE_TSS}"
+        ./sign.sh "${NUGET_PACKAGE_PATH}" "${signcode_spc}" "${signcode_pvk}" "${signcode_tss}"
     fi
     dotnet nuget push $NUGET_PACKAGE_PATH -k $NUGET_API_KEY -s $NUGET_SOURCE -ss $NUGET_SYMBOL_SOURCE | tee ${log}
 
