@@ -93,7 +93,6 @@ export class Pipeline extends cdk.Construct {
   private readonly buildOutput: cpipelineapi.Artifact;
   private readonly repo: string;
   private readonly branch: string;
-  private readonly dashboard: cloudwatch.Dashboard;
   private readonly notify?: sns.Topic;
   private readonly title: string;
   private testStage?: cpipeline.Stage;
@@ -154,16 +153,7 @@ export class Pipeline extends cdk.Construct {
     // trigger an SNS topic every time the pipeline fails
     this.addFailureAlarm(props.title);
 
-    this.dashboard = new cloudwatch.Dashboard(this, 'Dashboard');
     this.title = props.title || 'Pipeline';
-
-    // tslint:disable:max-line-length
-    const markdown = new cdk.FnConcat(
-      `# ${this.title} Pipeline\n`,
-      ' * [Pipeline](https://console.aws.amazon.com/codepipeline/home?region=', new cdk.AwsRegion(), '#/view/', this.pipeline.pipelineName, ')\n',
-      ' * [Build History](https://console.aws.amazon.com/codebuild/home?region=', new cdk.AwsRegion(), '#/projects/', buildProject.projectName, '/view', ')\n'
-    );
-    // tslint:enable:max-line-length
 
     // define an alarm triggered when the build fails.
     if (this.notify) {
@@ -174,17 +164,6 @@ export class Pipeline extends cdk.Construct {
 
       alarm.onAlarm(this.notify);
     }
-
-    this.dashboard.add(
-      new cloudwatch.TextWidget({
-        width: 24,
-        markdown: markdown as any
-      }),
-      new cloudwatch.GraphWidget({
-        title: 'Build Duration',
-        left: [ buildProject.metricDuration() ]
-      }
-    ));
   }
 
   public addTest(id: string, props: TestableProps) {
@@ -194,13 +173,6 @@ export class Pipeline extends cdk.Construct {
 
     const test = new Testable(this, id, props);
     test.addToPipeline(this.testStage, this.buildOutput);
-
-    this.dashboard.add(
-      new cloudwatch.GraphWidget({
-        title: `Test ${id} Duration`,
-        left: [ test.project.metricDuration() ]
-      })
-    );
 
     if (this.notify) {
       const alarm = test.project.metricFailedBuilds().newAlarm(test /* add as child of test */, 'FailedTests', {
