@@ -15,6 +15,9 @@
 import logging as log
 import json, os, sys
 
+CFN_SUCCESS = "SUCCESS"
+CFN_FAILED = "FAILED"
+
 def handle_event(event, aws_request_id):
   import boto3, shutil, subprocess, tempfile
 
@@ -52,17 +55,49 @@ def handle_event(event, aws_request_id):
       raise Exception('Unsupported RequestType: %s' % event['RequestType'])
 
 def main(event, context):
-  import cfnresponse
   log.getLogger().setLevel(log.INFO)
 
   try:
     log.info('Input event: %s', event)
     attributes = handle_event(event, context.aws_request_id)
-    cfnresponse.send(event, context, cfnresponse.SUCCESS, attributes, attributes['ARN'])
+    cfn_send(event, context, CFN_SUCCESS, attributes, attributes['ARN'])
+  except KeyError as e:
+    cfn_send(event, context, CFN_FAILED, {}, reason="Invalid request: missing key %s" % str(e))
   except Exception as e:
     log.exception(e)
-    # cfnresponse's error message is always "see CloudWatch"
-    cfnresponse.send(event, context, cfnresponse.FAILED, {}, context.log_stream_name)
+    cfn_send(event, context, CFN_FAILED, {}, reason=str(e))
+
+#---------------------------------------------------------------------------------------------------
+# sends a response to cloudformation
+def cfn_send(event, context, responseStatus, responseData={}, physicalResourceId=None, noEcho=False, reason=None):
+
+    responseUrl = event['ResponseURL']
+    logger.info(responseUrl)
+
+    responseBody = {}
+    responseBody['Status'] = responseStatus
+    responseBody['Reason'] = reason or ('See the details in CloudWatch Log Stream: ' + context.log_stream_name)
+    responseBody['PhysicalResourceId'] = physicalResourceId or context.log_stream_name
+    responseBody['StackId'] = event['StackId']
+    responseBody['RequestId'] = event['RequestId']
+    responseBody['LogicalResourceId'] = event['LogicalResourceId']
+    responseBody['NoEcho'] = noEcho
+    responseBody['Data'] = responseData
+
+    body = json.dumps(responseBody)
+    logger.info("| response body:\n" + body)
+
+    headers = {
+        'content-type' : '',
+        'content-length' : str(len(body))
+    }
+
+    try:
+        response = requests.put(responseUrl, data=body, headers=headers)
+        logger.info("| status code: " + response.reason)
+    except Exception as e:
+        logger.error("| unable to send response to CloudFormation")
+        logger.exception(e)
 
 if __name__ == '__main__':
   handle_event(json.load(sys.stdin), 'ec92d8a9-672c-4647-9d34-0d3159a2c692')
