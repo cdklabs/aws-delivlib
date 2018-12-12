@@ -23,7 +23,7 @@ CFN_SUCCESS = "SUCCESS"
 CFN_FAILED = "FAILED"
 
 def handle_event(event, aws_request_id):
-  import boto3, shutil, subprocess, tempfile
+  import boto3, subprocess, tempfile
 
   props = event['ResourceProperties']
 

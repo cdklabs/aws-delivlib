@@ -1,7 +1,6 @@
 import cfn = require('@aws-cdk/aws-cloudformation');
 import lambda = require('@aws-cdk/aws-lambda');
 import cdk = require('@aws-cdk/cdk');
-import fs = require('fs');
 import path = require('path');
 import { RsaPrivateKeySecret } from './private-key';
 
@@ -51,12 +50,7 @@ export class CertificateSigningRequest extends cdk.Construct {
       uuid: '541F6782-6DCF-49A7-8C5A-67715ADD9E4C',
       runtime: lambda.Runtime.Python36,
       handler: 'index.main',
-      code: new lambda.InlineCode(
-        fs.readFileSync(path.join(__dirname, 'certificate-signing-request.py'))
-          .toString('utf8')
-          // Remove blank and comment-only lines, to shrink code length
-          .replace(/^[ \t]*(#[^\n]*)?\n/gm, '')
-      ),
+      code: new lambda.AssetCode(path.join(__dirname, 'certificate-signing-request.py')),
       timeout: 300,
     });
 
