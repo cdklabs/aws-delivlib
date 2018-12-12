@@ -60,7 +60,7 @@ def handle_event(event, aws_request_id):
           pkey.flush()
 
           csr_file = os.path.join(tmpdir, 'csr.pem')
-          self_signed_cert = os.path.join(tmpdir, 'self-signed-cert.pem');
+          self_signed_cert = os.path.join(tmpdir, 'self-signed-cert.pem')
 
           subprocess.check_call([
             'openssl', 'req', '-config', config.name,
@@ -111,17 +111,16 @@ def cfn_send(event, context, responseStatus, responseData={}, physicalResourceId
     responseUrl = event['ResponseURL']
     logger.info(responseUrl)
 
-    responseBody = {}
-    responseBody['Status'] = responseStatus
-    responseBody['Reason'] = reason or ('See the details in CloudWatch Log Stream: ' + context.log_stream_name)
-    responseBody['PhysicalResourceId'] = physicalResourceId or context.log_stream_name
-    responseBody['StackId'] = event['StackId']
-    responseBody['RequestId'] = event['RequestId']
-    responseBody['LogicalResourceId'] = event['LogicalResourceId']
-    responseBody['NoEcho'] = noEcho
-    responseBody['Data'] = responseData
-
-    body = json.dumps(responseBody)
+    body = json.dumps({
+      'Status': responseStatus,
+      'Reason': reason or ('See the details in CloudWatch Log Stream: ' + context.log_stream_name),
+      'PhysicalResourceId': physicalResourceId or context.log_stream_name,
+      'StackId': event['StackId'],
+      'RequestId': event['RequestId'],
+      'LogicalResourceId': event['LogicalResourceId'],
+      'NoEcho': noEcho,
+      'Data': responseData,
+    })
     logger.info("| response body:\n" + body)
 
     headers = {
