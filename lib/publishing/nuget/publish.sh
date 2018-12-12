@@ -57,7 +57,7 @@ found=false
 for NUGET_PACKAGE_PATH in $(find dotnet -name *.nupkg -not -iname *.symbols.nupkg); do
     found=true
     if [ -n "${CODE_SIGNING_SECRET_ID:-}" ]; then
-        ./sign.sh "${NUGET_PACKAGE_PATH}" "${signcode_spc}" "${signcode_pvk}" "${signcode_tss}"
+        $SCRIPT_DIR/sign.sh "${NUGET_PACKAGE_PATH}" "${signcode_spc}" "${signcode_pvk}" "${signcode_tss}"
     fi
     dotnet nuget push $NUGET_PACKAGE_PATH -k $NUGET_API_KEY -s $NUGET_SOURCE -ss $NUGET_SYMBOL_SOURCE | tee ${log}
 
