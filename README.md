@@ -290,6 +290,90 @@ pipeline.publishToNuGet({
 });
 ```
 
+#### Assembly Signature
+
+**Important:** Limitations in the `mono` tools restrict the hash algorithms that
+can be used in the signature to `SHA-1`. This limitation will be removed in the
+future.
+
+You can enable digital signatures for the `.dll` files enclosed in your NuGet
+packages. In order to do so, you need to procure a Code-Signing Certificate
+(also known as a Software Publisher Certificate, or SPC). If you don't have one
+yet, you can refer to
+[Obtaining a new Code Signing Certificate](#obtaining-a-new-code-signing-certificate)
+for a way to create a new certificate entirely in the Cloud.
+
+In order to enable code signature, change the way the NuGet publisher is added
+by adding an `ICodeSigningCertificate` for the `codeSign` key (it could be a
+`CodeSigningCertificate` construct, or you may bring your own implementation if
+you wish to use a pre-existing certificate):
+
+```ts
+pipeline.publishToNuGet({
+  nugetApiKeySecret: { secretArn: 'my-nuget-token-secret-arn' },
+  codeSign: codeSigningCertificate
+});
+```
+
+##### Obtaining a new Code Signing Certificate
+If you want to create a new certificate, the `CodeSigningCertificate` construct
+will provision a new RSA Private Key and emit a Certificate Signing Request in
+an `Output` so you can pass it to your Certificate Authority (CA) of choice:
+1. Add a `CodeSigningCertificate` to your stack:
+    ```ts
+    new delivlib.CodeSigningCertificate(stack, 'CodeSigningCertificate', {
+      distinguishedName: {
+        commonName: '<a name your customers would recognize>',
+        emailAddress: '<your@email.address>',
+        country: '<two-letter ISO country code>',
+        stateOrProvince: '<state or province>',
+        locality: '<city>',
+        organizationName: '<name of your company or organization>',
+        organizationalUnitName: '<name of your department within the origanization>',
+      }
+    });
+    ```
+2. Deploy the stack:
+    ```console
+    $ cdk deploy $stack_name
+    ...
+    Outputs:
+    $stack_name.CodeSigningCertificateXXXXXX = -----BEGIN CERTIFICATE REQUEST-----
+    ...
+    -----END CERTIFICATE REQUEST-----
+    ```
+3. Forward the Certificate Signing Request (the value of the stack output that
+   starts with `-----BEGIN CERTIFICATE REQUEST-----` and ends with
+   `-----END CERTIFICATE REQUEST-----`) to a Certificate Authority, so they can
+   provde you with a signed certificate.
+4. Update your stack with the signed certificate obtained from the CA. The below
+   example assumes you palced the PEM-encoded certificate in a file named
+   `certificate.pem` that is in the same folder as file that uses the code:
+    ```ts
+    // Import utilities at top of file:
+    import fs = require('fs');
+    import path = require('path');
+    // ...
+    new delivlib.CodeSigningCertificate(stack, 'CodeSigningCertificate', {
+      distinguishedName: {
+        commonName: '<a name your customers would recognize>',
+        emailAddress: '<your@email.address>',
+        country: '<two-letter ISO country code>',
+        stateOrProvince: '<state or province>',
+        locality: '<city>',
+        organizationName: '<name of your company or organization>',
+        organizationalUnitName: '<name of your department within the origanization>',
+      },
+      // Addin the signed certificate
+      pemCertificate: fs.readFileSync(path.join(__dirname, 'certificate.pem'))
+    });
+    ```
+5. Redeploy your stack, so the self-signed certificate is replaced with the one
+   received from your CA:
+    ```console
+    $ cdk deploy $stackName
+    ```
+
 ### Maven Central
 
 This publisher can publish Java packages to [Maven

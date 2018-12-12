@@ -53,11 +53,25 @@ export class TestStack extends cdk.Stack {
       npmTokenSecret: { secretArn: 'arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/npm-OynG62' }
     });
 
-    pipeline.publishToNuGet({
-      nugetApiKeySecret: { secretArn: 'arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/nuget-fHzSUD' }
+    // this creates a self-signed certificate
+    const codeSign = new delivlib.CodeSigningCertificate(this, 'X509CodeSigningKey', {
+      distinguishedName: {
+        commonName: 'delivlib-test',
+        country: 'IL',
+        emailAddress: 'aws-cdk-dev+delivlib-test@amazon.com',
+        locality: 'Zity',
+        organizationName: 'Amazon Test',
+        organizationalUnitName: 'AWS',
+        stateOrProvince: 'Ztate'
+      }
     });
 
-    const signingKey = new delivlib.SigningKey(this, 'CodeSign', {
+    pipeline.publishToNuGet({
+      nugetApiKeySecret: { secretArn: 'arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/nuget-fHzSUD' },
+      codeSign,
+    });
+
+    const signingKey = new delivlib.OpenPgpKey(this, 'CodeSign', {
       email: 'aws-cdk-dev+delivlib@amazon.com',
       identity: 'aws-cdk-dev',
       secretName: 'delivlib/signing'

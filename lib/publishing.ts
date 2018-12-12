@@ -2,17 +2,18 @@ import cbuild = require('@aws-cdk/aws-codebuild');
 import iam = require('@aws-cdk/aws-iam');
 import cdk = require('@aws-cdk/cdk');
 import path = require('path');
+import { ICodeSigningCertificate } from './code-signing';
 import permissions = require('./permissions');
 import { IPublisher } from './pipeline';
 import { GitHubRepo } from './repo';
 import { LinuxPlatform, Shellable } from './shellable';
-import { SigningKey } from './signing-key';
+import { OpenPgpKey } from './signing-key';
 
 export interface PublishToMavenProjectProps {
   /**
    * The signing key itself
    */
-  signingKey: SigningKey;
+  signingKey: OpenPgpKey;
 
   /**
    * The ID of the sonatype staging profile (e.g. "68a05363083174").
@@ -120,6 +121,12 @@ export interface PublishToNuGetProjectProps {
    * @default true
    */
   dryRun?: boolean;
+
+  /**
+   * A code signing certificate to use to sign assemblies.
+   * @default No signing
+   */
+  codeSign?: ICodeSigningCertificate;
 }
 
 /**
@@ -148,6 +155,11 @@ export class PublishToNuGetProject extends cdk.Construct implements IPublisher {
 
     env.NUGET_SECRET_ID = { value: props.nugetApiKeySecret.secretArn };
 
+    if (props.codeSign) {
+      env.CODE_SIGNING_SECRET_ID = { value: props.codeSign.privateKeySecretArn };
+      env.CODE_SIGNING_PARAMETER_NAME = { value: props.codeSign.certificateParameterName };
+    }
+
     const shellable = new Shellable(this, 'Default', {
       platform: new LinuxPlatform(cbuild.LinuxBuildImage.UBUNTU_14_04_DOTNET_CORE_2_1),
       scriptDirectory: path.join(__dirname, 'publishing', 'nuget'),
@@ -160,6 +172,10 @@ export class PublishToNuGetProject extends cdk.Construct implements IPublisher {
         permissions.grantAssumeRole(props.nugetApiKeySecret.assumeRoleArn, shellable.role);
       } else {
         permissions.grantSecretRead(props.nugetApiKeySecret, shellable.role);
+      }
+
+      if (props.codeSign) {
+        props.codeSign.grantDecrypt(shellable.role);
       }
     }
 
@@ -256,7 +272,7 @@ export interface PublishToGitHubProps {
   /**
    * The signign key to use to create a GPG signature of the artifact.
    */
-  signingKey: SigningKey;
+  signingKey: OpenPgpKey;
 
   /**
    * The name of the build manifest JSON file (must include "name" and "version" fields).
