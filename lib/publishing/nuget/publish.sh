@@ -3,7 +3,7 @@ set -eu # we don't want "pipefail" to implement idempotency
 
 echo "Installing jq..."
 apt update
-apt install jq -y
+apt install -y jq
 
 if [ -n "${CODE_SIGNING_SECRET_ID:-}" ]; then
     declare -a CLEANUP=()
@@ -12,7 +12,6 @@ if [ -n "${CODE_SIGNING_SECRET_ID:-}" ]; then
         do
             eval "${CLEANUP[$i]}"
         done
-        echo '🍻 Done!'
     }
     trap cleanup 'EXIT'
 
@@ -57,8 +56,13 @@ found=false
 for NUGET_PACKAGE_PATH in $(find dotnet -name *.nupkg -not -iname *.symbols.nupkg); do
     found=true
     if [ -n "${CODE_SIGNING_SECRET_ID:-}" ]; then
-        $SCRIPT_DIR/sign.sh "${NUGET_PACKAGE_PATH}" "${signcode_spc}" "${signcode_pvk}" "${signcode_tss}"
+        /bin/bash $SCRIPT_DIR/sign.sh "${NUGET_PACKAGE_PATH}" "${signcode_spc}" "${signcode_pvk}" "${signcode_tss}"
+        if [ $? -ne 0 ]; then
+            echo "❌ Code Signing failed"
+            exit 1
+        fi
     fi
+    echo "📦  Publishing ${NUGET_PACKAGE_PATH} to NuGet"
     dotnet nuget push $NUGET_PACKAGE_PATH -k $NUGET_API_KEY -s $NUGET_SOURCE -ss $NUGET_SYMBOL_SOURCE | tee ${log}
 
     # If push failed, check if this was caused because we are trying to publish

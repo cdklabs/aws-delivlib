@@ -1,15 +1,25 @@
 #!/bin/bash
-set -eu
+set -euo pipefail
 
 if [ $# -ne 4 ]
 then
   echo "Usage: $0 <nuget-package.nupkg> <certificate.spc> <privatekey.pvk> <timestamp-url>"
   exit -1
 fi
-NUGET_PACKAGE=$(cd $(dirname $1) && echo $PWD)/$1
+NUGET_PACKAGE=$(cd $(dirname $1) && echo $PWD)/$(basename $1)
 SOFTWARE_PUBLISHER_CERTIFICATE=$2
 PRIVATE_KEY=$3
 TIMESTAMP_URL=$4
+
+# Ensure signcode is available...
+command -v signcode > /dev/null || {
+  echo "Installing mono-devel..."
+  apt install -y apt-transport-https                                                \
+    && echo "deb https://download.mono-project.com/repo/ubuntu stable-trusty main"  \
+        | tee /etc/apt/sources.list.d/mono-official-stable.list                     \
+    && apt-get update                                                               \
+    && apt-get install -y mono-devel
+}
 
 echo "🔑 Applying authenticode signatures to assemblies in ${NUGET_PACKAGE}"
 for FILE in $(unzip -Z1 ${NUGET_PACKAGE} '*.dll')
