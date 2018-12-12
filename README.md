@@ -6,11 +6,36 @@
 building, testing and publishing code libraries through AWS CodeBuild and AWS
 CodePipeline.
 
-This guide will walk you through setting up a delivlib pipeline and utilizing
-all its features.
+**aws-delivlib** is used by the [AWS Cloud Development Kit](https://github.com/awslabs/aws-cdk) and was
+designed to support simultaneous delivery of the AWS CDK in multiple programming languages
+packaged via [jsii](https://github.com/awslabs/jsii).
+
+## Pipeline Structure
 
 A delivlib pipeline consists of the following sequential stages. Each stage will
 execute all tasks concurrently:
+
+```
++-----------+     +-----------+     +-----------+     +----------------+
+|  Source   +---->+   Build   +---->+   Test    +---->+    Publish     |
++-----------+     +-----------+     +-----+-----+     +-------+--------+
+                                          |                   |
+                                          v                   v
+                                    +-----+-----+     +-------+-------+
+                                    |   Test1   |     |      npm      |
+                                    +-----------+     +---------------+
+                                    |   Test2   |     |     NuGet     |
+                                    +-----------+     +---------------+
+                                    |   Test3   |     | Maven Central |
+                                    +-----------+     +---------------+
+                                    |    ...    |     | GitHub Pages  |
+                                    +-----------+     +---------------+
+                                                      |GitHub Releases|
+                                                      +---------------+
+```
+
+The following sections describe each stage and the configuration options
+available:
 
 1. [Source](#source)
    - [CodeCommit](#codecommit)

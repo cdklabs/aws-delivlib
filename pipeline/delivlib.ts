@@ -1,5 +1,10 @@
 //
-// This app manages the delivery pipeline for aws-delivlib itself. Very transitive.
+// This app manages the delivery pipeline for aws-delivlib itself. Very meta.
+//
+// To update the pipeline, you'll need AWS credentials for this account and
+// then run:
+//
+//     npm run pipeline-update
 //
 import cdk = require('@aws-cdk/cdk');
 import delivlib = require('../lib');
@@ -23,7 +28,10 @@ export class DelivLibPipelineStack extends cdk.Stack {
             commands: [ 'npm install' ]
           },
           build: {
-            commands: [ 'npm run build' ]
+            commands: [
+              'npm run build',
+              'npm test'
+            ]
           },
           post_build: {
             commands: [ 'npm run package' ]
@@ -44,6 +52,9 @@ export class DelivLibPipelineStack extends cdk.Stack {
 
 const app = new cdk.App();
 
-new DelivLibPipelineStack(app, 'aws-delivlib-pipeline', { env: { region: 'us-east-1', account: '712950704752' } });
+// this pipeline is mastered in a specific account where all the secrets are stored
+new DelivLibPipelineStack(app, 'aws-delivlib-pipeline', {
+  env: { region: 'us-east-1', account: '712950704752' }
+});
 
 app.run();
