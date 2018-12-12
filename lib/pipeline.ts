@@ -22,6 +22,12 @@ export interface PipelineProps {
   title?: string;
 
   /**
+   * A physical name for this pipeline.
+   * @default a new name will be generated.
+   */
+  pipelineName?: string;
+
+  /**
    * Branch to build.
    * @default master
    */
@@ -97,6 +103,7 @@ export class Pipeline extends cdk.Construct {
     super(parent, name);
 
     this.pipeline = new cpipeline.Pipeline(this, 'BuildPipeline', {
+      pipelineName: props.pipelineName,
       restartExecutionOnUpdate: props.restartExecutionOnUpdate === undefined ? true : props.restartExecutionOnUpdate
     });
 
