@@ -82,7 +82,7 @@ export class PipelineWatcher extends cdk.Construct {
     });
 
     this.alarm = new cloudwatch.Alarm(this, 'Alarm', {
-      alarmDescription: `Pipeline ${props.title || props.pipeline.pipelineName} has failed failed stages`,
+      alarmDescription: `Pipeline ${props.title || props.pipeline.pipelineName} has failed stages`,
       metric: new cloudwatch.Metric({
         metricName,
         namespace: metricNamespace,

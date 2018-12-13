@@ -1,4 +1,4 @@
-import { codePipeline, handler, logger } from '../lib/pipeline-watcher';
+import { codePipeline, handler, logger } from '../lib/pipeline-watcher/watcher-handler';
 codePipeline.getPipelineState = jest.fn();
 
 test('handler should propagate error if GetPipelineState fails', async () => {

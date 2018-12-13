@@ -618,7 +618,7 @@ Resources:
       ComparisonOperator: GreaterThanOrEqualToThreshold
       EvaluationPeriods: 1
       Threshold: 1
-      AlarmDescription: Pipeline aws-delivlib test pipeline has failed failed stages
+      AlarmDescription: Pipeline aws-delivlib test pipeline has failed stages
       MetricName: FailedStages
       Namespace:
         Fn::Join:
@@ -2483,8 +2483,7 @@ Resources:
         cdk/aws-kms=0.19.0,@aws-cdk/aws-lambda=0.19.0,@aws-cdk/aws-logs=0.19.0,\
         @aws-cdk/aws-s3=0.19.0,@aws-cdk/aws-s3-notifications=0.19.0,@aws-cdk/aw\
         s-sns=0.19.0,@aws-cdk/aws-sqs=0.19.0,@aws-cdk/aws-ssm=0.19.0,@aws-cdk/c\
-        dk=0.19.0,@aws-cdk/cx-api=0.19.0,aws-delivlib=0.1.2,aws-sdk=2.373.0,jme\
-        spath=0.15.0,sax=1.2.1,xml2js=0.4.19,xmlbuilder=9.0.7"
+        dk=0.19.0,@aws-cdk/cx-api=0.19.0,aws-delivlib=0.1.2"
 Parameters:
   CodeCommitPipelineBuildPipelineGitHubTokenParameter9FBEDC6B:
     Type: AWS::SSM::Parameter::Value<String>
