@@ -544,11 +544,9 @@ The publisher commits the entire contents of the `docs/` directory into the root
 GitHub repository, and also under the `${version}/` directory of the repo (which allows users
 to access old versions of the docs if they wish).
 
-NOTE: static website content can grow big. If you use the same repository for
-your source code and GitHub pages, your repo clones will get exponentially large
-due to the fact that we are storing each version both historically and
-vertically under the `${version}/` directory. It is recommended to publish docs
-into a separate repository.
+NOTE: static website content can grow big. Therefore, this publisher will always force-push
+to the branch without history (history is preserved via the `versions/` directory). Make sure
+you don't protect this branch against force-pushing or otherwise the publisher will fail.
 
 This publisher depends on the following artifacts:
 
@@ -559,11 +557,12 @@ This is how this publisher works:
 
 1. Read the `version` field from `build.json`
 2. Clone the `gh-pages` branch of the target repository to a local working directory
-3. Rsync the contents of `docs/**` both to `versions/${version}` and to `/` of the working copy. The following files will be excluded:
-   - `/.git/**`
-   - `/versions/**`
-   - `/.nojekyll`
-4. Commit and push to the `gh-pages` branch on GitHub
+3. Rsync the contents of `docs/**` both to `versions/${version}` and to `/` of the working copy.
+5. Commit and push to the `gh-pages` branch on GitHub
+
+> NOTE: if `docs/` contains a fully rendered static website, you should also include
+> a `.nojekyll` file to [bypass](https://blog.github.com/2009-12-29-bypassing-jekyll-on-github-pages/)
+> Jekyll rendering.
 
 To add this publisher to your pipeline, use the `pipeline.publishToGitHubPages` method:
 
@@ -573,6 +572,7 @@ pipeline.publishToGitHubPages({
   sshKeySecret: { secretArn: 'github-ssh-key-secret-arn' },
   commitEmail: 'foo@bar.com',
   commitUsername: 'foobar',
+  branch: 'gh-pages' // default
 });
 ```
 
@@ -582,17 +582,19 @@ In order to publish to GitHub Pages, you will need the following pieces of infor
    how to connect to a GitHub repository. It doesn't have to be the same
    repository as the source repository, but it can be.
 2. SSH private key (`sshKeySecret`) for pushing to that repository stored in AWS
-   Secrets Manager.
+   Secrets Manager which is configured in your GitHub repository as a deploy key
+   with write permissions.
 3. Committer email (`commitEmail`) and username (`commitUsername`).
 
-To obtain an SSH key for GitHub:
+To create an ssh deploy key for your repository:
 
 1. Follow [this
-   guide](https://help.github.com/articles/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent/)
+   guide](https://developer.github.com/v3/guides/managing-deploy-keys/#deploy-keys)
    to produce a private/public key pair on your machine.
-2. Create an AWS Secrets Manager secret and paste the private key as plaintext
+1. Add the deploy key to your repository with write permissions.
+1. Create an AWS Secrets Manager secret and paste the private key as plaintext
    (not key/value).
-3. Use the name of the AWS Secrets Manager secret in the `sshKeySecret` option.
+1. Use the name of the AWS Secrets Manager secret in the `sshKeySecret` option.
 
 ## License
 
