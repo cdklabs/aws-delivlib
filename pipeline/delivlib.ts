@@ -22,6 +22,7 @@ export class DelivLibPipelineStack extends cdk.Stack {
       title: 'aws-delivlib production pipeline',
       repo: github,
       concurrency: false, // temporary until we increase the account limits
+      notificationEmail: 'aws-cdk-dev+delivlib-notify@amazon.com',
       buildSpec: {
         version: '0.2',
         phases: {

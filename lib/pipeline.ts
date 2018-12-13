@@ -35,7 +35,7 @@ export interface PipelineProps {
   branch?: string;
 
   /**
-   * Email to send notifications.
+   * Email to send failure notifications.
    * @default No email notifications
    */
   notificationEmail?: string;
@@ -102,10 +102,8 @@ export class Pipeline extends cdk.Construct {
 
   private readonly pipeline: cpipeline.Pipeline;
   private readonly buildOutput: cpipelineapi.Artifact;
-  private readonly repo: string;
   private readonly branch: string;
   private readonly notify?: sns.Topic;
-  private readonly title: string;
   private stages: { [name: string]: cpipeline.Stage } = { };
 
   private readonly concurrency: boolean;
@@ -119,7 +117,6 @@ export class Pipeline extends cdk.Construct {
       restartExecutionOnUpdate: props.restartExecutionOnUpdate === undefined ? true : props.restartExecutionOnUpdate
     });
 
-    this.repo = props.repo.describe();
     this.branch = props.branch || 'master';
     const source = props.repo.createSourceStage(this.pipeline, this.branch);
 
@@ -149,34 +146,11 @@ export class Pipeline extends cdk.Construct {
       this.notify.subscribeEmail('NotifyEmail', props.notificationEmail);
     }
 
-    if (this.notify) {
-      buildProject.onBuildStarted('OnBuildStarted').addTarget(this.notify, {
-        textTemplate: new cdk.FnConcat('[in-progress] ', this.repo, ` branch ${this.branch} - build started`)
-      });
-
-      buildProject.onBuildSucceeded('OnBuildSuccessful').addTarget(this.notify, {
-        textTemplate: new cdk.FnConcat('[success] ', this.repo, ` branch ${this.branch} - build succeeded.`)
-      });
-
-      buildProject.onBuildFailed('OnBuildFailed').addTarget(this.notify, {
-        textTemplate: new cdk.FnConcat('[failure] ', this.repo, ` branch ${this.branch} - build failed`)
-      });
-    }
-
-    // trigger an SNS topic every time the pipeline fails
+    // add a failure alarm for the entire pipeline.
     this.addFailureAlarm(props.title);
 
-    this.title = props.title || 'Pipeline';
-
-    // define an alarm triggered when the build fails.
-    if (this.notify) {
-      const alarm = buildProject.metricFailedBuilds().newAlarm(this, 'FailedBuildsAlarm', {
-        threshold: 1,
-        evaluationPeriods: 1,
-      });
-
-      alarm.onAlarm(this.notify);
-    }
+    // emit an SNS notification every time build fails.
+    this.addBuildFailureNotification(buildProject, `${props.title} build failed`);
   }
 
   public addTest(id: string, props: TestableProps) {
@@ -185,15 +159,7 @@ export class Pipeline extends cdk.Construct {
     const test = new Testable(this, id, props);
     test.addToPipeline(stage, this.buildOutput);
 
-    if (this.notify) {
-      const alarm = test.project.metricFailedBuilds().newAlarm(test /* add as child of test */, 'FailedTests', {
-        alarmDescription: `Test ${id} in pipeline ${this.title} has failed`,
-        threshold: 1,
-        evaluationPeriods: 1
-      });
-
-      alarm.onAlarm(this.notify);
-    }
+    this.addBuildFailureNotification(test.project, `Test ${id} failed`);
   }
 
   public addPublish(publisher: IPublisher) {
@@ -242,6 +208,17 @@ export class Pipeline extends cdk.Construct {
       title
     }).alarm;
   }
+
+  private addBuildFailureNotification(buildProject: cbuild.Project, message: string) {
+    if (!this.notify) {
+      return;
+    }
+
+    buildProject.onBuildFailed('OnBuildFailed').addTarget(this.notify, {
+      textTemplate: message
+    });
+  }
+
   private getOrCreateStage(group: string, actionId: string) {
     // if concurrency is disabled, create a new stage for each action.
     if (!this.concurrency) {
