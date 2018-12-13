@@ -485,8 +485,9 @@ to the "Releases" section of a GitHub project.
 This publisher relies on two files to produce the release:
 
 - `build.json` a manifest that contains metadata about the release.
-- `CHANGELOG.md` the changelog of your project, from which the release notes are
-  extracted.
+- `CHANGELOG.md` (optional) the changelog of your project, from which the
+  release notes are extracted. If not provided, no release notes are added
+  to the release.
 
 <a id="manifest"/>
 
@@ -509,8 +510,8 @@ This publisher does the following:
    `${name}-${version}.zip.sig`
 3. Check if there is already a git tag with `v${version}` in the GitHub
    repository. If there is, bail out successfully.
-4. Read the `CHANGELOG.md` file and extract the release notes for `${version}`
-   (uses [changelog-parser](https://www.npmjs.com/package/changelog-parser))
+4. If there's a `CHANGELOG.md` file, and extract the release notes for
+   `${version}` (uses [changelog-parser](https://www.npmjs.com/package/changelog-parser))
 5. Create a GitHub release named `v${version}`, tag the specified `${commit}`
    with the release notes from the changelog.
 6. Attach the zip archive and signature to the release.
