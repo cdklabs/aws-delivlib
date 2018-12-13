@@ -123,8 +123,8 @@ export class Shellable extends cdk.Construct {
     asset.grantRead(this.role);
   }
 
-  public addToPipeline(stage: cpipeline.Stage, name: string, inputArtifact: cpipelineapi.Artifact) {
-    this.project.addToPipeline(stage, name, { inputArtifact });
+  public addToPipeline(stage: cpipeline.Stage, name: string, inputArtifact: cpipelineapi.Artifact, runOrder?: number) {
+    this.project.addToPipeline(stage, name, { inputArtifact, runOrder });
   }
 }
 

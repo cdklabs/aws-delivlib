@@ -189,7 +189,7 @@ Resources:
               Name: TestHelloWindows
               OutputArtifacts:
                 - Name: Artifact_delivlibtestCodeCommitPipelineHelloWindowsTestHelloWindowsA5D9F16F
-              RunOrder: 1
+              RunOrder: 2
           Name: Test
         - Actions:
             - ActionTypeId:
@@ -219,7 +219,7 @@ Resources:
               Name: NuGetPublish
               OutputArtifacts:
                 - Name: Artifact_delivlibtestCodeCommitPipelineNuGetNuGetPublishD08C1873
-              RunOrder: 1
+              RunOrder: 2
             - ActionTypeId:
                 Category: Build
                 Owner: AWS
@@ -233,7 +233,7 @@ Resources:
               Name: MavenPublish
               OutputArtifacts:
                 - Name: Artifact_delivlibtestCodeCommitPipelineMavenMavenPublish23517E96
-              RunOrder: 1
+              RunOrder: 3
             - ActionTypeId:
                 Category: Build
                 Owner: AWS
@@ -247,7 +247,7 @@ Resources:
               Name: GitHubPublish
               OutputArtifacts:
                 - Name: Artifact_delivlibtestCodeCommitPipelineGitHubGitHubPublish9C2DACED
-              RunOrder: 1
+              RunOrder: 4
             - ActionTypeId:
                 Category: Build
                 Owner: AWS
@@ -261,7 +261,7 @@ Resources:
               Name: GitHubPagesPublish
               OutputArtifacts:
                 - Name: Artifact_delivlibtestCodeCommitPipelineGitHubPagesGitHubPagesPublishCDA7CDC1
-              RunOrder: 1
+              RunOrder: 5
           Name: Publish
       ArtifactStore:
         Location:
@@ -451,6 +451,58 @@ Resources:
         Type: CODEPIPELINE
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/BuildProject/Resource
+  CodeCommitPipelineBuildProjectOnBuildFailed2A08058D:
+    Type: AWS::Events::Rule
+    Properties:
+      EventPattern:
+        source:
+          - aws.codebuild
+        detail-type:
+          - CodeBuild Build State Change
+        detail:
+          project-name:
+            - Ref: CodeCommitPipelineBuildProject9F59E8AA
+          build-status:
+            - FAILED
+      State: ENABLED
+      Targets:
+        - Arn:
+            Ref: CodeCommitPipelineNotificationsTopic36C2D667
+          Id: NotificationsTopic
+          InputTransformer:
+            InputTemplate: '"aws-delivlib test pipeline build failed"'
+    Metadata:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/BuildProject/OnBuildFailed/Resource
+  CodeCommitPipelineNotificationsTopic36C2D667:
+    Type: AWS::SNS::Topic
+    Metadata:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/NotificationsTopic/Resource
+  CodeCommitPipelineNotificationsTopicNotifyEmail146B339F:
+    Type: AWS::SNS::Subscription
+    Properties:
+      Endpoint: aws-cdk-dev+delivlib-test@amazon.com
+      Protocol: email
+      TopicArn:
+        Ref: CodeCommitPipelineNotificationsTopic36C2D667
+    Metadata:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/NotificationsTopic/NotifyEmail/Resource
+  CodeCommitPipelineNotificationsTopicPolicyBBE90C33:
+    Type: AWS::SNS::TopicPolicy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action: sns:Publish
+            Effect: Allow
+            Principal:
+              Service: events.amazonaws.com
+            Resource:
+              Ref: CodeCommitPipelineNotificationsTopic36C2D667
+            Sid: "0"
+        Version: "2012-10-17"
+      Topics:
+        - Ref: CodeCommitPipelineNotificationsTopic36C2D667
+    Metadata:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/NotificationsTopic/Policy/Resource
   CodeCommitPipelinePipelineWatcherPollerServiceRole0A1D8005:
     Type: AWS::IAM::Role
     Properties:
@@ -630,42 +682,6 @@ Resources:
       TreatMissingData: ignore
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/PipelineWatcher/Alarm/Resource
-  CodeCommitPipelineDashboard6FF06F29:
-    Type: AWS::CloudWatch::Dashboard
-    Properties:
-      DashboardBody:
-        Fn::Join:
-          - ""
-          - - '{"widgets":[{"type":"text","width":24,"height":2,"x":0,"y":0,"properties":{"markdown":"#
-              aws-delivlib test pipeline Pipeline\n *
-              [Pipeline](https://console.aws.amazon.com/codepipeline/home?region='
-            - Ref: AWS::Region
-            - "#/view/"
-            - Ref: CodeCommitPipelineBuildPipeline656B8CCB
-            - )\n * [Build
-              History](https://console.aws.amazon.com/codebuild/home?region=
-            - Ref: AWS::Region
-            - "#/projects/"
-            - Ref: CodeCommitPipelineBuildProject9F59E8AA
-            - /view)\n"}},{"type":"metric","width":6,"height":6,"x":0,"y":2,"properties":{"view":"timeSeries","title":"Build
-              Duration","region":"
-            - Ref: AWS::Region
-            - '","metrics":[["AWS/CodeBuild","Duration","ProjectName","'
-            - Ref: CodeCommitPipelineBuildProject9F59E8AA
-            - '",{"yAxis":"left","period":300,"stat":"Average"}]],"annotations":{"horizontal":[]},"yAxis":{"left":{"min":0},"right":{"min":0}}}},{"type":"metric","width":6,"height":6,"x":0,"y":8,"properties":{"view":"timeSeries","title":"Test
-              HelloLinux Duration","region":"'
-            - Ref: AWS::Region
-            - '","metrics":[["AWS/CodeBuild","Duration","ProjectName","'
-            - Ref: CodeCommitPipelineHelloLinux82ECC4D2
-            - '",{"yAxis":"left","period":300,"stat":"Average"}]],"annotations":{"horizontal":[]},"yAxis":{"left":{"min":0},"right":{"min":0}}}},{"type":"metric","width":6,"height":6,"x":0,"y":14,"properties":{"view":"timeSeries","title":"Test
-              HelloWindows Duration","region":"'
-            - Ref: AWS::Region
-            - '","metrics":[["AWS/CodeBuild","Duration","ProjectName","'
-            - Ref: CodeCommitPipelineHelloWindows397414E5
-            - '",{"yAxis":"left","period":300,"stat":"Average"}]],"annotations":{"horizontal":[]},"yAxis":{"left":{"min":0},"right":{"min":0}}}}]}'
-      DashboardName: delivlib-test-CodeCommitPipelineDashboard6FF06F29
-    Metadata:
-      aws:cdk:path: delivlib-test/CodeCommitPipeline/Dashboard/Resource
   CodeCommitPipelineHelloLinuxRoleFA5AA729:
     Type: AWS::IAM::Role
     Properties:
@@ -818,6 +834,28 @@ Resources:
         Type: CODEPIPELINE
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/HelloLinux/Resource/Resource/Resource
+  CodeCommitPipelineHelloLinuxOnBuildFailedD1EEA29A:
+    Type: AWS::Events::Rule
+    Properties:
+      EventPattern:
+        source:
+          - aws.codebuild
+        detail-type:
+          - CodeBuild Build State Change
+        detail:
+          project-name:
+            - Ref: CodeCommitPipelineHelloLinux82ECC4D2
+          build-status:
+            - FAILED
+      State: ENABLED
+      Targets:
+        - Arn:
+            Ref: CodeCommitPipelineNotificationsTopic36C2D667
+          Id: NotificationsTopic
+          InputTransformer:
+            InputTemplate: '"Test HelloLinux failed"'
+    Metadata:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/HelloLinux/Resource/Resource/OnBuildFailed/Resource
   CodeCommitPipelineHelloWindowsRole1F446E70:
     Type: AWS::IAM::Role
     Properties:
@@ -968,6 +1006,28 @@ Resources:
         Type: CODEPIPELINE
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/HelloWindows/Resource/Resource/Resource
+  CodeCommitPipelineHelloWindowsOnBuildFailed0BED9349:
+    Type: AWS::Events::Rule
+    Properties:
+      EventPattern:
+        source:
+          - aws.codebuild
+        detail-type:
+          - CodeBuild Build State Change
+        detail:
+          project-name:
+            - Ref: CodeCommitPipelineHelloWindows397414E5
+          build-status:
+            - FAILED
+      State: ENABLED
+      Targets:
+        - Arn:
+            Ref: CodeCommitPipelineNotificationsTopic36C2D667
+          Id: NotificationsTopic
+          InputTransformer:
+            InputTemplate: '"Test HelloWindows failed"'
+    Metadata:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/HelloWindows/Resource/Resource/OnBuildFailed/Resource
   CodeCommitPipelineNpmRole219D5F49:
     Type: AWS::IAM::Role
     Properties:
@@ -1833,6 +1893,9 @@ Resources:
           - Name: GITHUB_REPO
             Type: PLAINTEXT
             Value: git@github.com:awslabs/aws-delivlib-sample
+          - Name: GITHUB_PAGES_BRANCH
+            Type: PLAINTEXT
+            Value: gh-pages
           - Name: SSH_KEY_SECRET
             Type: PLAINTEXT
             Value: arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/github-ssh-lwzfjW

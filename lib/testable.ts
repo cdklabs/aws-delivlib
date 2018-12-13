@@ -37,7 +37,7 @@ export class Testable extends cdk.Construct {
     this.project = this.shellable.project;
   }
 
-  public addToPipeline(stage: cpipeline.Stage, inputArtifact: cpipelineapi.Artifact) {
-    this.shellable.addToPipeline(stage, `Test${this.id}`, inputArtifact);
+  public addToPipeline(stage: cpipeline.Stage, inputArtifact: cpipelineapi.Artifact, runOrder?: number) {
+    this.shellable.addToPipeline(stage, `Test${this.id}`, inputArtifact, runOrder);
   }
 }

@@ -10,6 +10,7 @@ import { PipelineWatcher } from './pipeline-watcher';
 import publishing = require('./publishing');
 import { IRepo } from './repo';
 import { Testable, TestableProps } from './testable';
+import { determineRunOrder } from './util';
 
 export interface PipelineProps {
   /**
@@ -82,6 +83,16 @@ export interface PipelineProps {
    * @default true
    */
   restartExecutionOnUpdate?: boolean;
+
+  /**
+   * Indicates the concurrency limit test and publish stages.
+   *
+   * For example, if this value is 2, then only two actions will execute concurrently.
+   * If this value is 1, the pipeline will not have any concurrent execution.
+   *
+   * @default no limit
+   */
+  concurrency?: number;
 }
 
 /**
@@ -94,11 +105,14 @@ export class Pipeline extends cdk.Construct {
   private readonly buildOutput: cpipelineapi.Artifact;
   private readonly branch: string;
   private readonly notify?: sns.Topic;
-  private testStage?: cpipeline.Stage;
-  private publishStage?: cpipeline.Stage;
+  private stages: { [name: string]: cpipeline.Stage } = { };
+
+  private readonly concurrency?: number;
 
   constructor(parent: cdk.Construct, name: string, props: PipelineProps) {
     super(parent, name);
+
+    this.concurrency = props.concurrency;
 
     this.pipeline = new cpipeline.Pipeline(this, 'BuildPipeline', {
       pipelineName: props.pipelineName,
@@ -142,21 +156,21 @@ export class Pipeline extends cdk.Construct {
   }
 
   public addTest(id: string, props: TestableProps) {
-    if (!this.testStage) {
-      this.testStage = new cpipeline.Stage(this, 'Test', { pipeline: this.pipeline });
-    }
+    const stage = this.getOrCreateStage('Test');
 
     const test = new Testable(this, id, props);
-    test.addToPipeline(this.testStage, this.buildOutput);
+    test.addToPipeline(stage, this.buildOutput, this.determineRunOrderForNewAction(stage));
 
     this.addBuildFailureNotification(test.project, `Test ${id} failed`);
   }
 
   public addPublish(publisher: IPublisher) {
-    if (!this.publishStage) {
-      this.publishStage = new cpipeline.Stage(this, 'Publish', { pipeline: this.pipeline });
-    }
-    publisher.project.addToPipeline(this.publishStage, `${publisher.id}Publish`, { inputArtifact: this.buildOutput });
+    const stage = this.getOrCreateStage('Publish');
+
+    publisher.project.addToPipeline(stage, `${publisher.id}Publish`, {
+      inputArtifact: this.buildOutput,
+      runOrder: this.determineRunOrderForNewAction(stage)
+    });
   }
 
   public publishToNpm(options: publishing.PublishToNpmProjectProps) {
@@ -200,6 +214,7 @@ export class Pipeline extends cdk.Construct {
       title
     }).alarm;
   }
+
   private addBuildFailureNotification(buildProject: cbuild.Project, message: string) {
     if (!this.notify) {
       return;
@@ -208,6 +223,20 @@ export class Pipeline extends cdk.Construct {
     buildProject.onBuildFailed('OnBuildFailed').addTarget(this.notify, {
       textTemplate: message
     });
+  }
+
+  private getOrCreateStage(stageName: string) {
+    // otherwise, group all actions so they run concurrently.
+    let stage = this.stages[stageName];
+    if (!stage) {
+      stage = new cpipeline.Stage(this, stageName, { pipeline: this.pipeline });
+      this.stages[stageName] = stage;
+    }
+    return stage;
+  }
+
+  private determineRunOrderForNewAction(stage: cpipeline.Stage) {
+    return determineRunOrder(stage.actions.length, this.concurrency);
   }
 }
 
