@@ -603,12 +603,12 @@ Resources:
       LogGroupName:
         Ref: CodeCommitPipelinePipelineWatcherLogs5DE54482
       MetricTransformations:
-        - MetricName: FailedStages
-          MetricNamespace:
+        - MetricName:
             Fn::Join:
               - ""
-              - - CodePipeline/
-                - Ref: CodeCommitPipelineBuildPipeline656B8CCB
+              - - Ref: CodeCommitPipelineBuildPipeline656B8CCB
+                - _FailedStages
+          MetricNamespace: CDK/Delivlib
           MetricValue: $.failedCount
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/PipelineWatcher/MetricFilter/Resource
@@ -619,12 +619,12 @@ Resources:
       EvaluationPeriods: 1
       Threshold: 1
       AlarmDescription: Pipeline aws-delivlib test pipeline has failed stages
-      MetricName: FailedStages
-      Namespace:
+      MetricName:
         Fn::Join:
           - ""
-          - - CodePipeline/
-            - Ref: CodeCommitPipelineBuildPipeline656B8CCB
+          - - Ref: CodeCommitPipelineBuildPipeline656B8CCB
+            - _FailedStages
+      Namespace: CDK/Delivlib
       Period: 300
       Statistic: Maximum
       TreatMissingData: ignore

@@ -69,9 +69,8 @@ export class PipelineWatcher extends cdk.Construct {
     const triggerResource = trigger.findChild('Resource') as cdk.Resource;
     triggerResource.addDependency(logGroupResource);
 
-    const metricName = 'FailedStages';
-    // TODO: This creates a long namespace, better alternatives?
-    const metricNamespace =  `CodePipeline/${props.pipeline.pipelineName}`;
+    const metricNamespace =  `CDK/Delivlib`;
+    const metricName = `${props.pipeline.pipelineName}_FailedStages`;
 
     new logs.MetricFilter(this, 'MetricFilter', {
       filterPattern: logs.FilterPattern.exists('$.failedCount'),
