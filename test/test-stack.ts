@@ -24,6 +24,7 @@ export class TestStack extends cdk.Stack {
     const pipeline = new delivlib.Pipeline(this, 'CodeCommitPipeline', {
       title: 'aws-delivlib test pipeline',
       repo,
+      concurrency: false, // temporary until we increase the account limits
       env: {
         DELIVLIB_ENV_TEST: 'MAGIC_1924'
       }

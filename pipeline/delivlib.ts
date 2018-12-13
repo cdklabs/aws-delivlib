@@ -21,6 +21,7 @@ export class DelivLibPipelineStack extends cdk.Stack {
     const pipeline = new delivlib.Pipeline(this, 'GitHubPipeline', {
       title: 'aws-delivlib production pipeline',
       repo: github,
+      concurrency: false, // temporary until we increase the account limits
       buildSpec: {
         version: '0.2',
         phases: {

@@ -82,6 +82,16 @@ export interface PipelineProps {
    * @default true
    */
   restartExecutionOnUpdate?: boolean;
+
+  /**
+   * Enables tests and publishers to be executed concurrently in the pipeline.
+   *
+   * You can set this to "false" if, for example, your account has an AWS CodeBuild
+   * concurrency limitation.
+   *
+   * @default true
+   */
+  concurrency?: boolean;
 }
 
 /**
@@ -96,12 +106,14 @@ export class Pipeline extends cdk.Construct {
   private readonly branch: string;
   private readonly notify?: sns.Topic;
   private readonly title: string;
-  private testStage?: cpipeline.Stage;
-  private publishStage?: cpipeline.Stage;
+  private stages: { [name: string]: cpipeline.Stage } = { };
+
+  private readonly concurrency: boolean;
 
   constructor(parent: cdk.Construct, name: string, props: PipelineProps) {
     super(parent, name);
 
+    this.concurrency = props.concurrency === undefined ? true : props.concurrency;
     this.pipeline = new cpipeline.Pipeline(this, 'BuildPipeline', {
       pipelineName: props.pipelineName,
       restartExecutionOnUpdate: props.restartExecutionOnUpdate === undefined ? true : props.restartExecutionOnUpdate
@@ -168,12 +180,10 @@ export class Pipeline extends cdk.Construct {
   }
 
   public addTest(id: string, props: TestableProps) {
-    if (!this.testStage) {
-      this.testStage = new cpipeline.Stage(this, 'Test', { pipeline: this.pipeline });
-    }
+    const stage = this.getOrCreateStage('Test', id);
 
     const test = new Testable(this, id, props);
-    test.addToPipeline(this.testStage, this.buildOutput);
+    test.addToPipeline(stage, this.buildOutput);
 
     if (this.notify) {
       const alarm = test.project.metricFailedBuilds().newAlarm(test /* add as child of test */, 'FailedTests', {
@@ -187,10 +197,8 @@ export class Pipeline extends cdk.Construct {
   }
 
   public addPublish(publisher: IPublisher) {
-    if (!this.publishStage) {
-      this.publishStage = new cpipeline.Stage(this, 'Publish', { pipeline: this.pipeline });
-    }
-    publisher.project.addToPipeline(this.publishStage, `${publisher.id}Publish`, { inputArtifact: this.buildOutput });
+    const stage = this.getOrCreateStage('Publish', publisher.id);
+    publisher.project.addToPipeline(stage, `${publisher.id}Publish`, { inputArtifact: this.buildOutput });
   }
 
   public publishToNpm(options: publishing.PublishToNpmProjectProps) {
@@ -233,6 +241,20 @@ export class Pipeline extends cdk.Construct {
       pipeline: this.pipeline,
       title
     }).alarm;
+  }
+  private getOrCreateStage(group: string, actionId: string) {
+    // if concurrency is disabled, create a new stage for each action.
+    if (!this.concurrency) {
+      return new cpipeline.Stage(this, `${group}${actionId}`, { pipeline: this.pipeline });
+    }
+
+    // otherwise, group all actions so they run concurrently.
+    let stage = this.stages[group];
+    if (!stage) {
+      stage = new cpipeline.Stage(this, group, { pipeline: this.pipeline });
+      this.stages[group] = stage;
+    }
+    return stage;
   }
 }
 
