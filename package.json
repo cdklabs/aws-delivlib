@@ -9,7 +9,7 @@
     "build": "tsc && tslint --fix --project .",
     "package": "/bin/bash ./package.sh",
     "watch": "tsc -w",
-    "test": "/bin/bash ./test/run-test.sh",
+    "test": "/bin/bash ./test/run-test.sh && jest",
     "cdk": "cdk",
     "pipeline-update": "npm run build && cdk -a pipeline/delivlib.js deploy",
     "pipeline-diff": "npm run build && cdk -a pipeline/delivlib.js diff"

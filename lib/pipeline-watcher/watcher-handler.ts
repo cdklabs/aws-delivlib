@@ -1,6 +1,10 @@
 import AWS = require('aws-sdk');
 
-const pipeline = new AWS.CodePipeline();
+// export for tests
+export const codePipeline = new AWS.CodePipeline();
+export const logger = {
+  log: (line: string) => process.stdout.write(line)
+};
 
 /**
  * Lambda function for checking the stages of a CodePipeline and emitting log
@@ -14,8 +18,7 @@ export async function handler() {
   if (!pipelineName) {
     throw new Error("Pipeline name expects environment variable: 'PIPELINE_NAME'");
   }
-
-  const state = await pipeline.getPipelineState({
+  const state = await codePipeline.getPipelineState({
     name: pipelineName
   }).promise();
 
@@ -25,5 +28,7 @@ export async function handler() {
       .filter(stage => stage.latestExecution !== undefined && stage.latestExecution.status === 'Failed')
       .length;
   }
-  process.stdout.write(JSON.stringify({failedCount}));
+  logger.log(JSON.stringify({
+    failedCount
+  }));
 }

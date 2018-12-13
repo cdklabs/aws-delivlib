@@ -6,7 +6,7 @@ import iam = require('@aws-cdk/aws-iam');
 import sns = require('@aws-cdk/aws-sns');
 import cdk = require('@aws-cdk/cdk');
 import path = require('path');
-import { PipelineWatcher } from './pipeline-watcher/watcher';
+import { PipelineWatcher } from './pipeline-watcher';
 import publishing = require('./publishing');
 import { IRepo } from './repo';
 import { Testable, TestableProps } from './testable';

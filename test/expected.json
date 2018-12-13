@@ -504,7 +504,13 @@ Resources:
 
           const AWS = require("aws-sdk");
 
-          const pipeline = new AWS.CodePipeline();
+          // export for tests
+
+          exports.codePipeline = new AWS.CodePipeline();
+
+          exports.logger = {
+              log: (line) => process.stdout.write(line)
+          };
 
           /**
            * Lambda function for checking the stages of a CodePipeline and emitting log
@@ -518,7 +524,7 @@ Resources:
               if (!pipelineName) {
                   throw new Error("Pipeline name expects environment variable: 'PIPELINE_NAME'");
               }
-              const state = await pipeline.getPipelineState({
+              const state = await exports.codePipeline.getPipelineState({
                   name: pipelineName
               }).promise();
               let failedCount = 0;
@@ -527,12 +533,14 @@ Resources:
                       .filter(stage => stage.latestExecution !== undefined && stage.latestExecution.status === 'Failed')
                       .length;
               }
-              process.stdout.write(JSON.stringify({ failedCount }));
+              exports.logger.log(JSON.stringify({
+                  failedCount
+              }));
           }
 
           exports.handler = handler;
 
-          //# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoid2F0Y2hlci1mdW5jdGlvbi5qcyIsInNvdXJjZVJvb3QiOiIiLCJzb3VyY2VzIjpbIndhdGNoZXItZnVuY3Rpb24udHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6Ijs7QUFBQSwrQkFBZ0M7QUFFaEMsTUFBTSxRQUFRLEdBQUcsSUFBSSxHQUFHLENBQUMsWUFBWSxFQUFFLENBQUM7QUFFeEM7Ozs7OztHQU1HO0FBQ0ksS0FBSyxVQUFVLE9BQU87SUFDM0IsTUFBTSxZQUFZLEdBQUcsT0FBTyxDQUFDLEdBQUcsQ0FBQyxhQUFhLENBQUM7SUFDL0MsSUFBSSxDQUFDLFlBQVksRUFBRTtRQUNqQixNQUFNLElBQUksS0FBSyxDQUFDLDZEQUE2RCxDQUFDLENBQUM7S0FDaEY7SUFFRCxNQUFNLEtBQUssR0FBRyxNQUFNLFFBQVEsQ0FBQyxnQkFBZ0IsQ0FBQztRQUM1QyxJQUFJLEVBQUUsWUFBWTtLQUNuQixDQUFDLENBQUMsT0FBTyxFQUFFLENBQUM7SUFFYixJQUFJLFdBQVcsR0FBRyxDQUFDLENBQUM7SUFDcEIsSUFBSSxLQUFLLENBQUMsV0FBVyxFQUFFO1FBQ3JCLFdBQVcsR0FBRyxLQUFLLENBQUMsV0FBVzthQUM1QixNQUFNLENBQUMsS0FBSyxDQUFDLEVBQUUsQ0FBQyxLQUFLLENBQUMsZUFBZSxLQUFLLFNBQVMsSUFBSSxLQUFLLENBQUMsZUFBZSxDQUFDLE1BQU0sS0FBSyxRQUFRLENBQUM7YUFDakcsTUFBTSxDQUFDO0tBQ1g7SUFDRCxPQUFPLENBQUMsTUFBTSxDQUFDLEtBQUssQ0FBQyxJQUFJLENBQUMsU0FBUyxDQUFDLEVBQUMsV0FBVyxFQUFDLENBQUMsQ0FBQyxDQUFDO0FBQ3RELENBQUM7QUFqQkQsMEJBaUJDIn0=
+          //# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoid2F0Y2hlci1oYW5kbGVyLmpzIiwic291cmNlUm9vdCI6IiIsInNvdXJjZXMiOlsid2F0Y2hlci1oYW5kbGVyLnRzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiI7O0FBQUEsK0JBQWdDO0FBRWhDLG1CQUFtQjtBQUNOLFFBQUEsWUFBWSxHQUFHLElBQUksR0FBRyxDQUFDLFlBQVksRUFBRSxDQUFDO0FBQ3RDLFFBQUEsTUFBTSxHQUFHO0lBQ3BCLEdBQUcsRUFBRSxDQUFDLElBQVksRUFBRSxFQUFFLENBQUMsT0FBTyxDQUFDLE1BQU0sQ0FBQyxLQUFLLENBQUMsSUFBSSxDQUFDO0NBQ2xELENBQUM7QUFFRjs7Ozs7O0dBTUc7QUFDSSxLQUFLLFVBQVUsT0FBTztJQUMzQixNQUFNLFlBQVksR0FBRyxPQUFPLENBQUMsR0FBRyxDQUFDLGFBQWEsQ0FBQztJQUMvQyxJQUFJLENBQUMsWUFBWSxFQUFFO1FBQ2pCLE1BQU0sSUFBSSxLQUFLLENBQUMsNkRBQTZELENBQUMsQ0FBQztLQUNoRjtJQUNELE1BQU0sS0FBSyxHQUFHLE1BQU0sb0JBQVksQ0FBQyxnQkFBZ0IsQ0FBQztRQUNoRCxJQUFJLEVBQUUsWUFBWTtLQUNuQixDQUFDLENBQUMsT0FBTyxFQUFFLENBQUM7SUFFYixJQUFJLFdBQVcsR0FBRyxDQUFDLENBQUM7SUFDcEIsSUFBSSxLQUFLLENBQUMsV0FBVyxFQUFFO1FBQ3JCLFdBQVcsR0FBRyxLQUFLLENBQUMsV0FBVzthQUM1QixNQUFNLENBQUMsS0FBSyxDQUFDLEVBQUUsQ0FBQyxLQUFLLENBQUMsZUFBZSxLQUFLLFNBQVMsSUFBSSxLQUFLLENBQUMsZUFBZSxDQUFDLE1BQU0sS0FBSyxRQUFRLENBQUM7YUFDakcsTUFBTSxDQUFDO0tBQ1g7SUFDRCxjQUFNLENBQUMsR0FBRyxDQUFDLElBQUksQ0FBQyxTQUFTLENBQUM7UUFDeEIsV0FBVztLQUNaLENBQUMsQ0FBQyxDQUFDO0FBQ04sQ0FBQztBQWxCRCwwQkFrQkMifQ==
       Handler: index.handler
       Role:
         Fn::GetAtt:
@@ -2475,7 +2483,8 @@ Resources:
         cdk/aws-kms=0.19.0,@aws-cdk/aws-lambda=0.19.0,@aws-cdk/aws-logs=0.19.0,\
         @aws-cdk/aws-s3=0.19.0,@aws-cdk/aws-s3-notifications=0.19.0,@aws-cdk/aw\
         s-sns=0.19.0,@aws-cdk/aws-sqs=0.19.0,@aws-cdk/aws-ssm=0.19.0,@aws-cdk/c\
-        dk=0.19.0,@aws-cdk/cx-api=0.19.0,aws-delivlib=0.1.2"
+        dk=0.19.0,@aws-cdk/cx-api=0.19.0,aws-delivlib=0.1.2,aws-sdk=2.373.0,jme\
+        spath=0.15.0,sax=1.2.1,xml2js=0.4.19,xmlbuilder=9.0.7"
 Parameters:
   CodeCommitPipelineBuildPipelineGitHubTokenParameter9FBEDC6B:
     Type: AWS::SSM::Parameter::Value<String>
