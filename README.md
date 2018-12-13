@@ -571,6 +571,7 @@ pipeline.publishToGitHubPages({
   sshKeySecret: { secretArn: 'github-ssh-key-secret-arn' },
   commitEmail: 'foo@bar.com',
   commitUsername: 'foobar',
+  branch: 'gh-pages' // default
 });
 ```
 
