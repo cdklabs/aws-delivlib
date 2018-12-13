@@ -219,6 +219,12 @@ export interface PublishDocsToGitHubProjectProps {
    * @default "./build.json"
    */
   buildManifestFileName?: string;
+
+  /**
+   * GitHub Pages branch to push to.
+   * @default gh-pages
+   */
+  branch?: string;
 }
 
 /**
@@ -240,6 +246,7 @@ export class PublishDocsToGitHubProject extends cdk.Construct implements IPublis
       environmentVariables: {
         // Must be SSH because we use an SSH key to authenticate
         GITHUB_REPO: { value: `git@github.com:${props.githubRepo.owner}/${props.githubRepo.repo}` },
+        GITHUB_PAGES_BRANCH: { value: props.branch || 'gh-pages' },
         SSH_KEY_SECRET: { value: props.sshKeySecret.secretArn },
         FOR_REAL: forReal,
         COMMIT_USERNAME: { value: props.commitUsername },

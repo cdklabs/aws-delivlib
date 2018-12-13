@@ -1,5 +1,6 @@
 #!/bin/bash
 set -euo pipefail
+artifacts=$PWD
 
 ###
 # Usage: ./publish-docs.sh
@@ -23,19 +24,12 @@ else
     dryrun="--dry-run"
 fi
 
+branch="${GITHUB_PAGES_BRANCH:-gh-pages}"
+
+
 ###############
 # PREPARATION #
 ###############
-
-declare -a CLEANUP=()
-function cleanup() {
-    for ((i = 0; i < ${#CLEANUP[@]}; i++ ))
-    do
-        eval "${CLEANUP[$i]}"
-    done
-    echo '🍻 Done!'
-}
-trap cleanup 'EXIT'
 
 read_json_field() {
     node -e "process.stdout.write(require('./$1').$2)"
@@ -50,34 +44,39 @@ fi
 
 PKG_VERSION="$(read_json_field "${build_manifest}" version)"
 
-################
-# GitHub Pages #
-################
+echo "📖 Cloning branch ${branch} from ${GITHUB_REPO}"
 
-echo "📖 Cloning current GitHub Pages"
+WORKDIR=$(mktemp -d)
 
-GIT_REPO=$(mktemp -d)
-CLEANUP+=("echo '🚮 Cleaning up GitHub Pages working copy'" "rm -fr ${GIT_REPO}")
+if ! git clone -b ${branch} --depth=1 ${GITHUB_REPO} ${WORKDIR}; then
+    mkdir -p ${WORKDIR}
+fi
 
-git clone -b gh-pages --depth=1 ${GITHUB_REPO} ${GIT_REPO}
-mkdir -p ${GIT_REPO}/versions
+cd ${WORKDIR}
+
+# reset history on this branch by recreating the git repo
+rm -fr .git
+git init
+git remote add origin ${GITHUB_REPO}
+git checkout -b ${branch}
+
+# create directory for old versions if doesn't exist yet
+mkdir -p ./versions
 
 # Check if we already have docs published for this version
-if [ -d ${GIT_REPO}/versions/${PKG_VERSION} ]; then
+if [ -d versions/${PKG_VERSION} ]; then
     echo "⚠️ Docs already published for version ${PKG_VERSION}. Skipping"
     exit 0
 fi
 
 echo "📖 Publishing new revision"
+rsync -ar --delete --exclude=/.git --exclude=/versions ${artifacts}/docs/ ./
+rsync -ar --delete ${artifacts}/docs/ ./versions/${PKG_VERSION}/
 
-rsync -ar --delete --exclude=/.git --exclude=/versions --exclude=/.nojekyll ./docs/ ${GIT_REPO}/
-rsync -ar --delete ./docs/ ${GIT_REPO}/versions/${PKG_VERSION}/
+git add .
+git commit --allow-empty -m "Release ${PKG_VERSION}"
 
-(
-    cd ${GIT_REPO}
-    git add .
-    git commit --allow-empty -m "Release ${PKG_VERSION}"
-    git push ${dryrun}
-)
+# force push because we oblitirated the history on this branch
+git push ${dryrun} --force origin ${branch}
 
 echo "✅ All OK!"
