@@ -6,6 +6,7 @@ import iam = require('@aws-cdk/aws-iam');
 import sns = require('@aws-cdk/aws-sns');
 import cdk = require('@aws-cdk/cdk');
 import path = require('path');
+import { PipelineWatcher } from './pipeline-watcher';
 import publishing = require('./publishing');
 import { IRepo } from './repo';
 import { Testable, TestableProps } from './testable';
@@ -227,26 +228,11 @@ export class Pipeline extends cdk.Construct {
     }));
   }
 
-  private addFailureAlarm(title?: string) {
-    const pipelineFailureTopic = new sns.Topic(this, 'PipelineFailureTopic');
-
-    this.pipeline.onStateChange('PipelineFailureEvent', pipelineFailureTopic, {
-      eventPattern: { detail: { state: [ 'FAILED' ] } }
-    });
-
-    new cloudwatch.Alarm(this, 'PipelineFailureAlarm', {
-      alarmDescription: `Pipeline ${title || ''} Failed`,
-      metric: new cloudwatch.Metric({
-        metricName: 'NumberOfMessagesPublished',
-        namespace: 'SNS',
-        statistic: cloudwatch.Statistic.Sum,
-        dimensions: { TopicName: pipelineFailureTopic.topicName }
-      }),
-      threshold: 1,
-      comparisonOperator: cloudwatch.ComparisonOperator.GreaterThanOrEqualToThreshold,
-      evaluationPeriods: 1,
-      treatMissingData: cloudwatch.TreatMissingData.NotBreaching,
-    });
+  private addFailureAlarm(title?: string): cloudwatch.Alarm {
+    return new PipelineWatcher(this, 'PipelineWatcher', {
+      pipeline: this.pipeline,
+      title
+    }).alarm;
   }
 }
 
