@@ -14,6 +14,11 @@ if [ "${1:-}" == "diff" ]; then
   exit 0
 fi
 
+if [ "${1:-}" == "synth" ]; then
+  npx cdk -a ${cdk_app} synth
+  exit 0
+fi
+
 npx cdk -a ${cdk_app} synth > ${actual}
 
 if [ "${1:-}" == "update" ]; then
