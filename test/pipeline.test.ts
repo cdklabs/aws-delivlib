@@ -4,6 +4,7 @@ import codecommit = require('@aws-cdk/aws-codecommit');
 import cdk = require('@aws-cdk/cdk');
 import path = require('path');
 import delivlib = require('../lib');
+import { determineRunOrder } from '../lib/util';
 
 test('pipelineName can be used to set a physical name for the pipeline', async () => {
   const stack = new cdk.Stack();
@@ -18,24 +19,62 @@ test('pipelineName can be used to set a physical name for the pipeline', async (
   }));
 });
 
-test('concurrency: enabled by default', async () => {
+test('concurrency: unlimited by default', async () => {
   const stack = new cdk.Stack();
 
-  createTestPipeline(stack);
+  const stages = createTestPipelineForConcurrencyTests(stack);
 
-  const template = stack.toCloudFormation();
-
-  expect(template.Resources.PipelineBuildPipeline04C6628A.Properties.Stages.length).toBe(4);
+  // default is RunOrder = 1 for all actions which means they all run in parallel
+  for (const stage of stages) {
+    const actions = stage.Actions;
+    for (const action of actions) {
+      expect(action.RunOrder).toBe(1);
+    }
+  }
 });
 
-test('concurrency: when disabled, we get a stage for each action', async () => {
+test('concurrency = 1: means that actions will run sequentially', async () => {
   const stack = new cdk.Stack();
-  createTestPipeline(stack, { concurrency: false } as any);
-  const template = stack.toCloudFormation();
-  expect(template.Resources.PipelineBuildPipeline04C6628A.Properties.Stages.length).toBe(7);
+  const stages = createTestPipelineForConcurrencyTests(stack, { concurrency: 1 } as any);
+
+  for (const stage of stages) {
+    const actions = stage.Actions;
+    let expected = 1;
+    for (const action of actions) {
+      expect(action.RunOrder).toBe(expected);
+      expected++;
+    }
+  }
 });
 
-function createTestPipeline(stack: cdk.Stack, props?: delivlib.PipelineProps) {
+test('determineRunOrder: creates groups of up to "concurrency" actions', async () => {
+  testCase({ actionCount: 1,  concurrency: 1 });
+  testCase({ actionCount: 10, concurrency: 1 });
+  testCase({ actionCount: 56, concurrency: 4 });
+  testCase({ actionCount: 3,  concurrency: 2 });
+
+  function testCase({ actionCount, concurrency }: { actionCount: number, concurrency: number }) {
+    const actionsPerRunOrder: { [runOrder: number]: number } = { };
+    for (let i = 0; i < actionCount; ++i) {
+      const runOrder = determineRunOrder(i, concurrency)!;
+      if (!actionsPerRunOrder[runOrder]) {
+        actionsPerRunOrder[runOrder] = 0;
+      }
+      actionsPerRunOrder[runOrder]++;
+    }
+
+    // assert that there are no more than *concurrency* actions in each runOrder
+    let total = 0;
+    for (const [ , count ] of Object.entries(actionsPerRunOrder)) {
+      expect(count).toBeLessThanOrEqual(concurrency);
+      total += count;
+    }
+
+    expect(total).toBe(actionCount); // sanity
+  }
+});
+
+function createTestPipelineForConcurrencyTests(stack: cdk.Stack, props?: delivlib.PipelineProps) {
   const pipeline = new delivlib.Pipeline(stack, 'Pipeline', {
     repo: createTestRepo(stack),
     ...props
@@ -48,11 +87,18 @@ function createTestPipeline(stack: cdk.Stack, props?: delivlib.PipelineProps) {
   const testDirectory = path.join(__dirname, 'delivlib-tests', 'linux');
   pipeline.addTest('test1', { testDirectory, platform: delivlib.ShellPlatform.LinuxUbuntu });
   pipeline.addTest('test2', { testDirectory, platform: delivlib.ShellPlatform.LinuxUbuntu });
+  pipeline.addTest('test3', { testDirectory, platform: delivlib.ShellPlatform.LinuxUbuntu });
+  pipeline.addTest('test4', { testDirectory, platform: delivlib.ShellPlatform.LinuxUbuntu });
+  pipeline.addTest('test5', { testDirectory, platform: delivlib.ShellPlatform.LinuxUbuntu });
   pipeline.addPublish({ id: 'pub1', project });
   pipeline.addPublish({ id: 'pub2', project });
   pipeline.addPublish({ id: 'pub3', project });
+  pipeline.addPublish({ id: 'pub4', project });
+  pipeline.addPublish({ id: 'pub5', project });
+  pipeline.addPublish({ id: 'pub6', project });
 
-  return pipeline;
+  const template = stack.toCloudFormation();
+  return template.Resources.PipelineBuildPipeline04C6628A.Properties.Stages;
 }
 
 function createTestRepo(stack: cdk.Stack) {
