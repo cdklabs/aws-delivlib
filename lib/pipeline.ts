@@ -2,14 +2,11 @@ import cloudwatch = require('@aws-cdk/aws-cloudwatch');
 import cbuild = require('@aws-cdk/aws-codebuild');
 import cpipeline = require('@aws-cdk/aws-codepipeline');
 import cpipelineapi = require('@aws-cdk/aws-codepipeline-api');
-import events = require('@aws-cdk/aws-events');
 import iam = require('@aws-cdk/aws-iam');
-import lambda = require('@aws-cdk/aws-lambda');
-import logs = require('@aws-cdk/aws-logs');
 import sns = require('@aws-cdk/aws-sns');
 import cdk = require('@aws-cdk/cdk');
-import fs = require('fs');
 import path = require('path');
+import { PipelineWatcher } from './pipeline-watcher/watcher';
 import publishing = require('./publishing');
 import { IRepo } from './repo';
 import { Testable, TestableProps } from './testable';
@@ -264,90 +261,6 @@ export class Pipeline extends cdk.Construct {
       pipeline: this.pipeline,
       title
     }).alarm;
-  }
-}
-
-interface PipelineWatcherProps {
-  /**
-   * Code Pipeline to monitor for failed stages
-   */
-  pipeline: cpipeline.Pipeline;
-
-  /**
-   * Set the pipelineName of the alarm description.
-   *
-   * Description is set to 'Pipeline <title> has failed stages'
-   *
-   * @default pipeline's name
-   */
-  title?: string;
-}
-
-/**
- * Construct which watches a Code Pipeline for failed stages and raises an alarm
- * if there are any failed stages.
- *
- * A function runs every minute and calls GetPipelineState for the provided pipeline's
- * name, counts the number of failed stages and emits a JSON log { failedCount: <number> }.
- * A metric filter is then configured to track this value as a CloudWatch metric, and
- * a corresponding alarm is set to fire when the maximim value of a single 5-minute interval
- * is >= 1.
- */
-class PipelineWatcher extends cdk.Construct {
-  public readonly alarm: cloudwatch.Alarm;
-
-  constructor(parent: cdk.Construct, name: string, props: PipelineWatcherProps) {
-    super(parent, name);
-
-    const pipelineWatcher = new lambda.Function(this, 'Poller', {
-      handler: 'index.handler',
-      runtime: lambda.Runtime.NodeJS810,
-      code: lambda.Code.inline(fs.readFileSync(path.join(__dirname, 'pipeline-watcher.js')).toString('utf8')),
-      environment: {
-        pipelineName: props.pipeline.pipelineName
-      }
-    });
-
-    // See https://github.com/awslabs/aws-cdk/issues/1340 for exposing grants on the pipeline.
-    pipelineWatcher.addToRolePolicy(new iam.PolicyStatement()
-      .addResource(props.pipeline.pipelineArn)
-      .addAction('codepipeline:GetPipelineState'));
-
-    // Explicitly and pre-emptively create the function's log group because we need it for the metric filter.
-    const logGroup = new logs.LogGroup(this, 'Logs', {
-      logGroupName: new cdk.FnConcat('/aws/lambda/', pipelineWatcher.functionName).toString(),
-      retentionDays: 731
-    });
-
-    new events.EventRule(this, 'Trigger', {
-      scheduleExpression: 'rate(1 minute)',
-      targets: [pipelineWatcher]
-    });
-
-    const metricName = 'FailedStages';
-    // TODO: This creates a long namespace, better alternatives?
-    const metricNamespace = new cdk.FnConcat('CodePipeline/', props.pipeline.pipelineName).toString();
-
-    new logs.MetricFilter(this, 'MetricFilter', {
-      filterPattern: logs.FilterPattern.exists('$.failedCount'),
-      metricNamespace,
-      metricName,
-      metricValue: '$.failedCount',
-      logGroup
-    });
-
-    this.alarm = new cloudwatch.Alarm(this, 'Alarm', {
-      alarmDescription: new cdk.FnConcat('Pipeline ', props.title || props.pipeline.pipelineName, ' has failed failed stages').toString(),
-      metric: new cloudwatch.Metric({
-        metricName,
-        namespace: metricNamespace,
-        statistic: cloudwatch.Statistic.Maximum
-      }),
-      threshold: 1,
-      comparisonOperator: cloudwatch.ComparisonOperator.GreaterThanOrEqualToThreshold,
-      evaluationPeriods: 1,
-      treatMissingData: cloudwatch.TreatMissingData.Ignore, // We expect a steady stream of data points
-    });
   }
 }
 
