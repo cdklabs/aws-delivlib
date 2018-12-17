@@ -65,6 +65,7 @@ export class RsaPrivateKeySecret extends cdk.Construct {
 
     const customResource = new lambda.SingletonFunction(this, 'ResourceHandler', {
       uuid: '72FD327D-3813-4632-9340-28EC437AA486',
+      description: 'Generates an RSA Private Key and stores it in AWS Secrets Manager',
       runtime: lambda.Runtime.Python36,
       handler: 'index.main',
       code: new lambda.InlineCode(
