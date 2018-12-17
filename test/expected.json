@@ -2041,12 +2041,12 @@ Resources:
     DeletionPolicy: Retain
     Metadata:
       aws:cdk:path: delivlib-test/X509CodeSigningKey/RSAPrivateKey/Resource
-  X509CodeSigningKeyRSAPrivateKeyCSRCAA5F049:
+  X509CodeSigningKeyRSAPrivateKeyCertificateSigningRequest7F706C9D:
     Type: Custom::CertificateSigningRequest
     Properties:
       ServiceToken:
         Fn::GetAtt:
-          - SingletonLambda541F67826DCF49A78C5A67715ADD9E4CA21232A9
+          - CreateCSR541F67826DCF49A78C5A67715ADD9E4C8F4169F6
           - Arn
       PrivateKeySecretId:
         Fn::GetAtt:
@@ -2066,17 +2066,17 @@ Resources:
       ExtendedKeyUsage: critical,codeSigning
       KeyUsage: critical,digitalSignature
     DependsOn:
-      - SingletonLambda541F67826DCF49A78C5A67715ADD9E4CServiceRoleDA440F29
-      - SingletonLambda541F67826DCF49A78C5A67715ADD9E4CServiceRoleDefaultPolicyC10D8CAC
+      - CreateCSR541F67826DCF49A78C5A67715ADD9E4CServiceRoleD2990C92
+      - CreateCSR541F67826DCF49A78C5A67715ADD9E4CServiceRoleDefaultPolicyC0800208
     Metadata:
-      aws:cdk:path: delivlib-test/X509CodeSigningKey/RSAPrivateKey/CSR/Resource
+      aws:cdk:path: delivlib-test/X509CodeSigningKey/RSAPrivateKey/CertificateSigningRequest/Resource
   X509CodeSigningKey46995D64:
     Type: AWS::SSM::Parameter
     Properties:
       Type: String
       Value:
         Fn::GetAtt:
-          - X509CodeSigningKeyRSAPrivateKeyCSRCAA5F049
+          - X509CodeSigningKeyRSAPrivateKeyCertificateSigningRequest7F706C9D
           - SelfSignedCertificate
       Description:
         Fn::Join:
@@ -2202,13 +2202,14 @@ Resources:
              body = json.dumps(responseBody)
              log.info("| response body:\n" + body)
              headers = {
-                'content-type' : 'application/json',
+                'content-type' : '',
                 'content-length' : str(len(body))
              }
              try:
                 from botocore.vendored import requests
                 response = requests.put(responseUrl, data=body, headers=headers)
                 log.info("| status code: " + response.reason)
+                response.raise_for_status()
              except Exception as e:
                 log.error("| unable to send response to CloudFormation")
                 raise e
@@ -2220,13 +2221,14 @@ Resources:
           - SingletonLambda72FD327D38134632934028EC437AA486ServiceRole225F46F5
           - Arn
       Runtime: python3.6
+      Description: Generates an RSA Private Key and stores it in AWS Secrets Manager
       Timeout: 300
     DependsOn:
       - SingletonLambda72FD327D38134632934028EC437AA486ServiceRole225F46F5
       - SingletonLambda72FD327D38134632934028EC437AA486ServiceRoleDefaultPolicy77701415
     Metadata:
       aws:cdk:path: delivlib-test/SingletonLambda72FD327D38134632934028EC437AA486/Resource
-  SingletonLambda541F67826DCF49A78C5A67715ADD9E4CServiceRoleDA440F29:
+  CreateCSR541F67826DCF49A78C5A67715ADD9E4CServiceRoleD2990C92:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
@@ -2243,8 +2245,8 @@ Resources:
               - Ref: AWS::Partition
               - :iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
     Metadata:
-      aws:cdk:path: delivlib-test/SingletonLambda541F67826DCF49A78C5A67715ADD9E4C/ServiceRole/Resource
-  SingletonLambda541F67826DCF49A78C5A67715ADD9E4CServiceRoleDefaultPolicyC10D8CAC:
+      aws:cdk:path: delivlib-test/CreateCSR541F67826DCF49A78C5A67715ADD9E4C/ServiceRole/Resource
+  CreateCSR541F67826DCF49A78C5A67715ADD9E4CServiceRoleDefaultPolicyC0800208:
     Type: AWS::IAM::Policy
     Properties:
       PolicyDocument:
@@ -2256,17 +2258,17 @@ Resources:
                 - X509CodeSigningKeyRSAPrivateKeyE5980A70
                 - ARN
         Version: "2012-10-17"
-      PolicyName: SingletonLambda541F67826DCF49A78C5A67715ADD9E4CServiceRoleDefaultPolicyC10D8CAC
+      PolicyName: CreateCSR541F67826DCF49A78C5A67715ADD9E4CServiceRoleDefaultPolicyC0800208
       Roles:
-        - Ref: SingletonLambda541F67826DCF49A78C5A67715ADD9E4CServiceRoleDA440F29
+        - Ref: CreateCSR541F67826DCF49A78C5A67715ADD9E4CServiceRoleD2990C92
     Metadata:
-      aws:cdk:path: delivlib-test/SingletonLambda541F67826DCF49A78C5A67715ADD9E4C/ServiceRole/DefaultPolicy/Resource
-  SingletonLambda541F67826DCF49A78C5A67715ADD9E4CA21232A9:
+      aws:cdk:path: delivlib-test/CreateCSR541F67826DCF49A78C5A67715ADD9E4C/ServiceRole/DefaultPolicy/Resource
+  CreateCSR541F67826DCF49A78C5A67715ADD9E4C8F4169F6:
     Type: AWS::Lambda::Function
     Properties:
       Code:
         S3Bucket:
-          Ref: SingletonLambda541F67826DCF49A78C5A67715ADD9E4CCodeS3BucketE03CE2F5
+          Ref: CreateCSR541F67826DCF49A78C5A67715ADD9E4CCodeS3Bucket45923B19
         S3Key:
           Fn::Join:
             - ""
@@ -2274,24 +2276,25 @@ Resources:
                   - 0
                   - Fn::Split:
                       - "||"
-                      - Ref: SingletonLambda541F67826DCF49A78C5A67715ADD9E4CCodeS3VersionKey7E8D27EA
+                      - Ref: CreateCSR541F67826DCF49A78C5A67715ADD9E4CCodeS3VersionKey9D63F460
               - Fn::Select:
                   - 1
                   - Fn::Split:
                       - "||"
-                      - Ref: SingletonLambda541F67826DCF49A78C5A67715ADD9E4CCodeS3VersionKey7E8D27EA
+                      - Ref: CreateCSR541F67826DCF49A78C5A67715ADD9E4CCodeS3VersionKey9D63F460
       Handler: index.main
       Role:
         Fn::GetAtt:
-          - SingletonLambda541F67826DCF49A78C5A67715ADD9E4CServiceRoleDA440F29
+          - CreateCSR541F67826DCF49A78C5A67715ADD9E4CServiceRoleD2990C92
           - Arn
       Runtime: python3.6
+      Description: Creates a Certificate Signing Request document for an x509 certificate
       Timeout: 300
     DependsOn:
-      - SingletonLambda541F67826DCF49A78C5A67715ADD9E4CServiceRoleDA440F29
-      - SingletonLambda541F67826DCF49A78C5A67715ADD9E4CServiceRoleDefaultPolicyC10D8CAC
+      - CreateCSR541F67826DCF49A78C5A67715ADD9E4CServiceRoleD2990C92
+      - CreateCSR541F67826DCF49A78C5A67715ADD9E4CServiceRoleDefaultPolicyC0800208
     Metadata:
-      aws:cdk:path: delivlib-test/SingletonLambda541F67826DCF49A78C5A67715ADD9E4C/Resource
+      aws:cdk:path: delivlib-test/CreateCSR541F67826DCF49A78C5A67715ADD9E4C/Resource
   CodeSignKey2302B99A:
     Type: AWS::KMS::Key
     Properties:
@@ -2530,6 +2533,8 @@ Resources:
           - SingletonLambdaf25803d3054b44fc985f4860d7d6ee74ServiceRole410148CF
           - Arn
       Runtime: python3.6
+      Description: Generates an OpenPGP Key and stores the private key in Secrets Manager
+        and the public key in an SSM Parameter
       Timeout: 300
     DependsOn:
       - SingletonLambdaf25803d3054b44fc985f4860d7d6ee74ServiceRole410148CF
@@ -2613,19 +2618,19 @@ Parameters:
     Type: String
     Description: S3 key for asset version
       "delivlib-test/AdoptEcrRepositorydbc60defc59544bcaa5c28c95d68f62c/Code"
-  SingletonLambda541F67826DCF49A78C5A67715ADD9E4CCodeS3BucketE03CE2F5:
+  CreateCSR541F67826DCF49A78C5A67715ADD9E4CCodeS3Bucket45923B19:
     Type: String
     Description: S3 bucket for asset
-      "delivlib-test/SingletonLambda541F67826DCF49A78C5A67715ADD9E4C/Code"
-  SingletonLambda541F67826DCF49A78C5A67715ADD9E4CCodeS3VersionKey7E8D27EA:
+      "delivlib-test/CreateCSR541F67826DCF49A78C5A67715ADD9E4C/Code"
+  CreateCSR541F67826DCF49A78C5A67715ADD9E4CCodeS3VersionKey9D63F460:
     Type: String
     Description: S3 key for asset version
-      "delivlib-test/SingletonLambda541F67826DCF49A78C5A67715ADD9E4C/Code"
+      "delivlib-test/CreateCSR541F67826DCF49A78C5A67715ADD9E4C/Code"
 Outputs:
   X509CodeSigningKeyCSR5137C5A3:
     Description: A PEM-encoded Certificate Signing Request for a Code-Signing Certificate
     Value:
       Fn::GetAtt:
-        - X509CodeSigningKeyRSAPrivateKeyCSRCAA5F049
+        - X509CodeSigningKeyRSAPrivateKeyCertificateSigningRequest7F706C9D
         - CSR
 

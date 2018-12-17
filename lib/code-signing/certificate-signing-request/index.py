@@ -123,7 +123,7 @@ def cfn_send(event, context, responseStatus, responseData={}, physicalResourceId
    log.info("| response body:\n" + body)
 
    headers = {
-      'content-type' : 'application/json',
+      'content-type' : '',
       'content-length' : str(len(body))
    }
 
@@ -131,6 +131,7 @@ def cfn_send(event, context, responseStatus, responseData={}, physicalResourceId
       from botocore.vendored import requests
       response = requests.put(responseUrl, data=body, headers=headers)
       log.info("| status code: " + response.reason)
+      response.raise_for_status()
    except Exception as e:
       log.error("| unable to send response to CloudFormation")
       raise e

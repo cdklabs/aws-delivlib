@@ -146,7 +146,10 @@ export class CodeSigningCertificate extends cdk.Construct implements ICodeSignin
     let certificate = props.pemCertificate;
 
     if (!certificate || props.forceCertificateSigningRequest) {
-      const csr = privateKey.newCertificateSigningRequest('CSR', props.distinguishedName, 'critical,digitalSignature', 'critical,codeSigning');
+      const csr = privateKey.newCertificateSigningRequest('CertificateSigningRequest',
+                                                          props.distinguishedName,
+                                                          'critical,digitalSignature',
+                                                          'critical,codeSigning');
 
       new cdk.Output(this, 'CSR', {
         description: 'A PEM-encoded Certificate Signing Request for a Code-Signing Certificate',
