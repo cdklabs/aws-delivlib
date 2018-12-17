@@ -69,6 +69,7 @@ export class PGPSecret extends cdk.Construct {
 
     const fn = new lambda.SingletonFunction(this, 'Lambda', {
       uuid: 'f25803d3-054b-44fc-985f-4860d7d6ee74',
+      description: 'Generates an OpenPGP Key and stores the private key in Secrets Manager and the public key in an SSM Parameter',
       code: new lambda.InlineCode(fs.readFileSync(path.join(__dirname, 'pgpresource.py'), { encoding: 'utf-8' })),
       handler: 'index.main',
       timeout: 300,
