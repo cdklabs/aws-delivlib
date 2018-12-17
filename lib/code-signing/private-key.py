@@ -58,7 +58,7 @@ def main(event, context):
    log.getLogger().setLevel(log.INFO)
 
    try:
-      log.info('Input event: %s', event)
+      log.info('Input event: %s', json.dumps(event))
       attributes = handle_event(event, context.aws_request_id)
       cfn_send(event, context, CFN_SUCCESS, attributes, attributes['ARN'])
    except KeyError as e:
@@ -92,11 +92,12 @@ def cfn_send(event, context, responseStatus, responseData={}, physicalResourceId
    }
 
    try:
+      from botocore.vendored import requests
       response = requests.put(responseUrl, data=body, headers=headers)
       log.info("| status code: " + response.reason)
    except Exception as e:
       log.error("| unable to send response to CloudFormation")
-      log.exception(e)
+      raise e
 
 if __name__ == '__main__':
    handle_event(json.load(sys.stdin), 'ec92d8a9-672c-4647-9d34-0d3159a2c692')
