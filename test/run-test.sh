@@ -10,19 +10,19 @@ expected="test/expected.json"
 actual="/tmp/actual.json"
 
 if [ "${1:-}" == "diff" ]; then
-  npx cdk -a ${cdk_app} diff
+  npx cdk --no-version-reporting -a ${cdk_app} diff
   exit 0
 fi
 
 if [ "${1:-}" == "synth" ]; then
-  npx cdk -a ${cdk_app} synth
+  npx cdk --no-version-reporting -a ${cdk_app} synth
   exit 0
 fi
 
-npx cdk -a ${cdk_app} synth > ${actual}
+npx cdk --no-version-reporting -a ${cdk_app} synth > ${actual}
 
 if [ "${1:-}" == "update" ]; then
-  npx cdk -a ${cdk_app} deploy ${2:-} ${3:-} ${4:-}
+  npx cdk --no-version-reporting -a ${cdk_app} deploy ${2:-} ${3:-} ${4:-}
   cp -f ${actual} ${expected}
 fi
 
