@@ -70,34 +70,33 @@ def main(event, context):
 #---------------------------------------------------------------------------------------------------
 # sends a response to cloudformation
 def cfn_send(event, context, responseStatus, responseData={}, physicalResourceId=None, noEcho=False, reason=None):
+  responseUrl = event['ResponseURL']
+  log.info(responseUrl)
 
-    responseUrl = event['ResponseURL']
-    logger.info(responseUrl)
+  responseBody = {}
+  responseBody['Status'] = responseStatus
+  responseBody['Reason'] = reason or ('See the details in CloudWatch Log Stream: ' + context.log_stream_name)
+  responseBody['PhysicalResourceId'] = physicalResourceId or context.log_stream_name
+  responseBody['StackId'] = event['StackId']
+  responseBody['RequestId'] = event['RequestId']
+  responseBody['LogicalResourceId'] = event['LogicalResourceId']
+  responseBody['NoEcho'] = noEcho
+  responseBody['Data'] = responseData
 
-    responseBody = {}
-    responseBody['Status'] = responseStatus
-    responseBody['Reason'] = reason or ('See the details in CloudWatch Log Stream: ' + context.log_stream_name)
-    responseBody['PhysicalResourceId'] = physicalResourceId or context.log_stream_name
-    responseBody['StackId'] = event['StackId']
-    responseBody['RequestId'] = event['RequestId']
-    responseBody['LogicalResourceId'] = event['LogicalResourceId']
-    responseBody['NoEcho'] = noEcho
-    responseBody['Data'] = responseData
+  body = json.dumps(responseBody)
+  log.info("| response body:\n" + body)
 
-    body = json.dumps(responseBody)
-    logger.info("| response body:\n" + body)
+  headers = {
+    'content-type' : 'application/json',
+    'content-length' : str(len(body))
+  }
 
-    headers = {
-        'content-type' : '',
-        'content-length' : str(len(body))
-    }
-
-    try:
-        response = requests.put(responseUrl, data=body, headers=headers)
-        logger.info("| status code: " + response.reason)
-    except Exception as e:
-        logger.error("| unable to send response to CloudFormation")
-        logger.exception(e)
+  try:
+    response = requests.put(responseUrl, data=body, headers=headers)
+    log.info("| status code: " + response.reason)
+  except Exception as e:
+    log.error("| unable to send response to CloudFormation")
+    log.exception(e)
 
 if __name__ == '__main__':
   handle_event(json.load(sys.stdin), 'ec92d8a9-672c-4647-9d34-0d3159a2c692')

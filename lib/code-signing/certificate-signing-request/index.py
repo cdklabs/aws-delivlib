@@ -107,33 +107,32 @@ def main(event, context):
 #---------------------------------------------------------------------------------------------------
 # sends a response to cloudformation
 def cfn_send(event, context, responseStatus, responseData={}, physicalResourceId=None, noEcho=False, reason=None):
+  responseUrl = event['ResponseURL']
+  log.info(responseUrl)
 
-    responseUrl = event['ResponseURL']
-    logger.info(responseUrl)
+  body = json.dumps({
+    'Status': responseStatus,
+    'Reason': reason or ('See the details in CloudWatch Log Stream: ' + context.log_stream_name),
+    'PhysicalResourceId': physicalResourceId or context.log_stream_name,
+    'StackId': event['StackId'],
+    'RequestId': event['RequestId'],
+    'LogicalResourceId': event['LogicalResourceId'],
+    'NoEcho': noEcho,
+    'Data': responseData,
+  })
+  log.info("| response body:\n" + body)
 
-    body = json.dumps({
-      'Status': responseStatus,
-      'Reason': reason or ('See the details in CloudWatch Log Stream: ' + context.log_stream_name),
-      'PhysicalResourceId': physicalResourceId or context.log_stream_name,
-      'StackId': event['StackId'],
-      'RequestId': event['RequestId'],
-      'LogicalResourceId': event['LogicalResourceId'],
-      'NoEcho': noEcho,
-      'Data': responseData,
-    })
-    logger.info("| response body:\n" + body)
+  headers = {
+    'content-type' : 'application/json',
+    'content-length' : str(len(body))
+  }
 
-    headers = {
-        'content-type' : '',
-        'content-length' : str(len(body))
-    }
-
-    try:
-        response = requests.put(responseUrl, data=body, headers=headers)
-        logger.info("| status code: " + response.reason)
-    except Exception as e:
-        logger.error("| unable to send response to CloudFormation")
-        logger.exception(e)
+  try:
+    response = requests.put(responseUrl, data=body, headers=headers)
+    log.info("| status code: " + response.reason)
+  except Exception as e:
+    log.error("| unable to send response to CloudFormation")
+    log.exception(e)
 
 if __name__ == '__main__':
   handle_event(json.load(sys.stdin), '61120008-4da7-40e1-b180-5ce50a6b90ad')
