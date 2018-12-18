@@ -61,6 +61,7 @@ interface PGPSecretProps {
  */
 export class PGPSecret extends cdk.Construct {
   public readonly secretArn: string;
+  public readonly parameterName: string;
 
   constructor(parent: cdk.Construct, name: string, props: PGPSecretProps) {
     super(parent, name);
@@ -101,5 +102,6 @@ export class PGPSecret extends cdk.Construct {
       },
     });
     this.secretArn = secret.getAtt('ARN').toString();
+    this.parameterName = props.pubKeyParameterName;
   }
 }
