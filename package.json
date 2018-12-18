@@ -30,27 +30,27 @@
   },
   "license": "Apache-2.0",
   "devDependencies": {
-    "@aws-cdk/assert": "^0.19.0",
+    "@aws-cdk/assert": "^0.20.0",
     "@types/jest": "^23.3.10",
     "@types/node": "^10.12.12",
     "@types/nodeunit": "0.0.30",
-    "aws-cdk": "^0.19.0",
+    "aws-cdk": "^0.20.0",
     "jest": "^23.6.0",
     "nodeunit": "^0.11.3",
     "tslint": "^5.11.0",
     "typescript": "^3.2.2"
   },
   "dependencies": {
-    "@aws-cdk/assets": "^0.19.0",
-    "@aws-cdk/aws-cloudformation": "^0.19.0",
-    "@aws-cdk/aws-codebuild": "^0.19.0",
-    "@aws-cdk/aws-codecommit": "^0.19.0",
-    "@aws-cdk/aws-codepipeline": "^0.19.0",
-    "@aws-cdk/aws-ecs": "^0.19.0",
-    "@aws-cdk/aws-lambda": "^0.19.0",
-    "@aws-cdk/aws-secretsmanager": "^0.19.0",
-    "@aws-cdk/aws-sns": "^0.19.0",
-    "@aws-cdk/aws-ssm": "^0.19.0",
-    "@aws-cdk/cdk": "^0.19.0"
+    "@aws-cdk/assets": "^0.20.0",
+    "@aws-cdk/aws-cloudformation": "^0.20.0",
+    "@aws-cdk/aws-codebuild": "^0.20.0",
+    "@aws-cdk/aws-codecommit": "^0.20.0",
+    "@aws-cdk/aws-codepipeline": "^0.20.0",
+    "@aws-cdk/aws-ecs": "^0.20.0",
+    "@aws-cdk/aws-lambda": "^0.20.0",
+    "@aws-cdk/aws-secretsmanager": "^0.20.0",
+    "@aws-cdk/aws-sns": "^0.20.0",
+    "@aws-cdk/aws-ssm": "^0.20.0",
+    "@aws-cdk/cdk": "^0.20.0"
   }
 }
