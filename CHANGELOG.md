@@ -1,3 +1,29 @@
+# Change Log
+
+All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+
+<a name="0.3.0"></a>
+## 0.3.0 (2018-12-18)
+
+
+### Bug Fixes
+
+* Correctly import requests ([#15](https://github.com/awslabs/aws-delivlib/issues/15)) ([637290e](https://github.com/awslabs/aws-delivlib/commit/637290e))
+* Custom resource behavior ([40885c0](https://github.com/awslabs/aws-delivlib/commit/40885c0))
+* Logger reference in CSC custom resources ([#14](https://github.com/awslabs/aws-delivlib/issues/14)) ([4c0bca6](https://github.com/awslabs/aws-delivlib/commit/4c0bca6))
+
+
+### Features
+
+* **gh-pages-publisher:** force-push without history ([#7](https://github.com/awslabs/aws-delivlib/issues/7)) ([e062ab7](https://github.com/awslabs/aws-delivlib/commit/e062ab7))
+* **github-releases:** if changelog doesn't exist, don't include release notes ([#8](https://github.com/awslabs/aws-delivlib/issues/8)) ([ab0d58c](https://github.com/awslabs/aws-delivlib/commit/ab0d58c))
+* **pipeline:** concurrency limit ([#9](https://github.com/awslabs/aws-delivlib/issues/9)) ([268a128](https://github.com/awslabs/aws-delivlib/commit/268a128))
+* **pipeline:** send email notifications on any action failure ([#10](https://github.com/awslabs/aws-delivlib/issues/10)) ([dab2348](https://github.com/awslabs/aws-delivlib/commit/dab2348))
+* expose failure alarm to allow developers to configure hooks ([#18](https://github.com/awslabs/aws-delivlib/issues/18)) ([2ed0f16](https://github.com/awslabs/aws-delivlib/commit/2ed0f16))
+* NuGet assemblies code signing ([#2](https://github.com/awslabs/aws-delivlib/issues/2)) ([e715c65](https://github.com/awslabs/aws-delivlib/commit/e715c65))
+
+
+
 # Change log
 
 ## [0.2.1](https://github.com/awslabs/aws-cdk/compare/v0.2.0...v0.2.1) (2018-12-17)
