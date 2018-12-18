@@ -100,6 +100,7 @@ export interface PipelineProps {
  */
 export class Pipeline extends cdk.Construct {
   public buildRole?: iam.Role;
+  public readonly failureAlarm: cloudwatch.Alarm;
 
   private readonly pipeline: cpipeline.Pipeline;
   private readonly buildOutput: cpipelineapi.Artifact;
@@ -149,7 +150,7 @@ export class Pipeline extends cdk.Construct {
     }
 
     // add a failure alarm for the entire pipeline.
-    this.addFailureAlarm(props.title);
+    this.failureAlarm = this.addFailureAlarm(props.title);
 
     // emit an SNS notification every time build fails.
     this.addBuildFailureNotification(buildProject, `${props.title} build failed`);
