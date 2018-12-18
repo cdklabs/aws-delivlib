@@ -9,7 +9,7 @@
 # - Description (string):          the description to attach to the secret.
 #
 # Outputs:
-# - ARN (string):       The AWS SecretsManager secret ARN
+# - Arn (string):       The AWS SecretsManager secret ARN
 # - VersionId (string): The AWS SecretsManager secret VersionId
 
 import logging as log
@@ -22,10 +22,41 @@ def handle_event(event, aws_request_id):
    import boto3, shutil, subprocess, tempfile
 
    props = event['ResourceProperties']
+   description = props.get('Description')
+   kmsKeyId = props.get('KmsKeyId')
 
    if event['RequestType'] == 'Update':
-      # Prohibit updates - you don't want to inadertently cause your private key to change...
-      raise Exception('X509 Private Key update requires replacement, a new resource must be created!')
+      old_props = event['OldResourceProperties']
+      # Prohibit updates to KeySize or SecretName, as those would require re-creating the key...
+      if old_props['KeySize'] != props['KeySize']:
+         raise Exception(f'The KeySize property cannot be updated (attempting to change from {old_props["KeySize"]} to {props["KeySize"]})')
+      if old_props['SecretName'] != props['SecretName']:
+         raise Exception(f'The SecretName property cannot be updated (attempting to change from {old_props["SecretName"]} to {props["SecretName"]})')
+
+      opts = {
+         'SecretId': event['PhysicalResourceId'],
+         'ClientRequestToken': aws_request_id
+      }
+
+      if description is not None: opts['Description'] = description
+      if kmsKeyId: opts['KmsKeyId'] = kmsKeyId
+
+      ret = boto3.client('secretsmanager').update_secret(**opts)
+
+      # No new version was created - go fetch the current latest VersionId
+      if ret.get('VersionId') is None:
+         opts = dict(SecretId=ret['ARN'])
+         while True:
+            response = boto3.client('secretsmanager').list_secret_version_ids(**opts)
+            for version in response['Versions']:
+               if 'AWSCURRENT' in version['VersionStages']:
+                  ret['VersionId'] = version['VersionId']
+                  break
+            if ret['VersionId'] is not None or response.get('NextToken') is None:
+               break
+            opts['NextToken'] = response['NextToken']
+
+      return {'SecretArn': ret['ARN'], 'SecretVersionId': ret['VersionId']}
 
    elif event['RequestType'] == 'Create':
       tmpdir = tempfile.mkdtemp()
@@ -40,16 +71,16 @@ def handle_event(event, aws_request_id):
                'SecretString': pkey.read()
             }
 
-            kmsKeyId = props.get('KmsKeyId')
+            if description is not None: opts['Description'] = description
             if kmsKeyId: opts['KmsKeyId'] = kmsKeyId
 
             ret = boto3.client('secretsmanager').create_secret(**opts)
-            return {'ARN': ret['ARN'], 'VersionId': ret['VersionId']}
+            return {'SecretArn': ret['ARN'], 'SecretVersionId': ret['VersionId']}
 
    elif event['RequestType'] == 'Delete':
       if event['PhysicalResourceId'].startswith('arn:'): # Only if the resource had been successfully created before
          boto3.client('secretsmanager').delete_secret(SecretId=event['PhysicalResourceId'])
-      return {'ARN': ''}
+      return {'SecretArn': '', 'SecretVersionId': ''}
 
    else:
       raise Exception('Unsupported RequestType: %s' % event['RequestType'])
@@ -60,8 +91,9 @@ def main(event, context):
    try:
       log.info('Input event: %s', json.dumps(event))
       attributes = handle_event(event, context.aws_request_id)
-      cfn_send(event, context, CFN_SUCCESS, attributes, attributes['ARN'])
+      cfn_send(event, context, CFN_SUCCESS, attributes, attributes['SecretArn'])
    except KeyError as e:
+      log.exception(e)
       cfn_send(event, context, CFN_FAILED, {}, reason="Invalid request: missing key %s" % str(e))
    except Exception as e:
       log.exception(e)

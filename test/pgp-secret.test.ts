@@ -50,5 +50,5 @@ test('correctly forwards parameter name', () => {
   });
 
   // THEN
-  expect(secret.parameterName).toBe(parameterName);
+  expect(cdk.resolve(secret.parameterName)).toEqual({ "Fn::GetAtt": ["SecretA720EF05", "ParameterName"] });
 });

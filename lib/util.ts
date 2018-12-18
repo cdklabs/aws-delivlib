@@ -1,3 +1,7 @@
+import crypto = require('crypto');
+import fs = require('fs');
+import path = require('path');
+
 /**
  * Determines the "RunOrder" property for the next action to be added to a stage.
  * @param index Index of new action
@@ -10,4 +14,26 @@ export function determineRunOrder(index: number, concurrency?: number) {
   }
 
   return Math.floor(index / concurrency) + 1;
+}
+
+/**
+ * Hashes the contents of a file or directory. If the argument is a directory,
+ * it is assumed not to contain symlinks that would result in a cyclic tree.
+ *
+ * @param fileOrDir the path to the file or directory that should be hashed.
+ *
+ * @returns a SHA256 hash, base-64 encoded.
+ */
+export function hashFileOrDirectory(fileOrDir: string): string {
+  const hash = crypto.createHash('SHA256');
+  hash.update(path.basename(fileOrDir)).update('\0');
+  const stat = fs.statSync(fileOrDir);
+  if (stat.isDirectory()) {
+    for (const item of fs.readdirSync(fileOrDir).sort()) {
+      hash.update(hashFileOrDirectory(path.join(fileOrDir, item)));
+    }
+  } else {
+    hash.update(fs.readFileSync(fileOrDir));
+  }
+  return hash.digest('base64');
 }
