@@ -16,4 +16,4 @@ export NPM_TOKEN=$token
 echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}' > ~/.npmrc
 
 # Call publishing script
-$SCRIPT_DIR/publish-npm.sh
+/bin/bash $SCRIPT_DIR/publish-npm.sh
