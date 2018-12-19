@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.3.1"></a>
+# [0.3.1](https://github.com/awslabs/aws-delivlib/compare/v0.1.1...v0.3.1) (2018-12-19)
+
+### Bug Fixes
+
+* do not assume executable permissions on publishing scripts ([#25](https://github.com/awslabs/aws-delivlib/issues/25)) ([6832ebe](https://github.com/awslabs/aws-delivlib/commit/6832ebe))
+
+### Features
+
+* **pgp-secret:** Surface parameterName attribute ([#17](https://github.com/awslabs/aws-delivlib/issues/17)) ([972a1c9](https://github.com/awslabs/aws-delivlib/commit/972a1c9))
+
 <a name="0.3.0"></a>
 ## 0.3.0 (2018-12-18)
 
