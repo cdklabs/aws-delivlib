@@ -11,8 +11,10 @@ export interface SigningKeyProps {
    * The AWS Secrets Manager secret name to use for this key.
    *
    * The secret will be named "<scope>/SigningKey".
+   *
+   * @default A unique secret name will be automatically generated
    */
-  secretName: string;
+  secretName?: string;
 
   /**
    * Name to put on key
@@ -40,9 +42,8 @@ export class OpenPgpKey extends cdk.Construct {
   constructor(parent: cdk.Construct, name: string, props: SigningKeyProps) {
     super(parent, name);
 
-    const secretName = `${props.secretName}/SigningKey`;
-
-    this.scope = props.secretName;
+    this.scope = props.secretName || this.uniqueId;
+    const secretName = `${this.scope}/SigningKey`;
 
     this.key = new kms.EncryptionKey(this, 'Key', {
       description: `Encryption key for PGP secret ${secretName}`

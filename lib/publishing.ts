@@ -5,7 +5,7 @@ import path = require('path');
 import { ICodeSigningCertificate } from './code-signing';
 import permissions = require('./permissions');
 import { IPublisher } from './pipeline';
-import { GitHubRepo } from './repo';
+import { WritableGitHubRepo } from './repo';
 import { LinuxPlatform, Shellable } from './shellable';
 import { OpenPgpKey } from './signing-key';
 
@@ -188,24 +188,7 @@ export interface PublishDocsToGitHubProjectProps {
   /**
    * The repository to publish to
    */
-  githubRepo: GitHubRepo;
-
-  /**
-   * Secret with the private SSH key to write to GitHub.
-   * The secret should be stored as plain text.
-   * (Public counterpart should be added to Deploy Keys on GitHub repository)
-   */
-  sshKeySecret: permissions.ExternalSecret;
-
-  /**
-   * The username to use for the published commits
-   */
-  commitUsername: string;
-
-  /**
-   * The email address to use for the published commits
-   */
-  commitEmail: string;
+  githubRepo: WritableGitHubRepo;
 
   /**
    * If `true` (default) will only perform a dry-run but will not actually publish.
@@ -245,18 +228,18 @@ export class PublishDocsToGitHubProject extends cdk.Construct implements IPublis
       entrypoint: 'publish.sh',
       environmentVariables: {
         // Must be SSH because we use an SSH key to authenticate
-        GITHUB_REPO: { value: `git@github.com:${props.githubRepo.owner}/${props.githubRepo.repo}` },
+        GITHUB_REPO: { value: props.githubRepo.repositoryUrlSsh },
         GITHUB_PAGES_BRANCH: { value: props.branch || 'gh-pages' },
-        SSH_KEY_SECRET: { value: props.sshKeySecret.secretArn },
+        SSH_KEY_SECRET: { value: props.githubRepo.sshKeySecret.secretArn },
         FOR_REAL: forReal,
-        COMMIT_USERNAME: { value: props.commitUsername },
-        COMMIT_EMAIL: { value: props.commitEmail },
+        COMMIT_USERNAME: { value: props.githubRepo.commitUsername },
+        COMMIT_EMAIL: { value: props.githubRepo.commitEmail },
         BUILD_MANIFEST: { value: props.buildManifestFileName || './build.json' },
       }
     });
 
     if (shellable.role) {
-      permissions.grantSecretRead(props.sshKeySecret, shellable.role);
+      permissions.grantSecretRead(props.githubRepo.sshKeySecret, shellable.role);
     }
 
     this.role = shellable.role;
@@ -274,7 +257,7 @@ export interface PublishToGitHubProps {
   /**
    * The repository to create a release in.
    */
-  githubRepo: GitHubRepo;
+  githubRepo: WritableGitHubRepo;
 
   /**
    * The signign key to use to create a GPG signature of the artifact.

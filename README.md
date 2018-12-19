@@ -596,6 +596,25 @@ To create an ssh deploy key for your repository:
    (not key/value).
 1. Use the name of the AWS Secrets Manager secret in the `sshKeySecret` option.
 
+
+## Automatic Bumps and Pull Request Builds
+
+### GitHub Access
+
+If your source repository is GitHub, in order to enable these features you will need
+to manually connect AWS CodeBuild to your GitHub account. Otherwise, you will receive
+the following error message:
+
+```
+No Access token found, please visit AWS CodeBuild console to connect to GitHub
+(Service: AWSCodeBuild; Status Code: 400; Error Code: InvalidInputException;
+Request ID: ab458603-6fd4-11e8-9310-ff116e0423f9)
+```
+
+To connect, go to the AWS CodeBuild console, click "Create Project", select a
+GitHub source and hit "Connect". There is no need to save the new project. This
+needs to be done once per account/region.
+
 ## License
 
 This library is licensed under the Apache 2.0 License.

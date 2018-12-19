@@ -5,7 +5,7 @@ import cpipelineapi = require('@aws-cdk/aws-codepipeline-api');
 import iam = require('@aws-cdk/aws-iam');
 import sns = require('@aws-cdk/aws-sns');
 import cdk = require('@aws-cdk/cdk');
-import path = require('path');
+import { createBuildEnvironment } from './build-env';
 import { PipelineWatcher } from './pipeline-watcher';
 import publishing = require('./publishing');
 import { IRepo } from './repo';
@@ -123,17 +123,8 @@ export class Pipeline extends cdk.Construct {
     this.branch = props.branch || 'master';
     const source = props.repo.createSourceStage(this.pipeline, this.branch);
 
-    const environment: cbuild.BuildEnvironment = {
-      computeType: props.computeType || cbuild.ComputeType.Small,
-      privileged: props.privileged,
-      environmentVariables: renderEnvironmentVariables(props.env),
-      buildImage: props.buildImage || cbuild.LinuxBuildImage.fromAsset(this, 'superchain', {
-        directory: path.join(__dirname, '..', 'superchain')
-      })
-    };
-
     const buildProject = new cbuild.PipelineProject(this, 'BuildProject', {
-      environment,
+      environment: createBuildEnvironment(this, props),
       buildSpec: props.buildSpec,
     });
 
@@ -251,16 +242,4 @@ export interface IPublisher {
    * The publisher's codebuild project.
    */
   readonly project: cbuild.Project;
-}
-
-function renderEnvironmentVariables(env?: { [key: string]: string }) {
-  if (!env) {
-    return undefined;
-  }
-
-  const out: { [key: string]: cbuild.BuildEnvironmentVariable } = { };
-  for (const [key, value] of Object.entries(env)) {
-    out[key] = { value };
-  }
-  return out;
 }

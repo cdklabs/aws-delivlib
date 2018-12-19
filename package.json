@@ -11,6 +11,7 @@
     "watch": "tsc -w",
     "test": "/bin/bash ./test.sh",
     "cdk": "cdk",
+    "bump": "standard-version",
     "pipeline-update": "npm run build && cdk -a pipeline/delivlib.js deploy",
     "pipeline-diff": "npm run build && cdk -a pipeline/delivlib.js diff"
   },
@@ -37,6 +38,7 @@
     "aws-cdk": "^0.20.0",
     "jest": "^23.6.0",
     "nodeunit": "^0.11.3",
+    "standard-version": "^4.4.0",
     "tslint": "^5.11.0",
     "typescript": "^3.2.2"
   },

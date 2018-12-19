@@ -7,3 +7,4 @@ export * from './publishing';
 export * from './signing-key';
 export * from './pgp-secret';
 export * from './code-signing';
+export * from './bump';
