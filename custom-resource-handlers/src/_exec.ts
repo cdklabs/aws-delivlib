@@ -1,8 +1,8 @@
 import childProcess = require('child_process');
 
-export = function _exec(command: string): Promise<string> {
+export = function _exec(command: string, ...args: string[]): Promise<string> {
   return new Promise<string>((ok, ko) => {
-    const child = childProcess.spawn(command, { shell: false, stdio: ['ignore', 'pipe', 'inherit'] });
+    const child = childProcess.spawn(command, args, { shell: false, stdio: ['ignore', 'pipe', 'inherit'] });
     const chunks = new Array<Buffer>();
 
     child.stdout.on('data', (chunk) => {
@@ -15,7 +15,7 @@ export = function _exec(command: string): Promise<string> {
       if (code === 0) {
         return ok(Buffer.concat(chunks).toString('utf8'));
       }
-      ko(signal != null ? `Killed by ${signal}` : `Returned ${code}`);
+      ko(new Error(signal != null ? `Killed by ${signal}` : `Exited with status ${code}`));
     });
   });
 };

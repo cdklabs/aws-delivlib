@@ -12,4 +12,4 @@ export = async function _rmrf(filePath: string): Promise<void> {
   } else {
     await util.promisify(fs.unlink)(filePath);
   }
-}
+};

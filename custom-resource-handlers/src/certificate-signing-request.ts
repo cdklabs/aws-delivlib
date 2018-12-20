@@ -55,9 +55,16 @@ async function _createSelfSignedCertificate(event: cfn.Event): Promise<ResourceA
     const configFile = await _makeCsrConfig(event, tempDir);
     const pkeyFile = await _retrievePrivateKey(event, tempDir);
     const csrFile = path.join(tempDir, 'csr.pem');
-    await _exec(`openssl req -config ${configFile} -key ${pkeyFile} -out ${csrFile} -new`);
+    await _exec('openssl', 'req', '-config', configFile,
+                                  '-key', pkeyFile,
+                                  '-out', csrFile,
+                                  '-new');
     const certFile = path.join(tempDir, 'cert.pem');
-    await _exec(`openssl x509 -in ${csrFile} -out ${certFile} -req -signkey ${pkeyFile} -days 365`);
+    await _exec('openssl', 'x509', '-in', csrFile,
+                                   '-out', certFile,
+                                   '-req',
+                                   '-signkey', pkeyFile,
+                                   '-days', '365');
     return {
       CSR: await util.promisify(fs.readFile)(csrFile, { encoding: 'utf8' }),
       SelfSignedCertificate: await util.promisify(fs.readFile)(certFile, { encoding: 'utf8' }),

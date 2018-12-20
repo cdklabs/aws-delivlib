@@ -23,7 +23,7 @@ export function sendResponse(event: Event,
   console.log(`Response body: ${responseBody}`);
 
   const parsedUrl = url.parse(event.ResponseURL);
-  const options = {
+  const options: https.RequestOptions = {
     headers: {
       'content-length': responseBody.length,
       'content-type': '',
@@ -42,7 +42,7 @@ export function sendResponse(event: Event,
       if (resp.statusCode === 200) {
         return ok();
       }
-      ko(`Unexpected error sending resopnse to CloudFormation: HTTP ${resp.statusCode} (${resp.statusMessage})`);
+      ko(new Error(`Unexpected error sending resopnse to CloudFormation: HTTP ${resp.statusCode} (${resp.statusMessage})`));
     });
 
     req.on('error', ko);

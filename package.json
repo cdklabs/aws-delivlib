@@ -53,5 +53,10 @@
     "@aws-cdk/aws-sns": "^0.20.0",
     "@aws-cdk/aws-ssm": "^0.20.0",
     "@aws-cdk/cdk": "^0.20.0"
+  },
+  "jest": {
+    "collectCoverage": true,
+    "coverageDirectory": "./coverage",
+    "coverageReporters": ["lcov", "text"]
   }
 }

@@ -2,6 +2,7 @@
 set -euo pipefail
 
 compile="tsc --alwaysStrict
+             --inlineSourceMap
              --lib ES2017
              --module CommonJS
              --moduleResolution Node

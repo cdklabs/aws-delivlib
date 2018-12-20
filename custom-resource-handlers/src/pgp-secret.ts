@@ -87,10 +87,9 @@ async function _createNewKey(event: cfn.CreateEvent | cfn.UpdateEvent, context: 
       '%echo done',
     ].join('\n'), { encoding: 'utf8' });
 
-    await _exec(`gpg --batch --gen-key ${keyConfig}`);
-    const keyMaterial = await _exec('gpg --batch --yes --export-secret-keys --armor');
-    const publicKey =   await _exec('gpg --batch --yes --export             --armor');
-
+    await _exec('gpg', '--batch', '--gen-key', keyConfig);
+    const keyMaterial = await _exec('gpg', '--batch', '--yes', '--export-secret-keys', '--armor');
+    const publicKey =   await _exec('gpg', '--batch', '--yes', '--export',             '--armor');
     const secretOpts = {
       ClientRequestToken: context.awsRequestId,
       Description: event.ResourceProperties.Description,
