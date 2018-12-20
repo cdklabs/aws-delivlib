@@ -10,7 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "changelog-parser": "^2.5.0",
-    "octonode": "^0.9.4"
+    "changelog-parser": "^2.6.0",
+    "octonode": "^0.9.5"
   }
 }
