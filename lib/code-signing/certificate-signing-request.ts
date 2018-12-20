@@ -47,12 +47,12 @@ export class CertificateSigningRequest extends cdk.Construct {
   constructor(parent: cdk.Construct, id: string, props: CertificateSigningRequestProps) {
     super(parent, id);
 
-    const codeLocation = path.join(__dirname, 'certificate-signing-request');
+    const codeLocation = path.resolve(__dirname, '..', '..', 'custom-resource-handlers', 'bin', 'certificate-signing-request');
     const customResource = new lambda.SingletonFunction(this, 'ResourceHandler', {
       uuid: '541F6782-6DCF-49A7-8C5A-67715ADD9E4C',
       lambdaPurpose: 'CreateCSR',
       description: 'Creates a Certificate Signing Request document for an x509 certificate',
-      runtime: lambda.Runtime.Python36,
+      runtime: lambda.Runtime.NodeJS810,
       handler: 'index.main',
       code: new lambda.AssetCode(codeLocation),
       timeout: 300,

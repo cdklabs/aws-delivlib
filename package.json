@@ -6,7 +6,8 @@
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "scripts": {
-    "build": "tsc && tslint --fix --project .",
+    "build": "npm run build-custom-resource-handlers && tsc && tslint --fix --project .",
+    "build-custom-resource-handlers": "/bin/bash ./build-custom-resource-handlers.sh",
     "package": "/bin/bash ./package.sh",
     "watch": "tsc -w",
     "test": "/bin/bash ./test.sh",

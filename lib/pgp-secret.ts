@@ -75,7 +75,7 @@ export class PGPSecret extends cdk.Construct implements ICredentialPair {
     super(parent, name);
 
     const keyActions = ['kms:GenerateDataKey', 'kms:Encrypt', 'kms:Decrypt'];
-    const codeLocation = path.join(__dirname, 'pgp-secret');
+    const codeLocation = path.resolve(__dirname, '..', 'custom-resource-handlers', 'bin', 'pgp-secret');
 
     const fn = new lambda.SingletonFunction(this, 'Lambda', {
       uuid: 'f25803d3-054b-44fc-985f-4860d7d6ee74',
@@ -83,7 +83,7 @@ export class PGPSecret extends cdk.Construct implements ICredentialPair {
       code: new lambda.AssetCode(codeLocation),
       handler: 'index.main',
       timeout: 300,
-      runtime: lambda.Runtime.Python36,
+      runtime: lambda.Runtime.NodeJS810,
       initialPolicy: [
         new iam.PolicyStatement()
           .addActions('secretsmanager:CreateSecret',
