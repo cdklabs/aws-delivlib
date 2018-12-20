@@ -2,8 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.3.2"></a>
+## [0.3.2](https://github.com/awslabs/aws-delivlib/compare/v0.3.1...v0.3.2) (2018-12-20)
+
+
+### Bug Fixes
+
+* upgrade changelog parser ([#28](https://github.com/awslabs/aws-delivlib/issues/28)) ([813e837](https://github.com/awslabs/aws-delivlib/commit/813e837))
+
+
 <a name="0.3.1"></a>
-# [0.3.1](https://github.com/awslabs/aws-delivlib/compare/v0.1.1...v0.3.1) (2018-12-19)
+## [0.3.1](https://github.com/awslabs/aws-delivlib/compare/v0.3.0...v0.3.1) (2018-12-19)
 
 ### Bug Fixes
 
