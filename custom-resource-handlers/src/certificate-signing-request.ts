@@ -18,7 +18,7 @@ export async function main(event: cfn.Event, context: lambda.Context): Promise<v
     const attributes = await handleEvent(event, context);
     await cfn.sendResponse(event,
                           cfn.Status.SUCCESS,
-                          event.LogicalResourceId,
+                          event.LogicalResourceId || event.PhysicalResourceId || context.logStreamName,
                           attributes);
   } catch (e) {
     // tslint:disable-next-line:no-console

@@ -180,6 +180,6 @@ test('Delete', async () => {
   return expect(cfn.sendResponse)
     .toBeCalledWith(event,
                     cfn.Status.SUCCESS,
-                    '',
+                    event.PhysicalResourceId,
                     { SecretArn: '', SecretVersionId: '' });
 });

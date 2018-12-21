@@ -174,6 +174,6 @@ test('Delete', async () => {
   return expect(mockSendResponse)
     .toBeCalledWith(event,
                     cfn.Status.SUCCESS,
-                    '',
+                    event.PhysicalResourceId,
                     { SecretArn: '' });
 });

@@ -2032,7 +2032,7 @@ Resources:
         Fn::GetAtt:
           - SingletonLambda72FD327D38134632934028EC437AA4865ADA6EFF
           - Arn
-      ResourceVersion: 7QkaemBF+TIb+CnNaAUmZV/WjZfMtTPjJD9mIclE4Go=
+      ResourceVersion: 3z1iEo2gliu6HO/ThFS47cru9WTvGrAk6ZwXVRGAnD8=
       Description: The PEM-encoded private key of the x509 Code-Signing Certificate
       KeySize: 2048
       SecretName: delivlib-test/X509CodeSigningKey/RSAPrivateKey
@@ -2049,7 +2049,7 @@ Resources:
         Fn::GetAtt:
           - CreateCSR541F67826DCF49A78C5A67715ADD9E4C8F4169F6
           - Arn
-      ResourceVersion: zADQgpm0x8aBNmX2S1JYCGOLMul9gMDQOM0WfvUdw9o=
+      ResourceVersion: WYxqU7hWKjmXHFvu6uy4NwfQVFZeU8PP67aSOgW1XVo=
       PrivateKeySecretId:
         Fn::GetAtt:
           - X509CodeSigningKeyRSAPrivateKeyE5980A70
@@ -2317,7 +2317,7 @@ Resources:
         Fn::GetAtt:
           - SingletonLambdaf25803d3054b44fc985f4860d7d6ee746203BDE6
           - Arn
-      ResourceVersion: ptUhvrN9nd2pmTOr3amtOUb/QpyW4B+iG3hLHvO9qEI=
+      ResourceVersion: F2nr5wuNNEBZ3229VtPce9lV6s688L1KF9/x1ItEQ+U=
       Identity: aws-cdk-dev
       Email: aws-cdk-dev+delivlib@amazon.com
       Expiry: 4y
