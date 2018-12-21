@@ -9,9 +9,9 @@ test('forwards stdout (multi-line)', () =>
 );
 
 test('fails if the command exits with non-zero status', () =>
-  expect(_exec('node', '-e', 'process.exit(10)')).rejects.toEqual(new Error('Exited with status 10'))
+  expect(_exec('node', '-e', 'process.exit(10)')).rejects.toThrow('Exited with status 10')
 );
 
 test('fails if the command is killed by a signal', () =>
-  expect(_exec('node', '-e', 'process.kill(process.pid, "SIGKILL")')).rejects.toEqual(new Error('Killed by SIGKILL'))
+  expect(_exec('node', '-e', 'process.kill(process.pid, "SIGKILL")')).rejects.toThrow('Killed by SIGKILL')
 );

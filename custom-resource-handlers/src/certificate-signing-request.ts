@@ -26,7 +26,7 @@ export async function main(event: cfn.Event, context: lambda.Context): Promise<v
     await cfn.sendResponse(event,
                           cfn.Status.FAILED,
                           event.LogicalResourceId,
-                          { SecretArn: '' },
+                          { CSR: '', SelfSignedCertificate: '' },
                           e.message);
   }
 }
@@ -98,7 +98,7 @@ async function _makeCsrConfig(event: cfn.Event, dir: string): Promise<string> {
     `extendedKeyUsage     = ${event.ResourceProperties.ExtendedKeyUsage}`,
     `keyUsage             = ${event.ResourceProperties.KeyUsage}`,
     'subjectKeyIdentifier = hash',
-  ].join('\n'));
+  ].join('\n'), { encoding: 'utf8' });
   return file;
 }
 
@@ -108,6 +108,6 @@ async function _retrievePrivateKey(event: cfn.Event, dir: string): Promise<strin
     SecretId: event.ResourceProperties.PrivateKeySecretId,
     VersionId: event.ResourceProperties.PrivateKeySecretVersionId,
   }).promise();
-  await util.promisify(fs.writeFile)(file, secret.SecretString!);
+  await util.promisify(fs.writeFile)(file, secret.SecretString!, { encoding: 'utf8' });
   return file;
 }

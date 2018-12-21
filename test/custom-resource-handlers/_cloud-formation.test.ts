@@ -95,5 +95,5 @@ test('fails if the PUT request returns non-200', () => {
   });
 
   return expect(cfn.sendResponse(event, status, physicalId, data, reason))
-    .rejects.toEqual(new Error('Unexpected error sending resopnse to CloudFormation: HTTP 500 (Internal Error)'));
+    .rejects.toThrow('Unexpected error sending resopnse to CloudFormation: HTTP 500 (Internal Error)');
 });

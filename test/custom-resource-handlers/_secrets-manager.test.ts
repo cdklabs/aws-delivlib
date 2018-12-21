@@ -71,6 +71,6 @@ test('throws if there is no AWSCURRENT version', () => {
       };
     });
 
-  return expect(resolveCurrentVersionId(secretId, client)).rejects
-    .toEqual(new Error(`Unable to determine the current VersionId of ${secretId}`));
+  return expect(resolveCurrentVersionId(secretId, client))
+    .rejects.toThrow(`Unable to determine the current VersionId of ${secretId}`);
 });

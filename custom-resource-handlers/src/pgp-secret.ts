@@ -20,17 +20,17 @@ export async function main(event: cfn.Event, context: lambda.Context): Promise<v
     console.log(`Input event: ${JSON.stringify(event)}`);
     const attributes = await handleEvent(event, context);
     await cfn.sendResponse(event,
-                          cfn.Status.SUCCESS,
-                          attributes.SecretArn,
-                          attributes);
+                           cfn.Status.SUCCESS,
+                           attributes.SecretArn,
+                           attributes);
   } catch (e) {
     // tslint:disable-next-line:no-console
     console.error(e);
     await cfn.sendResponse(event,
-                          cfn.Status.FAILED,
-                          event.PhysicalResourceId || context.logStreamName,
-                          { SecretArn: '' },
-                          e.message);
+                           cfn.Status.FAILED,
+                           event.PhysicalResourceId || context.logStreamName,
+                           { SecretArn: '' },
+                           e.message);
   }
 }
 

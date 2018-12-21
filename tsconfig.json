@@ -22,6 +22,5 @@
         "experimentalDecorators": true,
         "jsx": "react",
         "jsxFactory": "jsx.create"
-    },
-    "exclude": ["custom-resource-handlers"]
+    }
 }
