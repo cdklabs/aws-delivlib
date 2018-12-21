@@ -51,10 +51,10 @@ interface ResourceAttributes {
 }
 
 async function _createSecret(event: cfn.CreateEvent, context: lambda.Context): Promise<ResourceAttributes> {
-  const tmpDir = await util.promisify(fs.mkdtemp)(os.tmpdir());
+  const tmpDir = await util.promisify(fs.mkdtemp)(path.join(os.tmpdir(), 'x509PrivateKey-'));
   try {
     const pkeyFile = path.join(tmpDir, 'private_key.pem');
-    _exec('openssl', 'genrsa', '-out', pkeyFile, event.ResourceProperties.KeySize);
+    await _exec('openssl', 'genrsa', '-out', pkeyFile, event.ResourceProperties.KeySize);
     const result = await secretsManager.createSecret({
       ClientRequestToken: context.awsRequestId,
       Description: event.ResourceProperties.Description,

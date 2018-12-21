@@ -44,10 +44,8 @@ Passphrase: ${passphrase.toString('base64')}
 %echo done`;
 
 jest.spyOn(crypto, 'randomBytes').mockImplementation(() => passphrase);
-jest.spyOn(fs, 'mkdtemp').mockImplementation(async (base, cb) => {
-  await expect(base).toBe(require('os').tmpdir());
-  cb(undefined, mockTmpDir);
-});
+jest.spyOn(fs, 'mkdtemp')
+  .mockImplementation(async (_, cb) => cb(undefined, mockTmpDir));
 const writeFile = jest.spyOn(fs, 'writeFile').mockName('fs.writeFile').mockImplementation((_pth, _data, _opts, cb) => cb());
 jest.mock('../../custom-resource-handlers/src/_exec', () => async (cmd: string, ...args: string[]) => {
   await expect(cmd).toBe('gpg');

@@ -71,7 +71,7 @@ async function handleEvent(event: cfn.Event, context: lambda.Context): Promise<R
 
 async function _createNewKey(event: cfn.CreateEvent | cfn.UpdateEvent, context: lambda.Context): Promise<ResourceAttributes> {
   const passPhrase = crypto.randomBytes(32).toString('base64');
-  const tempDir = await util.promisify(fs.mkdtemp)(os.tmpdir());
+  const tempDir = await util.promisify(fs.mkdtemp)(path.join(os.tmpdir(), 'OpenPGP-'));
   try {
     process.env.GNUPGHOME = tempDir;
 

@@ -1536,7 +1536,7 @@ Resources:
             Value: 68a05363083174
           - Name: SIGNING_KEY_SCOPE
             Type: PLAINTEXT
-            Value: delivlib/signing
+            Value: delivlib-test/CodeSign
           - Name: FOR_REAL
             Type: PLAINTEXT
             Value: "true"
@@ -1718,7 +1718,7 @@ Resources:
             Value: ./CHANGELOG.md
           - Name: SIGNING_KEY_SCOPE
             Type: PLAINTEXT
-            Value: delivlib/signing
+            Value: delivlib-test/CodeSign
           - Name: GITHUB_TOKEN
             Type: PLAINTEXT
             Value:
@@ -2032,7 +2032,7 @@ Resources:
         Fn::GetAtt:
           - SingletonLambda72FD327D38134632934028EC437AA4865ADA6EFF
           - Arn
-      ResourceVersion: jHRqf4H63RNQK2j59bvZ7Suik/qdEzev8joYVXPy0N8=
+      ResourceVersion: 7QkaemBF+TIb+CnNaAUmZV/WjZfMtTPjJD9mIclE4Go=
       Description: The PEM-encoded private key of the x509 Code-Signing Certificate
       KeySize: 2048
       SecretName: delivlib-test/X509CodeSigningKey/RSAPrivateKey
@@ -2049,7 +2049,7 @@ Resources:
         Fn::GetAtt:
           - CreateCSR541F67826DCF49A78C5A67715ADD9E4C8F4169F6
           - Arn
-      ResourceVersion: lg2A/uKz4Qjf3sXeKWLLZjjkhGST12DlLVRvq8Qn+aw=
+      ResourceVersion: zADQgpm0x8aBNmX2S1JYCGOLMul9gMDQOM0WfvUdw9o=
       PrivateKeySecretId:
         Fn::GetAtt:
           - X509CodeSigningKeyRSAPrivateKeyE5980A70
@@ -2164,7 +2164,7 @@ Resources:
         Fn::GetAtt:
           - SingletonLambda72FD327D38134632934028EC437AA486ServiceRole225F46F5
           - Arn
-      Runtime: python3.6
+      Runtime: nodejs8.10
       Description: Generates an RSA Private Key and stores it in AWS Secrets Manager
       Timeout: 300
     DependsOn:
@@ -2231,7 +2231,7 @@ Resources:
         Fn::GetAtt:
           - CreateCSR541F67826DCF49A78C5A67715ADD9E4CServiceRoleD2990C92
           - Arn
-      Runtime: python3.6
+      Runtime: nodejs8.10
       Description: Creates a Certificate Signing Request document for an x509 certificate
       Timeout: 300
     DependsOn:
@@ -2296,14 +2296,14 @@ Resources:
                   - Arn
             Resource: "*"
         Version: "2012-10-17"
-      Description: Encryption key for PGP secret delivlib/signing/SigningKey
+      Description: Encryption key for PGP secret delivlib-test/CodeSign/SigningKey
     DeletionPolicy: Retain
     Metadata:
       aws:cdk:path: delivlib-test/CodeSign/Key/Resource
   CodeSignKeyAliasCEA10CD5:
     Type: AWS::KMS::Alias
     Properties:
-      AliasName: alias/delivlib/signing/SigningKeyKey
+      AliasName: alias/delivlib-test/CodeSign/SigningKeyKey
       TargetKeyId:
         Fn::GetAtt:
           - CodeSignKey2302B99A
@@ -2317,17 +2317,17 @@ Resources:
         Fn::GetAtt:
           - SingletonLambdaf25803d3054b44fc985f4860d7d6ee746203BDE6
           - Arn
-      ResourceVersion: +ai21G6fYSfCaSmWQGY88zMFxRirgnfInnT4SpH1IVo=
+      ResourceVersion: ptUhvrN9nd2pmTOr3amtOUb/QpyW4B+iG3hLHvO9qEI=
       Identity: aws-cdk-dev
       Email: aws-cdk-dev+delivlib@amazon.com
       Expiry: 4y
       KeySizeBits: 4096
-      SecretName: delivlib/signing/SigningKey
+      SecretName: delivlib-test/CodeSign/SigningKey
       KeyArn:
         Fn::GetAtt:
           - CodeSignKey2302B99A
           - Arn
-      ParameterName: /delivlib/signing/SigningKey.pub
+      ParameterName: /delivlib-test/CodeSign/SigningKey.pub
       Version: 1
     Metadata:
       aws:cdk:path: delivlib-test/CodeSign/Secret/Resource
@@ -2402,7 +2402,7 @@ Resources:
         Fn::GetAtt:
           - SingletonLambdaf25803d3054b44fc985f4860d7d6ee74ServiceRole410148CF
           - Arn
-      Runtime: python3.6
+      Runtime: nodejs8.10
       Description: Generates an OpenPGP Key and stores the private key in Secrets Manager
         and the public key in an SSM Parameter
       Timeout: 300

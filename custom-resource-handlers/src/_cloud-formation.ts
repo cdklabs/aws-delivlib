@@ -39,6 +39,8 @@ export function sendResponse(event: Event,
     console.log('Sending response...');
 
     const req = https.request(options, resp => {
+      // tslint:disable-next-line:no-console
+      console.log(`Received HTTP ${resp.statusCode} (${resp.statusMessage})`);
       if (resp.statusCode === 200) {
         return ok();
       }

@@ -32,10 +32,7 @@ jest.mock('../../custom-resource-handlers/src/_exec', () => async (cmd: string, 
   return '';
 });
 jest.spyOn(fs, 'mkdtemp').mockName('fs.mkdtemp')
-  .mockImplementation(async (base, cb) => {
-    await expect(base).toBe(require('os').tmpdir());
-    cb(undefined, mockTmpDir);
-  });
+  .mockImplementation(async (_, cb) => cb(undefined, mockTmpDir));
 jest.spyOn(fs, 'readFile').mockName('fs.readFile')
   .mockImplementation(async (file, opts, cb) => {
     await expect(file).toBe(require('path').join(mockTmpDir, 'private_key.pem'));

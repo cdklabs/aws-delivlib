@@ -50,7 +50,7 @@ async function handleEvent(event: cfn.Event, _context: lambda.Context): Promise<
 }
 
 async function _createSelfSignedCertificate(event: cfn.Event): Promise<ResourceAttributes> {
-  const tempDir = await util.promisify(fs.mkdtemp)(os.tmpdir());
+  const tempDir = await util.promisify(fs.mkdtemp)(path.join(os.tmpdir(), 'x509CSR-'));
   try {
     const configFile = await _makeCsrConfig(event, tempDir);
     const pkeyFile = await _retrievePrivateKey(event, tempDir);

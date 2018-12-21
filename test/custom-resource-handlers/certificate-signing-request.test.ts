@@ -24,7 +24,7 @@ const eventBase = {
   ResourceType: 'Custom::Resource::Type',
   StackId: 'StackID-1324597',
 };
-const mockTempDir = '/tmp/directory/is/phony';
+const mockTmpDir = '/tmp/directory/is/phony';
 const mockPrivateKey = 'Pretend private key';
 const mockCsr = 'Pretend CSR';
 const mockCertificate = 'Pretend Certificate';
@@ -52,17 +52,14 @@ keyUsage             = ${eventBase.ResourceProperties.KeyUsage}
 subjectKeyIdentifier = hash`;
 
 jest.spyOn(fs, 'mkdtemp').mockName('fs.mkdtemp')
-  .mockImplementation(async (base, cb) => {
-    await expect(base).toBe(require('os').tmpdir());
-    cb(undefined, mockTempDir);
-  });
+  .mockImplementation(async (_, cb) => cb(undefined, mockTmpDir));
 jest.spyOn(fs, 'readFile').mockName('fs.readFile')
   .mockImplementation(async (file, opts, cb) => {
     expect(opts.encoding).toBe('utf8');
     switch (file) {
-    case require('path').join(mockTempDir, 'csr.pem'):
+    case require('path').join(mockTmpDir, 'csr.pem'):
       return cb(undefined, mockCsr);
-    case require('path').join(mockTempDir, 'cert.pem'):
+    case require('path').join(mockTmpDir, 'cert.pem'):
       return cb(undefined, mockCertificate);
     default:
       cb(new Error('Unexpected call!'));
@@ -95,16 +92,16 @@ test('Create', async () => {
     await expect(cmd).toBe('openssl');
     switch (args[0]) {
     case 'req':
-      await expect(args).toEqual(['req', '-config', require('path').join(mockTempDir, 'csr.config'),
-                                         '-key',    require('path').join(mockTempDir, 'private_key.pem'),
-                                         '-out',    require('path').join(mockTempDir, 'csr.pem'),
+      await expect(args).toEqual(['req', '-config', require('path').join(mockTmpDir, 'csr.config'),
+                                         '-key',    require('path').join(mockTmpDir, 'private_key.pem'),
+                                         '-out',    require('path').join(mockTmpDir, 'csr.pem'),
                                          '-new']);
       break;
     case 'x509':
-      await expect(args).toEqual(['x509', '-in',      require('path').join(mockTempDir, 'csr.pem'),
-                                          '-out',     require('path').join(mockTempDir, 'cert.pem'),
+      await expect(args).toEqual(['x509', '-in',      require('path').join(mockTmpDir, 'csr.pem'),
+                                          '-out',     require('path').join(mockTmpDir, 'cert.pem'),
                                           '-req',
-                                          '-signkey', require('path').join(mockTempDir, 'private_key.pem'),
+                                          '-signkey', require('path').join(mockTmpDir, 'private_key.pem'),
                                           '-days', '365']);
       break;
     default:
@@ -117,16 +114,16 @@ test('Create', async () => {
   await expect(main(event, context)).resolves.toBe(undefined);
 
   await expect(mockWriteFile)
-    .toBeCalledWith(path.join(mockTempDir, 'csr.config'),
+    .toBeCalledWith(path.join(mockTmpDir, 'csr.config'),
                     csrDocument,
                     expect.anything(),
                     expect.any(Function));
   await expect(mockWriteFile)
-    .toBeCalledWith(path.join(mockTempDir, 'private_key.pem'),
+    .toBeCalledWith(path.join(mockTmpDir, 'private_key.pem'),
                     mockPrivateKey,
                     expect.anything(),
                     expect.any(Function));
-  await expect(mockRmrf).toBeCalledWith(mockTempDir);
+  await expect(mockRmrf).toBeCalledWith(mockTmpDir);
   return expect(cfn.sendResponse)
     .toBeCalledWith(event,
                     cfn.Status.SUCCESS,
@@ -146,16 +143,16 @@ test('Update', async () => {
     await expect(cmd).toBe('openssl');
     switch (args[0]) {
     case 'req':
-      await expect(args).toEqual(['req', '-config', require('path').join(mockTempDir, 'csr.config'),
-                                         '-key',    require('path').join(mockTempDir, 'private_key.pem'),
-                                         '-out',    require('path').join(mockTempDir, 'csr.pem'),
+      await expect(args).toEqual(['req', '-config', require('path').join(mockTmpDir, 'csr.config'),
+                                         '-key',    require('path').join(mockTmpDir, 'private_key.pem'),
+                                         '-out',    require('path').join(mockTmpDir, 'csr.pem'),
                                          '-new']);
       break;
     case 'x509':
-      await expect(args).toEqual(['x509', '-in',      require('path').join(mockTempDir, 'csr.pem'),
-                                          '-out',     require('path').join(mockTempDir, 'cert.pem'),
+      await expect(args).toEqual(['x509', '-in',      require('path').join(mockTmpDir, 'csr.pem'),
+                                          '-out',     require('path').join(mockTmpDir, 'cert.pem'),
                                           '-req',
-                                          '-signkey', require('path').join(mockTempDir, 'private_key.pem'),
+                                          '-signkey', require('path').join(mockTmpDir, 'private_key.pem'),
                                           '-days', '365']);
       break;
     default:
@@ -168,16 +165,16 @@ test('Update', async () => {
   await expect(main(event, context)).resolves.toBe(undefined);
 
   await expect(mockWriteFile)
-    .toBeCalledWith(path.join(mockTempDir, 'csr.config'),
+    .toBeCalledWith(path.join(mockTmpDir, 'csr.config'),
                     csrDocument,
                     expect.anything(),
                     expect.any(Function));
   await expect(mockWriteFile)
-    .toBeCalledWith(path.join(mockTempDir, 'private_key.pem'),
+    .toBeCalledWith(path.join(mockTmpDir, 'private_key.pem'),
                     mockPrivateKey,
                     expect.anything(),
                     expect.any(Function));
-  await expect(mockRmrf).toBeCalledWith(mockTempDir);
+  await expect(mockRmrf).toBeCalledWith(mockTmpDir);
   return expect(cfn.sendResponse)
     .toBeCalledWith(event,
                     cfn.Status.SUCCESS,
