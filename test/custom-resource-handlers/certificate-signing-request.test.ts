@@ -77,7 +77,7 @@ jest.mock('../../custom-resource-handlers/src/_rmrf', () => mockRmrf);
 const mockRmrf = jest.fn().mockName('_rmrf')
   .mockResolvedValue(undefined);
 jest.mock('../../custom-resource-handlers/src/_rmrf', () => mockRmrf);
-cfn.sendResponse = jest.fn().mockName('cfn.sendResponse').mockResolvedValue(undefined);
+jest.spyOn(cfn, 'sendResponse').mockName('cfn.sendResponse').mockResolvedValue(undefined);
 
 beforeEach(() => jest.clearAllMocks());
 
@@ -110,8 +110,8 @@ test('Create', async () => {
     return '';
   });
 
-  const { main } = require('../../custom-resource-handlers/src/certificate-signing-request');
-  await expect(main(event, context)).resolves.toBe(undefined);
+  const { handler } = require('../../custom-resource-handlers/src/certificate-signing-request');
+  await expect(handler(event, context)).resolves.toBe(undefined);
 
   await expect(mockWriteFile)
     .toBeCalledWith(path.join(mockTmpDir, 'csr.config'),
@@ -128,7 +128,7 @@ test('Create', async () => {
     .toBeCalledWith(event,
                     cfn.Status.SUCCESS,
                     event.LogicalResourceId,
-                    { CSR: mockCsr, SelfSignedCertificate: mockCertificate });
+                    { Ref: event.LogicalResourceId, CSR: mockCsr, SelfSignedCertificate: mockCertificate });
 });
 
 test('Update', async () => {
@@ -161,8 +161,8 @@ test('Update', async () => {
     return '';
   });
 
-  const { main } = require('../../custom-resource-handlers/src/certificate-signing-request');
-  await expect(main(event, context)).resolves.toBe(undefined);
+  const { handler } = require('../../custom-resource-handlers/src/certificate-signing-request');
+  await expect(handler(event, context)).resolves.toBe(undefined);
 
   await expect(mockWriteFile)
     .toBeCalledWith(path.join(mockTmpDir, 'csr.config'),
@@ -179,7 +179,7 @@ test('Update', async () => {
     .toBeCalledWith(event,
                     cfn.Status.SUCCESS,
                     event.LogicalResourceId,
-                    { CSR: mockCsr, SelfSignedCertificate: mockCertificate });
+                    { Ref: event.LogicalResourceId, CSR: mockCsr, SelfSignedCertificate: mockCertificate });
 });
 
 test('Delete', async () => {
@@ -189,12 +189,12 @@ test('Delete', async () => {
     ...eventBase,
   };
 
-  const { main } = require('../../custom-resource-handlers/src/certificate-signing-request');
-  await expect(main(event, context)).resolves.toBe(undefined);
+  const { handler } = require('../../custom-resource-handlers/src/certificate-signing-request');
+  await expect(handler(event, context)).resolves.toBe(undefined);
 
   return expect(cfn.sendResponse)
     .toBeCalledWith(event,
                     cfn.Status.SUCCESS,
                     event.LogicalResourceId,
-                    { CSR: '', SelfSignedCertificate: '' });
+                    { Ref: event.LogicalResourceId });
 });

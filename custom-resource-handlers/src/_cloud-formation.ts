@@ -1,12 +1,54 @@
 import https = require('https');
 import url = require('url');
+import lambda = require('./_lambda');
+
+export type LambdaHandler = (event: Event, context: lambda.Context) => Promise<void>;
+export type ResourceHandler = (event: Event, context: lambda.Context) => Promise<ResourceAttributes>;
+
+/**
+ * Implements a Lambda CloudFormation custom resource handler.
+ *
+ * @param handleEvent  the handler function that creates, updates and deletes the resource.
+ * @param refAttribute the name of the attribute holindg the Physical ID of the resource.
+ * @returns a handler function.
+ */
+export function customResourceHandler(handleEvent: ResourceHandler): LambdaHandler {
+  return async (event, context) => {
+    try {
+      // tslint:disable-next-line:no-console
+      console.log(`Input event: ${JSON.stringify(event)}`);
+
+      const attributes = await handleEvent(event, context);
+
+      // tslint:disable-next-line:no-console
+      console.log(`Attributes: ${JSON.stringify(attributes)}`);
+
+      await exports.sendResponse(event, Status.SUCCESS, attributes.Ref, attributes);
+    } catch (e) {
+      // tslint:disable-next-line:no-console
+      console.error(e);
+      await exports.sendResponse(event, Status.FAILED, event.PhysicalResourceId, {}, e.message);
+    }
+  };
+}
+
+/**
+ * General shape of custom resource attributes.
+ */
+export interface ResourceAttributes {
+  /** The physical reference to this resource instance. */
+  Ref: string;
+
+  /** Other attributes of the resource. */
+  [key: string]: string | undefined;
+}
 
 /**
  * @see https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/crpg-ref-responses.html
  */
 export function sendResponse(event: Event,
                              status: Status,
-                             physicalResourceId: string,
+                             physicalResourceId: string = event.PhysicalResourceId || event.LogicalResourceId,
                              data: { [name: string]: string | undefined },
                              reason?: string) {
   const responseBody = JSON.stringify({
@@ -47,7 +89,7 @@ export function sendResponse(event: Event,
       ko(new Error(`Unexpected error sending resopnse to CloudFormation: HTTP ${resp.statusCode} (${resp.statusMessage})`));
     });
 
-    req.on('error', ko);
+    req.once('error', ko);
     req.write(responseBody);
 
     req.end();

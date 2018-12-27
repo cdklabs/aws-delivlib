@@ -9,40 +9,21 @@ import cfn = require('./_cloud-formation');
 import _exec = require('./_exec');
 import lambda = require('./_lambda');
 import _rmrf = require('./_rmrf');
-import { resolveCurrentVersionId } from './_secrets-manager';
+
+const mkdtemp = util.promisify(fs.mkdtemp);
+const writeFile = util.promisify(fs.writeFile);
 
 const secretsManager = new aws.SecretsManager();
 const ssm = new aws.SSM();
 
-export async function main(event: cfn.Event, context: lambda.Context): Promise<void> {
-  try {
-    // tslint:disable-next-line:no-console
-    console.log(`Input event: ${JSON.stringify(event)}`);
-    const attributes = await handleEvent(event, context);
-    await cfn.sendResponse(event,
-                           cfn.Status.SUCCESS,
-                           attributes.SecretArn || event.PhysicalResourceId || context.logStreamName,
-                           attributes);
-  } catch (e) {
-    // tslint:disable-next-line:no-console
-    console.error(e);
-    await cfn.sendResponse(event,
-                           cfn.Status.FAILED,
-                           event.PhysicalResourceId || context.logStreamName,
-                           { SecretArn: '' },
-                           e.message);
-  }
-}
+exports.handler = cfn.customResourceHandler(handleEvent);
 
-interface ResourceAttributes {
+interface ResourceAttributes extends cfn.ResourceAttributes {
   SecretArn: string;
-  SecretVersionId?: string;
-  ParameterName?: string;
-
-  [name: string]: string | undefined;
+  ParameterName: string;
 }
 
-async function handleEvent(event: cfn.Event, context: lambda.Context): Promise<ResourceAttributes> {
+async function handleEvent(event: cfn.Event, context: lambda.Context): Promise<cfn.ResourceAttributes> {
   const props = event.ResourceProperties;
   let newKey = event.RequestType === cfn.RequestType.CREATE;
 
@@ -61,6 +42,7 @@ async function handleEvent(event: cfn.Event, context: lambda.Context): Promise<R
   switch (event.RequestType) {
   case cfn.RequestType.CREATE:
   case cfn.RequestType.UPDATE:
+    // If we're UPDATE and get a new key, we'll issue a new Physical ID.
     return newKey
           ? await _createNewKey(event, context)
           : await _updateExistingKey(event as cfn.UpdateEvent, context);
@@ -71,12 +53,12 @@ async function handleEvent(event: cfn.Event, context: lambda.Context): Promise<R
 
 async function _createNewKey(event: cfn.CreateEvent | cfn.UpdateEvent, context: lambda.Context): Promise<ResourceAttributes> {
   const passPhrase = crypto.randomBytes(32).toString('base64');
-  const tempDir = await util.promisify(fs.mkdtemp)(path.join(os.tmpdir(), 'OpenPGP-'));
+  const tempDir = await mkdtemp(path.join(os.tmpdir(), 'OpenPGP-'));
   try {
     process.env.GNUPGHOME = tempDir;
 
     const keyConfig = path.join(tempDir, 'key.config');
-    await util.promisify(fs.writeFile)(keyConfig, [
+    await writeFile(keyConfig, [
       'Key-Type: RSA',
       `Key-Length: ${event.ResourceProperties.KeySizeBits}`,
       `Name-Real: ${event.ResourceProperties.Identity}`,
@@ -100,24 +82,29 @@ async function _createNewKey(event: cfn.CreateEvent | cfn.UpdateEvent, context: 
                  ? await secretsManager.createSecret({ ...secretOpts, Name: event.ResourceProperties.SecretName }).promise()
                  : await secretsManager.updateSecret({ ...secretOpts, SecretId: event.PhysicalResourceId }).promise();
     await ssm.putParameter({
-      Description: `Public part of OpenPGP key ${secret.ARN} (version ${secret.VersionId})`,
+      Description: `Public part of OpenPGP key ${secret.ARN}`,
       Name: event.ResourceProperties.ParameterName,
       Overwrite: event.RequestType === 'Update',
       Type: 'String',
       Value: publicKey,
     }).promise();
 
-    return { SecretArn: secret.ARN!, SecretVersionId: secret.VersionId!, ParameterName: event.ResourceProperties.ParameterName };
+    return {
+      Ref: secret.ARN!,
+      SecretArn: secret.ARN!,
+      ParameterName: event.ResourceProperties.ParameterName
+    };
   } finally {
     await _rmrf(tempDir);
   }
 }
 
-async function _deleteSecret(event: cfn.DeleteEvent): Promise<ResourceAttributes> {
-  if (!event.PhysicalResourceId.startsWith('arn:')) { return { SecretArn: '' }; }
-  await ssm.deleteParameter({ Name: event.ResourceProperties.ParameterName }).promise();
-  await secretsManager.deleteSecret({ SecretId: event.PhysicalResourceId }).promise();
-  return { SecretArn: '' };
+async function _deleteSecret(event: cfn.DeleteEvent): Promise<cfn.ResourceAttributes> {
+  if (event.PhysicalResourceId.startsWith('arn:')) {
+    await ssm.deleteParameter({ Name: event.ResourceProperties.ParameterName }).promise();
+    await secretsManager.deleteSecret({ SecretId: event.PhysicalResourceId }).promise();
+  }
+  return { Ref: event.PhysicalResourceId };
 }
 
 async function _updateExistingKey(event: cfn.UpdateEvent, context: lambda.Context): Promise<ResourceAttributes> {
@@ -127,9 +114,10 @@ async function _updateExistingKey(event: cfn.UpdateEvent, context: lambda.Contex
     KmsKeyId: event.ResourceProperties.KeyArn,
     SecretId: event.PhysicalResourceId,
   }).promise();
+
   return {
+    Ref: result.ARN!,
     SecretArn: result.ARN!,
-    SecretVersionId: result.VersionId || await resolveCurrentVersionId(result.ARN!, secretsManager),
     ParameterName: event.ResourceProperties.ParameterName
   };
 }

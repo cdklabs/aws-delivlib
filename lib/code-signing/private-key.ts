@@ -68,7 +68,7 @@ export class RsaPrivateKeySecret extends cdk.Construct {
       uuid: '72FD327D-3813-4632-9340-28EC437AA486',
       description: 'Generates an RSA Private Key and stores it in AWS Secrets Manager',
       runtime: lambda.Runtime.NodeJS810,
-      handler: 'index.main',
+      handler: 'index.handler',
       code: new lambda.AssetCode(codeLocation),
       timeout: 300,
     });
@@ -77,6 +77,7 @@ export class RsaPrivateKeySecret extends cdk.Construct {
       service: 'secretsmanager',
       resource: 'secret',
       sep: ':',
+      // The ARN of a secret has "-" followed by 6 random characters appended at the end
       resourceName: `${props.secretName}-??????`
     });
     customResource.addToRolePolicy(new iam.PolicyStatement()

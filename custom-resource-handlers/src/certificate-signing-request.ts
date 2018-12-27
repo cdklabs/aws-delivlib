@@ -9,48 +9,32 @@ import _exec = require('./_exec');
 import lambda = require('./_lambda');
 import _rmrf = require('./_rmrf');
 
+const mkdtemp = util.promisify(fs.mkdtemp);
+const readFile = util.promisify(fs.readFile);
+const writeFile = util.promisify(fs.writeFile);
+
 const secretsManager = new aws.SecretsManager();
 
-export async function main(event: cfn.Event, context: lambda.Context): Promise<void> {
-  try {
-    // tslint:disable-next-line:no-console
-    console.log(`Input event: ${JSON.stringify(event)}`);
-    const attributes = await handleEvent(event, context);
-    await cfn.sendResponse(event,
-                          cfn.Status.SUCCESS,
-                          event.LogicalResourceId || event.PhysicalResourceId || context.logStreamName,
-                          attributes);
-  } catch (e) {
-    // tslint:disable-next-line:no-console
-    console.error(e);
-    await cfn.sendResponse(event,
-                          cfn.Status.FAILED,
-                          event.LogicalResourceId,
-                          { CSR: '', SelfSignedCertificate: '' },
-                          e.message);
-  }
-}
+exports.handler = cfn.customResourceHandler(handleEvent);
 
-interface ResourceAttributes {
+interface ResourceAttributes extends cfn.ResourceAttributes {
   CSR: string;
   SelfSignedCertificate: string;
-
-  [name: string]: string | undefined;
 }
 
-async function handleEvent(event: cfn.Event, _context: lambda.Context): Promise<ResourceAttributes> {
+async function handleEvent(event: cfn.Event, _context: lambda.Context): Promise<cfn.ResourceAttributes> {
   switch (event.RequestType) {
   case cfn.RequestType.CREATE:
   case cfn.RequestType.UPDATE:
     return _createSelfSignedCertificate(event);
   case cfn.RequestType.DELETE:
     // Nothing to do - this is not a "Physical" resource
-    return { CSR: '', SelfSignedCertificate: '' };
+    return { Ref: event.LogicalResourceId };
   }
 }
 
 async function _createSelfSignedCertificate(event: cfn.Event): Promise<ResourceAttributes> {
-  const tempDir = await util.promisify(fs.mkdtemp)(path.join(os.tmpdir(), 'x509CSR-'));
+  const tempDir = await mkdtemp(path.join(os.tmpdir(), 'x509CSR-'));
   try {
     const configFile = await _makeCsrConfig(event, tempDir);
     const pkeyFile = await _retrievePrivateKey(event, tempDir);
@@ -66,8 +50,9 @@ async function _createSelfSignedCertificate(event: cfn.Event): Promise<ResourceA
                                    '-signkey', pkeyFile,
                                    '-days', '365');
     return {
-      CSR: await util.promisify(fs.readFile)(csrFile, { encoding: 'utf8' }),
-      SelfSignedCertificate: await util.promisify(fs.readFile)(certFile, { encoding: 'utf8' }),
+      Ref: event.LogicalResourceId,
+      CSR: await readFile(csrFile, { encoding: 'utf8' }),
+      SelfSignedCertificate: await readFile(certFile, { encoding: 'utf8' }),
     };
   } finally {
     await _rmrf(tempDir);
@@ -76,7 +61,7 @@ async function _createSelfSignedCertificate(event: cfn.Event): Promise<ResourceA
 
 async function _makeCsrConfig(event: cfn.Event, dir: string): Promise<string> {
   const file = path.join(dir, 'csr.config');
-  await util.promisify(fs.writeFile)(file, [
+  await writeFile(file, [
     '[ req ]',
     'default_md           = sha256',
     'distinguished_name   = dn',
@@ -106,8 +91,8 @@ async function _retrievePrivateKey(event: cfn.Event, dir: string): Promise<strin
   const file = path.join(dir, 'private_key.pem');
   const secret = await secretsManager.getSecretValue({
     SecretId: event.ResourceProperties.PrivateKeySecretId,
-    VersionId: event.ResourceProperties.PrivateKeySecretVersionId,
+    VersionStage: 'AWSCURRENT',
   }).promise();
-  await util.promisify(fs.writeFile)(file, secret.SecretString!, { encoding: 'utf8' });
+  await writeFile(file, secret.SecretString!, { encoding: 'utf8' });
   return file;
 }

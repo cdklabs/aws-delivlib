@@ -66,10 +66,10 @@ interface PGPSecretProps {
  * { "PrivateKey": "... ASCII repr of key...", "Passphrase": "passphrase of the key" }
  */
 export class PGPSecret extends cdk.Construct implements ICredentialPair {
-  public readonly parameterArn: string;
-  public readonly parameterName: string;
-  public readonly secretArn: string;
-  public readonly secretVersionId: string;
+  public readonly publicPartParameterArn: string;
+  public readonly publicPartParameterName: string;
+  public readonly privatePartSecretArn: string;
+  public readonly privatePartSecretVersionId: string;
 
   constructor(parent: cdk.Construct, name: string, props: PGPSecretProps) {
     super(parent, name);
@@ -81,7 +81,7 @@ export class PGPSecret extends cdk.Construct implements ICredentialPair {
       uuid: 'f25803d3-054b-44fc-985f-4860d7d6ee74',
       description: 'Generates an OpenPGP Key and stores the private key in Secrets Manager and the public key in an SSM Parameter',
       code: new lambda.AssetCode(codeLocation),
-      handler: 'index.main',
+      handler: 'index.handler',
       timeout: 300,
       runtime: lambda.Runtime.NodeJS810,
       initialPolicy: [
@@ -116,9 +116,9 @@ export class PGPSecret extends cdk.Construct implements ICredentialPair {
         description: props.description,
       },
     });
-    this.secretArn = secret.getAtt('SecretArn').toString();
-    this.secretVersionId = secret.getAtt('SecretVersionId').toString();
-    this.parameterName = secret.getAtt('ParameterName').toString();
-    this.parameterArn = cdk.ArnUtils.fromComponents({ service: 'ssm', resource: 'parameter', resourceName: this.parameterName });
+    this.privatePartSecretArn = secret.getAtt('SecretArn').toString();
+    this.privatePartSecretVersionId = secret.getAtt('SecretVersionId').toString();
+    this.publicPartParameterName = secret.getAtt('ParameterName').toString();
+    this.publicPartParameterArn = cdk.ArnUtils.fromComponents({ service: 'ssm', resource: 'parameter', resourceName: this.publicPartParameterName });
   }
 }

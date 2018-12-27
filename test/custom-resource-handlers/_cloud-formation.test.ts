@@ -36,6 +36,10 @@ test('sends the correct response to CloudFormation', () => {
         emitter.on(evt, callback);
         return this;
       },
+      once(evt: string, callback: (...args: any[]) => void) {
+        emitter.once(evt, callback);
+        return this;
+      },
       write(str: string) {
         payload = str;
         return this;
@@ -73,6 +77,10 @@ test('fails if the PUT request returns non-200', () => {
     return {
       on(evt: string, callback: (...args: any[]) => void) {
         emitter.on(evt, callback);
+        return this;
+      },
+      once(evt: string, callback: (...args: any[]) => void) {
+        emitter.once(evt, callback);
         return this;
       },
       write(str: string) {

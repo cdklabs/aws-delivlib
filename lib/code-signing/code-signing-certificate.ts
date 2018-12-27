@@ -81,22 +81,22 @@ export class CodeSigningCertificate extends cdk.Construct implements ICodeSignin
   /**
    * The ARN of the AWS Secrets Manager secret that holds the private key for this CSC
    */
-  public readonly secretArn: string;
+  public readonly privatePartSecretArn: string;
 
   /**
    * The ID of the version of the AWS Secrets Manager secret that holds the private key for this CSC
    */
-  public readonly secretVersionId: string;
+  public readonly privatePartSecretVersionId: string;
 
   /**
    * The ARN of the AWS SSM Parameter that holds the certificate for this CSC.
    */
-  public readonly parameterArn: string;
+  public readonly publicPartParameterArn: string;
 
   /**
    * The name of the AWS SSM parameter that holds the certificate for this CSC.
    */
-  public readonly parameterName: string;
+  public readonly publicPartParameterName: string;
 
   /**
    * KMS key to encrypt the secret.
@@ -123,8 +123,8 @@ export class CodeSigningCertificate extends cdk.Construct implements ICodeSignin
 
     this.secretEncryptionKey = props.secretEncryptionKey;
 
-    this.secretArn = privateKey.secretArn;
-    this.secretVersionId = privateKey.secretVersion;
+    this.privatePartSecretArn = privateKey.secretArn;
+    this.privatePartSecretVersionId = privateKey.secretVersion;
 
     let certificate = props.pemCertificate;
 
@@ -146,16 +146,16 @@ export class CodeSigningCertificate extends cdk.Construct implements ICodeSignin
     }
 
     const paramName = `${baseName}/Certificate`;
-    this.parameterName = `/${paramName}`;
+    this.publicPartParameterName = `/${paramName}`;
 
     new ssm.cloudformation.ParameterResource(this, 'Resource', {
       description: `A PEM-encoded Code-Signing Certificate (private key in ${privateKey.secretArn} version ${privateKey.secretVersion})`,
-      name: this.parameterName,
+      name: this.publicPartParameterName,
       type: 'String',
       value: certificate
     });
 
-    this.parameterArn = cdk.ArnUtils.fromComponents({
+    this.publicPartParameterArn = cdk.ArnUtils.fromComponents({
       service: 'ssm',
       resource: 'parameter',
       resourceName: paramName
@@ -171,11 +171,11 @@ export class CodeSigningCertificate extends cdk.Construct implements ICodeSignin
 
     permissions.grantSecretRead({
       keyArn: this.secretEncryptionKey && this.secretEncryptionKey.keyArn,
-      secretArn: this.secretArn,
+      secretArn: this.privatePartSecretArn,
     }, principal);
 
     principal.addToPolicy(new iam.PolicyStatement()
       .addAction('ssm:GetParameter')
-      .addResource(this.parameterArn));
+      .addResource(this.publicPartParameterArn));
   }
 }

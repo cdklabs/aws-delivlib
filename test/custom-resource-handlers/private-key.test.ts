@@ -3,7 +3,6 @@ import fs = require('fs');
 import { createMockInstance } from 'jest-create-mock-instance';
 import cfn = require('../../custom-resource-handlers/src/_cloud-formation');
 import lambda = require('../../custom-resource-handlers/src/_lambda');
-import secretsManager = require('../../custom-resource-handlers/src/_secrets-manager');
 
 const context: lambda.Context = { awsRequestId: '90E99AAE-B120-409A-9156-0C5925FDD996' } as lambda.Context;
 const mockKeySize = 4_096;
@@ -23,7 +22,6 @@ const eventBase = {
 const mockTmpDir = '/tmp/directory/is/phony';
 const mockPrivateKey = 'Phony PEM-Encoded Private Key';
 const secretArn = 'arn::::::secret';
-const secretVersionId = 'secret-version-id';
 
 cfn.sendResponse = jest.fn().mockName('cfn.sendResponse').mockResolvedValue(undefined);
 jest.mock('../../custom-resource-handlers/src/_exec', () => async (cmd: string, ...args: string[]) => {
@@ -42,15 +40,13 @@ jest.spyOn(fs, 'readFile').mockName('fs.readFile')
 const mockSecretsManager = createMockInstance(aws.SecretsManager);
 jest.spyOn(aws, 'SecretsManager').mockImplementation(() => mockSecretsManager);
 mockSecretsManager.createSecret = jest.fn().mockName('SecretsManager.createSecret')
-  .mockImplementation(() => ({ promise: () => Promise.resolve({ ARN: secretArn, VersionId: secretVersionId }) })) as any;
+  .mockImplementation(() => ({ promise: () => Promise.resolve({ ARN: secretArn, VersionId: 'Secret-VersionID' }) })) as any;
 mockSecretsManager.updateSecret = jest.fn().mockName('SecretsManager.updateSecret')
   .mockImplementation(() => ({ promise: () => Promise.resolve({ ARN: secretArn }) })) as any;
 mockSecretsManager.deleteSecret = jest.fn().mockName('SecretsManager.deleteSecret')
   .mockImplementation(() => ({ promise: () => Promise.resolve({}) })) as any;
 const mockRmrf = jest.fn().mockName('_rmrf').mockResolvedValue(undefined);
 jest.mock('../../custom-resource-handlers/src/_rmrf', () => mockRmrf);
-secretsManager.resolveCurrentVersionId = jest.fn().mockName('resolveCurrentVersionId')
-  .mockResolvedValue(secretVersionId);
 
 beforeEach(() => jest.clearAllMocks());
 
@@ -61,8 +57,8 @@ test('Create', async () => {
     ...eventBase,
   };
 
-  const { main } = require('../../custom-resource-handlers/src/private-key');
-  await expect(main(event, context)).resolves.toBe(undefined);
+  const { handler } = require('../../custom-resource-handlers/src/private-key');
+  await expect(handler(event, context)).resolves.toBe(undefined);
 
   await expect(mockSecretsManager.createSecret)
     .toBeCalledWith({
@@ -79,7 +75,7 @@ test('Create', async () => {
     .toBeCalledWith(event,
                     cfn.Status.SUCCESS,
                     secretArn,
-                    { SecretArn: secretArn, SecretVersionId: secretVersionId });
+                    { Ref: secretArn, SecretArn: secretArn });
 });
 
 test('Update (changing KeySize)', async () => {
@@ -93,8 +89,8 @@ test('Update (changing KeySize)', async () => {
     ...eventBase,
   };
 
-  const { main } = require('../../custom-resource-handlers/src/private-key');
-  await expect(main(event, context)).resolves.toBe(undefined);
+  const { handler } = require('../../custom-resource-handlers/src/private-key');
+  await expect(handler(event, context)).resolves.toBe(undefined);
 
   await expect(mockSecretsManager.createSecret).not.toBeCalled();
   await expect(mockSecretsManager.updateSecret).not.toBeCalled();
@@ -103,23 +99,23 @@ test('Update (changing KeySize)', async () => {
     .toBeCalledWith(event,
                     cfn.Status.FAILED,
                     secretArn,
-                    { SecretArn: '' },
+                    {},
                     expect.stringContaining('The KeySize property cannot be updated'));
 });
 
-test('Update (changing KeySize)', async () => {
+test('Update (changing SecretName)', async () => {
   const event: cfn.Event = {
     RequestType: cfn.RequestType.UPDATE,
     PhysicalResourceId: secretArn,
     OldResourceProperties: {
       ...eventBase.ResourceProperties,
-      KeySize: mockKeySize * 2,
+      SecretName: 'Old/Secret/Name',
     },
     ...eventBase,
   };
 
-  const { main } = require('../../custom-resource-handlers/src/private-key');
-  await expect(main(event, context)).resolves.toBe(undefined);
+  const { handler } = require('../../custom-resource-handlers/src/private-key');
+  await expect(handler(event, context)).resolves.toBe(undefined);
 
   await expect(mockSecretsManager.createSecret).not.toBeCalled();
   await expect(mockSecretsManager.updateSecret).not.toBeCalled();
@@ -128,8 +124,8 @@ test('Update (changing KeySize)', async () => {
     .toBeCalledWith(event,
                     cfn.Status.FAILED,
                     secretArn,
-                    { SecretArn: '' },
-                    expect.stringContaining('The KeySize property cannot be updated'));
+                    {},
+                    expect.stringContaining('The SecretName property cannot be updated'));
 });
 
 test('Update (changing Description and KmsKeyId)', async () => {
@@ -144,8 +140,8 @@ test('Update (changing Description and KmsKeyId)', async () => {
     ...eventBase,
   };
 
-  const { main } = require('../../custom-resource-handlers/src/private-key');
-  await expect(main(event, context)).resolves.toBe(undefined);
+  const { handler } = require('../../custom-resource-handlers/src/private-key');
+  await expect(handler(event, context)).resolves.toBe(undefined);
 
   await expect(mockSecretsManager.createSecret).not.toBeCalled();
   await expect(mockSecretsManager.updateSecret)
@@ -160,7 +156,7 @@ test('Update (changing Description and KmsKeyId)', async () => {
     .toBeCalledWith(event,
                     cfn.Status.SUCCESS,
                     secretArn,
-                    { SecretArn: secretArn, SecretVersionId: secretVersionId });
+                    { Ref: secretArn, SecretArn: secretArn });
 });
 
 test('Delete', async () => {
@@ -170,8 +166,16 @@ test('Delete', async () => {
     ...eventBase,
   };
 
-  const { main } = require('../../custom-resource-handlers/src/private-key');
-  await expect(main(event, context)).resolves.toBe(undefined);
+  jest.spyOn(cfn, 'customResourceHandler').mockName('cfn.customResourceHandler')
+    .mockImplementation(async (cb) => {
+      const result = await cb();
+      await expect(result).toEqual({
+        Ref: event.PhysicalResourceId,
+      });
+    });
+
+  const { handler } = require('../../custom-resource-handlers/src/private-key');
+  await expect(handler(event, context)).resolves.toBe(undefined);
 
   await expect(mockSecretsManager.createSecret).not.toBeCalled();
   await expect(mockSecretsManager.updateSecret).not.toBeCalled();
@@ -181,5 +185,5 @@ test('Delete', async () => {
     .toBeCalledWith(event,
                     cfn.Status.SUCCESS,
                     event.PhysicalResourceId,
-                    { SecretArn: '', SecretVersionId: '' });
+                    { Ref: event.PhysicalResourceId });
 });

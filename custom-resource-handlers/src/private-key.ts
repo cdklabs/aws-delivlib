@@ -8,31 +8,15 @@ import cfn = require('./_cloud-formation');
 import _exec = require('./_exec');
 import lambda = require('./_lambda');
 import _rmrf = require('./_rmrf');
-import { resolveCurrentVersionId } from './_secrets-manager';
+
+const mkdtemp = util.promisify(fs.mkdtemp);
+const readFile = util.promisify(fs.readFile);
 
 const secretsManager = new aws.SecretsManager();
 
-export async function main(event: cfn.Event, context: lambda.Context): Promise<void> {
-  try {
-    // tslint:disable-next-line:no-console
-    console.log(`Input event: ${JSON.stringify(event)}`);
-    const attributes = await handleEvent(event, context);
-    await cfn.sendResponse(event,
-                          cfn.Status.SUCCESS,
-                          attributes.SecretArn || event.PhysicalResourceId || context.logStreamName,
-                          attributes);
-  } catch (e) {
-    // tslint:disable-next-line:no-console
-    console.error(e);
-    await cfn.sendResponse(event,
-                          cfn.Status.FAILED,
-                          event.PhysicalResourceId || context.logStreamName,
-                          { SecretArn: '' },
-                          e.message);
-  }
-}
+exports.handler = cfn.customResourceHandler(handleEvent);
 
-async function handleEvent(event: cfn.Event, context: lambda.Context): Promise<ResourceAttributes> {
+async function handleEvent(event: cfn.Event, context: lambda.Context): Promise<cfn.ResourceAttributes> {
   switch (event.RequestType) {
   case cfn.RequestType.CREATE:
     return await _createSecret(event, context);
@@ -43,15 +27,12 @@ async function handleEvent(event: cfn.Event, context: lambda.Context): Promise<R
   }
 }
 
-interface ResourceAttributes {
+interface ResourceAttributes extends cfn.ResourceAttributes {
   SecretArn: string;
-  SecretVersionId: string;
-
-  [name: string]: string | undefined;
 }
 
 async function _createSecret(event: cfn.CreateEvent, context: lambda.Context): Promise<ResourceAttributes> {
-  const tmpDir = await util.promisify(fs.mkdtemp)(path.join(os.tmpdir(), 'x509PrivateKey-'));
+  const tmpDir = await mkdtemp(path.join(os.tmpdir(), 'x509PrivateKey-'));
   try {
     const pkeyFile = path.join(tmpDir, 'private_key.pem');
     await _exec('openssl', 'genrsa', '-out', pkeyFile, event.ResourceProperties.KeySize);
@@ -60,21 +41,22 @@ async function _createSecret(event: cfn.CreateEvent, context: lambda.Context): P
       Description: event.ResourceProperties.Description,
       KmsKeyId: event.ResourceProperties.KmsKeyId,
       Name: event.ResourceProperties.SecretName,
-      SecretString: await util.promisify(fs.readFile)(pkeyFile, { encoding: 'utf8' }),
+      SecretString: await readFile(pkeyFile, { encoding: 'utf8' }),
     }).promise();
-    return { SecretArn: result.ARN!, SecretVersionId: result.VersionId! };
+    return {
+      Ref: result.ARN!,
+      SecretArn: result.ARN!,
+    };
   } finally {
     _rmrf(tmpDir);
   }
 }
 
-async function _deleteSecret(event: cfn.DeleteEvent): Promise<ResourceAttributes> {
+async function _deleteSecret(event: cfn.DeleteEvent): Promise<cfn.ResourceAttributes> {
   if (event.PhysicalResourceId.startsWith('arn:')) {
-    await secretsManager.deleteSecret({
-      SecretId: event.PhysicalResourceId,
-    }).promise();
+    await secretsManager.deleteSecret({ SecretId: event.PhysicalResourceId }).promise();
   }
-  return { SecretArn: '', SecretVersionId: '' };
+  return { Ref: event.PhysicalResourceId };
 }
 
 async function _updateSecret(event: cfn.UpdateEvent, context: lambda.Context): Promise<ResourceAttributes> {
@@ -91,5 +73,9 @@ async function _updateSecret(event: cfn.UpdateEvent, context: lambda.Context): P
     KmsKeyId: props.KmsKeyId,
     SecretId: event.PhysicalResourceId,
   }).promise();
-  return { SecretArn: result.ARN!, SecretVersionId: result.VersionId || await resolveCurrentVersionId(result.ARN!, secretsManager) };
+
+  return {
+    Ref: result.ARN!,
+    SecretArn: result.ARN!,
+  };
 }

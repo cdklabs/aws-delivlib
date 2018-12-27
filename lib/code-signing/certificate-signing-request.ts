@@ -53,7 +53,7 @@ export class CertificateSigningRequest extends cdk.Construct {
       lambdaPurpose: 'CreateCSR',
       description: 'Creates a Certificate Signing Request document for an x509 certificate',
       runtime: lambda.Runtime.NodeJS810,
-      handler: 'index.main',
+      handler: 'index.handler',
       code: new lambda.AssetCode(codeLocation),
       timeout: 300,
     });

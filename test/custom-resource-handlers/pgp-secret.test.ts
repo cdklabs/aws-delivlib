@@ -5,7 +5,6 @@ import { createMockInstance } from 'jest-create-mock-instance';
 import path = require('path');
 import cfn = require('../../custom-resource-handlers/src/_cloud-formation');
 import lambda = require('../../custom-resource-handlers/src/_lambda');
-import secretsManager = require('../../custom-resource-handlers/src/_secrets-manager');
 
 const context: lambda.Context = { awsRequestId: 'E3802D69-27F8-44F0-9E4C-3329A8736A4C' } as any;
 const mockTmpDir = '/tmp/directory/is/phony';
@@ -30,7 +29,6 @@ const mockEventBase = {
 };
 
 const secretArn = 'arn::::::secret';
-const secretVersionId = 'secret-version-id';
 
 const passphrase = crypto.randomBytes(32);
 
@@ -79,12 +77,12 @@ test('Create', async () => {
   };
 
   mockSecretsManager.createSecret = jest.fn().mockName('SecretsManager.createSecret')
-    .mockImplementation(() => ({ promise: () => Promise.resolve({ ARN: secretArn, VersionId: secretVersionId}) })) as any;
+    .mockImplementation(() => ({ promise: () => Promise.resolve({ ARN: secretArn, VersionId: 'Secret-VersionId'}) })) as any;
   mockSSM.putParameter = jest.fn().mockName('SSM.putParameter')
     .mockImplementation(() => ({ promise: () => Promise.resolve({}) })) as any;
 
-  const { main } = require('../../custom-resource-handlers/src/pgp-secret');
-  await expect(main(event, context)).resolves.toBe(undefined);
+  const { handler } = require('../../custom-resource-handlers/src/pgp-secret');
+  await expect(handler(event, context)).resolves.toBe(undefined);
 
   await expect(writeFile)
     .toBeCalledWith(path.join(mockTmpDir, 'key.config'),
@@ -103,7 +101,7 @@ test('Create', async () => {
     });
   await expect(mockSSM.putParameter)
     .toBeCalledWith({
-      Description: `Public part of OpenPGP key ${secretArn} (version ${secretVersionId})`,
+      Description: `Public part of OpenPGP key ${secretArn}`,
       Name: event.ResourceProperties.ParameterName,
       Overwrite: false,
       Type: 'String',
@@ -114,8 +112,8 @@ test('Create', async () => {
                     cfn.Status.SUCCESS,
                     secretArn,
                     {
+                      Ref: secretArn,
                       SecretArn: secretArn,
-                      SecretVersionId: secretVersionId,
                       ParameterName: event.ResourceProperties.ParameterName,
                     });
 });
@@ -134,11 +132,9 @@ test('Update', async () => {
 
   mockSecretsManager.updateSecret = jest.fn().mockName('SecretsManager.updateSecret')
     .mockImplementation(() => ({ promise: () => Promise.resolve({ ARN: secretArn }) })) as any;
-  secretsManager.resolveCurrentVersionId = jest.fn().mockName('resolveCurrentVersionId')
-    .mockResolvedValue(secretVersionId);
 
-  const { main } = require('../../custom-resource-handlers/src/pgp-secret');
-  await expect(main(event, context)).resolves.toBe(undefined);
+  const { handler } = require('../../custom-resource-handlers/src/pgp-secret');
+  await expect(handler(event, context)).resolves.toBe(undefined);
   await expect(mockSecretsManager.updateSecret)
     .toBeCalledWith({
       ClientRequestToken: context.awsRequestId,
@@ -150,7 +146,11 @@ test('Update', async () => {
     .toBeCalledWith(event,
                     cfn.Status.SUCCESS,
                     secretArn,
-                    { SecretArn: secretArn, SecretVersionId: secretVersionId, ParameterName: event.ResourceProperties.ParameterName });
+                    {
+                      Ref: secretArn,
+                      SecretArn: secretArn,
+                      ParameterName: event.ResourceProperties.ParameterName,
+                    });
 });
 
 test('Delete', async () => {
@@ -165,8 +165,8 @@ test('Delete', async () => {
   mockSSM.deleteParameter = jest.fn().mockName('SSM.deleteParameter')
     .mockImplementation(() => ({ promise: () => Promise.resolve({}) })) as any;
 
-  const { main } = require('../../custom-resource-handlers/src/pgp-secret');
-  await expect(main(event, context)).resolves.toBe(undefined);
+  const { handler } = require('../../custom-resource-handlers/src/pgp-secret');
+  await expect(handler(event, context)).resolves.toBe(undefined);
   await expect(mockSecretsManager.deleteSecret)
     .toBeCalledWith({ SecretId: secretArn });
   await expect(mockSSM.deleteParameter)
@@ -175,5 +175,5 @@ test('Delete', async () => {
     .toBeCalledWith(event,
                     cfn.Status.SUCCESS,
                     event.PhysicalResourceId,
-                    { SecretArn: '' });
+                    { Ref: event.PhysicalResourceId });
 });
