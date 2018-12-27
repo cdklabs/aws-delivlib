@@ -2,6 +2,7 @@ import cfn = require('@aws-cdk/aws-cloudformation');
 import lambda = require('@aws-cdk/aws-lambda');
 import cdk = require('@aws-cdk/cdk');
 import path = require('path');
+import { hashFileOrDirectory } from '../util';
 import { RsaPrivateKeySecret } from './private-key';
 
 export interface CertificateSigningRequestProps {
@@ -46,13 +47,14 @@ export class CertificateSigningRequest extends cdk.Construct {
   constructor(parent: cdk.Construct, id: string, props: CertificateSigningRequestProps) {
     super(parent, id);
 
+    const codeLocation = path.resolve(__dirname, '..', '..', 'custom-resource-handlers', 'bin', 'certificate-signing-request');
     const customResource = new lambda.SingletonFunction(this, 'ResourceHandler', {
       uuid: '541F6782-6DCF-49A7-8C5A-67715ADD9E4C',
       lambdaPurpose: 'CreateCSR',
       description: 'Creates a Certificate Signing Request document for an x509 certificate',
-      runtime: lambda.Runtime.Python36,
-      handler: 'index.main',
-      code: new lambda.AssetCode(path.join(__dirname, 'certificate-signing-request')),
+      runtime: lambda.Runtime.NodeJS810,
+      handler: 'index.handler',
+      code: new lambda.AssetCode(codeLocation),
       timeout: 300,
     });
 
@@ -60,6 +62,7 @@ export class CertificateSigningRequest extends cdk.Construct {
       lambdaProvider: customResource,
       resourceType: 'Custom::CertificateSigningRequest',
       properties: {
+        resourceVersion: hashFileOrDirectory(codeLocation),
         // Private key
         privateKeySecretId: props.privateKey.secretArn,
         privateKeySecretVersion: props.privateKey.secretVersion,

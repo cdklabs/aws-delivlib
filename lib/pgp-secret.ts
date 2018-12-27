@@ -3,8 +3,9 @@ import iam = require('@aws-cdk/aws-iam');
 import kms = require('@aws-cdk/aws-kms');
 import lambda = require('@aws-cdk/aws-lambda');
 import cdk = require('@aws-cdk/cdk');
-import fs = require('fs');
 import path = require('path');
+import { ICredentialPair } from './credential-pair';
+import { hashFileOrDirectory } from './util';
 
 interface PGPSecretProps {
   /**
@@ -50,6 +51,11 @@ interface PGPSecretProps {
    * Bump this number to regenerate the key
    */
   version: number;
+
+  /**
+   * A description to attach to the AWS SecretsManager secret.
+   */
+  description?: string;
 }
 
 /**
@@ -59,27 +65,34 @@ interface PGPSecretProps {
  *
  * { "PrivateKey": "... ASCII repr of key...", "Passphrase": "passphrase of the key" }
  */
-export class PGPSecret extends cdk.Construct {
-  public readonly secretArn: string;
-  public readonly parameterName: string;
+export class PGPSecret extends cdk.Construct implements ICredentialPair {
+  public readonly publicPartParameterArn: string;
+  public readonly publicPartParameterName: string;
+  public readonly privatePartSecretArn: string;
+  public readonly privatePartSecretVersionId: string;
 
   constructor(parent: cdk.Construct, name: string, props: PGPSecretProps) {
     super(parent, name);
 
     const keyActions = ['kms:GenerateDataKey', 'kms:Encrypt', 'kms:Decrypt'];
+    const codeLocation = path.resolve(__dirname, '..', 'custom-resource-handlers', 'bin', 'pgp-secret');
 
     const fn = new lambda.SingletonFunction(this, 'Lambda', {
       uuid: 'f25803d3-054b-44fc-985f-4860d7d6ee74',
       description: 'Generates an OpenPGP Key and stores the private key in Secrets Manager and the public key in an SSM Parameter',
-      code: new lambda.InlineCode(fs.readFileSync(path.join(__dirname, 'pgpresource.py'), { encoding: 'utf-8' })),
-      handler: 'index.main',
+      code: new lambda.AssetCode(codeLocation),
+      handler: 'index.handler',
       timeout: 300,
-      runtime: lambda.Runtime.Python36,
+      runtime: lambda.Runtime.NodeJS810,
       initialPolicy: [
-        new iam.PolicyStatement().addActions(
-          'secretsmanager:CreateSecret', 'secretsmanager:UpdateSecret',
-          'secretsmanager:DeleteSecret', 'ssm:PutParameter', 'ssm:DeleteParameter'
-        ).addAllResources(),
+        new iam.PolicyStatement()
+          .addActions('secretsmanager:CreateSecret',
+                      'secretsmanager:ListSecretVersionIds',
+                      'secretsmanager:UpdateSecret',
+                      'secretsmanager:DeleteSecret',
+                      'ssm:PutParameter',
+                      'ssm:DeleteParameter')
+          .addAllResources(),
         new iam.PolicyStatement().addActions(...keyActions).addResource(props.encryptionKey.keyArn)
       ]
     });
@@ -91,6 +104,7 @@ export class PGPSecret extends cdk.Construct {
     const secret = new cfn.CustomResource(this, 'Resource', {
       lambdaProvider: fn,
       properties: {
+        resourceVersion: hashFileOrDirectory(codeLocation),
         identity: props.identity,
         email: props.email,
         expiry: props.expiry,
@@ -98,10 +112,13 @@ export class PGPSecret extends cdk.Construct {
         secretName: props.secretName,
         keyArn: props.encryptionKey.keyArn,
         parameterName: props.pubKeyParameterName,
-        version: props.version
+        version: props.version,
+        description: props.description,
       },
     });
-    this.secretArn = secret.getAtt('ARN').toString();
-    this.parameterName = props.pubKeyParameterName;
+    this.privatePartSecretArn = secret.getAtt('SecretArn').toString();
+    this.privatePartSecretVersionId = secret.getAtt('SecretVersionId').toString();
+    this.publicPartParameterName = secret.getAtt('ParameterName').toString();
+    this.publicPartParameterArn = cdk.ArnUtils.fromComponents({ service: 'ssm', resource: 'parameter', resourceName: this.publicPartParameterName });
   }
 }

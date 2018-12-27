@@ -6,7 +6,8 @@
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "scripts": {
-    "build": "tsc && tslint --fix --project .",
+    "build": "npm run build-custom-resource-handlers && tsc && tslint --fix --project .",
+    "build-custom-resource-handlers": "/bin/bash ./build-custom-resource-handlers.sh",
     "package": "/bin/bash ./package.sh",
     "watch": "tsc -w",
     "test": "/bin/bash ./test.sh",
@@ -30,18 +31,6 @@
     "url": "https://github.com/awslabs/aws-delivlib.git"
   },
   "license": "Apache-2.0",
-  "devDependencies": {
-    "@aws-cdk/assert": "^0.20.0",
-    "@types/jest": "^23.3.10",
-    "@types/node": "^10.12.12",
-    "@types/nodeunit": "0.0.30",
-    "aws-cdk": "^0.20.0",
-    "jest": "^23.6.0",
-    "nodeunit": "^0.11.3",
-    "standard-version": "^4.4.0",
-    "tslint": "^5.11.0",
-    "typescript": "^3.2.2"
-  },
   "dependencies": {
     "@aws-cdk/assets": "^0.20.0",
     "@aws-cdk/aws-cloudformation": "^0.20.0",
@@ -54,5 +43,26 @@
     "@aws-cdk/aws-sns": "^0.20.0",
     "@aws-cdk/aws-ssm": "^0.20.0",
     "@aws-cdk/cdk": "^0.20.0"
+  },
+  "devDependencies": {
+    "@aws-cdk/assert": "^0.20.0",
+    "@types/jest": "^23.3.10",
+    "@types/node": "^10.12.12",
+    "@types/nodeunit": "0.0.30",
+    "aws-cdk": "^0.20.0",
+    "jest": "^23.6.0",
+    "jest-create-mock-instance": "^1.1.0",
+    "nodeunit": "^0.11.3",
+    "tslint": "^5.11.0",
+    "standard-version": "^4.4.0",
+    "typescript": "^3.2.2"
+  },
+  "jest": {
+    "collectCoverage": true,
+    "coverageDirectory": "./coverage",
+    "coverageReporters": [
+      "lcov"
+    ],
+    "testEnvironment": "node"
   }
 }

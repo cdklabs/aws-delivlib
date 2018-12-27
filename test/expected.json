@@ -1275,7 +1275,7 @@ Resources:
             Resource:
               Fn::GetAtt:
                 - X509CodeSigningKeyRSAPrivateKeyE5980A70
-                - ARN
+                - SecretArn
           - Action: ssm:GetParameter
             Effect: Allow
             Resource:
@@ -1354,7 +1354,7 @@ Resources:
             Value:
               Fn::GetAtt:
                 - X509CodeSigningKeyRSAPrivateKeyE5980A70
-                - ARN
+                - SecretArn
           - Name: CODE_SIGNING_PARAMETER_NAME
             Type: PLAINTEXT
             Value: /delivlib-test-3/X509CodeSigningKey/Certificate
@@ -1473,7 +1473,7 @@ Resources:
             Resource:
               Fn::GetAtt:
                 - CodeSignSecretF6FDE552
-                - ARN
+                - SecretArn
           - Action: kms:Decrypt
             Effect: Allow
             Resource:
@@ -1536,7 +1536,7 @@ Resources:
             Value: 68a05363083174
           - Name: SIGNING_KEY_SCOPE
             Type: PLAINTEXT
-            Value: delivlibtest3CodeSignE856FEF4
+            Value: delivlib-test/CodeSign
           - Name: FOR_REAL
             Type: PLAINTEXT
             Value: "true"
@@ -1652,7 +1652,7 @@ Resources:
             Resource:
               Fn::GetAtt:
                 - CodeSignSecretF6FDE552
-                - ARN
+                - SecretArn
           - Action: kms:Decrypt
             Effect: Allow
             Resource:
@@ -1718,7 +1718,7 @@ Resources:
             Value: ./CHANGELOG.md
           - Name: SIGNING_KEY_SCOPE
             Type: PLAINTEXT
-            Value: delivlibtest3CodeSignE856FEF4
+            Value: delivlib-test/CodeSign
           - Name: GITHUB_TOKEN
             Type: PLAINTEXT
             Value:
@@ -2054,6 +2054,7 @@ Resources:
         Fn::GetAtt:
           - SingletonLambda72FD327D38134632934028EC437AA4865ADA6EFF
           - Arn
+      ResourceVersion: o8JnP2XTTtCgWWOOXBP+FdxCcBuld5BLDSjV1aceSoA=
       Description: The PEM-encoded private key of the x509 Code-Signing Certificate
       KeySize: 2048
       SecretName: delivlib-test-3/X509CodeSigningKey/RSAPrivateKey
@@ -2070,14 +2071,15 @@ Resources:
         Fn::GetAtt:
           - CreateCSR541F67826DCF49A78C5A67715ADD9E4C8F4169F6
           - Arn
+      ResourceVersion: ZoW6O4uYPopBMnQf8ez+oq24LIaxXD/BOEIN022J71Q=
       PrivateKeySecretId:
         Fn::GetAtt:
           - X509CodeSigningKeyRSAPrivateKeyE5980A70
-          - ARN
+          - SecretArn
       PrivateKeySecretVersion:
         Fn::GetAtt:
           - X509CodeSigningKeyRSAPrivateKeyE5980A70
-          - VersionId
+          - SecretVersionId
       DnCommonName: delivlib-test
       DnCountry: IL
       DnStateOrProvince: Ztate
@@ -2106,11 +2108,11 @@ Resources:
           - - "A PEM-encoded Code-Signing Certificate (private key in "
             - Fn::GetAtt:
                 - X509CodeSigningKeyRSAPrivateKeyE5980A70
-                - ARN
+                - SecretArn
             - " version "
             - Fn::GetAtt:
                 - X509CodeSigningKeyRSAPrivateKeyE5980A70
-                - VersionId
+                - SecretVersionId
             - )
       Name: /delivlib-test-3/X509CodeSigningKey/Certificate
     Metadata:
@@ -2141,6 +2143,8 @@ Resources:
           - Action:
               - secretsmanager:CreateSecret
               - secretsmanager:DeleteSecret
+              - secretsmanager:ListSecretVersionIds
+              - secretsmanager:UpdateSecret
             Effect: Allow
             Resource:
               Fn::Join:
@@ -2151,7 +2155,7 @@ Resources:
                   - Ref: AWS::Region
                   - ":"
                   - Ref: AWS::AccountId
-                  - :secret:delivlib-test-3/X509CodeSigningKey/RSAPrivateKey-*
+                  - :secret:delivlib-test/X509CodeSigningKey/RSAPrivateKey-??????
         Version: "2012-10-17"
       PolicyName: SingletonLambda72FD327D38134632934028EC437AA486ServiceRoleDefaultPolicy77701415
       Roles:
@@ -2162,87 +2166,27 @@ Resources:
     Type: AWS::Lambda::Function
     Properties:
       Code:
-        ZipFile: >
-          import logging as log
-
-          import json, os, sys
-
-          CFN_SUCCESS = "SUCCESS"
-
-          CFN_FAILED = "FAILED"
-
-          def handle_event(event, aws_request_id):
-             import boto3, shutil, subprocess, tempfile
-             props = event['ResourceProperties']
-             if event['RequestType'] == 'Update':
-                raise Exception('X509 Private Key update requires replacement, a new resource must be created!')
-             elif event['RequestType'] == 'Create':
-                tmpdir = tempfile.mkdtemp()
-                with tempfile.TemporaryDirectory() as tmpdir:
-                   pkey_file = os.path.join(tmpdir, 'private_key.pem')
-                   subprocess.check_call(['openssl', 'genrsa', '-out', pkey_file, props['KeySize']], shell=False)
-                   with open(pkey_file) as pkey:
-                      opts = {
-                         'ClientRequestToken': aws_request_id,
-                         'Description': props.get('Description'),
-                         'Name': props['SecretName'],
-                         'SecretString': pkey.read()
-                      }
-                      kmsKeyId = props.get('KmsKeyId')
-                      if kmsKeyId: opts['KmsKeyId'] = kmsKeyId
-                      ret = boto3.client('secretsmanager').create_secret(**opts)
-                      return {'ARN': ret['ARN'], 'VersionId': ret['VersionId']}
-             elif event['RequestType'] == 'Delete':
-                if event['PhysicalResourceId'].startswith('arn:'): # Only if the resource had been successfully created before
-                   boto3.client('secretsmanager').delete_secret(SecretId=event['PhysicalResourceId'])
-                return {'ARN': ''}
-             else:
-                raise Exception('Unsupported RequestType: %s' % event['RequestType'])
-          def main(event, context):
-             log.getLogger().setLevel(log.INFO)
-             try:
-                log.info('Input event: %s', json.dumps(event))
-                attributes = handle_event(event, context.aws_request_id)
-                cfn_send(event, context, CFN_SUCCESS, attributes, attributes['ARN'])
-             except KeyError as e:
-                cfn_send(event, context, CFN_FAILED, {}, reason="Invalid request: missing key %s" % str(e))
-             except Exception as e:
-                log.exception(e)
-                cfn_send(event, context, CFN_FAILED, {}, reason=str(e))
-          def cfn_send(event, context, responseStatus, responseData={}, physicalResourceId=None, noEcho=False, reason=None):
-             responseUrl = event['ResponseURL']
-             log.info(responseUrl)
-             responseBody = {}
-             responseBody['Status'] = responseStatus
-             responseBody['Reason'] = reason or ('See the details in CloudWatch Log Stream: ' + context.log_stream_name)
-             responseBody['PhysicalResourceId'] = physicalResourceId or context.log_stream_name
-             responseBody['StackId'] = event['StackId']
-             responseBody['RequestId'] = event['RequestId']
-             responseBody['LogicalResourceId'] = event['LogicalResourceId']
-             responseBody['NoEcho'] = noEcho
-             responseBody['Data'] = responseData
-             body = json.dumps(responseBody)
-             log.info("| response body:\n" + body)
-             headers = {
-                'content-type' : '',
-                'content-length' : str(len(body))
-             }
-             try:
-                from botocore.vendored import requests
-                response = requests.put(responseUrl, data=body, headers=headers)
-                log.info("| status code: " + response.reason)
-                response.raise_for_status()
-             except Exception as e:
-                log.error("| unable to send response to CloudFormation")
-                raise e
-          if __name__ == '__main__':
-             handle_event(json.load(sys.stdin), 'ec92d8a9-672c-4647-9d34-0d3159a2c692')
-      Handler: index.main
+        S3Bucket:
+          Ref: SingletonLambda72FD327D38134632934028EC437AA486CodeS3BucketE07F4BCB
+        S3Key:
+          Fn::Join:
+            - ""
+            - - Fn::Select:
+                  - 0
+                  - Fn::Split:
+                      - "||"
+                      - Ref: SingletonLambda72FD327D38134632934028EC437AA486CodeS3VersionKeyF016F0F7
+              - Fn::Select:
+                  - 1
+                  - Fn::Split:
+                      - "||"
+                      - Ref: SingletonLambda72FD327D38134632934028EC437AA486CodeS3VersionKeyF016F0F7
+      Handler: index.handler
       Role:
         Fn::GetAtt:
           - SingletonLambda72FD327D38134632934028EC437AA486ServiceRole225F46F5
           - Arn
-      Runtime: python3.6
+      Runtime: nodejs8.10
       Description: Generates an RSA Private Key and stores it in AWS Secrets Manager
       Timeout: 300
     DependsOn:
@@ -2278,7 +2222,7 @@ Resources:
             Resource:
               Fn::GetAtt:
                 - X509CodeSigningKeyRSAPrivateKeyE5980A70
-                - ARN
+                - SecretArn
         Version: "2012-10-17"
       PolicyName: CreateCSR541F67826DCF49A78C5A67715ADD9E4CServiceRoleDefaultPolicyC0800208
       Roles:
@@ -2304,12 +2248,12 @@ Resources:
                   - Fn::Split:
                       - "||"
                       - Ref: CreateCSR541F67826DCF49A78C5A67715ADD9E4CCodeS3VersionKey9D63F460
-      Handler: index.main
+      Handler: index.handler
       Role:
         Fn::GetAtt:
           - CreateCSR541F67826DCF49A78C5A67715ADD9E4CServiceRoleD2990C92
           - Arn
-      Runtime: python3.6
+      Runtime: nodejs8.10
       Description: Creates a Certificate Signing Request document for an x509 certificate
       Timeout: 300
     DependsOn:
@@ -2374,14 +2318,14 @@ Resources:
                   - Arn
             Resource: "*"
         Version: "2012-10-17"
-      Description: Encryption key for PGP secret delivlibtest3CodeSignE856FEF4/SigningKey
+      Description: Encryption key for PGP secret delivlib-test/CodeSign/SigningKey
     DeletionPolicy: Retain
     Metadata:
       aws:cdk:path: delivlib-test-3/CodeSign/Key/Resource
   CodeSignKeyAliasCEA10CD5:
     Type: AWS::KMS::Alias
     Properties:
-      AliasName: alias/delivlibtest3CodeSignE856FEF4/SigningKeyKey
+      AliasName: alias/delivlib-test/CodeSign/SigningKeyKey
       TargetKeyId:
         Fn::GetAtt:
           - CodeSignKey2302B99A
@@ -2395,16 +2339,17 @@ Resources:
         Fn::GetAtt:
           - SingletonLambdaf25803d3054b44fc985f4860d7d6ee746203BDE6
           - Arn
+      ResourceVersion: 2r+P/PYE15kX8fy++XxbfU9reHaQlaCF82/hQ0EntTA=
       Identity: aws-cdk-dev
       Email: aws-cdk-dev+delivlib@amazon.com
       Expiry: 4y
       KeySizeBits: 4096
-      SecretName: delivlibtest3CodeSignE856FEF4/SigningKey
+      SecretName: delivlib-test/CodeSign/SigningKey
       KeyArn:
         Fn::GetAtt:
           - CodeSignKey2302B99A
           - Arn
-      ParameterName: /delivlibtest3CodeSignE856FEF4/SigningKey.pub
+      ParameterName: /delivlib-test/CodeSign/SigningKey.pub
       Version: 1
     Metadata:
       aws:cdk:path: delivlib-test-3/CodeSign/Secret/Resource
@@ -2433,6 +2378,7 @@ Resources:
         Statement:
           - Action:
               - secretsmanager:CreateSecret
+              - secretsmanager:ListSecretVersionIds
               - secretsmanager:UpdateSecret
               - secretsmanager:DeleteSecret
               - ssm:PutParameter
@@ -2458,103 +2404,27 @@ Resources:
     Type: AWS::Lambda::Function
     Properties:
       Code:
-        ZipFile: >
-          import logging as log
-
-          import json, os, sys
-
-
-          def handle_event(event, aws_request_id):
-              import random, string, tempfile, subprocess, boto3
-
-              props = event['ResourceProperties']
-
-              if event['RequestType'] in ['Create', 'Update']:
-                  passphrase = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(16))
-
-                  with tempfile.TemporaryDirectory() as tempdir_name:
-                      os.environ['GNUPGHOME'] = tempdir_name
-
-                      with tempfile.NamedTemporaryFile(mode='w+', encoding='utf-8') as f:
-                          f.write('Key-Type: RSA\n')
-                          f.write('Key-Length: %s\n' % props['KeySizeBits'])
-                          f.write('Name-Real: %s\n' % props['Identity'])
-                          f.write('Name-Email: %s\n' % props['Email'])
-                          f.write('Expire-Date: %s\n' % props['Expiry'])
-                          f.write('Passphrase: %s\n' % passphrase)
-                          f.write('%commit\n')
-                          f.write('%echo done\n')
-                          f.flush()
-
-                          print(f.name)
-
-                          subprocess.check_call(['gpg',
-                              '--batch', '--gen-key', f.name], shell=False)
-
-                      keymaterial = subprocess.check_output(['gpg',
-                          '--batch', '--yes',
-                          '--passphrase', passphrase, '--export-secret-keys', '--armor'], shell=False).decode('utf-8')
-
-                      public_key = subprocess.check_output(['gpg',
-                          '--batch', '--yes',
-                          '--export', '--armor'], shell=False).decode('utf-8')
-
-                  call_args = dict(
-                      ClientRequestToken=aws_request_id,
-                      KmsKeyId=props['KeyArn'],
-                      SecretString=json.dumps(dict(PrivateKey=keymaterial, Passphrase=passphrase)))
-
-                  if event['RequestType'] == 'Create':
-                      ret = boto3.client('secretsmanager').create_secret(
-                          Name=props['SecretName'],
-                          **call_args)
-                  else:
-                      ret = boto3.client('secretsmanager').update_secret(
-                          SecretId=event['PhysicalResourceId'],
-                          **call_args)
-
-                  boto3.client('ssm').put_parameter(
-                          Name=props['ParameterName'],
-                          Description='Public part of signing key',
-                          Value=public_key,
-                          Type='String',
-                          Overwrite=(event['RequestType'] == 'Update'))
-
-                  return ret
-
-              if event['RequestType'] == 'Delete':
-                  if event['PhysicalResourceId'].startswith('arn:'):  # Only if successfully created before
-                      boto3.client('ssm').delete_parameter(Name=props['ParameterName'])
-                      boto3.client('secretsmanager').delete_secret(SecretId=event['PhysicalResourceId'])
-                  return {'ARN': ''}
-
-              return {'ARN': ''}
-
-
-          def main(event, context):
-              import cfnresponse
-              log.getLogger().setLevel(log.INFO)
-
-              try:
-                  log.info('Input event: %s', event)
-
-                  attributes = handle_event(event, context.aws_request_id)
-
-                  cfnresponse.send(event, context, cfnresponse.SUCCESS, attributes, attributes['ARN'])
-              except Exception as e:
-                  log.exception(e)
-                  # cfnresponse's error message is always "see CloudWatch"
-                  cfnresponse.send(event, context, cfnresponse.FAILED, {}, context.log_stream_name)
-
-
-          if __name__ == '__main__':
-              handle_event(json.load(sys.stdin), '7547bafb-5125-44c5-83e4-6eae56a52cce')
-      Handler: index.main
+        S3Bucket:
+          Ref: SingletonLambdaf25803d3054b44fc985f4860d7d6ee74CodeS3BucketAC499781
+        S3Key:
+          Fn::Join:
+            - ""
+            - - Fn::Select:
+                  - 0
+                  - Fn::Split:
+                      - "||"
+                      - Ref: SingletonLambdaf25803d3054b44fc985f4860d7d6ee74CodeS3VersionKey10D2DDF5
+              - Fn::Select:
+                  - 1
+                  - Fn::Split:
+                      - "||"
+                      - Ref: SingletonLambdaf25803d3054b44fc985f4860d7d6ee74CodeS3VersionKey10D2DDF5
+      Handler: index.handler
       Role:
         Fn::GetAtt:
           - SingletonLambdaf25803d3054b44fc985f4860d7d6ee74ServiceRole410148CF
           - Arn
-      Runtime: python3.6
+      Runtime: nodejs8.10
       Description: Generates an OpenPGP Key and stores the private key in Secrets Manager
         and the public key in an SSM Parameter
       Timeout: 300
@@ -2864,7 +2734,15 @@ Parameters:
   AdoptEcrRepositorydbc60defc59544bcaa5c28c95d68f62cCodeS3VersionKey393B7276:
     Type: String
     Description: S3 key for asset version
-      "delivlib-test-3/AdoptEcrRepositorydbc60defc59544bcaa5c28c95d68f62c/Code"
+      "delivlib-test/AdoptEcrRepositorydbc60defc59544bcaa5c28c95d68f62c/Code"
+  SingletonLambda72FD327D38134632934028EC437AA486CodeS3BucketE07F4BCB:
+    Type: String
+    Description: S3 bucket for asset
+      "delivlib-test/SingletonLambda72FD327D38134632934028EC437AA486/Code"
+  SingletonLambda72FD327D38134632934028EC437AA486CodeS3VersionKeyF016F0F7:
+    Type: String
+    Description: S3 key for asset version
+      "delivlib-test/SingletonLambda72FD327D38134632934028EC437AA486/Code"
   CreateCSR541F67826DCF49A78C5A67715ADD9E4CCodeS3Bucket45923B19:
     Type: String
     Description: S3 bucket for asset

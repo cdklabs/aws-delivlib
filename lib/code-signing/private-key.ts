@@ -3,8 +3,8 @@ import iam = require('@aws-cdk/aws-iam');
 import kms = require('@aws-cdk/aws-kms');
 import lambda = require('@aws-cdk/aws-lambda');
 import cdk = require('@aws-cdk/cdk');
-import fs = require('fs');
 import path = require('path');
+import { hashFileOrDirectory } from '../util';
 import { CertificateSigningRequest, DistinguishedName } from './certificate-signing-request';
 
 export interface RsaPrivateKeySecretProps {
@@ -63,17 +63,13 @@ export class RsaPrivateKeySecret extends cdk.Construct {
 
     props.deletionPolicy = props.deletionPolicy || cdk.DeletionPolicy.Retain;
 
+    const codeLocation = path.resolve(__dirname, '..', '..', 'custom-resource-handlers', 'bin', 'private-key');
     const customResource = new lambda.SingletonFunction(this, 'ResourceHandler', {
       uuid: '72FD327D-3813-4632-9340-28EC437AA486',
       description: 'Generates an RSA Private Key and stores it in AWS Secrets Manager',
-      runtime: lambda.Runtime.Python36,
-      handler: 'index.main',
-      code: new lambda.InlineCode(
-        fs.readFileSync(path.join(__dirname, 'private-key.py'))
-          .toString('utf8')
-          // Remove blank and comment-only lines, to shrink code length
-          .replace(/^[ \t]*(#[^\n]*)?\n/mg, '')
-      ),
+      runtime: lambda.Runtime.NodeJS810,
+      handler: 'index.handler',
+      code: new lambda.AssetCode(codeLocation),
       timeout: 300,
     });
 
@@ -81,10 +77,14 @@ export class RsaPrivateKeySecret extends cdk.Construct {
       service: 'secretsmanager',
       resource: 'secret',
       sep: ':',
-      resourceName: `${props.secretName}-*`
+      // The ARN of a secret has "-" followed by 6 random characters appended at the end
+      resourceName: `${props.secretName}-??????`
     });
     customResource.addToRolePolicy(new iam.PolicyStatement()
-      .addActions('secretsmanager:CreateSecret', 'secretsmanager:DeleteSecret')
+      .addActions('secretsmanager:CreateSecret',
+                  'secretsmanager:DeleteSecret',
+                  'secretsmanager:ListSecretVersionIds',
+                  'secretsmanager:UpdateSecret')
       .addResource(this.secretArnLike));
 
     if (props.secretEncryptionKey) {
@@ -105,6 +105,7 @@ export class RsaPrivateKeySecret extends cdk.Construct {
       lambdaProvider: customResource,
       resourceType: 'Custom::RsaPrivateKeySecret',
       properties: {
+        resourceVersion: hashFileOrDirectory(codeLocation),
         description: props.description,
         keySize: props.keySize,
         secretName: props.secretName,
@@ -132,8 +133,8 @@ export class RsaPrivateKeySecret extends cdk.Construct {
     privateKey.options.deletionPolicy = props.deletionPolicy;
 
     this.masterKey = props.secretEncryptionKey;
-    this.secretArn = privateKey.getAtt('ARN').toString();
-    this.secretVersion = privateKey.getAtt('VersionId').toString();
+    this.secretArn = privateKey.getAtt('SecretArn').toString();
+    this.secretVersion = privateKey.getAtt('SecretVersionId').toString();
   }
 
   /**
