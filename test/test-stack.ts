@@ -76,7 +76,7 @@ export class TestStack extends cdk.Stack {
     const signingKey = new delivlib.OpenPgpKey(this, 'CodeSign', {
       email: 'aws-cdk-dev+delivlib@amazon.com',
       identity: 'aws-cdk-dev',
-      secretName: 'delivlib/signing'
+      secretName: this.path + '/CodeSign',
     });
 
     pipeline.publishToMaven({

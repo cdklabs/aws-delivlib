@@ -66,7 +66,7 @@ export class OpenPgpKey extends cdk.Construct {
   public grantRead(identity: iam.IPrincipal) {
     // Secret grant, identity-based only
     identity.addToPolicy(new iam.PolicyStatement()
-      .addResources(this.secret.secretArn)
+      .addResources(this.secret.privatePartSecretArn)
       .addActions('secretsmanager:ListSecrets', 'secretsmanager:DescribeSecret', 'secretsmanager:GetSecretValue'));
 
     // Key grant
