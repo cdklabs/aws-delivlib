@@ -135,3 +135,23 @@ export interface DeleteEvent extends CloudFormationEventBase {
   readonly RequestType: RequestType.DELETE;
   readonly PhysicalResourceId: string;
 }
+
+/**
+ * Validates that all required properties are present, and that no extraneous properties are provided.
+ *
+ * @param props      the properties to be validated.
+ * @param validProps a mapping of valid property names to a boolean instructing whether the property is required or not.
+ */
+export function validateProperties(props: { [name: string]: any }, validProps: { [name: string]: boolean }) {
+  for (const property of Object.keys(props)) {
+    if (!(property in validProps)) {
+      throw new Error(`Unexpected property: ${property}`);
+    }
+  }
+  for (const property of Object.keys(validProps)) {
+    if (validProps[property] && !(property in props)) {
+      throw new Error(`Missing required property: ${property}`);
+    }
+  }
+  return props;
+}

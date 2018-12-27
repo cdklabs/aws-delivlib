@@ -23,6 +23,20 @@ interface ResourceAttributes extends cfn.ResourceAttributes {
 }
 
 async function handleEvent(event: cfn.Event, _context: lambda.Context): Promise<cfn.ResourceAttributes> {
+  if (event.RequestType !== cfn.RequestType.DELETE) {
+    cfn.validateProperties(event.ResourceProperties, {
+      DnCommonName: true,
+      DnCountry: true,
+      DnEmailAddress: true,
+      DnLocality: true,
+      DnOrganizationName: true,
+      DnOrganizationalUnitName: true,
+      DnStateOrProvince: true,
+      ExtendedKeyUsage: false,
+      KeyUsage: true,
+    });
+  }
+
   switch (event.RequestType) {
   case cfn.RequestType.CREATE:
   case cfn.RequestType.UPDATE:

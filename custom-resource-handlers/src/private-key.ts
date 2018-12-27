@@ -17,6 +17,15 @@ const secretsManager = new aws.SecretsManager();
 exports.handler = cfn.customResourceHandler(handleEvent);
 
 async function handleEvent(event: cfn.Event, context: lambda.Context): Promise<cfn.ResourceAttributes> {
+  if (event.RequestType !== cfn.RequestType.DELETE) {
+    cfn.validateProperties(event.ResourceProperties, {
+      Description: false,
+      KeySize: true,
+      KmsKeyId: false,
+      SecretName: true,
+    });
+  }
+
   switch (event.RequestType) {
   case cfn.RequestType.CREATE:
     return await _createSecret(event, context);

@@ -25,6 +25,21 @@ interface ResourceAttributes extends cfn.ResourceAttributes {
 
 async function handleEvent(event: cfn.Event, context: lambda.Context): Promise<cfn.ResourceAttributes> {
   const props = event.ResourceProperties;
+
+  if (event.RequestType !== cfn.RequestType.DELETE) {
+    cfn.validateProperties(props, {
+      Description: false,
+      Email: true,
+      Expiry: true,
+      Identity: true,
+      KeyArn: false,
+      KeySizeBits: true,
+      ParameterName: true,
+      SecretName: true,
+      Version: false,
+    });
+  }
+
   let newKey = event.RequestType === cfn.RequestType.CREATE;
 
   if (event.RequestType === 'Update') {
