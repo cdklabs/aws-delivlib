@@ -42,7 +42,7 @@ async function handleEvent(event: cfn.Event, context: lambda.Context): Promise<c
 
   let newKey = event.RequestType === cfn.RequestType.CREATE;
 
-  if (event.RequestType === 'Update') {
+  if (event.RequestType === cfn.RequestType.UPDATE) {
     const oldProps = event.OldResourceProperties;
     const immutableFields = ['Email', 'Expiry', 'Identity', 'KeySizeBits', 'ParameterName', 'SecretName', 'Version'];
     for (const key of immutableFields) {
