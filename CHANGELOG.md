@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.4.0"></a>
+## [0.4.0](https://github.com/awslabs/aws-delivlib/compare/v0.3.2...v0.4.0) (2019-01-07)
+
+### Features
+
+* Allow update of PGPSecret and PrivateKey ([#20](https://github.com/awslabs/aws-delivlib/issues/20)) ([bfc6225](https://github.com/awslabs/aws-delivlib/commit/bfc6225))
+
+### BREAKING CHANGES
+
+* This changes the API of the PGPSecret and CodeSigningCertificate constructs to offer a consistent API for accessing the name
+and ARNs of the secret and parameters associated with the secrets, through the `ICredentialPair` interface.
+
+
 <a name="0.3.2"></a>
 ## [0.3.2](https://github.com/awslabs/aws-delivlib/compare/v0.3.1...v0.3.2) (2018-12-20)
 
