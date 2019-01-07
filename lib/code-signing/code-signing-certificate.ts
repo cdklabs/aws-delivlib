@@ -84,11 +84,6 @@ export class CodeSigningCertificate extends cdk.Construct implements ICodeSignin
   public readonly privatePartSecretArn: string;
 
   /**
-   * The ID of the version of the AWS Secrets Manager secret that holds the private key for this CSC
-   */
-  public readonly privatePartSecretVersionId: string;
-
-  /**
    * The ARN of the AWS SSM Parameter that holds the certificate for this CSC.
    */
   public readonly publicPartParameterArn: string;
@@ -124,7 +119,6 @@ export class CodeSigningCertificate extends cdk.Construct implements ICodeSignin
     this.secretEncryptionKey = props.secretEncryptionKey;
 
     this.privatePartSecretArn = privateKey.secretArn;
-    this.privatePartSecretVersionId = privateKey.secretVersion;
 
     let certificate = props.pemCertificate;
 
@@ -149,7 +143,7 @@ export class CodeSigningCertificate extends cdk.Construct implements ICodeSignin
     this.publicPartParameterName = `/${paramName}`;
 
     new ssm.CfnParameter(this, 'Resource', {
-      description: `A PEM-encoded Code-Signing Certificate (private key in ${privateKey.secretArn} version ${privateKey.secretVersion})`,
+      description: `A PEM-encoded Code-Signing Certificate (private key in ${privateKey.secretArn})`,
       name: this.publicPartParameterName,
       type: 'String',
       value: certificate

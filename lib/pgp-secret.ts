@@ -69,7 +69,6 @@ export class PGPSecret extends cdk.Construct implements ICredentialPair {
   public readonly publicPartParameterArn: string;
   public readonly publicPartParameterName: string;
   public readonly privatePartSecretArn: string;
-  public readonly privatePartSecretVersionId: string;
 
   constructor(parent: cdk.Construct, name: string, props: PGPSecretProps) {
     super(parent, name);
@@ -87,7 +86,6 @@ export class PGPSecret extends cdk.Construct implements ICredentialPair {
       initialPolicy: [
         new iam.PolicyStatement()
           .addActions('secretsmanager:CreateSecret',
-                      'secretsmanager:ListSecretVersionIds',
                       'secretsmanager:UpdateSecret',
                       'secretsmanager:DeleteSecret',
                       'ssm:PutParameter',
@@ -117,7 +115,6 @@ export class PGPSecret extends cdk.Construct implements ICredentialPair {
       },
     });
     this.privatePartSecretArn = secret.getAtt('SecretArn').toString();
-    this.privatePartSecretVersionId = secret.getAtt('SecretVersionId').toString();
     this.publicPartParameterName = secret.getAtt('ParameterName').toString();
     this.publicPartParameterArn = cdk.ArnUtils.fromComponents({ service: 'ssm', resource: 'parameter', resourceName: this.publicPartParameterName });
   }

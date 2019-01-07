@@ -51,10 +51,7 @@ export class RsaPrivateKeySecret extends cdk.Construct {
    * The ARN of the secret that holds the private key.
    */
   public secretArn: string;
-  /**
-   * The VersionID of the secret that holds the private key.
-   */
-  public secretVersion: string;
+
   private secretArnLike: string;
   private masterKey?: kms.EncryptionKeyRef;
 
@@ -83,7 +80,6 @@ export class RsaPrivateKeySecret extends cdk.Construct {
     customResource.addToRolePolicy(new iam.PolicyStatement()
       .addActions('secretsmanager:CreateSecret',
                   'secretsmanager:DeleteSecret',
-                  'secretsmanager:ListSecretVersionIds',
                   'secretsmanager:UpdateSecret')
       .addResource(this.secretArnLike));
 
@@ -134,7 +130,6 @@ export class RsaPrivateKeySecret extends cdk.Construct {
 
     this.masterKey = props.secretEncryptionKey;
     this.secretArn = privateKey.getAtt('SecretArn').toString();
-    this.secretVersion = privateKey.getAtt('SecretVersionId').toString();
   }
 
   /**
@@ -181,7 +176,6 @@ export class RsaPrivateKeySecret extends cdk.Construct {
           .addResource(this.masterKey.keyArn)
           .addCondition('StringEquals', {
             'kms:ViaService': new cdk.FnConcat('secretsmanager.', new cdk.AwsRegion(), '.amazonaws.com'),
-            'kms:EncryptionContext:SecretVersionId': this.secretVersion,
           })
           .addCondition('ArnEquals', {
             'kms:EncryptionContext:SecretARN': this.secretArn,

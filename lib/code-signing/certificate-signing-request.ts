@@ -65,7 +65,6 @@ export class CertificateSigningRequest extends cdk.Construct {
         resourceVersion: hashFileOrDirectory(codeLocation),
         // Private key
         privateKeySecretId: props.privateKey.secretArn,
-        privateKeySecretVersion: props.privateKey.secretVersion,
         // Distinguished name
         dnCommonName: props.dn.commonName,
         dnCountry: props.dn.country,

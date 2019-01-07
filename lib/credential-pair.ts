@@ -26,10 +26,4 @@ export interface ICredentialPair {
    * this credential pair.
    */
   readonly privatePartSecretArn: string;
-
-  /**
-   * The VersionId of the AWS SecretsManager secret that holds the private part
-   * of this credential pair.
-   */
-  readonly privatePartSecretVersionId: string;
 }
