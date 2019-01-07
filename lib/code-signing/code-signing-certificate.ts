@@ -148,7 +148,7 @@ export class CodeSigningCertificate extends cdk.Construct implements ICodeSignin
     const paramName = `${baseName}/Certificate`;
     this.publicPartParameterName = `/${paramName}`;
 
-    new ssm.cloudformation.ParameterResource(this, 'Resource', {
+    new ssm.CfnParameter(this, 'Resource', {
       description: `A PEM-encoded Code-Signing Certificate (private key in ${privateKey.secretArn} version ${privateKey.secretVersion})`,
       name: this.publicPartParameterName,
       type: 'String',
