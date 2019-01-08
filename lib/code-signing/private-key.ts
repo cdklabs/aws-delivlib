@@ -62,6 +62,7 @@ export class RsaPrivateKeySecret extends cdk.Construct {
 
     const codeLocation = path.resolve(__dirname, '..', '..', 'custom-resource-handlers', 'bin', 'private-key');
     const customResource = new lambda.SingletonFunction(this, 'ResourceHandler', {
+      lambdaPurpose: 'RSAPrivate-Key',
       uuid: '72FD327D-3813-4632-9340-28EC437AA486',
       description: 'Generates an RSA Private Key and stores it in AWS Secrets Manager',
       runtime: lambda.Runtime.NodeJS810,
@@ -117,7 +118,7 @@ export class RsaPrivateKeySecret extends cdk.Construct {
           roles: [customResource.role],
           statements: [
             new iam.PolicyStatement()
-              .describe(`AWSSecretsManager${props.secretName.replace(/[^0-9A-Za-z-]/g, '')}CMK`)
+              .describe(`AWSSecretsManager${props.secretName.replace(/[^0-9A-Za-z]/g, '')}CMK`)
               .addActions('kms:Decrypt', 'kms:GenerateDataKey')
               .addResource(props.secretEncryptionKey.keyArn)
               .addCondition('StringEquals', { 'kms:ViaService': new cdk.FnConcat('secretsmanager.', new cdk.AwsRegion(), '.amazonaws.com') })
