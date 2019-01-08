@@ -11,6 +11,9 @@ const eventBase = {
   ResponseURL: 'https://response/url',
   RequestId: '5EF100FB-0075-4716-970B-FBCA05BFE118',
   ResourceProperties: {
+    ServiceToken:             'Service-Token (Would be the function ARN',
+    ResourceVersion:          'The hash of the function code',
+
     DnCommonName:             'Test',
     DnCountry:                'FR',
     DnStateOrProvince:        'TestLand',
@@ -20,6 +23,7 @@ const eventBase = {
     DnEmailAddress:           'test@acme.test',
     KeyUsage:                 'critical,use-the-key',
     ExtendedKeyUsage:         'critical,abuse-the-key',
+    PrivateKeySecretId:       'arn:::private-key-secret',
   },
   ResourceType: 'Custom::Resource::Type',
   StackId: 'StackID-1324597',
