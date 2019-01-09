@@ -11,10 +11,13 @@ const eventBase = {
   ResponseURL: 'https://response/url',
   RequestId: '5EF100FB-0075-4716-970B-FBCA05BFE118',
   ResourceProperties: {
-    Description: 'Description of my secret',
-    KeySize: 4_096,
-    KmsKeyId: 'alias/KmsKey',
-    SecretName: 'Sekret/Name/Shhhh',
+    ServiceToken:     'Service-Token (Would be the function ARN',
+    ResourceVersion:  'The hash of the function code',
+
+    Description:      'Description of my secret',
+    KeySize:          4_096,
+    KmsKeyId:         'alias/KmsKey',
+    SecretName:       'Sekret/Name/Shhhh',
   },
   ResourceType: 'Custom::Resource::Type',
   StackId: 'StackID-1324597',

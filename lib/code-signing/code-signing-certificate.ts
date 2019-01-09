@@ -96,7 +96,7 @@ export class CodeSigningCertificate extends cdk.Construct implements ICodeSignin
   /**
    * KMS key to encrypt the secret.
    */
-  private readonly secretEncryptionKey?: kms.EncryptionKeyRef;
+  public readonly privatePartEncryptionKey: kms.EncryptionKeyRef | undefined;
 
   constructor(parent: cdk.Construct, id: string, props: CodeSigningCertificateProps) {
     super(parent, id);
@@ -116,7 +116,7 @@ export class CodeSigningCertificate extends cdk.Construct implements ICodeSignin
       secretName: `${baseName}/RSAPrivateKey`,
     });
 
-    this.secretEncryptionKey = props.secretEncryptionKey;
+    this.privatePartEncryptionKey = props.secretEncryptionKey;
 
     this.privatePartSecretArn = privateKey.secretArn;
 
@@ -164,7 +164,7 @@ export class CodeSigningCertificate extends cdk.Construct implements ICodeSignin
     if (!principal) { return; }
 
     permissions.grantSecretRead({
-      keyArn: this.secretEncryptionKey && this.secretEncryptionKey.keyArn,
+      keyArn: this.privatePartEncryptionKey && this.privatePartEncryptionKey.keyArn,
       secretArn: this.privatePartSecretArn,
     }, principal);
 

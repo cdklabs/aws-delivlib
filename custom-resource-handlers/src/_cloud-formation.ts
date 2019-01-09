@@ -143,6 +143,11 @@ export interface DeleteEvent extends CloudFormationEventBase {
  * @param validProps a mapping of valid property names to a boolean instructing whether the property is required or not.
  */
 export function validateProperties(props: { [name: string]: any }, validProps: { [name: string]: boolean }) {
+  // ServiceToken is always accepted (technically required, but we don't care about it internally, unless the caller said we do)
+  validProps.ServiceToken = validProps.ServiceToken || false;
+  // ResourceVersion is injected by the Lambda handler, and is permitted but not required, unless the caller said it is.
+  validProps.ResourceVersion = validProps.ResourceVersion || false;
+
   for (const property of Object.keys(props)) {
     if (!(property in validProps)) {
       throw new Error(`Unexpected property: ${property}`);
