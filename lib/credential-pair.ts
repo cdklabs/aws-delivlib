@@ -1,3 +1,5 @@
+import kms = require('@aws-cdk/aws-kms');
+
 /**
  * A Credential Pair combines a secret element and a public element. The public
  * element is stored in an SSM Parameter, while the secret element is stored in
@@ -26,4 +28,11 @@ export interface ICredentialPair {
    * this credential pair.
    */
   readonly privatePartSecretArn: string;
+
+  /**
+   * The KMS Customer-Managed Key that is used to encrypt the private part of
+   * this credential pair. If none was provided, the default KMS key for the
+   * account and region will be used, and this property will be ``undefined``.
+   */
+  readonly privatePartEncryptionKey: kms.EncryptionKeyRef | undefined;
 }
