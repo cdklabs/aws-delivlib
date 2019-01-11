@@ -68,10 +68,7 @@ export class Canary extends cdk.Construct {
     super(scope, id);
 
     const shellable = new Shellable(this, 'Shellable', {
-      platform: props.platform || ShellPlatform.LinuxUbuntu,
-      scriptDirectory: props.scriptDirectory,
-      entrypoint: props.entrypoint,
-      environmentVariables: props.environmentVariables,
+      ...props,
       source: new cbuild.NoSource()
     });
 
