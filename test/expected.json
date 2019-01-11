@@ -290,7 +290,7 @@ Resources:
       RegisterWithThirdParty: true
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/BuildPipeline/Source/Pull/WebhookResource
-  CodeCommitPipelinesuperchainAdoptRepository67DBB814:
+  CodeCommitPipelineSuperchainImageAdoptRepositoryBCAEA412:
     Type: Custom::ECRAdoptedRepository
     Properties:
       ServiceToken:
@@ -302,7 +302,7 @@ Resources:
           - 0
           - Fn::Split:
               - ":"
-              - Ref: CodeCommitPipelinesuperchainImageNameF1669FD4
+              - Ref: CodeCommitPipelineSuperchainImageImageName4A2636E7
       PolicyDocument:
         Statement:
           - Action:
@@ -315,7 +315,7 @@ Resources:
             Sid: CodeBuild
         Version: "2012-10-17"
     Metadata:
-      aws:cdk:path: delivlib-test/CodeCommitPipeline/superchain/AdoptRepository/Resource
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/Superchain/Image/AdoptRepository/Resource
   CodeCommitPipelineBuildProjectRoleC6347B6E:
     Type: AWS::IAM::Role
     Properties:
@@ -412,7 +412,7 @@ Resources:
                             - Ref: AWS::AccountId
                             - :repository/
                             - Fn::GetAtt:
-                                - CodeCommitPipelinesuperchainAdoptRepository67DBB814
+                                - CodeCommitPipelineSuperchainImageAdoptRepositoryBCAEA412
                                 - RepositoryName
               - .dkr.ecr.
               - Fn::Select:
@@ -429,18 +429,18 @@ Resources:
                             - Ref: AWS::AccountId
                             - :repository/
                             - Fn::GetAtt:
-                                - CodeCommitPipelinesuperchainAdoptRepository67DBB814
+                                - CodeCommitPipelineSuperchainImageAdoptRepositoryBCAEA412
                                 - RepositoryName
               - .amazonaws.com/
               - Fn::GetAtt:
-                  - CodeCommitPipelinesuperchainAdoptRepository67DBB814
+                  - CodeCommitPipelineSuperchainImageAdoptRepositoryBCAEA412
                   - RepositoryName
               - ":"
               - Fn::Select:
                   - 1
                   - Fn::Split:
                       - ":"
-                      - Ref: CodeCommitPipelinesuperchainImageNameF1669FD4
+                      - Ref: CodeCommitPipelineSuperchainImageImageName4A2636E7
         PrivilegedMode: false
         Type: LINUX_CONTAINER
       ServiceRole:
@@ -1987,7 +1987,7 @@ Resources:
                       - 0
                       - Fn::Split:
                           - ":"
-                          - Ref: CodeCommitPipelinesuperchainImageNameF1669FD4
+                          - Ref: CodeCommitPipelineSuperchainImageImageName4A2636E7
         Version: "2012-10-17"
       PolicyName: AdoptEcrRepositorydbc60defc59544bcaa5c28c95d68f62cServiceRoleDefaultPolicy6BC8737C
       Roles:
@@ -2406,10 +2406,10 @@ Parameters:
     Type: AWS::SSM::Parameter::Value<String>
     Default: github-token
     NoEcho: true
-  CodeCommitPipelinesuperchainImageNameF1669FD4:
+  CodeCommitPipelineSuperchainImageImageName4A2636E7:
     Type: String
     Description: ECR repository name and tag asset
-      "delivlib-test/CodeCommitPipeline/superchain"
+      "delivlib-test/CodeCommitPipeline/Superchain/Image"
   CodeCommitPipelineHelloLinuxScriptDirectoryS3Bucket1CA6FAFD:
     Type: String
     Description: S3 bucket for asset
