@@ -2025,6 +2025,203 @@ Resources:
       - AdoptEcrRepositorydbc60defc59544bcaa5c28c95d68f62cServiceRoleDefaultPolicy6BC8737C
     Metadata:
       aws:cdk:path: delivlib-test/AdoptEcrRepositorydbc60defc59544bcaa5c28c95d68f62c/Resource
+  HelloCanaryShellableRoleBB78214A:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: codebuild.amazonaws.com
+        Version: "2012-10-17"
+    Metadata:
+      aws:cdk:path: delivlib-test/HelloCanary/Shellable/Resource/Role/Resource
+  HelloCanaryShellableRoleDefaultPolicy2C496348:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - logs:CreateLogGroup
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+            Effect: Allow
+            Resource:
+              - Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - ":logs:"
+                    - Ref: AWS::Region
+                    - ":"
+                    - Ref: AWS::AccountId
+                    - :log-group:/aws/codebuild/
+                    - Ref: HelloCanaryShellable4F4CCCCC
+              - Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - ":logs:"
+                    - Ref: AWS::Region
+                    - ":"
+                    - Ref: AWS::AccountId
+                    - :log-group:/aws/codebuild/
+                    - Ref: HelloCanaryShellable4F4CCCCC
+                    - :*
+          - Action:
+              - s3:GetObject*
+              - s3:GetBucket*
+              - s3:List*
+            Effect: Allow
+            Resource:
+              - Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - ":s3:::"
+                    - Ref: HelloCanaryShellableScriptDirectoryS3BucketA894F014
+              - Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - ":s3:::"
+                    - Ref: HelloCanaryShellableScriptDirectoryS3BucketA894F014
+                    - /
+                    - Fn::Select:
+                        - 0
+                        - Fn::Split:
+                            - "||"
+                            - Ref: HelloCanaryShellableScriptDirectoryS3VersionKey91A1A48B
+                    - "*"
+        Version: "2012-10-17"
+      PolicyName: HelloCanaryShellableRoleDefaultPolicy2C496348
+      Roles:
+        - Ref: HelloCanaryShellableRoleBB78214A
+    Metadata:
+      aws:cdk:path: delivlib-test/HelloCanary/Shellable/Resource/Role/DefaultPolicy/Resource
+  HelloCanaryShellable4F4CCCCC:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Artifacts:
+        Type: NO_ARTIFACTS
+      Environment:
+        ComputeType: BUILD_GENERAL1_MEDIUM
+        EnvironmentVariables:
+          - Name: SCRIPT_S3_BUCKET
+            Type: PLAINTEXT
+            Value:
+              Ref: HelloCanaryShellableScriptDirectoryS3BucketA894F014
+          - Name: SCRIPT_S3_KEY
+            Type: PLAINTEXT
+            Value:
+              Fn::Join:
+                - ""
+                - - Fn::Select:
+                      - 0
+                      - Fn::Split:
+                          - "||"
+                          - Ref: HelloCanaryShellableScriptDirectoryS3VersionKey91A1A48B
+                  - Fn::Select:
+                      - 1
+                      - Fn::Split:
+                          - "||"
+                          - Ref: HelloCanaryShellableScriptDirectoryS3VersionKey91A1A48B
+        Image: aws/codebuild/ubuntu-base:14.04
+        PrivilegedMode: false
+        Type: LINUX_CONTAINER
+      ServiceRole:
+        Fn::GetAtt:
+          - HelloCanaryShellableRoleBB78214A
+          - Arn
+      Source:
+        BuildSpec: >-
+          {
+            "version": "0.2",
+            "phases": {
+              "pre_build": {
+                "commands": [
+                  "echo \"Downloading scripts from s3://${SCRIPT_S3_BUCKET}/${SCRIPT_S3_KEY}\"",
+                  "aws s3 cp s3://${SCRIPT_S3_BUCKET}/${SCRIPT_S3_KEY} /tmp",
+                  "mkdir -p /tmp/scriptdir",
+                  "unzip /tmp/$(basename $SCRIPT_S3_KEY) -d /tmp/scriptdir"
+                ]
+              },
+              "build": {
+                "commands": [
+                  "export SCRIPT_DIR=/tmp/scriptdir",
+                  "echo \"Running test.sh\"",
+                  "/bin/bash /tmp/scriptdir/test.sh"
+                ]
+              }
+            }
+          }
+        Type: NO_SOURCE
+    Metadata:
+      aws:cdk:path: delivlib-test/HelloCanary/Shellable/Resource/Resource
+  HelloCanaryShellableEventsRole2401BCE5:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: events.amazonaws.com
+        Version: "2012-10-17"
+    Metadata:
+      aws:cdk:path: delivlib-test/HelloCanary/Shellable/Resource/EventsRole/Resource
+  HelloCanaryShellableEventsRoleDefaultPolicyEA909058:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action: codebuild:StartBuild
+            Effect: Allow
+            Resource:
+              Fn::GetAtt:
+                - HelloCanaryShellable4F4CCCCC
+                - Arn
+        Version: "2012-10-17"
+      PolicyName: HelloCanaryShellableEventsRoleDefaultPolicyEA909058
+      Roles:
+        - Ref: HelloCanaryShellableEventsRole2401BCE5
+    Metadata:
+      aws:cdk:path: delivlib-test/HelloCanary/Shellable/Resource/EventsRole/DefaultPolicy/Resource
+  HelloCanaryScheduleAC3A4D9F:
+    Type: AWS::Events::Rule
+    Properties:
+      ScheduleExpression: rate(1 minute)
+      State: ENABLED
+      Targets:
+        - Arn:
+            Fn::GetAtt:
+              - HelloCanaryShellable4F4CCCCC
+              - Arn
+          Id: Resource
+          RoleArn:
+            Fn::GetAtt:
+              - HelloCanaryShellableEventsRole2401BCE5
+              - Arn
+    Metadata:
+      aws:cdk:path: delivlib-test/HelloCanary/Schedule/Resource
+  HelloCanaryAlarmD131FAA8:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      EvaluationPeriods: 1
+      Threshold: 1
+      Dimensions:
+        - Name: ProjectName
+          Value:
+            Ref: HelloCanaryShellable4F4CCCCC
+      MetricName: FailedBuilds
+      Namespace: AWS/CodeBuild
+      Period: 300
+      Statistic: Sum
+      TreatMissingData: ignore
+    Metadata:
+      aws:cdk:path: delivlib-test/HelloCanary/Alarm/Resource
   X509CodeSigningKeyRSAPrivateKeyE5980A70:
     Type: Custom::RsaPrivateKeySecret
     Properties:
@@ -2478,6 +2675,13 @@ Parameters:
     Type: String
     Description: S3 key for asset version
       "delivlib-test/AdoptEcrRepositorydbc60defc59544bcaa5c28c95d68f62c/Code"
+  HelloCanaryShellableScriptDirectoryS3BucketA894F014:
+    Type: String
+    Description: S3 bucket for asset "delivlib-test/HelloCanary/Shellable/ScriptDirectory"
+  HelloCanaryShellableScriptDirectoryS3VersionKey91A1A48B:
+    Type: String
+    Description: S3 key for asset version
+      "delivlib-test/HelloCanary/Shellable/ScriptDirectory"
   RSAPrivateKey72FD327D38134632934028EC437AA486CodeS3BucketE105F27D:
     Type: String
     Description: S3 bucket for asset
