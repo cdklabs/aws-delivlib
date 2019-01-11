@@ -1,6 +1,7 @@
 import cdk = require('@aws-cdk/cdk');
 import path = require('path');
 import delivlib = require('../lib');
+import { Canary } from '../lib';
 
 const testDir = path.join(__dirname, 'delivlib-tests');
 
@@ -45,6 +46,12 @@ export class TestStack extends cdk.Stack {
     pipeline.addTest('HelloWindows', {
       platform: delivlib.ShellPlatform.Windows,
       testDirectory: path.join(testDir, 'windows')
+    });
+
+    new Canary(this, 'HelloCanary', {
+      scheduleExpression: 'rate(1 minute)',
+      scriptDirectory: path.join(testDir, 'linux'),
+      entrypoint: 'test.sh'
     });
 
     //
