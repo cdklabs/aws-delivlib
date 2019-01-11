@@ -1,5 +1,6 @@
-export * from './credential-pair';
+export * from './canary';
 export * from './code-signing';
+export * from './credential-pair';
 export * from './permissions';
 export * from './pgp-secret';
 export * from './pipeline';
