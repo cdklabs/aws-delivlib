@@ -5,10 +5,10 @@ import cpipelineapi = require('@aws-cdk/aws-codepipeline-api');
 import iam = require('@aws-cdk/aws-iam');
 import sns = require('@aws-cdk/aws-sns');
 import cdk = require('@aws-cdk/cdk');
-import path = require('path');
 import { PipelineWatcher } from './pipeline-watcher';
 import publishing = require('./publishing');
 import { IRepo } from './repo';
+import { Superchain } from './superchain';
 import { Testable, TestableProps } from './testable';
 import { determineRunOrder } from './util';
 
@@ -127,9 +127,7 @@ export class Pipeline extends cdk.Construct {
       computeType: props.computeType || cbuild.ComputeType.Small,
       privileged: props.privileged,
       environmentVariables: renderEnvironmentVariables(props.env),
-      buildImage: props.buildImage || cbuild.LinuxBuildImage.fromAsset(this, 'superchain', {
-        directory: path.join(__dirname, '..', 'superchain')
-      })
+      buildImage: props.buildImage || new Superchain(this).buildImage
     };
 
     const buildProject = new cbuild.PipelineProject(this, 'BuildProject', {
