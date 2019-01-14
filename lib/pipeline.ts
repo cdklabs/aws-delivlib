@@ -127,7 +127,7 @@ export class Pipeline extends cdk.Construct {
       computeType: props.computeType || cbuild.ComputeType.Small,
       privileged: props.privileged,
       environmentVariables: renderEnvironmentVariables(props.env),
-      buildImage: props.buildImage || new Superchain(this, 'Superchain').platform.buildImage
+      buildImage: props.buildImage || new Superchain(this).buildImage
     };
 
     const buildProject = new cbuild.PipelineProject(this, 'BuildProject', {
