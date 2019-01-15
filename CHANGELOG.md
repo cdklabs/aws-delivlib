@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.5.0"></a>
+# [0.5.0](https://github.com/awslabs/aws-delivlib/compare/v0.4.0...v0.5.0) (2019-01-15)
+
+
+### Bug Fixes
+
+* Correctly model accepted/required attributes ([#35](https://github.com/awslabs/aws-delivlib/issues/35)) ([52bdccb](https://github.com/awslabs/aws-delivlib/commit/52bdccb))
+* Stop surfacing and using secret VersionIds ([#33](https://github.com/awslabs/aws-delivlib/issues/33)) ([afbd204](https://github.com/awslabs/aws-delivlib/commit/afbd204))
+
+
+### Features
+
+* wrap the superchain image in a Superchain construct. ([#38](https://github.com/awslabs/aws-delivlib/issues/38)) ([5713727](https://github.com/awslabs/aws-delivlib/commit/5713727))
+
+
+
 <a name="0.4.0"></a>
 ## [0.4.0](https://github.com/awslabs/aws-delivlib/compare/v0.3.2...v0.4.0) (2019-01-07)
 
