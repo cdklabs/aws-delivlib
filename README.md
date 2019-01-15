@@ -596,6 +596,12 @@ To create an ssh deploy key for your repository:
    (not key/value).
 1. Use the name of the AWS Secrets Manager secret in the `sshKeySecret` option.
 
+## Contributing
+
+See the [contribution guide](./CONTRIBUTING.md) for details on how to submit
+issues, pull requests, setup a development environment and publish new releases
+of this library.
+
 ## License
 
 This library is licensed under the Apache 2.0 License.
