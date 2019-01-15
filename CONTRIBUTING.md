@@ -6,19 +6,17 @@ documentation, we greatly value feedback and contributions from our community.
 Please read through this document before submitting any issues or pull requests to ensure we have all the necessary 
 information to effectively respond to your bug report or contribution.
 
-
 ## Reporting Bugs/Feature Requests
 
 We welcome you to use the GitHub issue tracker to report bugs or suggest features.
 
-When filing an issue, please check [existing open](https://github.com/awslabs/aws-delivlib/issues), or [recently closed](https://github.com/awslabs/aws-delivlib/issues?utf8=%E2%9C%93&q=is%3Aissue%20is%3Aclosed%20), issues to make sure somebody else hasn't already 
+When filing an issue, please check [existing open](https://github.com/awslabs/aws-delivlib/issues), or [recently closed](https://github.com/awslabs/aws-delivlib/issues?utf8=%E2%9C%93&q=is%3Aissue%20is%3Aclosed%20), issues to make sure somebody else hasn't already
 reported the issue. Please try to include as much information as you can. Details like these are incredibly useful:
 
 * A reproducible test case or series of steps
 * The version of our code being used
 * Any modifications you've made relevant to the bug
 * Anything unusual about your environment or deployment
-
 
 ## Contributing via Pull Requests
 Contributions via pull requests are much appreciated. Before sending us a pull request, please ensure that:
@@ -36,12 +34,12 @@ To send us a pull request, please:
 5. Send us a pull request, answering any default questions in the pull request interface.
 6. Pay attention to any automated CI failures reported in the pull request, and stay involved in the conversation.
 
-GitHub provides additional document on [forking a repository](https://help.github.com/articles/fork-a-repo/) and 
+GitHub provides additional document on [forking a repository](https://help.github.com/articles/fork-a-repo/) and
 [creating a pull request](https://help.github.com/articles/creating-a-pull-request/).
 
 
 ## Finding contributions to work on
-Looking at the existing issues is a great way to find something to contribute on. As our projects, by default, use the default GitHub issue labels (enhancement/bug/duplicate/help wanted/invalid/question/wontfix), looking at any ['help wanted'](https://github.com/awslabs/aws-delivlib/labels/help%20wanted) issues is a great place to start. 
+Looking at the existing issues is a great way to find something to contribute on. As our projects, by default, use the default GitHub issue labels (enhancement/bug/duplicate/help wanted/invalid/question/wontfix), looking at any ['help wanted'](https://github.com/awslabs/aws-delivlib/labels/help%20wanted) issues is a great place to start.
 
 
 ## Code of Conduct
@@ -53,6 +51,36 @@ opensource-codeofconduct@amazon.com with any additional questions or comments.
 ## Security issue notifications
 If you discover a potential security issue in this project we ask that you notify AWS/Amazon Security via our [vulnerability reporting page](http://aws.amazon.com/security/vulnerability-reporting/). Please do **not** create a public github issue.
 
+## Development Environment
+
+To setup a development environment:
+
+1. Clone the repo
+2. Run `npm install`
+3. Run `npm run build` (or `npm run watch`) to compile typescript
+4. Run `npm run test`
+
+## Build & Release Pipeline
+
+The build & release pipeline is defined in [`pipeline/delivlib.ts`](./pipeline/delivlib.ts). Surprisingly, it uses delivlib to synthesize the pipeline.
+
+You can use the following npm scripts to manage the pipeline:
+
+* Make sure to `npm run build` (or `npm run watch`) to compile the pipeline code
+* `npm run pipeline-diff` - runs `cdk diff` against the deployed pipeline
+* `npm run pipeline-update` - runs `cdk deploy` to update the pipeline
+
+## Releasing a New Version
+
+To release a new delivlib version, run:
+
+```console
+$ npm run bump
+$ git checkout -b vX.Y.Z # version number
+$ git push --follow-tags origin vX.Y.Z
+```
+
+Submit a PR with the bump and merge it when approved. This will trigger a build+test+publish cycle.
 
 ## Licensing
 
