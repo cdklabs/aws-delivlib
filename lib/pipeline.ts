@@ -5,12 +5,13 @@ import cpipelineapi = require('@aws-cdk/aws-codepipeline-api');
 import iam = require('@aws-cdk/aws-iam');
 import sns = require('@aws-cdk/aws-sns');
 import cdk = require('@aws-cdk/cdk');
+import { Canary, CanaryProps } from './canary';
 import { PipelineWatcher } from './pipeline-watcher';
 import publishing = require('./publishing');
 import { IRepo } from './repo';
+import { Shellable, ShellableProps } from './shellable';
 import { Superchain } from './superchain';
-import { Testable, TestableProps } from './testable';
-import { determineRunOrder } from './util';
+import { determineRunOrder, renderEnvironmentVariables } from './util';
 
 export interface PipelineProps {
   /**
@@ -154,13 +155,22 @@ export class Pipeline extends cdk.Construct {
     this.addBuildFailureNotification(buildProject, `${props.title} build failed`);
   }
 
-  public addTest(id: string, props: TestableProps) {
+  public addTest(id: string, props: ShellableProps) {
     const stage = this.getOrCreateStage('Test');
 
-    const test = new Testable(this, id, props);
-    test.addToPipeline(stage, this.buildOutput, this.determineRunOrderForNewAction(stage));
+    const test = new Shellable(this, id, props);
+    test.addToPipeline(stage, `Test${id}`, this.buildOutput, this.determineRunOrderForNewAction(stage));
 
     this.addBuildFailureNotification(test.project, `Test ${id} failed`);
+  }
+
+  /**
+   * Convinience/discovery method that defines a canary test in your account.
+   * @param id the construct id
+   * @param props canary options
+   */
+  public addCanary(id: string, props: CanaryProps) {
+    return new Canary(this, `Canary${id}`, props);
   }
 
   public addPublish(publisher: IPublisher) {
@@ -249,16 +259,4 @@ export interface IPublisher {
    * The publisher's codebuild project.
    */
   readonly project: cbuild.Project;
-}
-
-function renderEnvironmentVariables(env?: { [key: string]: string }) {
-  if (!env) {
-    return undefined;
-  }
-
-  const out: { [key: string]: cbuild.BuildEnvironmentVariable } = { };
-  for (const [key, value] of Object.entries(env)) {
-    out[key] = { value };
-  }
-  return out;
 }

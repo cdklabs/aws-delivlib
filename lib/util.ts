@@ -1,3 +1,4 @@
+import cbuild = require('@aws-cdk/aws-codebuild');
 import crypto = require('crypto');
 import fs = require('fs');
 import path = require('path');
@@ -36,4 +37,16 @@ export function hashFileOrDirectory(fileOrDir: string): string {
     hash.update(fs.readFileSync(fileOrDir));
   }
   return hash.digest('base64');
+}
+
+export function renderEnvironmentVariables(env?: { [key: string]: string }) {
+  if (!env) {
+    return undefined;
+  }
+
+  const out: { [key: string]: cbuild.BuildEnvironmentVariable } = { };
+  for (const [key, value] of Object.entries(env)) {
+    out[key] = { value };
+  }
+  return out;
 }
