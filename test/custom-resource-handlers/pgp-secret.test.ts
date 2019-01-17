@@ -100,7 +100,10 @@ test('Create', async () => {
       Description: event.ResourceProperties.Description,
       KmsKeyId: event.ResourceProperties.KeyArn,
       Name: event.ResourceProperties.SecretName,
-      SecretString: mockPrivateKey,
+      SecretString: JSON.stringify({
+        PrivateKey: mockPrivateKey,
+        Passphrase: passphrase.toString('base64')
+      }),
     });
   await expect(mockSSM.putParameter)
     .toBeCalledWith({
