@@ -1,3 +1,4 @@
+import cbuild = require('@aws-cdk/aws-codebuild');
 import cdk = require('@aws-cdk/cdk');
 import path = require('path');
 import delivlib = require('../lib');
@@ -26,6 +27,7 @@ export class TestStack extends cdk.Stack {
       title: 'aws-delivlib test pipeline',
       repo,
       notificationEmail: 'aws-cdk-dev+delivlib-test@amazon.com',
+      // buildImage: cbuild.LinuxBuildImage.UBUNTU_14_04_NODEJS_10_1_0,
       env: {
         DELIVLIB_ENV_TEST: 'MAGIC_1924'
       }
