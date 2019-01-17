@@ -91,7 +91,10 @@ async function _createNewKey(event: cfn.CreateEvent | cfn.UpdateEvent, context: 
       ClientRequestToken: context.awsRequestId,
       Description: event.ResourceProperties.Description,
       KmsKeyId: event.ResourceProperties.KeyArn,
-      SecretString: keyMaterial,
+      SecretString: JSON.stringify({
+        PrivateKey: keyMaterial,
+        Passphrase: passPhrase
+      }),
     };
     const secret = event.RequestType === cfn.RequestType.CREATE
                  ? await secretsManager.createSecret({ ...secretOpts, Name: event.ResourceProperties.SecretName }).promise()
