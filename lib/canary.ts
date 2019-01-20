@@ -27,14 +27,14 @@ export class Canary extends cdk.Construct {
   constructor(scope: cdk.Construct, id: string, props: CanaryProps) {
     super(scope, id);
 
-    const env = props.env || { };
+    const env = props.environment || { };
     if (!('IS_CANARY' in env)) {
       env.IS_CANARY = 'true';
     }
 
     const shellable = new Shellable(this, 'Shellable', {
       ...props,
-      env,
+      environment: env,
       source: new cbuild.NoSource()
     });
 

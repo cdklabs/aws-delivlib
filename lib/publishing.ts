@@ -48,7 +48,7 @@ export class PublishToMavenProject extends cdk.Construct implements IPublisher {
       platform: new LinuxPlatform(cbuild.LinuxBuildImage.UBUNTU_14_04_NODEJS_10_1_0),
       scriptDirectory: path.join(__dirname, 'publishing', 'maven'),
       entrypoint: 'publish.sh',
-      env: {
+      environment: {
         STAGING_PROFILE_ID: props.stagingProfileId,
         SIGNING_KEY_SCOPE: props.signingKey.scope,
         FOR_REAL: forReal,
@@ -95,7 +95,7 @@ export class PublishToNpmProject extends cdk.Construct implements IPublisher {
       platform: new LinuxPlatform(cbuild.LinuxBuildImage.UBUNTU_14_04_NODEJS_10_1_0),
       scriptDirectory: path.join(__dirname, 'publishing', 'npm'),
       entrypoint: 'publish.sh',
-      env: {
+      environment: {
         FOR_REAL: forReal,
         NPM_TOKEN_SECRET: props.npmTokenSecret.secretArn
       },
@@ -139,32 +139,32 @@ export class PublishToNuGetProject extends cdk.Construct implements IPublisher {
   constructor(parent: cdk.Construct, id: string, props: PublishToNuGetProjectProps) {
     super(parent, id);
 
-    const env: { [key: string]: string } = { };
+    const environment: { [key: string]: string } = { };
 
-    env.FOR_REAL = props.dryRun === undefined ? 'false' : (!props.dryRun).toString();
+    environment.FOR_REAL = props.dryRun === undefined ? 'false' : (!props.dryRun).toString();
 
     if (props.nugetApiKeySecret.assumeRoleArn) {
-      env.NUGET_ROLE_ARN = props.nugetApiKeySecret.assumeRoleArn;
+      environment.NUGET_ROLE_ARN = props.nugetApiKeySecret.assumeRoleArn;
     }
 
     if (props.nugetApiKeySecret.region) {
-      env.NUGET_SECRET_REGION = props.nugetApiKeySecret.region;
+      environment.NUGET_SECRET_REGION = props.nugetApiKeySecret.region;
     } else {
-      env.NUGET_SECRET_REGION = new cdk.AwsRegion().toString();
+      environment.NUGET_SECRET_REGION = new cdk.AwsRegion().toString();
     }
 
-    env.NUGET_SECRET_ID = props.nugetApiKeySecret.secretArn;
+    environment.NUGET_SECRET_ID = props.nugetApiKeySecret.secretArn;
 
     if (props.codeSign) {
-      env.CODE_SIGNING_SECRET_ID = props.codeSign.privatePartSecretArn;
-      env.CODE_SIGNING_PARAMETER_NAME = props.codeSign.publicPartParameterName;
+      environment.CODE_SIGNING_SECRET_ID = props.codeSign.privatePartSecretArn;
+      environment.CODE_SIGNING_PARAMETER_NAME = props.codeSign.publicPartParameterName;
     }
 
     const shellable = new Shellable(this, 'Default', {
       platform: new LinuxPlatform(cbuild.LinuxBuildImage.UBUNTU_14_04_DOTNET_CORE_2_1),
       scriptDirectory: path.join(__dirname, 'publishing', 'nuget'),
       entrypoint: 'publish.sh',
-      env,
+      environment,
     });
 
     if (shellable.role) {
@@ -243,7 +243,7 @@ export class PublishDocsToGitHubProject extends cdk.Construct implements IPublis
       platform: new LinuxPlatform(cbuild.LinuxBuildImage.UBUNTU_14_04_NODEJS_10_1_0),
       scriptDirectory: path.join(__dirname, 'publishing', 'docs'),
       entrypoint: 'publish.sh',
-      env: {
+      environment: {
         // Must be SSH because we use an SSH key to authenticate
         GITHUB_REPO: `git@github.com:${props.githubRepo.owner}/${props.githubRepo.repo}`,
         GITHUB_PAGES_BRANCH: props.branch || 'gh-pages',
@@ -310,7 +310,7 @@ export class PublishToGitHub extends cdk.Construct implements IPublisher {
       platform: new LinuxPlatform(cbuild.LinuxBuildImage.UBUNTU_14_04_NODEJS_10_1_0),
       scriptDirectory: path.join(__dirname, 'publishing', 'github'),
       entrypoint: 'publish.sh',
-      env: {
+      environment: {
         BUILD_MANIFEST: props.buildManifestFileName || './build.json',
         CHANGELOG: props.changelogFileName || './CHANGELOG.md',
         SIGNING_KEY_SCOPE: props.signingKey.scope,

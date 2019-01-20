@@ -32,7 +32,7 @@ export interface ShellableOptions {
    *
    * @default No additional environment variables
    */
-  env?: { [key: string]: string };
+  environment?: { [key: string]: string };
 
   /**
    * The compute type to use for the build container.
@@ -112,7 +112,7 @@ export class Shellable extends cdk.Construct {
       environmentVariables: {
         [S3_BUCKET_ENV]: { value: asset.s3BucketName },
         [S3_KEY_ENV]: { value: asset.s3ObjectKey },
-        ...renderEnvironmentVariables(props.env)
+        ...renderEnvironmentVariables(props.environment)
       },
       buildSpec: {
         version: '0.2',
