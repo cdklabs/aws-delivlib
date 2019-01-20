@@ -32,7 +32,7 @@ export interface ShellableOptions {
    *
    * @default No additional environment variables
    */
-  env?: { [key: string]: string };
+  environment?: { [key: string]: string };
 
   /**
    * The compute type to use for the build container.
@@ -121,6 +121,23 @@ export interface AssumeRole {
 }
 
 /**
+ * Properties used to create a Shellable
+ */
+export interface ShellableProps extends ShellableOptions {
+  /**
+   * Directory with the scripts.
+   *
+   * The whole directory will be uploaded.
+   */
+  scriptDirectory: string;
+
+  /**
+   * Filename of the initial script to start, relative to scriptDirectory.
+   */
+  entrypoint: string;
+}
+
+/**
  * A CodeBuild project that runs arbitrary scripts.
  *
  * The scripts to be run are specified by supplying a directory.
@@ -163,12 +180,12 @@ export class Shellable extends cdk.Construct {
       environmentVariables: {
         [S3_BUCKET_ENV]: { value: asset.s3BucketName },
         [S3_KEY_ENV]: { value: asset.s3ObjectKey },
-        ...renderEnvironmentVariables(props.env)
+        ...renderEnvironmentVariables(props.environment)
       },
       buildSpec: {
         version: '0.2',
         phases: {
-          pre_build: { commands: this.platform.prebuildCommands() },
+          pre_build: { commands: this.platform.prebuildCommands(props.assumeRole) },
           build: { commands: this.platform.buildCommands(props.entrypoint) },
         }
       }

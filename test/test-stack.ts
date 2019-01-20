@@ -26,7 +26,7 @@ export class TestStack extends cdk.Stack {
       title: 'aws-delivlib test pipeline',
       repo,
       notificationEmail: 'aws-cdk-dev+delivlib-test@amazon.com',
-      env: {
+      environment: {
         DELIVLIB_ENV_TEST: 'MAGIC_1924'
       }
     });

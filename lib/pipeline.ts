@@ -72,7 +72,7 @@ export interface PipelineProps {
   /**
    * Environment variables to pass to build
    */
-  env?: { [key: string]: string };
+  environment?: { [key: string]: string };
 
   /**
    * Optional buildspec, as an alternative to a buildspec.yml file
@@ -127,7 +127,7 @@ export class Pipeline extends cdk.Construct {
     const environment: cbuild.BuildEnvironment = {
       computeType: props.computeType || cbuild.ComputeType.Small,
       privileged: props.privileged,
-      environmentVariables: renderEnvironmentVariables(props.env),
+      environmentVariables: renderEnvironmentVariables(props.environment),
       buildImage: props.buildImage || new Superchain(this).buildImage
     };
 
@@ -165,7 +165,7 @@ export class Pipeline extends cdk.Construct {
   }
 
   /**
-   * Convinience/discovery method that defines a canary test in your account.
+   * Convenience/discovery method that defines a canary test in your account.
    * @param id the construct id
    * @param props canary options
    */
