@@ -25,9 +25,8 @@ export class TestStack extends cdk.Stack {
     const pipeline = new delivlib.Pipeline(this, 'CodeCommitPipeline', {
       title: 'aws-delivlib test pipeline',
       repo,
-      concurrency: 1, // temporary until we increase the account limits
       notificationEmail: 'aws-cdk-dev+delivlib-test@amazon.com',
-      env: {
+      environment: {
         DELIVLIB_ENV_TEST: 'MAGIC_1924'
       }
     });
@@ -39,13 +38,15 @@ export class TestStack extends cdk.Stack {
     // add a test that runs on an ubuntu linux
     pipeline.addTest('HelloLinux', {
       platform: delivlib.ShellPlatform.LinuxUbuntu,
-      testDirectory: path.join(testDir, 'linux')
+      entrypoint: 'test.sh',
+      scriptDirectory: path.join(testDir, 'linux')
     });
 
     // add a test that runs on Windows
     pipeline.addTest('HelloWindows', {
       platform: delivlib.ShellPlatform.Windows,
-      testDirectory: path.join(testDir, 'windows')
+      entrypoint: 'test.ps1',
+      scriptDirectory: path.join(testDir, 'windows')
     });
 
     new Canary(this, 'HelloCanary', {

@@ -72,7 +72,17 @@ You can use the following npm scripts to manage the pipeline:
 
 ## Releasing a New Version
 
-To release a new delivlib version, run:
+Before releasing a new version, you first run an integration test to ensure that the various features are working.
+
+Here is how to execute an integration test:
+
+1. Setup credentials to our test AWS account: 712950704752
+2. Execute `npm test update`. This will update the integration test infrastructure. Wait until deployment has finished.
+3. Now, you will need to exercise the pipeline:
+   1. Clone https://github.com/awslabs/aws-delivlib-sample to your machine
+   2.
+
+If the pipeline is all green after a full pass, you can bump the version:
 
 ```console
 $ npm run bump

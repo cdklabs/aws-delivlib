@@ -84,12 +84,13 @@ function createTestPipelineForConcurrencyTests(stack: cdk.Stack, props?: delivli
     buildSpec: { version: '0.2' }
   });
 
-  const testDirectory = path.join(__dirname, 'delivlib-tests', 'linux');
-  pipeline.addTest('test1', { testDirectory, platform: delivlib.ShellPlatform.LinuxUbuntu });
-  pipeline.addTest('test2', { testDirectory, platform: delivlib.ShellPlatform.LinuxUbuntu });
-  pipeline.addTest('test3', { testDirectory, platform: delivlib.ShellPlatform.LinuxUbuntu });
-  pipeline.addTest('test4', { testDirectory, platform: delivlib.ShellPlatform.LinuxUbuntu });
-  pipeline.addTest('test5', { testDirectory, platform: delivlib.ShellPlatform.LinuxUbuntu });
+  const scriptDirectory = path.join(__dirname, 'delivlib-tests', 'linux');
+  const entrypoint = 'test.sh';
+  pipeline.addTest('test1', { scriptDirectory, entrypoint, platform: delivlib.ShellPlatform.LinuxUbuntu });
+  pipeline.addTest('test2', { scriptDirectory, entrypoint, platform: delivlib.ShellPlatform.LinuxUbuntu });
+  pipeline.addTest('test3', { scriptDirectory, entrypoint, platform: delivlib.ShellPlatform.LinuxUbuntu });
+  pipeline.addTest('test4', { scriptDirectory, entrypoint, platform: delivlib.ShellPlatform.LinuxUbuntu });
+  pipeline.addTest('test5', { scriptDirectory, entrypoint, platform: delivlib.ShellPlatform.LinuxUbuntu });
   pipeline.addPublish({ id: 'pub1', project });
   pipeline.addPublish({ id: 'pub2', project });
   pipeline.addPublish({ id: 'pub3', project });

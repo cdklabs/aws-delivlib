@@ -105,7 +105,12 @@ test('correctly creates canary', () => {
               ]
             ]
           }
-        }
+        },
+        {
+          Name: "IS_CANARY",
+          Type: "PLAINTEXT",
+          Value: "true"
+        },
       ],
     },
     ServiceRole: {
