@@ -193,6 +193,12 @@ export class Shellable extends cdk.Construct {
 
     this.role = this.project.role;
     asset.grantRead(this.role);
+
+    if (props.assumeRole && this.project.role) {
+      this.project.role.addToPolicy(new iam.PolicyStatement()
+        .addAction('sts:AssumeRole')
+        .addResource(props.assumeRole.roleArn));
+    }
   }
 
   public addToPipeline(stage: cpipeline.Stage, name: string, inputArtifact: cpipelineapi.Artifact, runOrder?: number) {
@@ -268,9 +274,9 @@ export class LinuxPlatform extends ShellPlatform {
       const externalId = assumeRole.externalId ? `--external-id "${assumeRole.externalId}"` : '';
       lines.push('creds=$(mktemp -d)/creds.json');
       lines.push(`aws sts assume-role --role-arn "${assumeRole.roleArn}" --role-session-name "${assumeRole.sessionName}" ${externalId} > $creds`);
-      lines.push('export AWS_ACCESS_KEY_ID="$(node -e "console.log(require(\'${creds}\').Credentials.AccessKeyId)")"');
-      lines.push('export AWS_SECRET_ACCESS_KEY="$(node -e "console.log(require(\'${creds}\').Credentials.SecretAccessKey)")"');
-      lines.push('export AWS_SESSION_TOKEN="$(node -e "console.log(require(\'${creds}\').Credentials.SessionToken)")"');
+      lines.push('export AWS_ACCESS_KEY_ID="$(cat ${creds} | grep "AccessKeyId" | cut -d\'"\' -f 4)"');
+      lines.push('export AWS_SECRET_ACCESS_KEY="$(cat ${creds} | grep "SecretAccessKey" | cut -d\'"\' -f 4)"');
+      lines.push('export AWS_SESSION_TOKEN="$(cat ${creds} | grep "SessionToken" | cut -d\'"\' -f 4)"');
     }
 
     return lines;
