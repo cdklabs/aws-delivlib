@@ -297,7 +297,11 @@ export class LinuxPlatform extends ShellPlatform {
 export class WindowsPlatform extends ShellPlatform {
   public readonly platformType = PlatformType.Windows;
 
-  public prebuildCommands(): string[] {
+  public prebuildCommands(assumeRole?: AssumeRole): string[] {
+    if (assumeRole) {
+      throw new Error(`assumeRole is not supported on Windows: https://github.com/awslabs/aws-delivlib/issues/57`);
+    }
+
     return [
       // Would love to do downloading here and executing in the next step,
       // but I don't know how to propagate the value of $TEMPDIR.

@@ -1,7 +1,8 @@
 import { expect as assert, haveResource } from '@aws-cdk/assert';
 import cdk = require('@aws-cdk/cdk');
+import { Stack } from '@aws-cdk/cdk';
 import path = require('path');
-import { Shellable } from '../lib';
+import { Shellable, ShellPlatform } from '../lib';
 
 // tslint:disable:max-line-length
 
@@ -53,4 +54,18 @@ test('assume role with external-id', () => {
 
   expect(buildSpec.phases.pre_build.commands)
     .toContain('aws sts assume-role --role-arn \"arn:aws:role:to:assume\" --role-session-name \"my-session-name\" --external-id \"my-externa-id\" > $creds');
+});
+
+test('assume role not supported on windows', () => {
+  const stack = new Stack();
+
+  expect(() => new Shellable(stack, 'MyShellable', {
+    scriptDirectory: path.join(__dirname, 'delivlib-tests/linux'),
+    platform: ShellPlatform.Windows,
+    entrypoint: 'test.sh',
+    assumeRole: {
+      roleArn: 'arn:aws:role:to:assume',
+      sessionName: 'my-session-name'
+    }
+  })).toThrow('hello');
 });
