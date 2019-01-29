@@ -102,20 +102,19 @@ export interface AssumeRole {
   sessionName: string;
 
   /**
-   *  A  unique  identifier  that  is  used by third parties when assuming roles
-   *  in their customers' accounts. For each  role  that  the  third party can
-   *  assume, they should instruct their customers to ensure the role's trust
-   *  policy checks for the external ID that the third  party generated.  Each
-   *  time the third party assumes the role, they should pass the customer's
-   *  external ID. The external ID is useful in  order to  help  third  parties
-   *  bind a role to the customer who created it. For more information about the
-   *  external ID, see How to Use an Exter- nal  ID  When Granting Access to
-   *  Your AWS Resources to a Third Party in the IAM User Guide .
+   * A  unique  identifier  that  is  used by third parties when assuming roles
+   * in their customers' accounts. For each  role  that  the  third party can
+   * assume, they should instruct their customers to ensure the role's trust
+   * policy checks for the external ID that the third  party generated.  Each
+   * time the third party assumes the role, they should pass the customer's
+   * external ID. The external ID is useful in  order to  help  third  parties
+   * bind a role to the customer who created it. For more information about the
+   * external ID, see How to Use an Exter- nal  ID  When Granting Access to Your
+   * AWS Resources to a Third Party in the IAM User Guide .
    *
-   *  The regex used to validated this parameter is a string of characters
-   *  consisting  of upper- and lower-case alphanumeric characters with no
-   *  spaces. You can also include underscores or  any  of  the  following
-   *  characters: =,.@:/-
+   * This parameter must be a string of characters consisting  of upper- and
+   * lower-case alphanumeric characters with no spaces. You can also include
+   * underscores or  any  of  the  following characters: =,.@:/-
    */
   externalId?: string;
 }
