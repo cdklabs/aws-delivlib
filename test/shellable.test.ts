@@ -67,5 +67,5 @@ test('assume role not supported on windows', () => {
       roleArn: 'arn:aws:role:to:assume',
       sessionName: 'my-session-name'
     }
-  })).toThrow('hello');
+  })).toThrow('assumeRole is not supported on Windows');
 });
