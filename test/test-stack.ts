@@ -1,7 +1,7 @@
+import iam = require('@aws-cdk/aws-iam');
 import cdk = require('@aws-cdk/cdk');
 import path = require('path');
 import delivlib = require('../lib');
-import { Canary } from '../lib';
 
 const testDir = path.join(__dirname, 'delivlib-tests');
 
@@ -49,7 +49,31 @@ export class TestStack extends cdk.Stack {
       scriptDirectory: path.join(testDir, 'windows')
     });
 
-    new Canary(this, 'HelloCanary', {
+    const externalId = 'require-me-please';
+
+    const role = new iam.Role(this, 'AssumeMe', {
+      assumedBy: new iam.AccountPrincipal(new cdk.AwsAccountId()),
+      externalId
+    });
+
+    pipeline.addTest('AssumeRole', {
+      entrypoint: 'test.sh',
+      scriptDirectory: path.join(testDir, 'assume-role'),
+      assumeRole: {
+        roleArn: role.roleArn,
+        sessionName: 'assume-role-test',
+        externalId
+      },
+      environment: {
+        EXPECTED_ROLE_NAME: role.roleName
+      }
+    });
+
+    //
+    // CANARY
+    //
+
+    pipeline.addCanary('HelloCanary', {
       scheduleExpression: 'rate(1 minute)',
       scriptDirectory: path.join(testDir, 'linux'),
       entrypoint: 'test.sh'

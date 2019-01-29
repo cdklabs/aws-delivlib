@@ -73,6 +73,15 @@ Resources:
             Effect: Allow
             Resource:
               Fn::GetAtt:
+                - CodeCommitPipelineAssumeRole05A76F51
+                - Arn
+          - Action:
+              - codebuild:BatchGetBuilds
+              - codebuild:StartBuild
+              - codebuild:StopBuild
+            Effect: Allow
+            Resource:
+              Fn::GetAtt:
                 - CodeCommitPipelineNpm0D31AEFC
                 - Arn
           - Action:
@@ -189,6 +198,20 @@ Resources:
               Name: TestHelloWindows
               OutputArtifacts:
                 - Name: Artifact_delivlibtestCodeCommitPipelineHelloWindowsTestHelloWindowsA38892AA
+              RunOrder: 1
+            - ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Provider: CodeBuild
+                Version: "1"
+              Configuration:
+                ProjectName:
+                  Ref: CodeCommitPipelineAssumeRole05A76F51
+              InputArtifacts:
+                - Name: Artifact_delivlibtestCodeCommitPipelineBuildProjectBuildEB1D42D1
+              Name: TestAssumeRole
+              OutputArtifacts:
+                - Name: Artifact_delivlibtestCodeCommitPipelineAssumeRoleTestAssumeRoleED3B2461
               RunOrder: 1
           Name: Test
         - Actions:
@@ -1002,6 +1025,404 @@ Resources:
             InputTemplate: '"Test HelloWindows failed"'
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/HelloWindows/Resource/OnBuildFailed/Resource
+  CodeCommitPipelineAssumeRoleRole1186B781:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: codebuild.amazonaws.com
+        Version: "2012-10-17"
+    Metadata:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/AssumeRole/Resource/Role/Resource
+  CodeCommitPipelineAssumeRoleRoleDefaultPolicy438D80DD:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - logs:CreateLogGroup
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+            Effect: Allow
+            Resource:
+              - Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - ":logs:"
+                    - Ref: AWS::Region
+                    - ":"
+                    - Ref: AWS::AccountId
+                    - :log-group:/aws/codebuild/
+                    - Ref: CodeCommitPipelineAssumeRole05A76F51
+              - Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - ":logs:"
+                    - Ref: AWS::Region
+                    - ":"
+                    - Ref: AWS::AccountId
+                    - :log-group:/aws/codebuild/
+                    - Ref: CodeCommitPipelineAssumeRole05A76F51
+                    - :*
+          - Action:
+              - s3:GetObject*
+              - s3:GetBucket*
+              - s3:List*
+            Effect: Allow
+            Resource:
+              - Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - ":s3:::"
+                    - Ref: CodeCommitPipelineAssumeRoleScriptDirectoryS3Bucket019558B4
+              - Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - ":s3:::"
+                    - Ref: CodeCommitPipelineAssumeRoleScriptDirectoryS3Bucket019558B4
+                    - /
+                    - Fn::Select:
+                        - 0
+                        - Fn::Split:
+                            - "||"
+                            - Ref: CodeCommitPipelineAssumeRoleScriptDirectoryS3VersionKeyC04C2FE1
+                    - "*"
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Resource:
+              Fn::GetAtt:
+                - AssumeMe924099BB
+                - Arn
+          - Action:
+              - s3:GetObject*
+              - s3:GetBucket*
+              - s3:List*
+              - s3:DeleteObject*
+              - s3:PutObject*
+              - s3:Abort*
+            Effect: Allow
+            Resource:
+              - Fn::GetAtt:
+                  - CodeCommitPipelineBuildPipelineArtifactsBucketED2813B3
+                  - Arn
+              - Fn::Join:
+                  - ""
+                  - - Fn::GetAtt:
+                        - CodeCommitPipelineBuildPipelineArtifactsBucketED2813B3
+                        - Arn
+                    - /*
+        Version: "2012-10-17"
+      PolicyName: CodeCommitPipelineAssumeRoleRoleDefaultPolicy438D80DD
+      Roles:
+        - Ref: CodeCommitPipelineAssumeRoleRole1186B781
+    Metadata:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/AssumeRole/Resource/Role/DefaultPolicy/Resource
+  CodeCommitPipelineAssumeRole05A76F51:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Artifacts:
+        Type: CODEPIPELINE
+      Environment:
+        ComputeType: BUILD_GENERAL1_MEDIUM
+        EnvironmentVariables:
+          - Name: SCRIPT_S3_BUCKET
+            Type: PLAINTEXT
+            Value:
+              Ref: CodeCommitPipelineAssumeRoleScriptDirectoryS3Bucket019558B4
+          - Name: SCRIPT_S3_KEY
+            Type: PLAINTEXT
+            Value:
+              Fn::Join:
+                - ""
+                - - Fn::Select:
+                      - 0
+                      - Fn::Split:
+                          - "||"
+                          - Ref: CodeCommitPipelineAssumeRoleScriptDirectoryS3VersionKeyC04C2FE1
+                  - Fn::Select:
+                      - 1
+                      - Fn::Split:
+                          - "||"
+                          - Ref: CodeCommitPipelineAssumeRoleScriptDirectoryS3VersionKeyC04C2FE1
+          - Name: EXPECTED_ROLE_NAME
+            Type: PLAINTEXT
+            Value:
+              Ref: AssumeMe924099BB
+        Image: aws/codebuild/ubuntu-base:14.04
+        PrivilegedMode: false
+        Type: LINUX_CONTAINER
+      ServiceRole:
+        Fn::GetAtt:
+          - CodeCommitPipelineAssumeRoleRole1186B781
+          - Arn
+      Source:
+        BuildSpec:
+          Fn::Join:
+            - ""
+            - - >-
+                {
+                  "version": "0.2",
+                  "phases": {
+                    "pre_build": {
+                      "commands": [
+                        "echo \"Downloading scripts from s3://${SCRIPT_S3_BUCKET}/${SCRIPT_S3_KEY}\"",
+                        "aws s3 cp s3://${SCRIPT_S3_BUCKET}/${SCRIPT_S3_KEY} /tmp",
+                        "mkdir -p /tmp/scriptdir",
+                        "unzip /tmp/$(basename $SCRIPT_S3_KEY) -d /tmp/scriptdir",
+                        "creds=$(mktemp -d)/creds.json",
+                        "aws sts assume-role --role-arn \"
+              - Fn::GetAtt:
+                  - AssumeMe924099BB
+                  - Arn
+              - >-
+                \" --role-session-name \"assume-role-test\" --external-id
+                \"require-me-please\" > $creds",
+                        "export AWS_ACCESS_KEY_ID=\"$(cat ${creds} | grep \"AccessKeyId\" | cut -d'\"' -f 4)\"",
+                        "export AWS_SECRET_ACCESS_KEY=\"$(cat ${creds} | grep \"SecretAccessKey\" | cut -d'\"' -f 4)\"",
+                        "export AWS_SESSION_TOKEN=\"$(cat ${creds} | grep \"SessionToken\" | cut -d'\"' -f 4)\""
+                      ]
+                    },
+                    "build": {
+                      "commands": [
+                        "export SCRIPT_DIR=/tmp/scriptdir",
+                        "echo \"Running test.sh\"",
+                        "/bin/bash /tmp/scriptdir/test.sh"
+                      ]
+                    }
+                  }
+                }
+        Type: CODEPIPELINE
+    Metadata:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/AssumeRole/Resource/Resource
+  CodeCommitPipelineAssumeRoleOnBuildFailed494CD87B:
+    Type: AWS::Events::Rule
+    Properties:
+      EventPattern:
+        source:
+          - aws.codebuild
+        detail-type:
+          - CodeBuild Build State Change
+        detail:
+          project-name:
+            - Ref: CodeCommitPipelineAssumeRole05A76F51
+          build-status:
+            - FAILED
+      State: ENABLED
+      Targets:
+        - Arn:
+            Ref: CodeCommitPipelineNotificationsTopic36C2D667
+          Id: NotificationsTopic
+          InputTransformer:
+            InputTemplate: '"Test AssumeRole failed"'
+    Metadata:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/AssumeRole/Resource/OnBuildFailed/Resource
+  CodeCommitPipelineCanaryHelloCanaryShellableRole65D634EB:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: codebuild.amazonaws.com
+        Version: "2012-10-17"
+    Metadata:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/CanaryHelloCanary/Shellable/Resource/Role/Resource
+  CodeCommitPipelineCanaryHelloCanaryShellableRoleDefaultPolicyD466B3CA:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - logs:CreateLogGroup
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+            Effect: Allow
+            Resource:
+              - Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - ":logs:"
+                    - Ref: AWS::Region
+                    - ":"
+                    - Ref: AWS::AccountId
+                    - :log-group:/aws/codebuild/
+                    - Ref: CodeCommitPipelineCanaryHelloCanaryShellableC8458471
+              - Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - ":logs:"
+                    - Ref: AWS::Region
+                    - ":"
+                    - Ref: AWS::AccountId
+                    - :log-group:/aws/codebuild/
+                    - Ref: CodeCommitPipelineCanaryHelloCanaryShellableC8458471
+                    - :*
+          - Action:
+              - s3:GetObject*
+              - s3:GetBucket*
+              - s3:List*
+            Effect: Allow
+            Resource:
+              - Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - ":s3:::"
+                    - Ref: CodeCommitPipelineCanaryHelloCanaryShellableScriptDirectoryS3BucketFE4212CD
+              - Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - ":s3:::"
+                    - Ref: CodeCommitPipelineCanaryHelloCanaryShellableScriptDirectoryS3BucketFE4212CD
+                    - /
+                    - Fn::Select:
+                        - 0
+                        - Fn::Split:
+                            - "||"
+                            - Ref: CodeCommitPipelineCanaryHelloCanaryShellableScriptDirectoryS3VersionKey8BCEB745
+                    - "*"
+        Version: "2012-10-17"
+      PolicyName: CodeCommitPipelineCanaryHelloCanaryShellableRoleDefaultPolicyD466B3CA
+      Roles:
+        - Ref: CodeCommitPipelineCanaryHelloCanaryShellableRole65D634EB
+    Metadata:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/CanaryHelloCanary/Shellable/Resource/Role/DefaultPolicy/Resource
+  CodeCommitPipelineCanaryHelloCanaryShellableC8458471:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Artifacts:
+        Type: NO_ARTIFACTS
+      Environment:
+        ComputeType: BUILD_GENERAL1_MEDIUM
+        EnvironmentVariables:
+          - Name: SCRIPT_S3_BUCKET
+            Type: PLAINTEXT
+            Value:
+              Ref: CodeCommitPipelineCanaryHelloCanaryShellableScriptDirectoryS3BucketFE4212CD
+          - Name: SCRIPT_S3_KEY
+            Type: PLAINTEXT
+            Value:
+              Fn::Join:
+                - ""
+                - - Fn::Select:
+                      - 0
+                      - Fn::Split:
+                          - "||"
+                          - Ref: CodeCommitPipelineCanaryHelloCanaryShellableScriptDirectoryS3VersionKey8BCEB745
+                  - Fn::Select:
+                      - 1
+                      - Fn::Split:
+                          - "||"
+                          - Ref: CodeCommitPipelineCanaryHelloCanaryShellableScriptDirectoryS3VersionKey8BCEB745
+          - Name: IS_CANARY
+            Type: PLAINTEXT
+            Value: "true"
+        Image: aws/codebuild/ubuntu-base:14.04
+        PrivilegedMode: false
+        Type: LINUX_CONTAINER
+      ServiceRole:
+        Fn::GetAtt:
+          - CodeCommitPipelineCanaryHelloCanaryShellableRole65D634EB
+          - Arn
+      Source:
+        BuildSpec: >-
+          {
+            "version": "0.2",
+            "phases": {
+              "pre_build": {
+                "commands": [
+                  "echo \"Downloading scripts from s3://${SCRIPT_S3_BUCKET}/${SCRIPT_S3_KEY}\"",
+                  "aws s3 cp s3://${SCRIPT_S3_BUCKET}/${SCRIPT_S3_KEY} /tmp",
+                  "mkdir -p /tmp/scriptdir",
+                  "unzip /tmp/$(basename $SCRIPT_S3_KEY) -d /tmp/scriptdir"
+                ]
+              },
+              "build": {
+                "commands": [
+                  "export SCRIPT_DIR=/tmp/scriptdir",
+                  "echo \"Running test.sh\"",
+                  "/bin/bash /tmp/scriptdir/test.sh"
+                ]
+              }
+            }
+          }
+        Type: NO_SOURCE
+    Metadata:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/CanaryHelloCanary/Shellable/Resource/Resource
+  CodeCommitPipelineCanaryHelloCanaryShellableEventsRole0F756230:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: events.amazonaws.com
+        Version: "2012-10-17"
+    Metadata:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/CanaryHelloCanary/Shellable/Resource/EventsRole/Resource
+  CodeCommitPipelineCanaryHelloCanaryShellableEventsRoleDefaultPolicy6CE0D6E4:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action: codebuild:StartBuild
+            Effect: Allow
+            Resource:
+              Fn::GetAtt:
+                - CodeCommitPipelineCanaryHelloCanaryShellableC8458471
+                - Arn
+        Version: "2012-10-17"
+      PolicyName: CodeCommitPipelineCanaryHelloCanaryShellableEventsRoleDefaultPolicy6CE0D6E4
+      Roles:
+        - Ref: CodeCommitPipelineCanaryHelloCanaryShellableEventsRole0F756230
+    Metadata:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/CanaryHelloCanary/Shellable/Resource/EventsRole/DefaultPolicy/Resource
+  CodeCommitPipelineCanaryHelloCanarySchedule6177762B:
+    Type: AWS::Events::Rule
+    Properties:
+      ScheduleExpression: rate(1 minute)
+      State: ENABLED
+      Targets:
+        - Arn:
+            Fn::GetAtt:
+              - CodeCommitPipelineCanaryHelloCanaryShellableC8458471
+              - Arn
+          Id: Resource
+          RoleArn:
+            Fn::GetAtt:
+              - CodeCommitPipelineCanaryHelloCanaryShellableEventsRole0F756230
+              - Arn
+    Metadata:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/CanaryHelloCanary/Schedule/Resource
+  CodeCommitPipelineCanaryHelloCanaryAlarm1D4695AA:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      EvaluationPeriods: 1
+      Threshold: 1
+      Dimensions:
+        - Name: ProjectName
+          Value:
+            Ref: CodeCommitPipelineCanaryHelloCanaryShellableC8458471
+      MetricName: FailedBuilds
+      Namespace: AWS/CodeBuild
+      Period: 300
+      Statistic: Sum
+      TreatMissingData: ignore
+    Metadata:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/CanaryHelloCanary/Alarm/Resource
   CodeCommitPipelineNpmRole219D5F49:
     Type: AWS::IAM::Role
     Properties:
@@ -2025,206 +2446,28 @@ Resources:
       - AdoptEcrRepositorydbc60defc59544bcaa5c28c95d68f62cServiceRoleDefaultPolicy6BC8737C
     Metadata:
       aws:cdk:path: delivlib-test/AdoptEcrRepositorydbc60defc59544bcaa5c28c95d68f62c/Resource
-  HelloCanaryShellableRoleBB78214A:
+  AssumeMe924099BB:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
         Statement:
           - Action: sts:AssumeRole
+            Condition:
+              StringEquals:
+                sts:ExternalId: require-me-please
             Effect: Allow
             Principal:
-              Service: codebuild.amazonaws.com
-        Version: "2012-10-17"
-    Metadata:
-      aws:cdk:path: delivlib-test/HelloCanary/Shellable/Resource/Role/Resource
-  HelloCanaryShellableRoleDefaultPolicy2C496348:
-    Type: AWS::IAM::Policy
-    Properties:
-      PolicyDocument:
-        Statement:
-          - Action:
-              - logs:CreateLogGroup
-              - logs:CreateLogStream
-              - logs:PutLogEvents
-            Effect: Allow
-            Resource:
-              - Fn::Join:
+              AWS:
+                Fn::Join:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - ":logs:"
-                    - Ref: AWS::Region
-                    - ":"
+                    - ":iam::"
                     - Ref: AWS::AccountId
-                    - :log-group:/aws/codebuild/
-                    - Ref: HelloCanaryShellable4F4CCCCC
-              - Fn::Join:
-                  - ""
-                  - - "arn:"
-                    - Ref: AWS::Partition
-                    - ":logs:"
-                    - Ref: AWS::Region
-                    - ":"
-                    - Ref: AWS::AccountId
-                    - :log-group:/aws/codebuild/
-                    - Ref: HelloCanaryShellable4F4CCCCC
-                    - :*
-          - Action:
-              - s3:GetObject*
-              - s3:GetBucket*
-              - s3:List*
-            Effect: Allow
-            Resource:
-              - Fn::Join:
-                  - ""
-                  - - "arn:"
-                    - Ref: AWS::Partition
-                    - ":s3:::"
-                    - Ref: HelloCanaryShellableScriptDirectoryS3BucketA894F014
-              - Fn::Join:
-                  - ""
-                  - - "arn:"
-                    - Ref: AWS::Partition
-                    - ":s3:::"
-                    - Ref: HelloCanaryShellableScriptDirectoryS3BucketA894F014
-                    - /
-                    - Fn::Select:
-                        - 0
-                        - Fn::Split:
-                            - "||"
-                            - Ref: HelloCanaryShellableScriptDirectoryS3VersionKey91A1A48B
-                    - "*"
-        Version: "2012-10-17"
-      PolicyName: HelloCanaryShellableRoleDefaultPolicy2C496348
-      Roles:
-        - Ref: HelloCanaryShellableRoleBB78214A
-    Metadata:
-      aws:cdk:path: delivlib-test/HelloCanary/Shellable/Resource/Role/DefaultPolicy/Resource
-  HelloCanaryShellable4F4CCCCC:
-    Type: AWS::CodeBuild::Project
-    Properties:
-      Artifacts:
-        Type: NO_ARTIFACTS
-      Environment:
-        ComputeType: BUILD_GENERAL1_MEDIUM
-        EnvironmentVariables:
-          - Name: SCRIPT_S3_BUCKET
-            Type: PLAINTEXT
-            Value:
-              Ref: HelloCanaryShellableScriptDirectoryS3BucketA894F014
-          - Name: SCRIPT_S3_KEY
-            Type: PLAINTEXT
-            Value:
-              Fn::Join:
-                - ""
-                - - Fn::Select:
-                      - 0
-                      - Fn::Split:
-                          - "||"
-                          - Ref: HelloCanaryShellableScriptDirectoryS3VersionKey91A1A48B
-                  - Fn::Select:
-                      - 1
-                      - Fn::Split:
-                          - "||"
-                          - Ref: HelloCanaryShellableScriptDirectoryS3VersionKey91A1A48B
-          - Name: IS_CANARY
-            Type: PLAINTEXT
-            Value: "true"
-        Image: aws/codebuild/ubuntu-base:14.04
-        PrivilegedMode: false
-        Type: LINUX_CONTAINER
-      ServiceRole:
-        Fn::GetAtt:
-          - HelloCanaryShellableRoleBB78214A
-          - Arn
-      Source:
-        BuildSpec: >-
-          {
-            "version": "0.2",
-            "phases": {
-              "pre_build": {
-                "commands": [
-                  "echo \"Downloading scripts from s3://${SCRIPT_S3_BUCKET}/${SCRIPT_S3_KEY}\"",
-                  "aws s3 cp s3://${SCRIPT_S3_BUCKET}/${SCRIPT_S3_KEY} /tmp",
-                  "mkdir -p /tmp/scriptdir",
-                  "unzip /tmp/$(basename $SCRIPT_S3_KEY) -d /tmp/scriptdir"
-                ]
-              },
-              "build": {
-                "commands": [
-                  "export SCRIPT_DIR=/tmp/scriptdir",
-                  "echo \"Running test.sh\"",
-                  "/bin/bash /tmp/scriptdir/test.sh"
-                ]
-              }
-            }
-          }
-        Type: NO_SOURCE
-    Metadata:
-      aws:cdk:path: delivlib-test/HelloCanary/Shellable/Resource/Resource
-  HelloCanaryShellableEventsRole2401BCE5:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Statement:
-          - Action: sts:AssumeRole
-            Effect: Allow
-            Principal:
-              Service: events.amazonaws.com
+                    - :root
         Version: "2012-10-17"
     Metadata:
-      aws:cdk:path: delivlib-test/HelloCanary/Shellable/Resource/EventsRole/Resource
-  HelloCanaryShellableEventsRoleDefaultPolicyEA909058:
-    Type: AWS::IAM::Policy
-    Properties:
-      PolicyDocument:
-        Statement:
-          - Action: codebuild:StartBuild
-            Effect: Allow
-            Resource:
-              Fn::GetAtt:
-                - HelloCanaryShellable4F4CCCCC
-                - Arn
-        Version: "2012-10-17"
-      PolicyName: HelloCanaryShellableEventsRoleDefaultPolicyEA909058
-      Roles:
-        - Ref: HelloCanaryShellableEventsRole2401BCE5
-    Metadata:
-      aws:cdk:path: delivlib-test/HelloCanary/Shellable/Resource/EventsRole/DefaultPolicy/Resource
-  HelloCanaryScheduleAC3A4D9F:
-    Type: AWS::Events::Rule
-    Properties:
-      ScheduleExpression: rate(1 minute)
-      State: ENABLED
-      Targets:
-        - Arn:
-            Fn::GetAtt:
-              - HelloCanaryShellable4F4CCCCC
-              - Arn
-          Id: Resource
-          RoleArn:
-            Fn::GetAtt:
-              - HelloCanaryShellableEventsRole2401BCE5
-              - Arn
-    Metadata:
-      aws:cdk:path: delivlib-test/HelloCanary/Schedule/Resource
-  HelloCanaryAlarmD131FAA8:
-    Type: AWS::CloudWatch::Alarm
-    Properties:
-      ComparisonOperator: GreaterThanOrEqualToThreshold
-      EvaluationPeriods: 1
-      Threshold: 1
-      Dimensions:
-        - Name: ProjectName
-          Value:
-            Ref: HelloCanaryShellable4F4CCCCC
-      MetricName: FailedBuilds
-      Namespace: AWS/CodeBuild
-      Period: 300
-      Statistic: Sum
-      TreatMissingData: ignore
-    Metadata:
-      aws:cdk:path: delivlib-test/HelloCanary/Alarm/Resource
+      aws:cdk:path: delivlib-test/AssumeMe/Resource
   X509CodeSigningKeyRSAPrivateKeyE5980A70:
     Type: Custom::RsaPrivateKeySecret
     Properties:
@@ -2622,6 +2865,22 @@ Parameters:
     Type: String
     Description: S3 key for asset version
       "delivlib-test/CodeCommitPipeline/HelloWindows/ScriptDirectory"
+  CodeCommitPipelineAssumeRoleScriptDirectoryS3Bucket019558B4:
+    Type: String
+    Description: S3 bucket for asset
+      "delivlib-test/CodeCommitPipeline/AssumeRole/ScriptDirectory"
+  CodeCommitPipelineAssumeRoleScriptDirectoryS3VersionKeyC04C2FE1:
+    Type: String
+    Description: S3 key for asset version
+      "delivlib-test/CodeCommitPipeline/AssumeRole/ScriptDirectory"
+  CodeCommitPipelineCanaryHelloCanaryShellableScriptDirectoryS3BucketFE4212CD:
+    Type: String
+    Description: S3 bucket for asset
+      "delivlib-test/CodeCommitPipeline/CanaryHelloCanary/Shellable/ScriptDirectory"
+  CodeCommitPipelineCanaryHelloCanaryShellableScriptDirectoryS3VersionKey8BCEB745:
+    Type: String
+    Description: S3 key for asset version
+      "delivlib-test/CodeCommitPipeline/CanaryHelloCanary/Shellable/ScriptDirectory"
   CodeCommitPipelineNpmScriptDirectoryS3BucketFC1B4A74:
     Type: String
     Description: S3 bucket for asset
@@ -2678,13 +2937,6 @@ Parameters:
     Type: String
     Description: S3 key for asset version
       "delivlib-test/AdoptEcrRepositorydbc60defc59544bcaa5c28c95d68f62c/Code"
-  HelloCanaryShellableScriptDirectoryS3BucketA894F014:
-    Type: String
-    Description: S3 bucket for asset "delivlib-test/HelloCanary/Shellable/ScriptDirectory"
-  HelloCanaryShellableScriptDirectoryS3VersionKey91A1A48B:
-    Type: String
-    Description: S3 key for asset version
-      "delivlib-test/HelloCanary/Shellable/ScriptDirectory"
   RSAPrivateKey72FD327D38134632934028EC437AA486CodeS3BucketE105F27D:
     Type: String
     Description: S3 bucket for asset
