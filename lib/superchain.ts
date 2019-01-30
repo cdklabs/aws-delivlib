@@ -12,7 +12,7 @@ export class Superchain extends LinuxPlatform {
 
   constructor(scope: cdk.Construct) {
     const stack = cdk.Stack.find(scope);
-    const singleton = stack.tryFindChild(Superchain.UUID);
+    const singleton = stack.node.tryFindChild(Superchain.UUID);
     if (singleton) {
       const asset = singleton as assets.DockerImageAsset;
       super(cbuild.LinuxBuildImage.fromDockerHub(asset.imageUri));

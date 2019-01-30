@@ -34,5 +34,5 @@ export interface ICredentialPair {
    * this credential pair. If none was provided, the default KMS key for the
    * account and region will be used, and this property will be ``undefined``.
    */
-  readonly privatePartEncryptionKey: kms.EncryptionKeyRef | undefined;
+  readonly privatePartEncryptionKey: kms.IEncryptionKey | undefined;
 }

@@ -7,6 +7,8 @@ import permissions = require('../permissions');
 import { DistinguishedName } from './certificate-signing-request';
 import { RsaPrivateKeySecret } from './private-key';
 
+export { DistinguishedName } from './certificate-signing-request';
+
 interface CodeSigningCertificateProps {
   /**
    * The number of bits to compose the modulus of the generated private key for this certificate.
@@ -19,7 +21,7 @@ interface CodeSigningCertificateProps {
    * The KMS CMK to use for encrypting the Private Key secret.
    * @default A new KMS key will be allocated for you
    */
-  secretEncryptionKey?: kms.EncryptionKeyRef;
+  secretEncryptionKey?: kms.IEncryptionKey;
 
   /**
    * The PEM-encoded certificate that was signed by the relevant authority.
@@ -54,7 +56,7 @@ interface CodeSigningCertificateProps {
   distinguishedName: DistinguishedName;
 }
 
-export interface ICodeSigningCertificate extends ICredentialPair {
+export interface ICodeSigningCertificate extends cdk.IConstruct, ICredentialPair {
   /**
    * Grant the IAM principal permissions to read the private key and
    * certificate.
@@ -96,7 +98,7 @@ export class CodeSigningCertificate extends cdk.Construct implements ICodeSignin
   /**
    * KMS key to encrypt the secret.
    */
-  public readonly privatePartEncryptionKey: kms.EncryptionKeyRef | undefined;
+  public readonly privatePartEncryptionKey: kms.IEncryptionKey | undefined;
 
   constructor(parent: cdk.Construct, id: string, props: CodeSigningCertificateProps) {
     super(parent, id);
@@ -106,7 +108,7 @@ export class CodeSigningCertificate extends cdk.Construct implements ICodeSignin
     }
 
     // The construct path of this construct, without any leading /
-    const baseName = this.path.replace(/^\/+/, '');
+    const baseName = this.node.path.replace(/^\/+/, '');
 
     const privateKey = new RsaPrivateKeySecret(this, 'RSAPrivateKey', {
       deletionPolicy: props.retainPrivateKey ? cdk.DeletionPolicy.Retain : undefined,
@@ -149,7 +151,7 @@ export class CodeSigningCertificate extends cdk.Construct implements ICodeSignin
       value: certificate
     });
 
-    this.publicPartParameterArn = cdk.ArnUtils.fromComponents({
+    this.publicPartParameterArn = cdk.Stack.find(this).formatArn({
       service: 'ssm',
       resource: 'parameter',
       resourceName: paramName

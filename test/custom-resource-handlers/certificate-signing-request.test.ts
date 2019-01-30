@@ -56,8 +56,8 @@ keyUsage             = ${eventBase.ResourceProperties.KeyUsage}
 subjectKeyIdentifier = hash`;
 
 jest.spyOn(fs, 'mkdtemp').mockName('fs.mkdtemp')
-  .mockImplementation(async (_, cb) => cb(undefined, mockTmpDir));
-jest.spyOn(fs, 'readFile').mockName('fs.readFile')
+  .mockImplementation(async (_, cb) => cb(undefined as any, mockTmpDir));
+fs.readFile = jest.fn().mockName('fs.readFile')
   .mockImplementation(async (file, opts, cb) => {
     expect(opts.encoding).toBe('utf8');
     switch (file) {
@@ -68,11 +68,12 @@ jest.spyOn(fs, 'readFile').mockName('fs.readFile')
     default:
       cb(new Error('Unexpected call!'));
     }
-  });
-const mockWriteFile = jest.spyOn(fs, 'writeFile').mockName('fs.writeFile')
-  .mockImplementation((_pth, _data, _opts, cb) => cb());
+  }) as any;
+const mockWriteFile = fs.writeFile = jest.fn().mockName('fs.writeFile')
+  .mockImplementation((_pth, _data, _opts, cb) => cb()) as any;
 const mockSecretsManager = createMockInstance(aws.SecretsManager);
-jest.spyOn(aws, 'SecretsManager').mockImplementation(() => mockSecretsManager);
+aws.SecretsManager = jest.fn().mockName('SecretsManager')
+  .mockImplementation(() => mockSecretsManager) as any;
 mockSecretsManager.getSecretValue = jest.fn().mockName('SecretsManager.getSecretValue')
   .mockImplementation(() => ({ promise: () => Promise.resolve({ SecretString: mockPrivateKey }) })) as any;
 const mockExec = jest.fn().mockName('_exec').mockRejectedValue(new Error('Unexpected call!'));
@@ -81,7 +82,7 @@ jest.mock('../../custom-resource-handlers/src/_rmrf', () => mockRmrf);
 const mockRmrf = jest.fn().mockName('_rmrf')
   .mockResolvedValue(undefined);
 jest.mock('../../custom-resource-handlers/src/_rmrf', () => mockRmrf);
-jest.spyOn(cfn, 'sendResponse').mockName('cfn.sendResponse').mockResolvedValue(undefined);
+jest.spyOn(cfn, 'sendResponse').mockName('cfn.sendResponse').mockResolvedValue(Promise.resolve({}));
 
 beforeEach(() => jest.clearAllMocks());
 

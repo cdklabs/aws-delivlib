@@ -26,7 +26,7 @@ test('correctly creates', () => {
     Expiry: "1d",
     KeySizeBits: 1024,
     SecretName: "SecretName",
-    KeyArn: cdk.resolve(encryptionKey.keyArn),
+    KeyArn: stack.node.resolve(encryptionKey.keyArn),
     ParameterName: "TestParameter",
     Version: 0
   }));
@@ -50,5 +50,5 @@ test('correctly forwards parameter name', () => {
   });
 
   // THEN
-  expect(cdk.resolve(secret.publicPartParameterName)).toEqual({ "Fn::GetAtt": ["SecretA720EF05", "ParameterName"] });
+  expect(stack.node.resolve(secret.publicPartParameterName)).toEqual({ "Fn::GetAtt": ["SecretA720EF05", "ParameterName"] });
 });

@@ -52,7 +52,7 @@ export class TestStack extends cdk.Stack {
     const externalId = 'require-me-please';
 
     const role = new iam.Role(this, 'AssumeMe', {
-      assumedBy: new iam.AccountPrincipal(new cdk.AwsAccountId()),
+      assumedBy: new iam.AccountPrincipal(this.accountId),
       externalId
     });
 
@@ -108,7 +108,7 @@ export class TestStack extends cdk.Stack {
     const signingKey = new delivlib.OpenPgpKey(this, 'CodeSign', {
       email: 'aws-cdk-dev+delivlib@amazon.com',
       identity: 'aws-cdk-dev',
-      secretName: this.path + '/CodeSign',
+      secretName: this.node.path + '/CodeSign',
     });
 
     pipeline.publishToMaven({

@@ -9,7 +9,7 @@ export interface IRepo {
 }
 
 export class CodeCommitRepo implements IRepo {
-  constructor(private readonly repository: ccommit.RepositoryRef) {
+  constructor(private readonly repository: ccommit.IRepository) {
 
   }
 

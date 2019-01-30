@@ -16,10 +16,10 @@ if [ "${1:-}" == "synth" ]; then
   exit 0
 fi
 
-npx cdk --no-version-reporting -a ${cdk_app} synth > ${actual}
+npx cdk --no-version-reporting --no-asset-metadata -a ${cdk_app} synth > ${actual}
 
 if [ "${1:-}" == "update" ]; then
-  hash="$(cat ${actual} | md5sum | cut -c1-6 | xargs)"
+  hash="$(cat ${actual} | shasum | cut -c1-6 | xargs)"
   export TEST_STACK_NAME="delivlib-test-${hash}"
   npx cdk --no-version-reporting -a ${cdk_app} deploy ${2:-} ${3:-} ${4:-}
   echo "Stack deployed, now, go to the console and wait for the pipeline to fully stabalize"

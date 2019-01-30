@@ -46,8 +46,9 @@ Passphrase: ${passphrase.toString('base64')}
 
 jest.spyOn(crypto, 'randomBytes').mockImplementation(() => passphrase);
 jest.spyOn(fs, 'mkdtemp')
-  .mockImplementation(async (_, cb) => cb(undefined, mockTmpDir));
-const writeFile = jest.spyOn(fs, 'writeFile').mockName('fs.writeFile').mockImplementation((_pth, _data, _opts, cb) => cb());
+  .mockImplementation(async (_, cb) => cb(undefined as any, mockTmpDir));
+const writeFile = fs.writeFile = jest.fn().mockName('fs.writeFile')
+  .mockImplementation((_pth, _data, _opts, cb) => cb()) as any;
 jest.mock('../../custom-resource-handlers/src/_exec', () => async (cmd: string, ...args: string[]) => {
   await expect(cmd).toBe('gpg');
   await expect(args).toContain('--batch');
@@ -65,10 +66,12 @@ jest.mock('../../custom-resource-handlers/src/_exec', () => async (cmd: string, 
   throw new Error(`Invalid call to _exec`);
 });
 const mockSecretsManager = createMockInstance(aws.SecretsManager);
-jest.spyOn(aws, 'SecretsManager').mockImplementation(() => mockSecretsManager);
+aws.SecretsManager = jest.fn().mockName('SecretsManager')
+  .mockImplementation(() => mockSecretsManager) as any;
 const mockSSM = createMockInstance(aws.SSM);
-jest.spyOn(aws, 'SSM').mockImplementation(() => mockSSM);
-const mockSendResponse = jest.spyOn(cfn, 'sendResponse').mockName('cfn.sendResponse').mockResolvedValue(undefined);
+aws.SSM = jest.fn().mockName('SSM')
+  .mockImplementation(() => mockSSM) as any;
+const mockSendResponse = jest.spyOn(cfn, 'sendResponse').mockName('cfn.sendResponse').mockResolvedValue(Promise.resolve({}));
 const mockRmrf = jest.fn().mockName('_rmrf').mockResolvedValue(undefined);
 jest.mock('../../custom-resource-handlers/src/_rmrf', () => mockRmrf);
 

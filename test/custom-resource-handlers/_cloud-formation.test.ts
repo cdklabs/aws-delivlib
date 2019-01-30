@@ -17,47 +17,47 @@ const physicalId = 'Physical ID!';
 const data = {};
 const reason = 'I have reasons. Don\'t ask.';
 
-jest.mock('https');
-const httpsRequest = https.request as unknown as jest.Mock<typeof https.request>;
+const httpsRequest = https.request = jest.fn().mockName('https.request');
 
 test('sends the correct response to CloudFormation', () => {
   httpsRequest.mockImplementationOnce((opts, cb) => {
-    expect(opts.headers['content-type']).toBe('');
-    expect(opts.hostname).toBe('host.domain.tld');
-    expect(opts.method).toBe('PUT');
-    expect(opts.port).toBe('123');
-    expect(opts.path).toBe('/path/to/resource?query=string');
+      expect(opts.headers['content-type']).toBe('');
+      expect(opts.hostname).toBe('host.domain.tld');
+      expect(opts.method).toBe('PUT');
+      expect(opts.port).toBe('123');
+      expect(opts.path).toBe('/path/to/resource?query=string');
 
-    const emitter = new EventEmitter();
-    let payload: string;
+      const emitter = new EventEmitter();
+      let payload: string;
 
-    return {
-      on(evt: string, callback: (...args: any[]) => void) {
-        emitter.on(evt, callback);
-        return this;
-      },
-      once(evt: string, callback: (...args: any[]) => void) {
-        emitter.once(evt, callback);
-        return this;
-      },
-      write(str: string) {
-        payload = str;
-        return this;
-      },
-      end: jest.fn().mockImplementationOnce(() => {
-        expect(JSON.parse(payload || '{}')).toEqual({
-          Data: data,
-          LogicalResourceId: event.LogicalResourceId,
-          PhysicalResourceId: physicalId,
-          Reason: reason,
-          RequestId: event.RequestId,
-          StackId: event.StackId,
-          Status: status,
-        });
-        cb({ statusCode: 200 });
-      }),
-    };
-  });
+      return {
+        on(evt: string, callback: (...args: any[]) => void) {
+          emitter.on(evt, callback);
+          return this;
+        },
+        once(evt: string, callback: (...args: any[]) => void) {
+          emitter.once(evt, callback);
+          return this;
+        },
+        write(str: string) {
+          payload = str;
+          return true;
+        },
+        end: jest.fn().mockImplementationOnce(() => {
+          expect(JSON.parse(payload || '{}')).toEqual({
+            Data: data,
+            LogicalResourceId: event.LogicalResourceId,
+            PhysicalResourceId: physicalId,
+            Reason: reason,
+            RequestId: event.RequestId,
+            StackId: event.StackId,
+            Status: status,
+          });
+          cb({ statusCode: 200 });
+        }),
+      } as any;
+    }
+  );
 
   return expect(cfn.sendResponse(event, status, physicalId, data, reason))
     .resolves.toBe(undefined);
@@ -65,42 +65,43 @@ test('sends the correct response to CloudFormation', () => {
 
 test('fails if the PUT request returns non-200', () => {
   httpsRequest.mockImplementationOnce((opts, cb) => {
-    expect(opts.headers['content-type']).toBe('');
-    expect(opts.hostname).toBe('host.domain.tld');
-    expect(opts.method).toBe('PUT');
-    expect(opts.port).toBe('123');
-    expect(opts.path).toBe('/path/to/resource?query=string');
+      expect(opts.headers['content-type']).toBe('');
+      expect(opts.hostname).toBe('host.domain.tld');
+      expect(opts.method).toBe('PUT');
+      expect(opts.port).toBe('123');
+      expect(opts.path).toBe('/path/to/resource?query=string');
 
-    const emitter = new EventEmitter();
-    let payload: string;
+      const emitter = new EventEmitter();
+      let payload: string;
 
-    return {
-      on(evt: string, callback: (...args: any[]) => void) {
-        emitter.on(evt, callback);
-        return this;
-      },
-      once(evt: string, callback: (...args: any[]) => void) {
-        emitter.once(evt, callback);
-        return this;
-      },
-      write(str: string) {
-        payload = str;
-        return this;
-      },
-      end: jest.fn().mockImplementationOnce(() => {
-        expect(JSON.parse(payload || '{}')).toEqual({
-          Data: data,
-          LogicalResourceId: event.LogicalResourceId,
-          PhysicalResourceId: physicalId,
-          Reason: reason,
-          RequestId: event.RequestId,
-          StackId: event.StackId,
-          Status: status,
-        });
-        cb({ statusCode: 500, statusMessage: 'Internal Error' });
-      }),
-    };
-  });
+      return {
+        on(evt: string, callback: (...args: any[]) => void) {
+          emitter.on(evt, callback);
+          return this;
+        },
+        once(evt: string, callback: (...args: any[]) => void) {
+          emitter.once(evt, callback);
+          return this;
+        },
+        write(str: string) {
+          payload = str;
+          return true;
+        },
+        end: jest.fn().mockImplementationOnce(() => {
+          expect(JSON.parse(payload || '{}')).toEqual({
+            Data: data,
+            LogicalResourceId: event.LogicalResourceId,
+            PhysicalResourceId: physicalId,
+            Reason: reason,
+            RequestId: event.RequestId,
+            StackId: event.StackId,
+            Status: status,
+          });
+          cb({ statusCode: 500, statusMessage: 'Internal Error' });
+        }),
+      } as any;
+    }
+  );
 
   return expect(cfn.sendResponse(event, status, physicalId, data, reason))
     .rejects.toThrow('Unexpected error sending resopnse to CloudFormation: HTTP 500 (Internal Error)');

@@ -34,7 +34,7 @@ export interface SigningKeyProps {
 export class OpenPgpKey extends cdk.Construct {
   public readonly scope: string;
 
-  private readonly key: kms.EncryptionKeyRef;
+  private readonly key: kms.IEncryptionKey;
   private readonly secret: PGPSecret;
 
   constructor(parent: cdk.Construct, name: string, props: SigningKeyProps) {
@@ -45,7 +45,7 @@ export class OpenPgpKey extends cdk.Construct {
     this.scope = props.secretName;
 
     this.key = new kms.EncryptionKey(this, 'Key', {
-      description: `Encryption key for PGP secret ${secretName}`
+      description: `Encryption key for PGP secret ${secretName}`,
     });
 
     // The key has an alias for descriptive purposes, but the alias is not used

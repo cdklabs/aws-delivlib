@@ -31,7 +31,7 @@ export interface RsaPrivateKeySecretProps {
    *
    * @default the default KMS key will be used in accordance with AWS Secrets Manager default behavior.
    */
-  secretEncryptionKey?: kms.EncryptionKeyRef;
+  secretEncryptionKey?: kms.IEncryptionKey;
 
   /**
    * The deletion policy to apply on the Private Key secret.
@@ -53,7 +53,7 @@ export class RsaPrivateKeySecret extends cdk.Construct {
   public secretArn: string;
 
   private secretArnLike: string;
-  private masterKey?: kms.EncryptionKeyRef;
+  private masterKey?: kms.IEncryptionKey;
 
   constructor(parent: cdk.Construct, id: string, props: RsaPrivateKeySecretProps) {
     super(parent, id);
@@ -71,7 +71,7 @@ export class RsaPrivateKeySecret extends cdk.Construct {
       timeout: 300,
     });
 
-    this.secretArnLike = cdk.ArnUtils.fromComponents({
+    this.secretArnLike = cdk.Stack.find(this).formatArn({
       service: 'secretsmanager',
       resource: 'secret',
       sep: ':',
@@ -91,7 +91,7 @@ export class RsaPrivateKeySecret extends cdk.Construct {
         .addActions('kms:Decrypt', 'kms:GenerateDataKey')
         .addAllResources()
         .addCondition('StringEquals', {
-          'kms:ViaService': new cdk.FnConcat('secretsmanager.', new cdk.AwsRegion(), '.amazonaws.com')
+          'kms:ViaService': `secretsmanager.${cdk.Stack.find(this).region}.amazonaws.com`,
         })
         .addCondition('ArnLike', {
           'kms:EncryptionContext:SecretARN': this.secretArnLike
@@ -110,18 +110,18 @@ export class RsaPrivateKeySecret extends cdk.Construct {
       }
     });
     if (customResource.role) {
-      privateKey.addDependency(customResource.role);
+      privateKey.node.addDependency(customResource.role);
       if (props.secretEncryptionKey) {
         // Modeling as a separate Policy to evade a dependency cycle (Role -> Key -> Role), as the Key refers to the
         // role in it's resource policy.
-        privateKey.addDependency(new iam.Policy(this, 'GrantLambdaRoleKeyAccess', {
+        privateKey.node.addDependency(new iam.Policy(this, 'GrantLambdaRoleKeyAccess', {
           roles: [customResource.role],
           statements: [
             new iam.PolicyStatement()
               .describe(`AWSSecretsManager${props.secretName.replace(/[^0-9A-Za-z]/g, '')}CMK`)
               .addActions('kms:Decrypt', 'kms:GenerateDataKey')
               .addResource(props.secretEncryptionKey.keyArn)
-              .addCondition('StringEquals', { 'kms:ViaService': new cdk.FnConcat('secretsmanager.', new cdk.AwsRegion(), '.amazonaws.com') })
+              .addCondition('StringEquals', { 'kms:ViaService': `secretsmanager.${cdk.Stack.find(this).region}.amazonaws.com` })
               .addCondition('StringLike', { 'kms:EncryptionContext:SecretARN': [this.secretArnLike, 'RequestToValidateKeyAccess'] })
           ]
         }));
@@ -153,37 +153,31 @@ export class RsaPrivateKeySecret extends cdk.Construct {
   /**
    * Allows a given IAM Role to read the secret value.
    *
-   * @param role the role to which permissions should be granted.
+   * @param grantee the principal to which permissions should be granted.
    */
-  public grantGetSecretValue(role: iam.Role): cdk.IDependable {
-    role.addToPolicy(new iam.PolicyStatement().addAction('secretsmanager:GetSecretValue').addResource(this.secretArn));
+  public grantGetSecretValue(grantee: iam.IPrincipal): void {
+    grantee.addToPolicy(new iam.PolicyStatement().addAction('secretsmanager:GetSecretValue').addResource(this.secretArn));
     if (this.masterKey) {
       // Add a key grant since we're using a CMK
       this.masterKey.addToResourcePolicy(new iam.PolicyStatement()
         .addAction('kms:Decrypt')
         .addAllResources()
-        .addAwsPrincipal(role.roleArn)
+        .addPrincipal(grantee.principal)
         .addCondition('StringEquals', {
-          'kms:ViaService': new cdk.FnConcat('secretsmanager.', new cdk.AwsRegion(), '.amazonaws.com'),
+          'kms:ViaService': `secretsmanager.${cdk.Stack.find(this).region}.amazonaws.com`,
         })
         .addCondition('ArnLike', {
           'kms:EncryptionContext:SecretARN': this.secretArnLike
         }));
-      return new iam.Policy(role, `KMS-CMK-Access-${this.id}`, {
-        roles: [role],
-        statements: [
-          new iam.PolicyStatement()
-          .addAction('kms:Decrypt')
-          .addResource(this.masterKey.keyArn)
-          .addCondition('StringEquals', {
-            'kms:ViaService': new cdk.FnConcat('secretsmanager.', new cdk.AwsRegion(), '.amazonaws.com'),
-          })
-          .addCondition('ArnEquals', {
-            'kms:EncryptionContext:SecretARN': this.secretArn,
-          })
-        ]
-      });
+      grantee.addToPolicy(new iam.PolicyStatement()
+        .addAction('kms:Decrypt')
+        .addResource(this.masterKey.keyArn)
+        .addCondition('StringEquals', {
+          'kms:ViaService': `secretsmanager.${cdk.Stack.find(this).region}.amazonaws.com`,
+        })
+        .addCondition('ArnEquals', {
+          'kms:EncryptionContext:SecretARN': this.secretArn,
+        }));
     }
-    return { dependencyElements: [] };
   }
 }

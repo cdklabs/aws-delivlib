@@ -340,21 +340,13 @@ Resources:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - ":logs:"
-                    - Ref: AWS::Region
-                    - ":"
-                    - Ref: AWS::AccountId
-                    - :log-group:/aws/codebuild/
+                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelineBuildProject9F59E8AA
               - Fn::Join:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - ":logs:"
-                    - Ref: AWS::Region
-                    - ":"
-                    - Ref: AWS::AccountId
-                    - :log-group:/aws/codebuild/
+                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelineBuildProject9F59E8AA
                     - :*
           - Action:
@@ -403,11 +395,7 @@ Resources:
                           - ""
                           - - "arn:"
                             - Ref: AWS::Partition
-                            - ":ecr:"
-                            - Ref: AWS::Region
-                            - ":"
-                            - Ref: AWS::AccountId
-                            - :repository/
+                            - :ecr:us-east-1:712950704752:repository/
                             - Fn::GetAtt:
                                 - ED3906BE3B2E4990A6A93B3409FCB2C2AdoptRepository01206045
                                 - RepositoryName
@@ -420,11 +408,7 @@ Resources:
                           - ""
                           - - "arn:"
                             - Ref: AWS::Partition
-                            - ":ecr:"
-                            - Ref: AWS::Region
-                            - ":"
-                            - Ref: AWS::AccountId
-                            - :repository/
+                            - :ecr:us-east-1:712950704752:repository/
                             - Fn::GetAtt:
                                 - ED3906BE3B2E4990A6A93B3409FCB2C2AdoptRepository01206045
                                 - RepositoryName
@@ -530,11 +514,7 @@ Resources:
                 - ""
                 - - "arn:"
                   - Ref: AWS::Partition
-                  - ":codepipeline:"
-                  - Ref: AWS::Region
-                  - ":"
-                  - Ref: AWS::AccountId
-                  - ":"
+                  - ":codepipeline:us-east-1:712950704752:"
                   - Ref: CodeCommitPipelineBuildPipeline656B8CCB
         Version: "2012-10-17"
       PolicyName: CodeCommitPipelinePipelineWatcherPollerServiceRoleDefaultPolicyE2104AD1
@@ -706,21 +686,13 @@ Resources:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - ":logs:"
-                    - Ref: AWS::Region
-                    - ":"
-                    - Ref: AWS::AccountId
-                    - :log-group:/aws/codebuild/
+                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelineHelloLinuxCB82AB68
               - Fn::Join:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - ":logs:"
-                    - Ref: AWS::Region
-                    - ":"
-                    - Ref: AWS::AccountId
-                    - :log-group:/aws/codebuild/
+                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelineHelloLinuxCB82AB68
                     - :*
           - Action:
@@ -880,21 +852,13 @@ Resources:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - ":logs:"
-                    - Ref: AWS::Region
-                    - ":"
-                    - Ref: AWS::AccountId
-                    - :log-group:/aws/codebuild/
+                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelineHelloWindows61CA8F73
               - Fn::Join:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - ":logs:"
-                    - Ref: AWS::Region
-                    - ":"
-                    - Ref: AWS::AccountId
-                    - :log-group:/aws/codebuild/
+                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelineHelloWindows61CA8F73
                     - :*
           - Action:
@@ -1052,21 +1016,13 @@ Resources:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - ":logs:"
-                    - Ref: AWS::Region
-                    - ":"
-                    - Ref: AWS::AccountId
-                    - :log-group:/aws/codebuild/
+                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelineAssumeRole05A76F51
               - Fn::Join:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - ":logs:"
-                    - Ref: AWS::Region
-                    - ":"
-                    - Ref: AWS::AccountId
-                    - :log-group:/aws/codebuild/
+                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelineAssumeRole05A76F51
                     - :*
           - Action:
@@ -1250,21 +1206,13 @@ Resources:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - ":logs:"
-                    - Ref: AWS::Region
-                    - ":"
-                    - Ref: AWS::AccountId
-                    - :log-group:/aws/codebuild/
+                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelineCanaryHelloCanaryShellableC8458471
               - Fn::Join:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - ":logs:"
-                    - Ref: AWS::Region
-                    - ":"
-                    - Ref: AWS::AccountId
-                    - :log-group:/aws/codebuild/
+                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelineCanaryHelloCanaryShellableC8458471
                     - :*
           - Action:
@@ -1450,21 +1398,13 @@ Resources:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - ":logs:"
-                    - Ref: AWS::Region
-                    - ":"
-                    - Ref: AWS::AccountId
-                    - :log-group:/aws/codebuild/
+                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelineNpm0D31AEFC
               - Fn::Join:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - ":logs:"
-                    - Ref: AWS::Region
-                    - ":"
-                    - Ref: AWS::AccountId
-                    - :log-group:/aws/codebuild/
+                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelineNpm0D31AEFC
                     - :*
           - Action:
@@ -1614,21 +1554,13 @@ Resources:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - ":logs:"
-                    - Ref: AWS::Region
-                    - ":"
-                    - Ref: AWS::AccountId
-                    - :log-group:/aws/codebuild/
+                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelineNuGet67CE1BA7
               - Fn::Join:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - ":logs:"
-                    - Ref: AWS::Region
-                    - ":"
-                    - Ref: AWS::AccountId
-                    - :log-group:/aws/codebuild/
+                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelineNuGet67CE1BA7
                     - :*
           - Action:
@@ -1678,11 +1610,7 @@ Resources:
                 - ""
                 - - "arn:"
                   - Ref: AWS::Partition
-                  - ":ssm:"
-                  - Ref: AWS::Region
-                  - ":"
-                  - Ref: AWS::AccountId
-                  - :parameter/delivlib-test/X509CodeSigningKey/Certificate
+                  - :ssm:us-east-1:712950704752:parameter/delivlib-test/X509CodeSigningKey/Certificate
           - Action:
               - s3:GetObject*
               - s3:GetBucket*
@@ -1739,8 +1667,7 @@ Resources:
             Value: "true"
           - Name: NUGET_SECRET_REGION
             Type: PLAINTEXT
-            Value:
-              Ref: AWS::Region
+            Value: us-east-1
           - Name: NUGET_SECRET_ID
             Type: PLAINTEXT
             Value: arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/nuget-fHzSUD
@@ -1812,21 +1739,13 @@ Resources:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - ":logs:"
-                    - Ref: AWS::Region
-                    - ":"
-                    - Ref: AWS::AccountId
-                    - :log-group:/aws/codebuild/
+                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelineMavenB7154296
               - Fn::Join:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - ":logs:"
-                    - Ref: AWS::Region
-                    - ":"
-                    - Ref: AWS::AccountId
-                    - :log-group:/aws/codebuild/
+                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelineMavenB7154296
                     - :*
           - Action:
@@ -1997,21 +1916,13 @@ Resources:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - ":logs:"
-                    - Ref: AWS::Region
-                    - ":"
-                    - Ref: AWS::AccountId
-                    - :log-group:/aws/codebuild/
+                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelineGitHub0797840C
               - Fn::Join:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - ":logs:"
-                    - Ref: AWS::Region
-                    - ":"
-                    - Ref: AWS::AccountId
-                    - :log-group:/aws/codebuild/
+                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelineGitHub0797840C
                     - :*
           - Action:
@@ -2186,21 +2097,13 @@ Resources:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - ":logs:"
-                    - Ref: AWS::Region
-                    - ":"
-                    - Ref: AWS::AccountId
-                    - :log-group:/aws/codebuild/
+                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelineGitHubPages53B77CF6
               - Fn::Join:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - ":logs:"
-                    - Ref: AWS::Region
-                    - ":"
-                    - Ref: AWS::AccountId
-                    - :log-group:/aws/codebuild/
+                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelineGitHubPages53B77CF6
                     - :*
           - Action:
@@ -2399,11 +2302,7 @@ Resources:
                 - ""
                 - - "arn:"
                   - Ref: AWS::Partition
-                  - ":ecr:"
-                  - Ref: AWS::Region
-                  - ":"
-                  - Ref: AWS::AccountId
-                  - :repository/
+                  - :ecr:us-east-1:712950704752:repository/
                   - Fn::Select:
                       - 0
                       - Fn::Split:
@@ -2462,9 +2361,7 @@ Resources:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - ":iam::"
-                    - Ref: AWS::AccountId
-                    - :root
+                    - :iam::712950704752:root
         Version: "2012-10-17"
     Metadata:
       aws:cdk:path: delivlib-test/AssumeMe/Resource
@@ -2475,7 +2372,7 @@ Resources:
         Fn::GetAtt:
           - RSAPrivateKey72FD327D38134632934028EC437AA486D8EE708F
           - Arn
-      ResourceVersion: 0SHFv9j9ZjTWlG5mrSk6ZaE4bjqsPap2z4yE41TgVZ0=
+      ResourceVersion: J1G9PwnefOm+V5RoZ2gea8L11MLb3EGOmvE92Y/E6fM=
       Description: The PEM-encoded private key of the x509 Code-Signing Certificate
       KeySize: 2048
       SecretName: delivlib-test/X509CodeSigningKey/RSAPrivateKey
@@ -2492,7 +2389,7 @@ Resources:
         Fn::GetAtt:
           - CreateCSR541F67826DCF49A78C5A67715ADD9E4C8F4169F6
           - Arn
-      ResourceVersion: SwCXn2JmQM/wx0Zki9ZIOkWjchK+5/Dh6UlR3OwOkVY=
+      ResourceVersion: NoT8wts2zoCTJfaEBKdHwqykhwjq0NVqcO0CcWTMGQA=
       PrivateKeySecretId:
         Fn::GetAtt:
           - X509CodeSigningKeyRSAPrivateKeyE5980A70
@@ -2563,11 +2460,7 @@ Resources:
                 - ""
                 - - "arn:"
                   - Ref: AWS::Partition
-                  - ":secretsmanager:"
-                  - Ref: AWS::Region
-                  - ":"
-                  - Ref: AWS::AccountId
-                  - :secret:delivlib-test/X509CodeSigningKey/RSAPrivateKey-??????
+                  - :secretsmanager:us-east-1:712950704752:secret:delivlib-test/X509CodeSigningKey/RSAPrivateKey-??????
         Version: "2012-10-17"
       PolicyName: RSAPrivateKey72FD327D38134632934028EC437AA486ServiceRoleDefaultPolicy487DB1EA
       Roles:
@@ -2698,9 +2591,7 @@ Resources:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - ":iam::"
-                    - Ref: AWS::AccountId
-                    - :root
+                    - :iam::712950704752:root
             Resource: "*"
           - Action:
               - kms:GenerateDataKey
@@ -2751,7 +2642,7 @@ Resources:
         Fn::GetAtt:
           - SingletonLambdaf25803d3054b44fc985f4860d7d6ee746203BDE6
           - Arn
-      ResourceVersion: /gCJ0x3Ngn8GL0IqXoI4XJAew56Ad08YZR6L5Dd55QE=
+      ResourceVersion: t6ktz9pr/08w4GUbC5XdaF2iTGUtw0VqRzysIla2hwA=
       Identity: aws-cdk-dev
       Email: aws-cdk-dev+delivlib@amazon.com
       Expiry: 4y
