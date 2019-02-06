@@ -17,13 +17,12 @@ You can use this image to build projects locally by following these instructions
 $ git clone git@github.com:awslabs/aws-delivlib.git
 $ cd aws-delivlib/superchain
 $ docker build -t superchain .
-$ IMAGE=superchain
 ```
 
 Now, go to your project directory and run:
 
 ```console
-$ docker run --net=host -it -v $PWD:$PWD -w $PWD ${IMAGE}
+$ docker run --net=host -it -v $PWD:$PWD -w $PWD superchain
 ```
 
 This will get you into a shell inside your container that is mapped to your local file system. Notice that any external symlinks _wont work_.
