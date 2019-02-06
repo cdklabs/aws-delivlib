@@ -80,8 +80,8 @@ export class CertificateSigningRequest extends cdk.Construct {
     });
     if (customResource.role) {
       // Make sure the permissions are all good before proceeding
-      csr.addDependency(customResource.role);
-      csr.addDependency(props.privateKey.grantGetSecretValue(customResource.role));
+      csr.node.addDependency(customResource.role);
+      props.privateKey.grantGetSecretValue(customResource.role);
     }
 
     this.pemRequest = csr.getAtt('CSR').toString();

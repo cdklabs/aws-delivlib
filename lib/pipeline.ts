@@ -102,9 +102,9 @@ export interface PipelineProps {
 export class Pipeline extends cdk.Construct {
   public buildRole?: iam.Role;
   public readonly failureAlarm: cloudwatch.Alarm;
+  public readonly buildOutput: cpipelineapi.Artifact;
 
   private readonly pipeline: cpipeline.Pipeline;
-  private readonly buildOutput: cpipelineapi.Artifact;
   private readonly branch: string;
   private readonly notify?: sns.Topic;
   private stages: { [name: string]: cpipeline.Stage } = { };
@@ -176,7 +176,7 @@ export class Pipeline extends cdk.Construct {
   public addPublish(publisher: IPublisher) {
     const stage = this.getOrCreateStage('Publish');
 
-    publisher.project.addToPipeline(stage, `${publisher.id}Publish`, {
+    publisher.project.addToPipeline(stage, `${publisher.node.id}Publish`, {
       inputArtifact: this.buildOutput,
       runOrder: this.determineRunOrderForNewAction(stage)
     });
@@ -249,14 +249,9 @@ export class Pipeline extends cdk.Construct {
   }
 }
 
-export interface IPublisher {
-  /**
-   * The identifier for the publisher.
-   */
-  readonly id: string;
-
+export interface IPublisher extends cdk.IConstruct {
   /**
    * The publisher's codebuild project.
    */
-  readonly project: cbuild.Project;
+  readonly project: cbuild.IProject;
 }

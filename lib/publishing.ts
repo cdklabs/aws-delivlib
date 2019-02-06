@@ -150,7 +150,7 @@ export class PublishToNuGetProject extends cdk.Construct implements IPublisher {
     if (props.nugetApiKeySecret.region) {
       environment.NUGET_SECRET_REGION = props.nugetApiKeySecret.region;
     } else {
-      environment.NUGET_SECRET_REGION = new cdk.AwsRegion().toString();
+      environment.NUGET_SECRET_REGION = cdk.Stack.find(this).region;
     }
 
     environment.NUGET_SECRET_ID = props.nugetApiKeySecret.secretArn;

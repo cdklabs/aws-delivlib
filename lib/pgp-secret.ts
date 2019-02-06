@@ -43,7 +43,7 @@ interface PGPSecretProps {
   /**
    * KMS Key ARN to use to encrypt Secrets Manager Secret
    */
-  encryptionKey: kms.EncryptionKeyRef;
+  encryptionKey: kms.IEncryptionKey;
 
   /**
    * Version of the key
@@ -69,7 +69,7 @@ export class PGPSecret extends cdk.Construct implements ICredentialPair {
   public readonly publicPartParameterArn: string;
   public readonly publicPartParameterName: string;
   public readonly privatePartSecretArn: string;
-  public readonly privatePartEncryptionKey: kms.EncryptionKeyRef | undefined;
+  public readonly privatePartEncryptionKey: kms.IEncryptionKey | undefined;
 
   constructor(parent: cdk.Construct, name: string, props: PGPSecretProps) {
     super(parent, name);
@@ -118,6 +118,10 @@ export class PGPSecret extends cdk.Construct implements ICredentialPair {
     this.privatePartSecretArn = secret.getAtt('SecretArn').toString();
     this.privatePartEncryptionKey = props.encryptionKey;
     this.publicPartParameterName = secret.getAtt('ParameterName').toString();
-    this.publicPartParameterArn = cdk.ArnUtils.fromComponents({ service: 'ssm', resource: 'parameter', resourceName: this.publicPartParameterName });
+    this.publicPartParameterArn = cdk.Stack.find(this).formatArn({
+      service: 'ssm',
+      resource: 'parameter',
+      resourceName: this.publicPartParameterName
+    });
   }
 }

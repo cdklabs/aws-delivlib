@@ -8,7 +8,7 @@ test('correctly creates', () => {
   const stack = new cdk.Stack(app, 'stack');
   new Superchain(stack);
 
-  expect(() => stack.findChild('ED3906BE-3B2E-4990-A6A9-3B3409FCB2C2')).not.toThrow();
+  expect(() => stack.node.findChild('ED3906BE-3B2E-4990-A6A9-3B3409FCB2C2')).not.toThrow();
 });
 
 test('is a singleton construct', () => {
