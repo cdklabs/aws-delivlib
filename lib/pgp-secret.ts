@@ -124,4 +124,23 @@ export class PGPSecret extends cdk.Construct implements ICredentialPair {
       resourceName: this.publicPartParameterName
     });
   }
+
+  public grantRead(grantee: iam.IPrincipal): void {
+    // Secret grant, identity-based only
+    grantee.addToPolicy(new iam.PolicyStatement()
+      .addResources(this.privatePartSecretArn)
+      .addActions('secretsmanager:ListSecrets', 'secretsmanager:DescribeSecret', 'secretsmanager:GetSecretValue'));
+
+    // Key grant
+    if (this.privatePartEncryptionKey) {
+      grantee.addToPolicy(new iam.PolicyStatement()
+        .addResources(this.privatePartEncryptionKey.keyArn)
+        .addActions('kms:Decrypt'));
+
+      this.privatePartEncryptionKey.addToResourcePolicy(new iam.PolicyStatement()
+        .addAllResources()
+        .addPrincipal(grantee.principal)
+        .addActions('kms:Decrypt'));
+    }
+  }
 }
