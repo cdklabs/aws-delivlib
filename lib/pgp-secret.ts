@@ -2,6 +2,8 @@ import cfn = require('@aws-cdk/aws-cloudformation');
 import iam = require('@aws-cdk/aws-iam');
 import kms = require('@aws-cdk/aws-kms');
 import lambda = require('@aws-cdk/aws-lambda');
+import secretsManager = require('@aws-cdk/aws-secretsmanager');
+import ssm = require('@aws-cdk/aws-ssm');
 import cdk = require('@aws-cdk/cdk');
 import path = require('path');
 import { ICredentialPair } from './credential-pair';
@@ -66,10 +68,8 @@ interface PGPSecretProps {
  * { "PrivateKey": "... ASCII repr of key...", "Passphrase": "passphrase of the key" }
  */
 export class PGPSecret extends cdk.Construct implements ICredentialPair {
-  public readonly publicPartParameterArn: string;
-  public readonly publicPartParameterName: string;
-  public readonly privatePartSecretArn: string;
-  public readonly privatePartEncryptionKey: kms.IEncryptionKey | undefined;
+  public readonly principal: ssm.IStringParameter;
+  public readonly credential: secretsManager.ISecret;
 
   constructor(parent: cdk.Construct, name: string, props: PGPSecretProps) {
     super(parent, name);
@@ -110,34 +110,35 @@ export class PGPSecret extends cdk.Construct implements ICredentialPair {
         keySizeBits: props.keySizeBits,
         secretName: props.secretName,
         keyArn: props.encryptionKey.keyArn,
-        parameterName: props.pubKeyParameterName,
         version: props.version,
         description: props.description,
       },
     });
-    this.privatePartSecretArn = secret.getAtt('SecretArn').toString();
-    this.privatePartEncryptionKey = props.encryptionKey;
-    this.publicPartParameterName = secret.getAtt('ParameterName').toString();
-    this.publicPartParameterArn = cdk.Stack.find(this).formatArn({
-      service: 'ssm',
-      resource: 'parameter',
-      resourceName: this.publicPartParameterName
+
+    this.credential = secretsManager.Secret.import(this, 'Credential', {
+      encryptionKey: props.encryptionKey,
+      secretArn: secret.getAtt('SecretArn').toString(),
+    });
+    this.principal = new ssm.StringParameter(this, 'Principal', {
+      description: `The public part of the OpenPGP key in ${this.credential.secretArn}`,
+      name: props.pubKeyParameterName,
+      value: secret.getAtt('PublicKey').toString(),
     });
   }
 
   public grantRead(grantee: iam.IPrincipal): void {
     // Secret grant, identity-based only
     grantee.addToPolicy(new iam.PolicyStatement()
-      .addResources(this.privatePartSecretArn)
+      .addResources(this.credential.secretArn)
       .addActions('secretsmanager:ListSecrets', 'secretsmanager:DescribeSecret', 'secretsmanager:GetSecretValue'));
 
     // Key grant
-    if (this.privatePartEncryptionKey) {
+    if (this.credential.encryptionKey) {
       grantee.addToPolicy(new iam.PolicyStatement()
-        .addResources(this.privatePartEncryptionKey.keyArn)
+        .addResources(this.credential.encryptionKey.keyArn)
         .addActions('kms:Decrypt'));
 
-      this.privatePartEncryptionKey.addToResourcePolicy(new iam.PolicyStatement()
+      this.credential.encryptionKey.addToResourcePolicy(new iam.PolicyStatement()
         .addAllResources()
         .addPrincipal(grantee.principal)
         .addActions('kms:Decrypt'));

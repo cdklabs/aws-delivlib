@@ -20,7 +20,7 @@ exports.handler = cfn.customResourceHandler(handleEvent);
 
 interface ResourceAttributes extends cfn.ResourceAttributes {
   SecretArn: string;
-  ParameterName: string;
+  PublicKey: string;
 }
 
 async function handleEvent(event: cfn.Event, context: lambda.Context): Promise<cfn.ResourceAttributes> {
@@ -34,7 +34,6 @@ async function handleEvent(event: cfn.Event, context: lambda.Context): Promise<c
       Identity: true,
       KeyArn: false,
       KeySizeBits: true,
-      ParameterName: true,
       SecretName: true,
       Version: false,
     });
@@ -44,7 +43,7 @@ async function handleEvent(event: cfn.Event, context: lambda.Context): Promise<c
 
   if (event.RequestType === cfn.RequestType.UPDATE) {
     const oldProps = event.OldResourceProperties;
-    const immutableFields = ['Email', 'Expiry', 'Identity', 'KeySizeBits', 'ParameterName', 'SecretName', 'Version'];
+    const immutableFields = ['Email', 'Expiry', 'Identity', 'KeySizeBits', 'SecretName', 'Version'];
     for (const key of immutableFields) {
       if (props[key] !== oldProps[key]) {
         // tslint:disable-next-line:no-console
@@ -99,18 +98,11 @@ async function _createNewKey(event: cfn.CreateEvent | cfn.UpdateEvent, context: 
     const secret = event.RequestType === cfn.RequestType.CREATE
                  ? await secretsManager.createSecret({ ...secretOpts, Name: event.ResourceProperties.SecretName }).promise()
                  : await secretsManager.updateSecret({ ...secretOpts, SecretId: event.PhysicalResourceId }).promise();
-    await ssm.putParameter({
-      Description: `Public part of OpenPGP key ${secret.ARN}`,
-      Name: event.ResourceProperties.ParameterName,
-      Overwrite: event.RequestType === 'Update',
-      Type: 'String',
-      Value: publicKey,
-    }).promise();
 
     return {
       Ref: secret.ARN!,
       SecretArn: secret.ARN!,
-      ParameterName: event.ResourceProperties.ParameterName
+      PublicKey: publicKey
     };
   } finally {
     await _rmrf(tempDir);
@@ -119,13 +111,16 @@ async function _createNewKey(event: cfn.CreateEvent | cfn.UpdateEvent, context: 
 
 async function _deleteSecret(event: cfn.DeleteEvent): Promise<cfn.ResourceAttributes> {
   if (event.PhysicalResourceId.startsWith('arn:')) {
-    await ssm.deleteParameter({ Name: event.ResourceProperties.ParameterName }).promise();
+    if (event.ResourceProperties.ParameterName) {
+      await ssm.deleteParameter({ Name: event.ResourceProperties.ParameterName }).promise();
+    }
     await secretsManager.deleteSecret({ SecretId: event.PhysicalResourceId }).promise();
   }
   return { Ref: event.PhysicalResourceId };
 }
 
 async function _updateExistingKey(event: cfn.UpdateEvent, context: lambda.Context): Promise<ResourceAttributes> {
+  const publicKey = await _getPublicKey(event.PhysicalResourceId);
   const result = await secretsManager.updateSecret({
     ClientRequestToken: context.awsRequestId,
     Description: event.ResourceProperties.Description,
@@ -133,9 +128,37 @@ async function _updateExistingKey(event: cfn.UpdateEvent, context: lambda.Contex
     SecretId: event.PhysicalResourceId,
   }).promise();
 
+  if (event.OldResourceProperties.ParameterName) {
+    // Migrating from a version that did create the SSM Parameter from the Custom Resource, so we'll delete that now in
+    // order to allow the "external" creation to happen without problems...
+    try {
+      await ssm.deleteParameter({ Name: event.OldResourceProperties.ParameterName }).promise();
+    } catch (e) {
+      // Allow the parameter to already not exist, just in case!
+      if (e.code !== 'ParameterNotFound') {
+        throw e;
+      }
+    }
+  }
+
   return {
     Ref: result.ARN!,
     SecretArn: result.ARN!,
-    ParameterName: event.ResourceProperties.ParameterName
+    PublicKey: publicKey
   };
+}
+
+async function _getPublicKey(secretArn: string): Promise<string> {
+  const secretValue = await secretsManager.getSecretValue({ SecretId: secretArn }).promise();
+  const keyData = JSON.parse(secretValue.SecretString!);
+  const tempDir = await mkdtemp(path.join(os.tmpdir(), 'OpenPGP-'));
+  try {
+    const privateKeyFile = path.join(tempDir, 'private.key');
+    await writeFile(privateKeyFile, keyData.PrivateKey, { encoding: 'utf-8' });
+    // Note: importing a private key does NOT require entering it's passphrase!
+    await _exec('gpg', '--batch', '--yes', '--import', privateKeyFile);
+    return await _exec('gpg', '--batch', '--yes', '--export', '--armor');
+  } finally {
+    await _rmrf(tempDir);
+  }
 }

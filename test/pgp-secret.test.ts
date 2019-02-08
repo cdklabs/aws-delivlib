@@ -27,7 +27,6 @@ test('correctly creates', () => {
     KeySizeBits: 1024,
     SecretName: "SecretName",
     KeyArn: stack.node.resolve(encryptionKey.keyArn),
-    ParameterName: "TestParameter",
     Version: 0
   }));
 });
@@ -38,7 +37,7 @@ test('correctly forwards parameter name', () => {
   const parameterName = 'TestParameterName';
 
   // WHEN
-  const secret = new PGPSecret(stack, 'Secret', {
+  new PGPSecret(stack, 'Secret', {
     pubKeyParameterName: parameterName,
     email: 'nobody@nowhere.com',
     encryptionKey: new kms.EncryptionKey(stack, 'CMK'),
@@ -50,5 +49,9 @@ test('correctly forwards parameter name', () => {
   });
 
   // THEN
-  expect(stack.node.resolve(secret.publicPartParameterName)).toEqual({ "Fn::GetAtt": ["SecretA720EF05", "ParameterName"] });
+  assert.expect(stack).to(assert.haveResource('AWS::SSM::Parameter', {
+    Type: 'String',
+    Value: { 'Fn::GetAtt': ['SecretA720EF05', 'PublicKey'] },
+    Name: parameterName,
+  }));
 });
