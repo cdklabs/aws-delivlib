@@ -1610,7 +1610,7 @@ Resources:
                 - ""
                 - - "arn:"
                   - Ref: AWS::Partition
-                  - :ssm:us-east-1:712950704752:parameter/
+                  - :ssm:us-east-1:712950704752:parameter
                   - Ref: X509CodeSigningKey8DE65BF8
           - Action:
               - s3:GetObject*

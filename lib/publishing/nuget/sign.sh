@@ -36,7 +36,7 @@ do
            -spc ${SOFTWARE_PUBLISHER_CERTIFICATE}                              \
            -k   ${PRIVATE_KEY}                                                 \
            -t   ${TIMESTAMP_URL}                                               \
-           ${TMP}/${FILE} 2>/dev/null >/dev/null
+           ${TMP}/${FILE}
   # Remove the .bak file that was created
   rm -f ${TMP}/${FILE}.bak
   # Replace the DLL in the NuGet package

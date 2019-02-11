@@ -154,6 +154,10 @@ export class CodeSigningCertificate extends cdk.Construct implements ICodeSignin
 
     principal.addToPolicy(new iam.PolicyStatement()
       .addAction('ssm:GetParameter')
-      .addResource(this.principal.parameterArn));
+      .addResource(cdk.Stack.find(this).formatArn({
+        // TODO: This is a workaround until https://github.com/awslabs/aws-cdk/pull/1726 is released
+        service: 'ssm',
+        resource: `parameter${this.principal.parameterName}`
+      })));
   }
 }
