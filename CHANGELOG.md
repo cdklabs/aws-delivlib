@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="2.0.1"></a>
+# [2.0.1](https://github.com/awslabs/aws-delivlib/compare/v2.0.0...v2.0.1) (2019-02-11)
+
+### Bug Fixes
+
+* Add missing permission to PGPSecret CustomResource
+
 <a name="2.0.0"></a>
 # [2.0.0](https://github.com/awslabs/aws-delivlib/compare/v1.0.0...v2.0.0) (2019-02-11)
 

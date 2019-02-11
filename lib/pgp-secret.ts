@@ -87,8 +87,9 @@ export class PGPSecret extends cdk.Construct implements ICredentialPair {
       initialPolicy: [
         new iam.PolicyStatement()
           .addActions('secretsmanager:CreateSecret',
-                      'secretsmanager:UpdateSecret',
                       'secretsmanager:DeleteSecret',
+                      'secretsmanager:GetSecretValue',
+                      'secretsmanager:UpdateSecret',
                       'ssm:PutParameter',
                       'ssm:DeleteParameter')
           .addAllResources(),
