@@ -156,8 +156,8 @@ export class PublishToNuGetProject extends cdk.Construct implements IPublisher {
     environment.NUGET_SECRET_ID = props.nugetApiKeySecret.secretArn;
 
     if (props.codeSign) {
-      environment.CODE_SIGNING_SECRET_ID = props.codeSign.privatePartSecretArn;
-      environment.CODE_SIGNING_PARAMETER_NAME = props.codeSign.publicPartParameterName;
+      environment.CODE_SIGNING_SECRET_ID = props.codeSign.credential.secretArn;
+      environment.CODE_SIGNING_PARAMETER_NAME = props.codeSign.principal.parameterName;
     }
 
     const shellable = new Shellable(this, 'Default', {

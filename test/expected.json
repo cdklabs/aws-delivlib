@@ -292,8 +292,8 @@ Resources:
         Type: S3
       RestartExecutionOnUpdate: true
     DependsOn:
-      - CodeCommitPipelineBuildPipelineRole1843599A
       - CodeCommitPipelineBuildPipelineRoleDefaultPolicy94C30F44
+      - CodeCommitPipelineBuildPipelineRole1843599A
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/BuildPipeline/Resource
   CodeCommitPipelineBuildPipelineSourcePullWebhookResource0898F523:
@@ -581,8 +581,8 @@ Resources:
           PIPELINE_NAME:
             Ref: CodeCommitPipelineBuildPipeline656B8CCB
     DependsOn:
-      - CodeCommitPipelinePipelineWatcherPollerServiceRole0A1D8005
       - CodeCommitPipelinePipelineWatcherPollerServiceRoleDefaultPolicyE2104AD1
+      - CodeCommitPipelinePipelineWatcherPollerServiceRole0A1D8005
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/PipelineWatcher/Poller/Resource
   CodeCommitPipelinePipelineWatcherPollerAllowEventRuledelivlibtestCodeCommitPipelinePipelineWatcherTrigger0F55C26402F871FD:
@@ -1610,7 +1610,8 @@ Resources:
                 - ""
                 - - "arn:"
                   - Ref: AWS::Partition
-                  - :ssm:us-east-1:712950704752:parameter/delivlib-test/X509CodeSigningKey/Certificate
+                  - :ssm:us-east-1:712950704752:parameter/
+                  - Ref: X509CodeSigningKey8DE65BF8
           - Action:
               - s3:GetObject*
               - s3:GetBucket*
@@ -1679,7 +1680,8 @@ Resources:
                 - SecretArn
           - Name: CODE_SIGNING_PARAMETER_NAME
             Type: PLAINTEXT
-            Value: /delivlib-test/X509CodeSigningKey/Certificate
+            Value:
+              Ref: X509CodeSigningKey8DE65BF8
         Image: aws/codebuild/dot-net:core-2.1
         PrivilegedMode: false
         Type: LINUX_CONTAINER
@@ -2341,8 +2343,8 @@ Resources:
       Runtime: nodejs8.10
       Timeout: 300
     DependsOn:
-      - AdoptEcrRepositorydbc60defc59544bcaa5c28c95d68f62cServiceRoleD788AA17
       - AdoptEcrRepositorydbc60defc59544bcaa5c28c95d68f62cServiceRoleDefaultPolicy6BC8737C
+      - AdoptEcrRepositorydbc60defc59544bcaa5c28c95d68f62cServiceRoleD788AA17
     Metadata:
       aws:cdk:path: delivlib-test/AdoptEcrRepositorydbc60defc59544bcaa5c28c95d68f62c/Resource
   AssumeMe924099BB:
@@ -2377,8 +2379,8 @@ Resources:
       KeySize: 2048
       SecretName: delivlib-test/X509CodeSigningKey/RSAPrivateKey
     DependsOn:
-      - RSAPrivateKey72FD327D38134632934028EC437AA486ServiceRole76094455
       - RSAPrivateKey72FD327D38134632934028EC437AA486ServiceRoleDefaultPolicy487DB1EA
+      - RSAPrivateKey72FD327D38134632934028EC437AA486ServiceRole76094455
     DeletionPolicy: Retain
     Metadata:
       aws:cdk:path: delivlib-test/X509CodeSigningKey/RSAPrivateKey/Resource
@@ -2404,11 +2406,11 @@ Resources:
       ExtendedKeyUsage: critical,codeSigning
       KeyUsage: critical,digitalSignature
     DependsOn:
-      - CreateCSR541F67826DCF49A78C5A67715ADD9E4CServiceRoleD2990C92
       - CreateCSR541F67826DCF49A78C5A67715ADD9E4CServiceRoleDefaultPolicyC0800208
+      - CreateCSR541F67826DCF49A78C5A67715ADD9E4CServiceRoleD2990C92
     Metadata:
       aws:cdk:path: delivlib-test/X509CodeSigningKey/RSAPrivateKey/CertificateSigningRequest/Resource
-  X509CodeSigningKey46995D64:
+  X509CodeSigningKey8DE65BF8:
     Type: AWS::SSM::Parameter
     Properties:
       Type: String
@@ -2426,7 +2428,7 @@ Resources:
             - )
       Name: /delivlib-test/X509CodeSigningKey/Certificate
     Metadata:
-      aws:cdk:path: delivlib-test/X509CodeSigningKey/Resource
+      aws:cdk:path: delivlib-test/X509CodeSigningKey/Resource/Resource
   RSAPrivateKey72FD327D38134632934028EC437AA486ServiceRole76094455:
     Type: AWS::IAM::Role
     Properties:
@@ -2495,8 +2497,8 @@ Resources:
       Description: Generates an RSA Private Key and stores it in AWS Secrets Manager
       Timeout: 300
     DependsOn:
-      - RSAPrivateKey72FD327D38134632934028EC437AA486ServiceRole76094455
       - RSAPrivateKey72FD327D38134632934028EC437AA486ServiceRoleDefaultPolicy487DB1EA
+      - RSAPrivateKey72FD327D38134632934028EC437AA486ServiceRole76094455
     Metadata:
       aws:cdk:path: delivlib-test/RSAPrivate-Key72FD327D38134632934028EC437AA486/Resource
   CreateCSR541F67826DCF49A78C5A67715ADD9E4CServiceRoleD2990C92:
@@ -2562,8 +2564,8 @@ Resources:
       Description: Creates a Certificate Signing Request document for an x509 certificate
       Timeout: 300
     DependsOn:
-      - CreateCSR541F67826DCF49A78C5A67715ADD9E4CServiceRoleD2990C92
       - CreateCSR541F67826DCF49A78C5A67715ADD9E4CServiceRoleDefaultPolicyC0800208
+      - CreateCSR541F67826DCF49A78C5A67715ADD9E4CServiceRoleD2990C92
     Metadata:
       aws:cdk:path: delivlib-test/CreateCSR541F67826DCF49A78C5A67715ADD9E4C/Resource
   CodeSignKey2302B99A:
@@ -2642,7 +2644,7 @@ Resources:
         Fn::GetAtt:
           - SingletonLambdaf25803d3054b44fc985f4860d7d6ee746203BDE6
           - Arn
-      ResourceVersion: t6ktz9pr/08w4GUbC5XdaF2iTGUtw0VqRzysIla2hwA=
+      ResourceVersion: BmJrhE3IJniqTXFb2Ow8EVjpFqUcJJcEjwztst10nzM=
       Identity: aws-cdk-dev
       Email: aws-cdk-dev+delivlib@amazon.com
       Expiry: 4y
@@ -2652,10 +2654,27 @@ Resources:
         Fn::GetAtt:
           - CodeSignKey2302B99A
           - Arn
-      ParameterName: /delivlib-test/CodeSign/SigningKey.pub
       Version: 1
     Metadata:
       aws:cdk:path: delivlib-test/CodeSign/Secret/Resource
+  CodeSignSecretPrincipal84E78D92:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Type: String
+      Value:
+        Fn::GetAtt:
+          - CodeSignSecretF6FDE552
+          - PublicKey
+      Description:
+        Fn::Join:
+          - ""
+          - - "The public part of the OpenPGP key in "
+            - Fn::GetAtt:
+                - CodeSignSecretF6FDE552
+                - SecretArn
+      Name: /delivlib-test/CodeSign/SigningKey.pub
+    Metadata:
+      aws:cdk:path: delivlib-test/CodeSign/Secret/Principal/Resource
   SingletonLambdaf25803d3054b44fc985f4860d7d6ee74ServiceRole410148CF:
     Type: AWS::IAM::Role
     Properties:
@@ -2731,8 +2750,8 @@ Resources:
         and the public key in an SSM Parameter
       Timeout: 300
     DependsOn:
-      - SingletonLambdaf25803d3054b44fc985f4860d7d6ee74ServiceRole410148CF
       - SingletonLambdaf25803d3054b44fc985f4860d7d6ee74ServiceRoleDefaultPolicyA8FDF5BD
+      - SingletonLambdaf25803d3054b44fc985f4860d7d6ee74ServiceRole410148CF
     Metadata:
       aws:cdk:path: delivlib-test/SingletonLambdaf25803d3054b44fc985f4860d7d6ee74/Resource
 Parameters:
