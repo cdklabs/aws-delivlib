@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="2.0.0"></a>
+# [2.0.0](https://github.com/awslabs/aws-delivlib/compare/v1.0.0...v2.0.0) (2019-02-11)
+
+
+### Features
+
+* Create OpenPGP Public Key parameter using SSM resource ([#63](https://github.com/awslabs/aws-delivlib/issues/63)) ([a3510f1](https://github.com/awslabs/aws-delivlib/commit/a3510f1))
+* Move permission grant function to PGPSecret ([#62](https://github.com/awslabs/aws-delivlib/issues/62)) ([7c6809a](https://github.com/awslabs/aws-delivlib/commit/7c6809a))
+
+### BREAKING CHANGES
+
+* `ICredentialPair` now conveys `ssm.IStringParameter` and `secretsManager.ISecret` instead of the ARNs and related attributes of those.
+
+
 <a name="1.0.0"></a>
 # [1.0.0](https://github.com/awslabs/aws-delivlib/compare/v0.4.0...v1.0.0) (2019-01-29)
 
