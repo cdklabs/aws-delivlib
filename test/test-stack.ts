@@ -1,4 +1,5 @@
 import iam = require('@aws-cdk/aws-iam');
+import kms = require('@aws-cdk/aws-kms');
 import cdk = require('@aws-cdk/cdk');
 import path = require('path');
 import delivlib = require('../lib');
@@ -105,10 +106,15 @@ export class TestStack extends cdk.Stack {
       codeSign,
     });
 
-    const signingKey = new delivlib.OpenPgpKey(this, 'CodeSign', {
+    const signingKey = new delivlib.OpenPGPKeyPair(this, 'CodeSign', {
       email: 'aws-cdk-dev+delivlib@amazon.com',
+      encryptionKey: new kms.EncryptionKey(this, 'CodeSign-CMK'),
+      expiry: '4y',
       identity: 'aws-cdk-dev',
+      keySizeBits: 4_096,
+      pubKeyParameterName: `/${this.node.path}/CodeSign.pub`,
       secretName: this.node.path + '/CodeSign',
+      version: 0,
     });
 
     pipeline.publishToMaven({

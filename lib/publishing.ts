@@ -3,17 +3,17 @@ import iam = require('@aws-cdk/aws-iam');
 import cdk = require('@aws-cdk/cdk');
 import path = require('path');
 import { ICodeSigningCertificate } from './code-signing';
+import { OpenPGPKeyPair } from './open-pgp-key-pair';
 import permissions = require('./permissions');
 import { IPublisher } from './pipeline';
 import { GitHubRepo } from './repo';
 import { LinuxPlatform, Shellable } from './shellable';
-import { OpenPgpKey } from './signing-key';
 
 export interface PublishToMavenProjectProps {
   /**
    * The signing key itself
    */
-  signingKey: OpenPgpKey;
+  signingKey: OpenPGPKeyPair;
 
   /**
    * The ID of the sonatype staging profile (e.g. "68a05363083174").
@@ -50,7 +50,7 @@ export class PublishToMavenProject extends cdk.Construct implements IPublisher {
       entrypoint: 'publish.sh',
       environment: {
         STAGING_PROFILE_ID: props.stagingProfileId,
-        SIGNING_KEY_SCOPE: props.signingKey.scope,
+        SIGNING_KEY_ARN: props.signingKey.credential.secretArn,
         FOR_REAL: forReal,
         MAVEN_LOGIN_SECRET: props.mavenLoginSecret.secretArn
       },
@@ -279,7 +279,7 @@ export interface PublishToGitHubProps {
   /**
    * The signign key to use to create a GPG signature of the artifact.
    */
-  signingKey: OpenPgpKey;
+  signingKey: OpenPGPKeyPair;
 
   /**
    * The name of the build manifest JSON file (must include "name" and "version" fields).
@@ -313,7 +313,7 @@ export class PublishToGitHub extends cdk.Construct implements IPublisher {
       environment: {
         BUILD_MANIFEST: props.buildManifestFileName || './build.json',
         CHANGELOG: props.changelogFileName || './CHANGELOG.md',
-        SIGNING_KEY_SCOPE: props.signingKey.scope,
+        SIGNING_KEY_ARN: props.signingKey.credential.secretArn,
         GITHUB_TOKEN: oauth.value.toString(),
         GITHUB_OWNER: props.githubRepo.owner,
         GITHUB_REPO: props.githubRepo.repo,

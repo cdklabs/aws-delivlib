@@ -24,18 +24,16 @@ if [[ "${1:-}" == "" ]]; then
     exit 1
 fi
 
-if [[ "${SIGNING_KEY_SCOPE:-}" == "" ]]; then
-    echo "SIGNING_KEY_SCOPE not set, running without a key" >&2
+if [[ "${SIGNING_KEY_ARN:-}" == "" ]]; then
+    echo "SIGNING_KEY_ARN not set, running without a key" >&2
     export KEY_AVAILABLE=false
 else
     tmpdir=$(mktemp -d)
     trap "find $tmpdir -type f -exec rm {} \\; && rm -rf $tmpdir" EXIT
 
-    SECRET=$SIGNING_KEY_SCOPE/SigningKey
-
     # Use secrets manager to obtain the key and passphrase into a JSON file
-    echo "Retrieving key $SECRET..." >&2
-    aws secretsmanager get-secret-value --secret-id "$SECRET" --output text --query SecretString > $tmpdir/secret.txt
+    echo "Retrieving key $SIGNING_KEY_ARN..." >&2
+    aws secretsmanager get-secret-value --secret-id "$SIGNING_KEY_ARN" --output text --query SecretString > $tmpdir/secret.txt
 
     value-from-secret() {
         node -e "console.log(JSON.parse(require('fs').readFileSync('$tmpdir/secret.txt', { encoding: 'utf-8' })).$1)"
