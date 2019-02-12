@@ -147,8 +147,7 @@ Resources:
                 OAuthToken:
                   Ref: CodeCommitPipelineBuildPipelineGitHubTokenParameter9FBEDC6B
                 PollForSourceChanges: false
-              InputArtifacts:
-                []
+              InputArtifacts: []
               Name: Pull
               OutputArtifacts:
                 - Name: Source
@@ -1788,13 +1787,13 @@ Resources:
             Effect: Allow
             Resource:
               Fn::GetAtt:
-                - CodeSignSecretF6FDE552
+                - CodeSign52FB6674
                 - SecretArn
           - Action: kms:Decrypt
             Effect: Allow
             Resource:
               Fn::GetAtt:
-                - CodeSignKey2302B99A
+                - CodeSignCMKC986BB89
                 - Arn
           - Action:
               - s3:GetObject*
@@ -1850,9 +1849,12 @@ Resources:
           - Name: STAGING_PROFILE_ID
             Type: PLAINTEXT
             Value: 68a05363083174
-          - Name: SIGNING_KEY_SCOPE
+          - Name: SIGNING_KEY_ARN
             Type: PLAINTEXT
-            Value: delivlib-test/CodeSign
+            Value:
+              Fn::GetAtt:
+                - CodeSign52FB6674
+                - SecretArn
           - Name: FOR_REAL
             Type: PLAINTEXT
             Value: "true"
@@ -1959,13 +1961,13 @@ Resources:
             Effect: Allow
             Resource:
               Fn::GetAtt:
-                - CodeSignSecretF6FDE552
+                - CodeSign52FB6674
                 - SecretArn
           - Action: kms:Decrypt
             Effect: Allow
             Resource:
               Fn::GetAtt:
-                - CodeSignKey2302B99A
+                - CodeSignCMKC986BB89
                 - Arn
           - Action:
               - s3:GetObject*
@@ -2024,9 +2026,12 @@ Resources:
           - Name: CHANGELOG
             Type: PLAINTEXT
             Value: ./CHANGELOG.md
-          - Name: SIGNING_KEY_SCOPE
+          - Name: SIGNING_KEY_ARN
             Type: PLAINTEXT
-            Value: delivlib-test/CodeSign
+            Value:
+              Fn::GetAtt:
+                - CodeSign52FB6674
+                - SecretArn
           - Name: GITHUB_TOKEN
             Type: PLAINTEXT
             Value:
@@ -2568,7 +2573,7 @@ Resources:
       - CreateCSR541F67826DCF49A78C5A67715ADD9E4CServiceRoleD2990C92
     Metadata:
       aws:cdk:path: delivlib-test/CreateCSR541F67826DCF49A78C5A67715ADD9E4C/Resource
-  CodeSignKey2302B99A:
+  CodeSignCMKC986BB89:
     Type: AWS::KMS::Key
     Properties:
       KeyPolicy:
@@ -2596,9 +2601,11 @@ Resources:
                     - :iam::712950704752:root
             Resource: "*"
           - Action:
-              - kms:GenerateDataKey
-              - kms:Encrypt
               - kms:Decrypt
+              - kms:GenerateDataKey
+            Condition:
+              StringEquals:
+                kms:ViaService: secretsmanager.us-east-1.amazonaws.com
             Effect: Allow
             Principal:
               AWS:
@@ -2623,21 +2630,10 @@ Resources:
                   - Arn
             Resource: "*"
         Version: "2012-10-17"
-      Description: Encryption key for PGP secret delivlib-test/CodeSign/SigningKey
     DeletionPolicy: Retain
     Metadata:
-      aws:cdk:path: delivlib-test/CodeSign/Key/Resource
-  CodeSignKeyAliasCEA10CD5:
-    Type: AWS::KMS::Alias
-    Properties:
-      AliasName: alias/delivlib-test/CodeSign/SigningKeyKey
-      TargetKeyId:
-        Fn::GetAtt:
-          - CodeSignKey2302B99A
-          - Arn
-    Metadata:
-      aws:cdk:path: delivlib-test/CodeSign/Key/Alias/Resource
-  CodeSignSecretF6FDE552:
+      aws:cdk:path: delivlib-test/CodeSign-CMK/Resource
+  CodeSign52FB6674:
     Type: AWS::CloudFormation::CustomResource
     Properties:
       ServiceToken:
@@ -2649,32 +2645,32 @@ Resources:
       Email: aws-cdk-dev+delivlib@amazon.com
       Expiry: 4y
       KeySizeBits: 4096
-      SecretName: delivlib-test/CodeSign/SigningKey
+      SecretName: delivlib-test/CodeSign
       KeyArn:
         Fn::GetAtt:
-          - CodeSignKey2302B99A
+          - CodeSignCMKC986BB89
           - Arn
-      Version: 1
+      Version: 0
     Metadata:
-      aws:cdk:path: delivlib-test/CodeSign/Secret/Resource
-  CodeSignSecretPrincipal84E78D92:
+      aws:cdk:path: delivlib-test/CodeSign/Resource
+  CodeSignPrincipal30E4C212:
     Type: AWS::SSM::Parameter
     Properties:
       Type: String
       Value:
         Fn::GetAtt:
-          - CodeSignSecretF6FDE552
+          - CodeSign52FB6674
           - PublicKey
       Description:
         Fn::Join:
           - ""
           - - "The public part of the OpenPGP key in "
             - Fn::GetAtt:
-                - CodeSignSecretF6FDE552
+                - CodeSign52FB6674
                 - SecretArn
-      Name: /delivlib-test/CodeSign/SigningKey.pub
+      Name: /delivlib-test/CodeSign.pub
     Metadata:
-      aws:cdk:path: delivlib-test/CodeSign/Secret/Principal/Resource
+      aws:cdk:path: delivlib-test/CodeSign/Principal/Resource
   SingletonLambdaf25803d3054b44fc985f4860d7d6ee74ServiceRole410148CF:
     Type: AWS::IAM::Role
     Properties:
@@ -2703,19 +2699,23 @@ Resources:
               - secretsmanager:DeleteSecret
               - secretsmanager:GetSecretValue
               - secretsmanager:UpdateSecret
+            Effect: Allow
+            Resource:
+              Fn::Join:
+                - ""
+                - - "arn:"
+                  - Ref: AWS::Partition
+                  - :secretsmanager:us-east-1:712950704752:secret:delivlib-test/CodeSign-??????
+          - Action:
               - ssm:PutParameter
               - ssm:DeleteParameter
             Effect: Allow
-            Resource: "*"
-          - Action:
-              - kms:GenerateDataKey
-              - kms:Encrypt
-              - kms:Decrypt
-            Effect: Allow
             Resource:
-              Fn::GetAtt:
-                - CodeSignKey2302B99A
-                - Arn
+              Fn::Join:
+                - ""
+                - - "arn:"
+                  - Ref: AWS::Partition
+                  - :ssm:us-east-1:712950704752:parameter/delivlib-test/CodeSign.pub
         Version: "2012-10-17"
       PolicyName: SingletonLambdaf25803d3054b44fc985f4860d7d6ee74ServiceRoleDefaultPolicyA8FDF5BD
       Roles:

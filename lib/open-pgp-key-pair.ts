@@ -9,7 +9,7 @@ import path = require('path');
 import { ICredentialPair } from './credential-pair';
 import { hashFileOrDirectory } from './util';
 
-interface PGPSecretProps {
+interface OpenPGPKeyPairProps {
   /**
    * Identity to put into the key
    */
@@ -45,7 +45,7 @@ interface PGPSecretProps {
   /**
    * KMS Key ARN to use to encrypt Secrets Manager Secret
    */
-  encryptionKey: kms.IEncryptionKey;
+  encryptionKey?: kms.IEncryptionKey;
 
   /**
    * Version of the key
@@ -67,14 +67,13 @@ interface PGPSecretProps {
  *
  * { "PrivateKey": "... ASCII repr of key...", "Passphrase": "passphrase of the key" }
  */
-export class PGPSecret extends cdk.Construct implements ICredentialPair {
+export class OpenPGPKeyPair extends cdk.Construct implements ICredentialPair {
   public readonly principal: ssm.IStringParameter;
   public readonly credential: secretsManager.ISecret;
 
-  constructor(parent: cdk.Construct, name: string, props: PGPSecretProps) {
+  constructor(parent: cdk.Construct, name: string, props: OpenPGPKeyPairProps) {
     super(parent, name);
 
-    const keyActions = ['kms:GenerateDataKey', 'kms:Encrypt', 'kms:Decrypt'];
     const codeLocation = path.resolve(__dirname, '..', 'custom-resource-handlers', 'bin', 'pgp-secret');
 
     const fn = new lambda.SingletonFunction(this, 'Lambda', {
@@ -84,22 +83,37 @@ export class PGPSecret extends cdk.Construct implements ICredentialPair {
       handler: 'index.handler',
       timeout: 300,
       runtime: lambda.Runtime.NodeJS810,
-      initialPolicy: [
-        new iam.PolicyStatement()
-          .addActions('secretsmanager:CreateSecret',
-                      'secretsmanager:DeleteSecret',
-                      'secretsmanager:GetSecretValue',
-                      'secretsmanager:UpdateSecret',
-                      'ssm:PutParameter',
-                      'ssm:DeleteParameter')
-          .addAllResources(),
-        new iam.PolicyStatement().addActions(...keyActions).addResource(props.encryptionKey.keyArn)
-      ]
     });
 
-    props.encryptionKey.addToResourcePolicy(
-      new iam.PolicyStatement().addActions(...keyActions).addAllResources().addPrincipal(fn.role!.principal)
-    );
+    fn.addToRolePolicy(new iam.PolicyStatement()
+      .allow()
+      .addActions('secretsmanager:CreateSecret',
+                  'secretsmanager:DeleteSecret',
+                  'secretsmanager:GetSecretValue',
+                  'secretsmanager:UpdateSecret')
+      .addResource(cdk.Stack.find(this).formatArn({
+        service: 'secretsmanager',
+        resource: 'secret',
+        sep: ':',
+        resourceName: `${props.secretName}-??????`
+      })));
+
+    fn.addToRolePolicy(new iam.PolicyStatement()
+      .allow()
+      .addActions('ssm:PutParameter', 'ssm:DeleteParameter')
+      .addResource(cdk.Stack.find(this).formatArn({
+        service: 'ssm',
+        resource: `parameter${props.pubKeyParameterName}`,
+      })));
+
+    if (props.encryptionKey) {
+      props.encryptionKey.addToResourcePolicy(new iam.PolicyStatement()
+        .allow()
+        .addActions('kms:Decrypt', 'kms:GenerateDataKey')
+        .addAllResources()
+        .addPrincipal(fn.role!.principal)
+        .addCondition('StringEquals', { 'kms:ViaService': `secretsmanager.${cdk.Stack.find(this).region}.amazonaws.com` }));
+    }
 
     const secret = new cfn.CustomResource(this, 'Resource', {
       lambdaProvider: fn,
@@ -110,11 +124,12 @@ export class PGPSecret extends cdk.Construct implements ICredentialPair {
         expiry: props.expiry,
         keySizeBits: props.keySizeBits,
         secretName: props.secretName,
-        keyArn: props.encryptionKey.keyArn,
+        keyArn: props.encryptionKey && props.encryptionKey.keyArn,
         version: props.version,
         description: props.description,
       },
     });
+    secret.node.addDependency(fn);
 
     this.credential = secretsManager.Secret.import(this, 'Credential', {
       encryptionKey: props.encryptionKey,
