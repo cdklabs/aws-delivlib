@@ -55,3 +55,49 @@ test('correctly forwards parameter name', () => {
     Name: parameterName,
   }));
 });
+
+test('Handler has appropriate permissions', () => {
+  // GIVEN
+  const stack = new cdk.Stack(undefined, 'TestStack');
+
+  // WHEN
+  new PGPSecret(stack, 'Secret', {
+    pubKeyParameterName: '/Foo',
+    email: 'nobody@nowhere.com',
+    encryptionKey: new kms.EncryptionKey(stack, 'CMK'),
+    expiry: '1d',
+    identity: 'Test',
+    keySizeBits: 1_024,
+    secretName: 'Bar',
+    version: 0,
+  });
+
+  // THEN
+  assert.expect(stack).to(assert.haveResource('AWS::IAM::Policy', {
+    PolicyDocument: {
+      Version: '2012-10-17',
+      Statement: [{
+        Effect: 'Allow',
+        Action: [
+          "secretsmanager:CreateSecret",
+          "secretsmanager:DeleteSecret",
+          "secretsmanager:GetSecretValue",
+          "secretsmanager:UpdateSecret",
+          "ssm:PutParameter",
+          "ssm:DeleteParameter",
+        ],
+        Resource: '*'
+      }, {
+        Effect: 'Allow',
+        Action: [
+          'kms:GenerateDataKey',
+          'kms:Encrypt',
+          'kms:Decrypt',
+        ],
+        Resource: { 'Fn::GetAtt': ['CMK56817A4C', 'Arn'] }
+      }]
+    },
+    PolicyName: 'SingletonLambdaf25803d3054b44fc985f4860d7d6ee74ServiceRoleDefaultPolicyA8FDF5BD',
+    Roles: [{ Ref: 'SingletonLambdaf25803d3054b44fc985f4860d7d6ee74ServiceRole410148CF' }]
+  }));
+});
