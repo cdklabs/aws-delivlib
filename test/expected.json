@@ -2700,8 +2700,9 @@ Resources:
         Statement:
           - Action:
               - secretsmanager:CreateSecret
-              - secretsmanager:UpdateSecret
               - secretsmanager:DeleteSecret
+              - secretsmanager:GetSecretValue
+              - secretsmanager:UpdateSecret
               - ssm:PutParameter
               - ssm:DeleteParameter
             Effect: Allow
