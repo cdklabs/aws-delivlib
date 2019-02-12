@@ -84,6 +84,7 @@ export class OpenPGPKeyPair extends cdk.Construct implements ICredentialPair {
       timeout: 300,
       runtime: lambda.Runtime.NodeJS810,
     });
+
     fn.addToRolePolicy(new iam.PolicyStatement()
       .allow()
       .addActions('secretsmanager:CreateSecret',
@@ -96,6 +97,7 @@ export class OpenPGPKeyPair extends cdk.Construct implements ICredentialPair {
         sep: ':',
         resourceName: `${props.secretName}-??????`
       })));
+
     fn.addToRolePolicy(new iam.PolicyStatement()
       .allow()
       .addActions('ssm:PutParameter', 'ssm:DeleteParameter')
@@ -103,6 +105,7 @@ export class OpenPGPKeyPair extends cdk.Construct implements ICredentialPair {
         service: 'ssm',
         resource: `parameter${props.pubKeyParameterName}`,
       })));
+
     if (props.encryptionKey) {
       props.encryptionKey.addToResourcePolicy(new iam.PolicyStatement()
         .allow()
