@@ -3,15 +3,20 @@ import cbuild = require('@aws-cdk/aws-codebuild');
 import cpipeline = require('@aws-cdk/aws-codepipeline');
 import cpipelineapi = require('@aws-cdk/aws-codepipeline-api');
 import iam = require('@aws-cdk/aws-iam');
+import s3 = require('@aws-cdk/aws-s3');
 import sns = require('@aws-cdk/aws-sns');
 import cdk = require('@aws-cdk/cdk');
 import { Canary, CanaryProps } from './canary';
+import { ChangeController } from './change-controller';
 import { PipelineWatcher } from './pipeline-watcher';
 import publishing = require('./publishing');
 import { IRepo } from './repo';
 import { Shellable, ShellableProps } from './shellable';
 import { Superchain } from './superchain';
 import { determineRunOrder, renderEnvironmentVariables } from './util';
+
+const PUBLISH_STAGE_NAME = 'Publish';
+const TEST_STAGE_NAME = 'Test';
 
 export interface PipelineProps {
   /**
@@ -156,7 +161,7 @@ export class Pipeline extends cdk.Construct {
   }
 
   public addTest(id: string, props: ShellableProps) {
-    const stage = this.getOrCreateStage('Test');
+    const stage = this.getOrCreateStage(TEST_STAGE_NAME);
 
     const test = new Shellable(this, id, props);
     test.addToPipeline(stage, `Test${id}`, this.buildOutput, this.determineRunOrderForNewAction(stage));
@@ -174,11 +179,27 @@ export class Pipeline extends cdk.Construct {
   }
 
   public addPublish(publisher: IPublisher) {
-    const stage = this.getOrCreateStage('Publish');
+    const stage = this.getOrCreateStage(PUBLISH_STAGE_NAME);
 
     publisher.project.addToPipeline(stage, `${publisher.node.id}Publish`, {
       inputArtifact: this.buildOutput,
       runOrder: this.determineRunOrderForNewAction(stage)
+    });
+  }
+
+  /**
+   * Adds a change control policy to block transitions into the publish stage during certain time windows.
+   * @param options the options to configure the change control policy.
+   */
+  public addChangeControl(options: AddChangeControlOptions = { }): ChangeController {
+    const publishStage = this.getStage(PUBLISH_STAGE_NAME);
+    if (!publishStage) {
+      throw new Error(`This pipeline does not have a ${PUBLISH_STAGE_NAME} stage yet. Add one first.`);
+    }
+
+    return new ChangeController(this, 'ChangeController', {
+      ...options,
+      pipelineStage: publishStage,
     });
   }
 
@@ -234,11 +255,18 @@ export class Pipeline extends cdk.Construct {
     });
   }
 
-  private getOrCreateStage(stageName: string) {
+  /**
+   * @returns the stage or undefined if the stage doesn't exist
+   */
+  private getStage(stageName: string): cpipeline.Stage | undefined {
+    return this.stages[stageName];
+  }
+
+  private getOrCreateStage(stageName: string, placement?: cpipeline.StagePlacement) {
     // otherwise, group all actions so they run concurrently.
-    let stage = this.stages[stageName];
+    let stage = this.getStage(stageName);
     if (!stage) {
-      stage = new cpipeline.Stage(this, stageName, { pipeline: this.pipeline });
+      stage = new cpipeline.Stage(this, stageName, { pipeline: this.pipeline, placement });
       this.stages[stageName] = stage;
     }
     return stage;
@@ -254,4 +282,27 @@ export interface IPublisher extends cdk.IConstruct {
    * The publisher's codebuild project.
    */
   readonly project: cbuild.IProject;
+}
+
+export interface AddChangeControlOptions {
+  /**
+   * The bucket in which the ChangeControl iCal document will be stored.
+   *
+   * @default a new bucket will be provisioned.
+   */
+  changeControlBucket?: s3.IBucket;
+
+  /**
+   * The key in which the iCal fille will be stored.
+   *
+   * @default 'change-control.ical'
+   */
+  changeControlObjectKey?: string;
+
+  /**
+   * Schedule to run the change controller on
+   *
+   * @default rate(15 minutes)
+   */
+  scheduleExpression?: string;
 }

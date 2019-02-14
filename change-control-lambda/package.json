@@ -1,0 +1,13 @@
+{
+  "name": "change-control-lambda",
+  "version": "0.0.1",
+  "private": true,
+  "license": "Apache-2.0",
+  "main": "index.js",
+  "scripts": {
+    "prepare": "../node_modules/.bin/tsc"
+  },
+  "dependencies": {
+    "node-ical": "^0.9.0"
+  }
+}
