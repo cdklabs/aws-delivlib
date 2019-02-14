@@ -619,7 +619,6 @@ needs to be done once per account/region.
 See the [contribution guide](./CONTRIBUTING.md) for details on how to submit
 issues, pull requests, setup a development environment and publish new releases
 of this library.
->>>>>>> origin/master
 
 ## License
 
