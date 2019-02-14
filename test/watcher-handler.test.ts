@@ -9,7 +9,7 @@ test('handler should propagate error if GetPipelineState fails', async () => {
     return {
       promise: () => new Promise((_, reject) => reject(new Error('fail')))
     };
-  });
+  }) as any;
   try {
     await handler();
   } catch (err) {
@@ -32,11 +32,11 @@ function mock(response: any) {
   logger.log = jest.fn();
   process.env.PIPELINE_NAME = 'name';
   codePipeline.getPipelineState = jest.fn(request => {
-    expect(request.name).toEqual(process.env.PIPELINE_NAME);
+    expect(request && request.name).toEqual(process.env.PIPELINE_NAME);
     return {
       promise: () => new Promise((resolve) => resolve(response))
     };
-  });
+  }) as any;
 }
 
 test('handler should log {failCount: 0} if pipeline.stageStates is undefined', async () => {

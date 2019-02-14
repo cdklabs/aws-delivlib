@@ -11,10 +11,13 @@ const eventBase = {
   ResponseURL: 'https://response/url',
   RequestId: '5EF100FB-0075-4716-970B-FBCA05BFE118',
   ResourceProperties: {
-    Description: 'Description of my secret',
-    KeySize: 4_096,
-    KmsKeyId: 'alias/KmsKey',
-    SecretName: 'Sekret/Name/Shhhh',
+    ServiceToken:     'Service-Token (Would be the function ARN',
+    ResourceVersion:  'The hash of the function code',
+
+    Description:      'Description of my secret',
+    KeySize:          4_096,
+    KmsKeyId:         'alias/KmsKey',
+    SecretName:       'Sekret/Name/Shhhh',
   },
   ResourceType: 'Custom::Resource::Type',
   StackId: 'StackID-1324597',
@@ -30,15 +33,16 @@ jest.mock('../../custom-resource-handlers/src/_exec', () => async (cmd: string, 
   return '';
 });
 jest.spyOn(fs, 'mkdtemp').mockName('fs.mkdtemp')
-  .mockImplementation(async (_, cb) => cb(undefined, mockTmpDir));
-jest.spyOn(fs, 'readFile').mockName('fs.readFile')
+  .mockImplementation(async (_, cb) => cb(undefined as any, mockTmpDir));
+fs.readFile = jest.fn().mockName('fs.readFile')
   .mockImplementation(async (file, opts, cb) => {
     await expect(file).toBe(require('path').join(mockTmpDir, 'private_key.pem'));
     await expect(opts.encoding).toBe('utf8');
     return cb(undefined, mockPrivateKey);
-  });
+  }) as any;
 const mockSecretsManager = createMockInstance(aws.SecretsManager);
-jest.spyOn(aws, 'SecretsManager').mockImplementation(() => mockSecretsManager);
+aws.SecretsManager = jest.fn().mockName('SecretsManager')
+  .mockImplementation(() => mockSecretsManager) as any;
 mockSecretsManager.createSecret = jest.fn().mockName('SecretsManager.createSecret')
   .mockImplementation(() => ({ promise: () => Promise.resolve({ ARN: secretArn, VersionId: 'Secret-VersionID' }) })) as any;
 mockSecretsManager.updateSecret = jest.fn().mockName('SecretsManager.updateSecret')
@@ -167,11 +171,13 @@ test('Delete', async () => {
   };
 
   jest.spyOn(cfn, 'customResourceHandler').mockName('cfn.customResourceHandler')
-    .mockImplementation(async (cb) => {
-      const result = await cb();
-      await expect(result).toEqual({
-        Ref: event.PhysicalResourceId,
-      });
+    .mockImplementation((cb) => {
+      return async (evt, ctx) => {
+        const result = await cb(evt, ctx);
+        await expect(result).toEqual({
+          Ref: event.PhysicalResourceId,
+        });
+      };
     });
 
   const { handler } = require('../../custom-resource-handlers/src/private-key');

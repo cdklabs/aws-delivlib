@@ -1,3 +1,5 @@
+import iam = require('@aws-cdk/aws-iam');
+import kms = require('@aws-cdk/aws-kms');
 import cdk = require('@aws-cdk/cdk');
 import path = require('path');
 import delivlib = require('../lib');
@@ -28,7 +30,7 @@ export class TestStack extends cdk.Stack {
       title: 'aws-delivlib test pipeline',
       repo: githubRepo,
       notificationEmail: 'aws-cdk-dev+delivlib-test@amazon.com',
-      env: {
+      environment: {
         DELIVLIB_ENV_TEST: 'MAGIC_1924'
       }
     });
@@ -40,13 +42,45 @@ export class TestStack extends cdk.Stack {
     // add a test that runs on an ubuntu linux
     pipeline.addTest('HelloLinux', {
       platform: delivlib.ShellPlatform.LinuxUbuntu,
-      testDirectory: path.join(testDir, 'linux')
+      entrypoint: 'test.sh',
+      scriptDirectory: path.join(testDir, 'linux')
     });
 
     // add a test that runs on Windows
     pipeline.addTest('HelloWindows', {
       platform: delivlib.ShellPlatform.Windows,
-      testDirectory: path.join(testDir, 'windows')
+      entrypoint: 'test.ps1',
+      scriptDirectory: path.join(testDir, 'windows')
+    });
+
+    const externalId = 'require-me-please';
+
+    const role = new iam.Role(this, 'AssumeMe', {
+      assumedBy: new iam.AccountPrincipal(this.accountId),
+      externalId
+    });
+
+    pipeline.addTest('AssumeRole', {
+      entrypoint: 'test.sh',
+      scriptDirectory: path.join(testDir, 'assume-role'),
+      assumeRole: {
+        roleArn: role.roleArn,
+        sessionName: 'assume-role-test',
+        externalId
+      },
+      environment: {
+        EXPECTED_ROLE_NAME: role.roleName
+      }
+    });
+
+    //
+    // CANARY
+    //
+
+    pipeline.addCanary('HelloCanary', {
+      scheduleExpression: 'rate(1 minute)',
+      scriptDirectory: path.join(testDir, 'linux'),
+      entrypoint: 'test.sh'
     });
 
     //
@@ -75,9 +109,15 @@ export class TestStack extends cdk.Stack {
       codeSign,
     });
 
-    const signingKey = new delivlib.OpenPgpKey(this, 'CodeSign', {
+    const signingKey = new delivlib.OpenPGPKeyPair(this, 'CodeSign', {
       email: 'aws-cdk-dev+delivlib@amazon.com',
+      encryptionKey: new kms.EncryptionKey(this, 'CodeSign-CMK'),
+      expiry: '4y',
       identity: 'aws-cdk-dev',
+      keySizeBits: 4_096,
+      pubKeyParameterName: `/${this.node.path}/CodeSign.pub`,
+      secretName: this.node.path + '/CodeSign',
+      version: 0,
     });
 
     pipeline.publishToMaven({

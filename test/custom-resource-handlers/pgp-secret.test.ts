@@ -15,14 +15,16 @@ const mockEventBase = {
   ResponseURL: 'https://response/url',
   RequestId: '5EF100FB-0075-4716-970B-FBCA05BFE118',
   ResourceProperties: {
-    KeySizeBits: 4_096,
-    Identity: 'Test Identity',
-    Email: 'test@amazon.com',
-    Expiry: '1d',
-    SecretName: 'Secret/Name/Shhhhh',
-    ParameterName: 'Parameter/Name',
-    KeyArn: 'alias/KmsKey',
-    Description: 'Description',
+    ServiceToken:     'Service-Token (Would be the function ARN',
+    ResourceVersion:  'The hash of the function code',
+
+    KeySizeBits:      4_096,
+    Identity:         'Test Identity',
+    Email:            'test@amazon.com',
+    Expiry:           '1d',
+    SecretName:       'Secret/Name/Shhhhh',
+    KeyArn:           'alias/KmsKey',
+    Description:      'Description',
   },
   ResourceType: 'Custom::Resource::Type',
   StackId: 'StackID-1324597',
@@ -43,8 +45,9 @@ Passphrase: ${passphrase.toString('base64')}
 
 jest.spyOn(crypto, 'randomBytes').mockImplementation(() => passphrase);
 jest.spyOn(fs, 'mkdtemp')
-  .mockImplementation(async (_, cb) => cb(undefined, mockTmpDir));
-const writeFile = jest.spyOn(fs, 'writeFile').mockName('fs.writeFile').mockImplementation((_pth, _data, _opts, cb) => cb());
+  .mockImplementation(async (_, cb) => cb(undefined as any, mockTmpDir));
+const writeFile = fs.writeFile = jest.fn().mockName('fs.writeFile')
+  .mockImplementation((_pth, _data, _opts, cb) => cb()) as any;
 jest.mock('../../custom-resource-handlers/src/_exec', () => async (cmd: string, ...args: string[]) => {
   await expect(cmd).toBe('gpg');
   await expect(args).toContain('--batch');
@@ -53,6 +56,9 @@ jest.mock('../../custom-resource-handlers/src/_exec', () => async (cmd: string, 
     return '';
   }
   await expect(args).toContain('--yes');
+  if (args.indexOf('--import') !== -1) {
+    return '';
+  }
   await expect(args).toContain('--armor');
   if (args.indexOf('--export') !== -1) {
     return mockPublicKey;
@@ -62,10 +68,9 @@ jest.mock('../../custom-resource-handlers/src/_exec', () => async (cmd: string, 
   throw new Error(`Invalid call to _exec`);
 });
 const mockSecretsManager = createMockInstance(aws.SecretsManager);
-jest.spyOn(aws, 'SecretsManager').mockImplementation(() => mockSecretsManager);
-const mockSSM = createMockInstance(aws.SSM);
-jest.spyOn(aws, 'SSM').mockImplementation(() => mockSSM);
-const mockSendResponse = jest.spyOn(cfn, 'sendResponse').mockName('cfn.sendResponse').mockResolvedValue(undefined);
+aws.SecretsManager = jest.fn().mockName('SecretsManager')
+  .mockImplementation(() => mockSecretsManager) as any;
+const mockSendResponse = jest.spyOn(cfn, 'sendResponse').mockName('cfn.sendResponse').mockResolvedValue(Promise.resolve({}));
 const mockRmrf = jest.fn().mockName('_rmrf').mockResolvedValue(undefined);
 jest.mock('../../custom-resource-handlers/src/_rmrf', () => mockRmrf);
 
@@ -78,8 +83,6 @@ test('Create', async () => {
 
   mockSecretsManager.createSecret = jest.fn().mockName('SecretsManager.createSecret')
     .mockImplementation(() => ({ promise: () => Promise.resolve({ ARN: secretArn, VersionId: 'Secret-VersionId'}) })) as any;
-  mockSSM.putParameter = jest.fn().mockName('SSM.putParameter')
-    .mockImplementation(() => ({ promise: () => Promise.resolve({}) })) as any;
 
   const { handler } = require('../../custom-resource-handlers/src/pgp-secret');
   await expect(handler(event, context)).resolves.toBe(undefined);
@@ -97,15 +100,10 @@ test('Create', async () => {
       Description: event.ResourceProperties.Description,
       KmsKeyId: event.ResourceProperties.KeyArn,
       Name: event.ResourceProperties.SecretName,
-      SecretString: mockPrivateKey,
-    });
-  await expect(mockSSM.putParameter)
-    .toBeCalledWith({
-      Description: `Public part of OpenPGP key ${secretArn}`,
-      Name: event.ResourceProperties.ParameterName,
-      Overwrite: false,
-      Type: 'String',
-      Value: mockPublicKey,
+      SecretString: JSON.stringify({
+        PrivateKey: mockPrivateKey,
+        Passphrase: passphrase.toString('base64')
+      }),
     });
   return expect(mockSendResponse)
     .toBeCalledWith(event,
@@ -114,7 +112,7 @@ test('Create', async () => {
                     {
                       Ref: secretArn,
                       SecretArn: secretArn,
-                      ParameterName: event.ResourceProperties.ParameterName,
+                      PublicKey: mockPublicKey,
                     });
 });
 
@@ -132,6 +130,11 @@ test('Update', async () => {
 
   mockSecretsManager.updateSecret = jest.fn().mockName('SecretsManager.updateSecret')
     .mockImplementation(() => ({ promise: () => Promise.resolve({ ARN: secretArn }) })) as any;
+  mockSecretsManager.getSecretValue = jest.fn().mockName('SecretsManager.getSecretValue')
+    .mockImplementation(() => ({ promise: () => Promise.resolve({ SecretString: JSON.stringify({
+      PrivateKey: mockPrivateKey,
+      Passphrase: passphrase.toString('base64')
+    }) }) })) as any;
 
   const { handler } = require('../../custom-resource-handlers/src/pgp-secret');
   await expect(handler(event, context)).resolves.toBe(undefined);
@@ -142,6 +145,10 @@ test('Update', async () => {
       Description: event.ResourceProperties.Description,
       KmsKeyId: event.ResourceProperties.KeyArn
     });
+  await expect(mockSecretsManager.getSecretValue)
+    .toBeCalledWith({ SecretId: secretArn });
+  await expect(mockRmrf)
+    .toBeCalledWith(mockTmpDir);
   return expect(mockSendResponse)
     .toBeCalledWith(event,
                     cfn.Status.SUCCESS,
@@ -149,7 +156,7 @@ test('Update', async () => {
                     {
                       Ref: secretArn,
                       SecretArn: secretArn,
-                      ParameterName: event.ResourceProperties.ParameterName,
+                      PublicKey: mockPublicKey,
                     });
 });
 
@@ -162,15 +169,11 @@ test('Delete', async () => {
 
   mockSecretsManager.deleteSecret = jest.fn().mockName('SecretsManager.deleteSecret')
     .mockImplementation(() => ({ promise: () => Promise.resolve({}) })) as any;
-  mockSSM.deleteParameter = jest.fn().mockName('SSM.deleteParameter')
-    .mockImplementation(() => ({ promise: () => Promise.resolve({}) })) as any;
 
   const { handler } = require('../../custom-resource-handlers/src/pgp-secret');
   await expect(handler(event, context)).resolves.toBe(undefined);
   await expect(mockSecretsManager.deleteSecret)
     .toBeCalledWith({ SecretId: secretArn });
-  await expect(mockSSM.deleteParameter)
-    .toBeCalledWith({ Name: event.ResourceProperties.ParameterName });
   return expect(mockSendResponse)
     .toBeCalledWith(event,
                     cfn.Status.SUCCESS,

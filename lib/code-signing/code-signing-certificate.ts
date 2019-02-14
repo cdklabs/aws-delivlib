@@ -1,11 +1,14 @@
 import iam = require('@aws-cdk/aws-iam');
 import kms = require('@aws-cdk/aws-kms');
+import secretsManager = require('@aws-cdk/aws-secretsmanager');
 import ssm = require('@aws-cdk/aws-ssm');
 import cdk = require('@aws-cdk/cdk');
 import { ICredentialPair } from '../credential-pair';
 import permissions = require('../permissions');
 import { DistinguishedName } from './certificate-signing-request';
 import { RsaPrivateKeySecret } from './private-key';
+
+export { DistinguishedName } from './certificate-signing-request';
 
 interface CodeSigningCertificateProps {
   /**
@@ -19,7 +22,7 @@ interface CodeSigningCertificateProps {
    * The KMS CMK to use for encrypting the Private Key secret.
    * @default A new KMS key will be allocated for you
    */
-  secretEncryptionKey?: kms.EncryptionKeyRef;
+  secretEncryptionKey?: kms.IEncryptionKey;
 
   /**
    * The PEM-encoded certificate that was signed by the relevant authority.
@@ -54,7 +57,7 @@ interface CodeSigningCertificateProps {
   distinguishedName: DistinguishedName;
 }
 
-export interface ICodeSigningCertificate extends ICredentialPair {
+export interface ICodeSigningCertificate extends cdk.IConstruct, ICredentialPair {
   /**
    * Grant the IAM principal permissions to read the private key and
    * certificate.
@@ -79,29 +82,14 @@ export interface ICodeSigningCertificate extends ICredentialPair {
  */
 export class CodeSigningCertificate extends cdk.Construct implements ICodeSigningCertificate {
   /**
-   * The ARN of the AWS Secrets Manager secret that holds the private key for this CSC
+   * The AWS Secrets Manager secret that holds the private key for this CSC
    */
-  public readonly privatePartSecretArn: string;
+  public readonly credential: secretsManager.ISecret;
 
   /**
-   * The ID of the version of the AWS Secrets Manager secret that holds the private key for this CSC
+   * The AWS SSM Parameter that holds the certificate for this CSC.
    */
-  public readonly privatePartSecretVersionId: string;
-
-  /**
-   * The ARN of the AWS SSM Parameter that holds the certificate for this CSC.
-   */
-  public readonly publicPartParameterArn: string;
-
-  /**
-   * The name of the AWS SSM parameter that holds the certificate for this CSC.
-   */
-  public readonly publicPartParameterName: string;
-
-  /**
-   * KMS key to encrypt the secret.
-   */
-  private readonly secretEncryptionKey?: kms.EncryptionKeyRef;
+  public readonly principal: ssm.IStringParameter;
 
   constructor(parent: cdk.Construct, id: string, props: CodeSigningCertificateProps) {
     super(parent, id);
@@ -111,7 +99,7 @@ export class CodeSigningCertificate extends cdk.Construct implements ICodeSignin
     }
 
     // The construct path of this construct, without any leading /
-    const baseName = this.path.replace(/^\/+/, '');
+    const baseName = this.node.path.replace(/^\/+/, '');
 
     const privateKey = new RsaPrivateKeySecret(this, 'RSAPrivateKey', {
       deletionPolicy: props.retainPrivateKey ? cdk.DeletionPolicy.Retain : undefined,
@@ -121,10 +109,10 @@ export class CodeSigningCertificate extends cdk.Construct implements ICodeSignin
       secretName: `${baseName}/RSAPrivateKey`,
     });
 
-    this.secretEncryptionKey = props.secretEncryptionKey;
-
-    this.privatePartSecretArn = privateKey.secretArn;
-    this.privatePartSecretVersionId = privateKey.secretVersion;
+    this.credential = secretsManager.Secret.import(this, 'Credential', {
+      encryptionKey: props.secretEncryptionKey,
+      secretArn: privateKey.secretArn,
+    });
 
     let certificate = props.pemCertificate;
 
@@ -145,20 +133,10 @@ export class CodeSigningCertificate extends cdk.Construct implements ICodeSignin
       }
     }
 
-    const paramName = `${baseName}/Certificate`;
-    this.publicPartParameterName = `/${paramName}`;
-
-    new ssm.cloudformation.ParameterResource(this, 'Resource', {
-      description: `A PEM-encoded Code-Signing Certificate (private key in ${privateKey.secretArn} version ${privateKey.secretVersion})`,
-      name: this.publicPartParameterName,
-      type: 'String',
-      value: certificate
-    });
-
-    this.publicPartParameterArn = cdk.ArnUtils.fromComponents({
-      service: 'ssm',
-      resource: 'parameter',
-      resourceName: paramName
+    this.principal = new ssm.StringParameter(this, 'Resource', {
+      description: `A PEM-encoded Code-Signing Certificate (private key in ${privateKey.secretArn})`,
+      name: `/${baseName}/Certificate`,
+      value: certificate,
     });
   }
 
@@ -170,12 +148,16 @@ export class CodeSigningCertificate extends cdk.Construct implements ICodeSignin
     if (!principal) { return; }
 
     permissions.grantSecretRead({
-      keyArn: this.secretEncryptionKey && this.secretEncryptionKey.keyArn,
-      secretArn: this.privatePartSecretArn,
+      keyArn: this.credential.encryptionKey && this.credential.encryptionKey.keyArn,
+      secretArn: this.credential.secretArn,
     }, principal);
 
     principal.addToPolicy(new iam.PolicyStatement()
       .addAction('ssm:GetParameter')
-      .addResource(this.publicPartParameterArn));
+      .addResource(cdk.Stack.find(this).formatArn({
+        // TODO: This is a workaround until https://github.com/awslabs/aws-cdk/pull/1726 is released
+        service: 'ssm',
+        resource: `parameter${this.principal.parameterName}`
+      })));
   }
 }

@@ -65,9 +65,9 @@ export class PipelineWatcher extends cdk.Construct {
       targets: [pipelineWatcher]
     });
 
-    const logGroupResource = logGroup.findChild('Resource') as cdk.Resource;
-    const triggerResource = trigger.findChild('Resource') as cdk.Resource;
-    triggerResource.addDependency(logGroupResource);
+    const logGroupResource = logGroup.node.findChild('Resource') as cdk.Resource;
+    const triggerResource = trigger.node.findChild('Resource') as cdk.Resource;
+    triggerResource.node.addDependency(logGroupResource);
 
     const metricNamespace =  `CDK/Delivlib`;
     const metricName = `${props.pipeline.pipelineName}_FailedStages`;

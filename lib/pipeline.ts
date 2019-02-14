@@ -6,10 +6,11 @@ import iam = require('@aws-cdk/aws-iam');
 import sns = require('@aws-cdk/aws-sns');
 import cdk = require('@aws-cdk/cdk');
 import { createBuildEnvironment } from './build-env';
+import { Canary, CanaryProps } from './canary';
 import { PipelineWatcher } from './pipeline-watcher';
 import publishing = require('./publishing');
 import { IRepo } from './repo';
-import { Testable, TestableProps } from './testable';
+import { Shellable, ShellableProps } from './shellable';
 import { determineRunOrder } from './util';
 
 export interface PipelineProps {
@@ -71,7 +72,7 @@ export interface PipelineProps {
   /**
    * Environment variables to pass to build
    */
-  env?: { [key: string]: string };
+  environment?: { [key: string]: string };
 
   /**
    * Optional buildspec, as an alternative to a buildspec.yml file
@@ -101,9 +102,9 @@ export interface PipelineProps {
 export class Pipeline extends cdk.Construct {
   public buildRole?: iam.Role;
   public readonly failureAlarm: cloudwatch.Alarm;
+  public readonly buildOutput: cpipelineapi.Artifact;
 
   private readonly pipeline: cpipeline.Pipeline;
-  private readonly buildOutput: cpipelineapi.Artifact;
   private readonly branch: string;
   private readonly notify?: sns.Topic;
   private stages: { [name: string]: cpipeline.Stage } = { };
@@ -147,19 +148,28 @@ export class Pipeline extends cdk.Construct {
     this.addBuildFailureNotification(buildProject, `${props.title} build failed`);
   }
 
-  public addTest(id: string, props: TestableProps) {
+  public addTest(id: string, props: ShellableProps) {
     const stage = this.getOrCreateStage('Test');
 
-    const test = new Testable(this, id, props);
-    test.addToPipeline(stage, this.buildOutput, this.determineRunOrderForNewAction(stage));
+    const test = new Shellable(this, id, props);
+    test.addToPipeline(stage, `Test${id}`, this.buildOutput, this.determineRunOrderForNewAction(stage));
 
     this.addBuildFailureNotification(test.project, `Test ${id} failed`);
+  }
+
+  /**
+   * Convenience/discovery method that defines a canary test in your account.
+   * @param id the construct id
+   * @param props canary options
+   */
+  public addCanary(id: string, props: CanaryProps) {
+    return new Canary(this, `Canary${id}`, props);
   }
 
   public addPublish(publisher: IPublisher) {
     const stage = this.getOrCreateStage('Publish');
 
-    publisher.project.addToPipeline(stage, `${publisher.id}Publish`, {
+    publisher.project.addToPipeline(stage, `${publisher.node.id}Publish`, {
       inputArtifact: this.buildOutput,
       runOrder: this.determineRunOrderForNewAction(stage)
     });
@@ -232,14 +242,9 @@ export class Pipeline extends cdk.Construct {
   }
 }
 
-export interface IPublisher {
-  /**
-   * The identifier for the publisher.
-   */
-  readonly id: string;
-
+export interface IPublisher extends cdk.IConstruct {
   /**
    * The publisher's codebuild project.
    */
-  readonly project: cbuild.Project;
+  readonly project: cbuild.IProject;
 }

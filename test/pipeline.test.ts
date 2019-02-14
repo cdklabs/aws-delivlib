@@ -84,18 +84,19 @@ function createTestPipelineForConcurrencyTests(stack: cdk.Stack, props?: delivli
     buildSpec: { version: '0.2' }
   });
 
-  const testDirectory = path.join(__dirname, 'delivlib-tests', 'linux');
-  pipeline.addTest('test1', { testDirectory, platform: delivlib.ShellPlatform.LinuxUbuntu });
-  pipeline.addTest('test2', { testDirectory, platform: delivlib.ShellPlatform.LinuxUbuntu });
-  pipeline.addTest('test3', { testDirectory, platform: delivlib.ShellPlatform.LinuxUbuntu });
-  pipeline.addTest('test4', { testDirectory, platform: delivlib.ShellPlatform.LinuxUbuntu });
-  pipeline.addTest('test5', { testDirectory, platform: delivlib.ShellPlatform.LinuxUbuntu });
-  pipeline.addPublish({ id: 'pub1', project });
-  pipeline.addPublish({ id: 'pub2', project });
-  pipeline.addPublish({ id: 'pub3', project });
-  pipeline.addPublish({ id: 'pub4', project });
-  pipeline.addPublish({ id: 'pub5', project });
-  pipeline.addPublish({ id: 'pub6', project });
+  const scriptDirectory = path.join(__dirname, 'delivlib-tests', 'linux');
+  const entrypoint = 'test.sh';
+  pipeline.addTest('test1', { scriptDirectory, entrypoint, platform: delivlib.ShellPlatform.LinuxUbuntu });
+  pipeline.addTest('test2', { scriptDirectory, entrypoint, platform: delivlib.ShellPlatform.LinuxUbuntu });
+  pipeline.addTest('test3', { scriptDirectory, entrypoint, platform: delivlib.ShellPlatform.LinuxUbuntu });
+  pipeline.addTest('test4', { scriptDirectory, entrypoint, platform: delivlib.ShellPlatform.LinuxUbuntu });
+  pipeline.addTest('test5', { scriptDirectory, entrypoint, platform: delivlib.ShellPlatform.LinuxUbuntu });
+  pipeline.addPublish(new TestPublishable(stack, 'pub1', { project }));
+  pipeline.addPublish(new TestPublishable(stack, 'pub2', { project }));
+  pipeline.addPublish(new TestPublishable(stack, 'pub3', { project }));
+  pipeline.addPublish(new TestPublishable(stack, 'pub4', { project }));
+  pipeline.addPublish(new TestPublishable(stack, 'pub5', { project }));
+  pipeline.addPublish(new TestPublishable(stack, 'pub6', { project }));
 
   const template = stack.toCloudFormation();
   return template.Resources.PipelineBuildPipeline04C6628A.Properties.Stages;
@@ -103,4 +104,14 @@ function createTestPipelineForConcurrencyTests(stack: cdk.Stack, props?: delivli
 
 function createTestRepo(stack: cdk.Stack) {
   return new delivlib.CodeCommitRepo(new codecommit.Repository(stack, 'Repo', { repositoryName: 'test' }));
+}
+
+class TestPublishable extends cdk.Construct implements delivlib.IPublisher {
+  public readonly project: codebuild.IProject;
+
+  constructor(scope: cdk.Construct, id: string, props: { project: codebuild.IProject }) {
+    super(scope, id);
+
+    this.project = props.project;
+  }
 }

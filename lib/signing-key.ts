@@ -1,7 +1,7 @@
 import iam = require('@aws-cdk/aws-iam');
 import kms = require('@aws-cdk/aws-kms');
 import cdk = require('@aws-cdk/cdk');
-import { PGPSecret } from './pgp-secret';
+import { OpenPGPKeyPair } from './open-pgp-key-pair';
 
 /**
  * Construction properties for a SigningKey
@@ -32,12 +32,14 @@ export interface SigningKeyProps {
  *
  * The KMS key is there to control access to the secret, as the secret
  * itself doesn't support resource policies yet.
+ *
+ * @deprecated Use the OpenPGPKeyPair class instead.
  */
 export class OpenPgpKey extends cdk.Construct {
   public readonly scope: string;
 
-  private readonly key: kms.EncryptionKeyRef;
-  private readonly secret: PGPSecret;
+  private readonly key: kms.IEncryptionKey;
+  private readonly secret: OpenPGPKeyPair;
 
   constructor(parent: cdk.Construct, name: string, props: SigningKeyProps) {
     super(parent, name);
@@ -46,13 +48,13 @@ export class OpenPgpKey extends cdk.Construct {
     const secretName = `${this.scope}/SigningKey`;
 
     this.key = new kms.EncryptionKey(this, 'Key', {
-      description: `Encryption key for PGP secret ${secretName}`
+      description: `Encryption key for PGP secret ${secretName}`,
     });
 
     // The key has an alias for descriptive purposes, but the alias is not used
     this.key.addAlias(`alias/${secretName}Key`);
 
-    this.secret = new PGPSecret(this, 'Secret', {
+    this.secret = new OpenPGPKeyPair(this, 'Secret', {
       identity: props.identity,
       email: props.email,
       keySizeBits: 4096,
@@ -65,19 +67,6 @@ export class OpenPgpKey extends cdk.Construct {
   }
 
   public grantRead(identity: iam.IPrincipal) {
-    // Secret grant, identity-based only
-    identity.addToPolicy(new iam.PolicyStatement()
-      .addResources(this.secret.privatePartSecretArn)
-      .addActions('secretsmanager:ListSecrets', 'secretsmanager:DescribeSecret', 'secretsmanager:GetSecretValue'));
-
-    // Key grant
-    identity.addToPolicy(new iam.PolicyStatement()
-      .addResources(this.key.keyArn)
-      .addActions('kms:Decrypt'));
-
-    this.key.addToResourcePolicy(new iam.PolicyStatement()
-      .addAllResources()
-      .addPrincipal(identity.principal)
-      .addActions('kms:Decrypt'));
+    return this.secret.grantRead(identity);
   }
 }

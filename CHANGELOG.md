@@ -2,6 +2,85 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="2.0.1"></a>
+# [2.0.1](https://github.com/awslabs/aws-delivlib/compare/v2.0.0...v2.0.1) (2019-02-11)
+
+### Bug Fixes
+
+* Add missing permission to PGPSecret CustomResource
+
+<a name="2.0.0"></a>
+# [2.0.0](https://github.com/awslabs/aws-delivlib/compare/v1.0.0...v2.0.0) (2019-02-11)
+
+
+### Features
+
+* Create OpenPGP Public Key parameter using SSM resource ([#63](https://github.com/awslabs/aws-delivlib/issues/63)) ([a3510f1](https://github.com/awslabs/aws-delivlib/commit/a3510f1))
+* Move permission grant function to PGPSecret ([#62](https://github.com/awslabs/aws-delivlib/issues/62)) ([7c6809a](https://github.com/awslabs/aws-delivlib/commit/7c6809a))
+
+### BREAKING CHANGES
+
+* `ICredentialPair` now conveys `ssm.IStringParameter` and `secretsManager.ISecret` instead of the ARNs and related attributes of those.
+
+
+<a name="1.0.0"></a>
+# [1.0.0](https://github.com/awslabs/aws-delivlib/compare/v0.4.0...v1.0.0) (2019-01-29)
+
+
+### Bug Fixes
+
+* Correctly model accepted/required attributes ([#35](https://github.com/awslabs/aws-delivlib/issues/35)) ([52bdccb](https://github.com/awslabs/aws-delivlib/commit/52bdccb))
+* pgp-secret did not store passphrase in secrets manager ([#45](https://github.com/awslabs/aws-delivlib/issues/45)) ([d8f9dbc](https://github.com/awslabs/aws-delivlib/commit/d8f9dbc))
+* Stop surfacing and using secret VersionIds ([#33](https://github.com/awslabs/aws-delivlib/issues/33)) ([afbd204](https://github.com/awslabs/aws-delivlib/commit/afbd204))
+
+
+### Code Refactoring
+
+* improvements to shellable, testable and canary ([#46](https://github.com/awslabs/aws-delivlib/issues/46)) ([2446bd1](https://github.com/awslabs/aws-delivlib/commit/2446bd1))
+
+
+### Features
+
+* wrap the superchain image in a Superchain construct. ([#38](https://github.com/awslabs/aws-delivlib/issues/38)) ([5713727](https://github.com/awslabs/aws-delivlib/commit/5713727))
+* **shallable:** assume-role ([#47](https://github.com/awslabs/aws-delivlib/issues/47)) ([1b9ef5d](https://github.com/awslabs/aws-delivlib/commit/1b9ef5d))
+
+
+### BREAKING CHANGES
+
+* `Testable` has been removed, `environmentVariables`
+has been renamed to `env` and changed schema; `pipeline.env` renamed to `environment`.
+
+
+
+<a name="0.5.0"></a>
+# [0.5.0](https://github.com/awslabs/aws-delivlib/compare/v0.4.0...v0.5.0) (2019-01-15)
+
+
+### Bug Fixes
+
+* Correctly model accepted/required attributes ([#35](https://github.com/awslabs/aws-delivlib/issues/35)) ([52bdccb](https://github.com/awslabs/aws-delivlib/commit/52bdccb))
+* Stop surfacing and using secret VersionIds ([#33](https://github.com/awslabs/aws-delivlib/issues/33)) ([afbd204](https://github.com/awslabs/aws-delivlib/commit/afbd204))
+
+
+### Features
+
+* wrap the superchain image in a Superchain construct. ([#38](https://github.com/awslabs/aws-delivlib/issues/38)) ([5713727](https://github.com/awslabs/aws-delivlib/commit/5713727))
+
+
+
+<a name="0.4.0"></a>
+## [0.4.0](https://github.com/awslabs/aws-delivlib/compare/v0.3.2...v0.4.0) (2019-01-07)
+
+### Features
+
+* Allow update of PGPSecret and PrivateKey ([#20](https://github.com/awslabs/aws-delivlib/issues/20)) ([bfc6225](https://github.com/awslabs/aws-delivlib/commit/bfc6225))
+
+### BREAKING CHANGES
+
+* This changes the API of the PGPSecret and CodeSigningCertificate constructs to offer a consistent API for accessing the name
+and ARNs of the secret and parameters associated with the secrets, through the `ICredentialPair` interface.
+
+
 <a name="0.3.2"></a>
 ## [0.3.2](https://github.com/awslabs/aws-delivlib/compare/v0.3.1...v0.3.2) (2018-12-20)
 

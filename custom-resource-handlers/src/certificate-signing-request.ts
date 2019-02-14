@@ -34,6 +34,7 @@ async function handleEvent(event: cfn.Event, _context: lambda.Context): Promise<
       DnStateOrProvince: true,
       ExtendedKeyUsage: false,
       KeyUsage: true,
+      PrivateKeySecretId: true,
     });
   }
 

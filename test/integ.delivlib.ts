@@ -2,7 +2,13 @@ import cdk = require('@aws-cdk/cdk');
 // import os = require('os');
 import { TestStack } from './test-stack';
 
+const stackName = process.env.TEST_STACK_NAME;
+if (!stackName) {
+  throw new Error(`TEST_STACK_NAME must be defined`);
+}
+
 const app = new cdk.App();
-// new TestStack(app, `delivlib-test-${os.userInfo().username}`);
-new TestStack(app, `delivlib-test-3`);
+new TestStack(app, stackName, {
+  env: { region: 'us-east-1', account: '712950704752' }
+});
 app.run();

@@ -3,17 +3,17 @@ import iam = require('@aws-cdk/aws-iam');
 import cdk = require('@aws-cdk/cdk');
 import path = require('path');
 import { ICodeSigningCertificate } from './code-signing';
+import { OpenPGPKeyPair } from './open-pgp-key-pair';
 import permissions = require('./permissions');
 import { IPublisher } from './pipeline';
 import { WritableGitHubRepo } from './repo';
 import { LinuxPlatform, Shellable } from './shellable';
-import { OpenPgpKey } from './signing-key';
 
 export interface PublishToMavenProjectProps {
   /**
    * The signing key itself
    */
-  signingKey: OpenPgpKey;
+  signingKey: OpenPGPKeyPair;
 
   /**
    * The ID of the sonatype staging profile (e.g. "68a05363083174").
@@ -48,11 +48,11 @@ export class PublishToMavenProject extends cdk.Construct implements IPublisher {
       platform: new LinuxPlatform(cbuild.LinuxBuildImage.UBUNTU_14_04_NODEJS_10_1_0),
       scriptDirectory: path.join(__dirname, 'publishing', 'maven'),
       entrypoint: 'publish.sh',
-      environmentVariables: {
-        STAGING_PROFILE_ID: { value: props.stagingProfileId },
-        SIGNING_KEY_SCOPE: { value: props.signingKey.scope },
-        FOR_REAL: { value: forReal },
-        MAVEN_LOGIN_SECRET: { value: props.mavenLoginSecret.secretArn }
+      environment: {
+        STAGING_PROFILE_ID: props.stagingProfileId,
+        SIGNING_KEY_ARN: props.signingKey.credential.secretArn,
+        FOR_REAL: forReal,
+        MAVEN_LOGIN_SECRET: props.mavenLoginSecret.secretArn
       },
     });
 
@@ -95,9 +95,9 @@ export class PublishToNpmProject extends cdk.Construct implements IPublisher {
       platform: new LinuxPlatform(cbuild.LinuxBuildImage.UBUNTU_14_04_NODEJS_10_1_0),
       scriptDirectory: path.join(__dirname, 'publishing', 'npm'),
       entrypoint: 'publish.sh',
-      environmentVariables: {
-        FOR_REAL: { value: forReal },
-        NPM_TOKEN_SECRET: { value: props.npmTokenSecret.secretArn }
+      environment: {
+        FOR_REAL: forReal,
+        NPM_TOKEN_SECRET: props.npmTokenSecret.secretArn
       },
     });
 
@@ -139,32 +139,32 @@ export class PublishToNuGetProject extends cdk.Construct implements IPublisher {
   constructor(parent: cdk.Construct, id: string, props: PublishToNuGetProjectProps) {
     super(parent, id);
 
-    const env: { [key: string]: cbuild.BuildEnvironmentVariable } = { };
+    const environment: { [key: string]: string } = { };
 
-    env.FOR_REAL = { value: props.dryRun === undefined ? 'false' : (!props.dryRun).toString() };
+    environment.FOR_REAL = props.dryRun === undefined ? 'false' : (!props.dryRun).toString();
 
     if (props.nugetApiKeySecret.assumeRoleArn) {
-      env.NUGET_ROLE_ARN = { value: props.nugetApiKeySecret.assumeRoleArn };
+      environment.NUGET_ROLE_ARN = props.nugetApiKeySecret.assumeRoleArn;
     }
 
     if (props.nugetApiKeySecret.region) {
-      env.NUGET_SECRET_REGION = { value: props.nugetApiKeySecret.region };
+      environment.NUGET_SECRET_REGION = props.nugetApiKeySecret.region;
     } else {
-      env.NUGET_SECRET_REGION = { value: new cdk.AwsRegion() };
+      environment.NUGET_SECRET_REGION = cdk.Stack.find(this).region;
     }
 
-    env.NUGET_SECRET_ID = { value: props.nugetApiKeySecret.secretArn };
+    environment.NUGET_SECRET_ID = props.nugetApiKeySecret.secretArn;
 
     if (props.codeSign) {
-      env.CODE_SIGNING_SECRET_ID = { value: props.codeSign.privatePartSecretArn };
-      env.CODE_SIGNING_PARAMETER_NAME = { value: props.codeSign.publicPartParameterName };
+      environment.CODE_SIGNING_SECRET_ID = props.codeSign.credential.secretArn;
+      environment.CODE_SIGNING_PARAMETER_NAME = props.codeSign.principal.parameterName;
     }
 
     const shellable = new Shellable(this, 'Default', {
       platform: new LinuxPlatform(cbuild.LinuxBuildImage.UBUNTU_14_04_DOTNET_CORE_2_1),
       scriptDirectory: path.join(__dirname, 'publishing', 'nuget'),
       entrypoint: 'publish.sh',
-      environmentVariables: env,
+      environment,
     });
 
     if (shellable.role) {
@@ -220,21 +220,21 @@ export class PublishDocsToGitHubProject extends cdk.Construct implements IPublis
   constructor(parent: cdk.Construct, id: string, props: PublishDocsToGitHubProjectProps) {
     super(parent, id);
 
-    const forReal = { value: props.dryRun === undefined ? 'false' : (!props.dryRun).toString() };
+    const forReal = props.dryRun === undefined ? 'false' : (!props.dryRun).toString();
 
     const shellable = new Shellable(this, 'Default', {
       platform: new LinuxPlatform(cbuild.LinuxBuildImage.UBUNTU_14_04_NODEJS_10_1_0),
       scriptDirectory: path.join(__dirname, 'publishing', 'docs'),
       entrypoint: 'publish.sh',
-      environmentVariables: {
+      environment: {
         // Must be SSH because we use an SSH key to authenticate
-        GITHUB_REPO: { value: props.githubRepo.repositoryUrlSsh },
-        GITHUB_PAGES_BRANCH: { value: props.branch || 'gh-pages' },
-        SSH_KEY_SECRET: { value: props.githubRepo.sshKeySecret.secretArn },
+        GITHUB_REPO: props.githubRepo.repositoryUrlSsh,
+        GITHUB_PAGES_BRANCH: props.branch || 'gh-pages',
+        SSH_KEY_SECRET: props.githubRepo.sshKeySecret.secretArn,
         FOR_REAL: forReal,
-        COMMIT_USERNAME: { value: props.githubRepo.commitUsername },
-        COMMIT_EMAIL: { value: props.githubRepo.commitEmail },
-        BUILD_MANIFEST: { value: props.buildManifestFileName || './build.json' },
+        COMMIT_USERNAME: props.githubRepo.commitUsername,
+        COMMIT_EMAIL: props.githubRepo.commitEmail,
+        BUILD_MANIFEST: props.buildManifestFileName || './build.json',
       }
     });
 
@@ -262,7 +262,7 @@ export interface PublishToGitHubProps {
   /**
    * The signign key to use to create a GPG signature of the artifact.
    */
-  signingKey: OpenPgpKey;
+  signingKey: OpenPGPKeyPair;
 
   /**
    * The name of the build manifest JSON file (must include "name" and "version" fields).
@@ -286,20 +286,20 @@ export class PublishToGitHub extends cdk.Construct implements IPublisher {
   constructor(parent: cdk.Construct, id: string, props: PublishToGitHubProps) {
     super(parent, id);
 
-    const forReal = { value: props.dryRun === undefined ? 'false' : (!props.dryRun).toString() };
+    const forReal = props.dryRun === undefined ? 'false' : (!props.dryRun).toString();
     const oauth = new cdk.SecretParameter(this, 'GitHubToken', { ssmParameter: props.githubRepo.tokenParameterName });
 
     const shellable = new Shellable(this, 'Default', {
       platform: new LinuxPlatform(cbuild.LinuxBuildImage.UBUNTU_14_04_NODEJS_10_1_0),
       scriptDirectory: path.join(__dirname, 'publishing', 'github'),
       entrypoint: 'publish.sh',
-      environmentVariables: {
-        BUILD_MANIFEST: { value: props.buildManifestFileName || './build.json' },
-        CHANGELOG: { value: props.changelogFileName || './CHANGELOG.md' },
-        SIGNING_KEY_SCOPE: { value: props.signingKey.scope },
-        GITHUB_TOKEN: { value: oauth.value },
-        GITHUB_OWNER: { value: props.githubRepo.owner },
-        GITHUB_REPO: { value: props.githubRepo.repo },
+      environment: {
+        BUILD_MANIFEST: props.buildManifestFileName || './build.json',
+        CHANGELOG: props.changelogFileName || './CHANGELOG.md',
+        SIGNING_KEY_ARN: props.signingKey.credential.secretArn,
+        GITHUB_TOKEN: oauth.value.toString(),
+        GITHUB_OWNER: props.githubRepo.owner,
+        GITHUB_REPO: props.githubRepo.repo,
         FOR_REAL: forReal,
       }
     });

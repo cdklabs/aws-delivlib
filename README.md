@@ -596,7 +596,6 @@ To create an ssh deploy key for your repository:
    (not key/value).
 1. Use the name of the AWS Secrets Manager secret in the `sshKeySecret` option.
 
-
 ## Automatic Bumps and Pull Request Builds
 
 ### GitHub Access
@@ -614,6 +613,13 @@ Request ID: ab458603-6fd4-11e8-9310-ff116e0423f9)
 To connect, go to the AWS CodeBuild console, click "Create Project", select a
 GitHub source and hit "Connect". There is no need to save the new project. This
 needs to be done once per account/region.
+
+## Contributing
+
+See the [contribution guide](./CONTRIBUTING.md) for details on how to submit
+issues, pull requests, setup a development environment and publish new releases
+of this library.
+>>>>>>> origin/master
 
 ## License
 
