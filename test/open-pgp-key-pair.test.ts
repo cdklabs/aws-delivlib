@@ -80,7 +80,6 @@ test('Handler has appropriate permissions', () => {
         Effect: 'Allow',
         Action: [
           'secretsmanager:CreateSecret',
-          'secretsmanager:DeleteSecret',
           'secretsmanager:GetSecretValue',
           'secretsmanager:UpdateSecret',
         ],

@@ -167,13 +167,8 @@ test('Delete', async () => {
     ...mockEventBase
   };
 
-  mockSecretsManager.deleteSecret = jest.fn().mockName('SecretsManager.deleteSecret')
-    .mockImplementation(() => ({ promise: () => Promise.resolve({}) })) as any;
-
   const { handler } = require('../../custom-resource-handlers/src/pgp-secret');
   await expect(handler(event, context)).resolves.toBe(undefined);
-  await expect(mockSecretsManager.deleteSecret)
-    .toBeCalledWith({ SecretId: secretArn });
   return expect(mockSendResponse)
     .toBeCalledWith(event,
                     cfn.Status.SUCCESS,

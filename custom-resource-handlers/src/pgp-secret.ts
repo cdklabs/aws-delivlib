@@ -110,11 +110,8 @@ async function _createNewKey(event: cfn.CreateEvent | cfn.UpdateEvent, context: 
 }
 
 async function _deleteSecret(event: cfn.DeleteEvent): Promise<cfn.ResourceAttributes> {
-  if (event.PhysicalResourceId.startsWith('arn:')) {
-    if (event.ResourceProperties.ParameterName) {
-      await ssm.deleteParameter({ Name: event.ResourceProperties.ParameterName }).promise();
-    }
-    await secretsManager.deleteSecret({ SecretId: event.PhysicalResourceId }).promise();
+  if (event.PhysicalResourceId.startsWith('arn:') && event.ResourceProperties.ParameterName) {
+    await ssm.deleteParameter({ Name: event.ResourceProperties.ParameterName }).promise();
   }
   return { Ref: event.PhysicalResourceId };
 }
