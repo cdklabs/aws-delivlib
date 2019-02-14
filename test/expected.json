@@ -2705,16 +2705,9 @@ Resources:
                 - - "arn:"
                   - Ref: AWS::Partition
                   - :secretsmanager:us-east-1:712950704752:secret:delivlib-test/CodeSign-??????
-          - Action:
-              - ssm:PutParameter
-              - ssm:DeleteParameter
+          - Action: ssm:DeleteParameter
             Effect: Allow
-            Resource:
-              Fn::Join:
-                - ""
-                - - "arn:"
-                  - Ref: AWS::Partition
-                  - :ssm:us-east-1:712950704752:parameter/delivlib-test/CodeSign.pub
+            Resource: "*"
         Version: "2012-10-17"
       PolicyName: SingletonLambdaf25803d3054b44fc985f4860d7d6ee74ServiceRoleDefaultPolicyA8FDF5BD
       Roles:

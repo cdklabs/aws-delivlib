@@ -90,15 +90,8 @@ test('Handler has appropriate permissions', () => {
         }
       }, {
         Effect: 'Allow',
-        Action: [
-          'ssm:PutParameter',
-          'ssm:DeleteParameter'
-        ],
-        Resource: {
-          'Fn::Join': ['',
-            ['arn:', { Ref: 'AWS::Partition' }, ':ssm:', { Ref: 'AWS::Region' }, ':', { Ref: 'AWS::AccountId' }, ':parameter/Foo']
-          ]
-        }
+        Action: 'ssm:DeleteParameter',
+        Resource: '*'
       }]
     },
     PolicyName: 'SingletonLambdaf25803d3054b44fc985f4860d7d6ee74ServiceRoleDefaultPolicyA8FDF5BD',
