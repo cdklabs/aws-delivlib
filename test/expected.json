@@ -2640,7 +2640,7 @@ Resources:
         Fn::GetAtt:
           - SingletonLambdaf25803d3054b44fc985f4860d7d6ee746203BDE6
           - Arn
-      ResourceVersion: BmJrhE3IJniqTXFb2Ow8EVjpFqUcJJcEjwztst10nzM=
+      ResourceVersion: 9vHZAAb5QYItZQp3IjvrrMycdq3qr77dTQs45NOIRy0=
       Identity: aws-cdk-dev
       Email: aws-cdk-dev+delivlib@amazon.com
       Expiry: 4y
@@ -2696,7 +2696,6 @@ Resources:
         Statement:
           - Action:
               - secretsmanager:CreateSecret
-              - secretsmanager:DeleteSecret
               - secretsmanager:GetSecretValue
               - secretsmanager:UpdateSecret
             Effect: Allow
