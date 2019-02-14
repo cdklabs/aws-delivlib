@@ -61,7 +61,7 @@ async function handleEvent(event: cfn.Event, context: lambda.Context): Promise<c
           ? await _createNewKey(event, context)
           : await _updateExistingKey(event as cfn.UpdateEvent, context);
   case cfn.RequestType.DELETE:
-    return await _deleteSecret(event);
+    return { Ref: event.PhysicalResourceId };
   }
 }
 
@@ -107,16 +107,6 @@ async function _createNewKey(event: cfn.CreateEvent | cfn.UpdateEvent, context: 
   } finally {
     await _rmrf(tempDir);
   }
-}
-
-async function _deleteSecret(event: cfn.DeleteEvent): Promise<cfn.ResourceAttributes> {
-  if (event.PhysicalResourceId.startsWith('arn:')) {
-    if (event.ResourceProperties.ParameterName) {
-      await ssm.deleteParameter({ Name: event.ResourceProperties.ParameterName }).promise();
-    }
-    await secretsManager.deleteSecret({ SecretId: event.PhysicalResourceId }).promise();
-  }
-  return { Ref: event.PhysicalResourceId };
 }
 
 async function _updateExistingKey(event: cfn.UpdateEvent, context: lambda.Context): Promise<ResourceAttributes> {
