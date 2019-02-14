@@ -147,8 +147,7 @@ Resources:
                 OAuthToken:
                   Ref: CodeCommitPipelineBuildPipelineGitHubTokenParameter9FBEDC6B
                 PollForSourceChanges: false
-              InputArtifacts:
-                []
+              InputArtifacts: []
               Name: Pull
               OutputArtifacts:
                 - Name: Source
@@ -2644,7 +2643,7 @@ Resources:
         Fn::GetAtt:
           - SingletonLambdaf25803d3054b44fc985f4860d7d6ee746203BDE6
           - Arn
-      ResourceVersion: BmJrhE3IJniqTXFb2Ow8EVjpFqUcJJcEjwztst10nzM=
+      ResourceVersion: KiJR5h2Dca02mthYBZGqNQDnsGgyCWyNvoPV59yqAHc=
       Identity: aws-cdk-dev
       Email: aws-cdk-dev+delivlib@amazon.com
       Expiry: 4y
