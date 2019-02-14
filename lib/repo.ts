@@ -102,7 +102,8 @@ export class GitHubRepo implements IRepo {
     const oauth = new cdk.SecretParameter(parent, 'GitHubToken', { ssmParameter: this.tokenParameterName });
 
     return new cbuild.GitHubSource({
-      cloneUrl: this.repositoryUrlHttp,
+      owner: this.owner,
+      repo: this.repo,
       oauthToken: oauth.value,
     });
   }

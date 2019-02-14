@@ -172,7 +172,7 @@ test('Delete', async () => {
 
   jest.spyOn(cfn, 'customResourceHandler').mockName('cfn.customResourceHandler')
     .mockImplementation((cb) => {
-      return async (evt, ctx) => {
+      return async (evt: any, ctx: any) => {
         const result = await cb(evt, ctx);
         await expect(result).toEqual({
           Ref: event.PhysicalResourceId,

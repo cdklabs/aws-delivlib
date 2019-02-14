@@ -3,7 +3,7 @@ Resources:
     Type: AWS::S3::Bucket
     DeletionPolicy: Retain
     Metadata:
-      aws:cdk:path: delivlib-test-3/CodeCommitPipeline/BuildPipeline/ArtifactsBucket/Resource
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/BuildPipeline/ArtifactsBucket/Resource
   CodeCommitPipelineBuildPipelineRole1843599A:
     Type: AWS::IAM::Role
     Properties:
@@ -15,7 +15,7 @@ Resources:
               Service: codepipeline.amazonaws.com
         Version: "2012-10-17"
     Metadata:
-      aws:cdk:path: delivlib-test-3/CodeCommitPipeline/BuildPipeline/Role/Resource
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/BuildPipeline/Role/Resource
   CodeCommitPipelineBuildPipelineRoleDefaultPolicy94C30F44:
     Type: AWS::IAM::Policy
     Properties:
@@ -55,7 +55,7 @@ Resources:
             Effect: Allow
             Resource:
               Fn::GetAtt:
-                - CodeCommitPipelineHelloLinux82ECC4D2
+                - CodeCommitPipelineHelloLinuxCB82AB68
                 - Arn
           - Action:
               - codebuild:BatchGetBuilds
@@ -64,7 +64,16 @@ Resources:
             Effect: Allow
             Resource:
               Fn::GetAtt:
-                - CodeCommitPipelineHelloWindows397414E5
+                - CodeCommitPipelineHelloWindows61CA8F73
+                - Arn
+          - Action:
+              - codebuild:BatchGetBuilds
+              - codebuild:StartBuild
+              - codebuild:StopBuild
+            Effect: Allow
+            Resource:
+              Fn::GetAtt:
+                - CodeCommitPipelineAssumeRole05A76F51
                 - Arn
           - Action:
               - codebuild:BatchGetBuilds
@@ -116,7 +125,7 @@ Resources:
       Roles:
         - Ref: CodeCommitPipelineBuildPipelineRole1843599A
     Metadata:
-      aws:cdk:path: delivlib-test-3/CodeCommitPipeline/BuildPipeline/Role/DefaultPolicy/Resource
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/BuildPipeline/Role/DefaultPolicy/Resource
   CodeCommitPipelineBuildPipeline656B8CCB:
     Type: AWS::CodePipeline::Pipeline
     Properties:
@@ -138,8 +147,7 @@ Resources:
                 OAuthToken:
                   Ref: CodeCommitPipelineBuildPipelineGitHubTokenParameter9FBEDC6B
                 PollForSourceChanges: false
-              InputArtifacts:
-                []
+              InputArtifacts: []
               Name: Pull
               OutputArtifacts:
                 - Name: Source
@@ -158,7 +166,7 @@ Resources:
                 - Name: Source
               Name: Build
               OutputArtifacts:
-                - Name: Artifact_delivlibtest3CodeCommitPipelineBuildProjectBuildD61A738A
+                - Name: Artifact_delivlibtestCodeCommitPipelineBuildProjectBuildEB1D42D1
               RunOrder: 1
           Name: Build
         - Actions:
@@ -169,12 +177,12 @@ Resources:
                 Version: "1"
               Configuration:
                 ProjectName:
-                  Ref: CodeCommitPipelineHelloLinux82ECC4D2
+                  Ref: CodeCommitPipelineHelloLinuxCB82AB68
               InputArtifacts:
-                - Name: Artifact_delivlibtest3CodeCommitPipelineBuildProjectBuildD61A738A
+                - Name: Artifact_delivlibtestCodeCommitPipelineBuildProjectBuildEB1D42D1
               Name: TestHelloLinux
               OutputArtifacts:
-                - Name: Artifact_delivlibtest3CodeCommitPipelineHelloLinuxTestHelloLinux2D2A707A
+                - Name: Artifact_delivlibtestCodeCommitPipelineHelloLinuxTestHelloLinux477C71C4
               RunOrder: 1
             - ActionTypeId:
                 Category: Build
@@ -183,12 +191,26 @@ Resources:
                 Version: "1"
               Configuration:
                 ProjectName:
-                  Ref: CodeCommitPipelineHelloWindows397414E5
+                  Ref: CodeCommitPipelineHelloWindows61CA8F73
               InputArtifacts:
-                - Name: Artifact_delivlibtest3CodeCommitPipelineBuildProjectBuildD61A738A
+                - Name: Artifact_delivlibtestCodeCommitPipelineBuildProjectBuildEB1D42D1
               Name: TestHelloWindows
               OutputArtifacts:
-                - Name: Artifact_delivlibtest3CodeCommitPipelineHelloWindowsTestHelloWindows7C4AD300
+                - Name: Artifact_delivlibtestCodeCommitPipelineHelloWindowsTestHelloWindowsA38892AA
+              RunOrder: 1
+            - ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Provider: CodeBuild
+                Version: "1"
+              Configuration:
+                ProjectName:
+                  Ref: CodeCommitPipelineAssumeRole05A76F51
+              InputArtifacts:
+                - Name: Artifact_delivlibtestCodeCommitPipelineBuildProjectBuildEB1D42D1
+              Name: TestAssumeRole
+              OutputArtifacts:
+                - Name: Artifact_delivlibtestCodeCommitPipelineAssumeRoleTestAssumeRoleED3B2461
               RunOrder: 1
           Name: Test
         - Actions:
@@ -201,10 +223,10 @@ Resources:
                 ProjectName:
                   Ref: CodeCommitPipelineNpm0D31AEFC
               InputArtifacts:
-                - Name: Artifact_delivlibtest3CodeCommitPipelineBuildProjectBuildD61A738A
+                - Name: Artifact_delivlibtestCodeCommitPipelineBuildProjectBuildEB1D42D1
               Name: NpmPublish
               OutputArtifacts:
-                - Name: Artifact_delivlibtest3CodeCommitPipelineNpmNpmPublish1A63741B
+                - Name: Artifact_delivlibtestCodeCommitPipelineNpmNpmPublishF3497B8A
               RunOrder: 1
             - ActionTypeId:
                 Category: Build
@@ -215,10 +237,10 @@ Resources:
                 ProjectName:
                   Ref: CodeCommitPipelineNuGet67CE1BA7
               InputArtifacts:
-                - Name: Artifact_delivlibtest3CodeCommitPipelineBuildProjectBuildD61A738A
+                - Name: Artifact_delivlibtestCodeCommitPipelineBuildProjectBuildEB1D42D1
               Name: NuGetPublish
               OutputArtifacts:
-                - Name: Artifact_delivlibtest3CodeCommitPipelineNuGetNuGetPublish837CD5B1
+                - Name: Artifact_delivlibtestCodeCommitPipelineNuGetNuGetPublishD08C1873
               RunOrder: 1
             - ActionTypeId:
                 Category: Build
@@ -229,10 +251,10 @@ Resources:
                 ProjectName:
                   Ref: CodeCommitPipelineMavenB7154296
               InputArtifacts:
-                - Name: Artifact_delivlibtest3CodeCommitPipelineBuildProjectBuildD61A738A
+                - Name: Artifact_delivlibtestCodeCommitPipelineBuildProjectBuildEB1D42D1
               Name: MavenPublish
               OutputArtifacts:
-                - Name: Artifact_delivlibtest3CodeCommitPipelineMavenMavenPublishCEA462B9
+                - Name: Artifact_delivlibtestCodeCommitPipelineMavenMavenPublish23517E96
               RunOrder: 1
             - ActionTypeId:
                 Category: Build
@@ -243,10 +265,10 @@ Resources:
                 ProjectName:
                   Ref: CodeCommitPipelineGitHub0797840C
               InputArtifacts:
-                - Name: Artifact_delivlibtest3CodeCommitPipelineBuildProjectBuildD61A738A
+                - Name: Artifact_delivlibtestCodeCommitPipelineBuildProjectBuildEB1D42D1
               Name: GitHubPublish
               OutputArtifacts:
-                - Name: Artifact_delivlibtest3CodeCommitPipelineGitHubGitHubPublish8DFAD4E4
+                - Name: Artifact_delivlibtestCodeCommitPipelineGitHubGitHubPublish9C2DACED
               RunOrder: 1
             - ActionTypeId:
                 Category: Build
@@ -257,10 +279,10 @@ Resources:
                 ProjectName:
                   Ref: CodeCommitPipelineGitHubPages53B77CF6
               InputArtifacts:
-                - Name: Artifact_delivlibtest3CodeCommitPipelineBuildProjectBuildD61A738A
+                - Name: Artifact_delivlibtestCodeCommitPipelineBuildProjectBuildEB1D42D1
               Name: GitHubPagesPublish
               OutputArtifacts:
-                - Name: Artifact_delivlibtest3CodeCommitPipelineGitHubPagesGitHubPagesPublishD1ADE404
+                - Name: Artifact_delivlibtestCodeCommitPipelineGitHubPagesGitHubPagesPublishCDA7CDC1
               RunOrder: 1
           Name: Publish
       ArtifactStore:
@@ -269,10 +291,10 @@ Resources:
         Type: S3
       RestartExecutionOnUpdate: true
     DependsOn:
-      - CodeCommitPipelineBuildPipelineRole1843599A
       - CodeCommitPipelineBuildPipelineRoleDefaultPolicy94C30F44
+      - CodeCommitPipelineBuildPipelineRole1843599A
     Metadata:
-      aws:cdk:path: delivlib-test-3/CodeCommitPipeline/BuildPipeline/Resource
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/BuildPipeline/Resource
   CodeCommitPipelineBuildPipelineSourcePullWebhookResource0898F523:
     Type: AWS::CodePipeline::Webhook
     Properties:
@@ -289,7 +311,7 @@ Resources:
       TargetPipelineVersion: 1
       RegisterWithThirdParty: true
     Metadata:
-      aws:cdk:path: delivlib-test-3/CodeCommitPipeline/BuildPipeline/Source/Pull/WebhookResource
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/BuildPipeline/Source/Pull/WebhookResource
   CodeCommitPipelinesuperchainAdoptRepository67DBB814:
     Type: Custom::ECRAdoptedRepository
     Properties:
@@ -315,7 +337,7 @@ Resources:
             Sid: CodeBuild
         Version: "2012-10-17"
     Metadata:
-      aws:cdk:path: delivlib-test-3/CodeCommitPipeline/superchain/AdoptRepository/Resource
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/superchain/AdoptRepository/Resource
   CodeCommitPipelineBuildProjectRoleC6347B6E:
     Type: AWS::IAM::Role
     Properties:
@@ -327,7 +349,7 @@ Resources:
               Service: codebuild.amazonaws.com
         Version: "2012-10-17"
     Metadata:
-      aws:cdk:path: delivlib-test-3/CodeCommitPipeline/BuildProject/Role/Resource
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/BuildProject/Role/Resource
   CodeCommitPipelineBuildProjectRoleDefaultPolicy1184486E:
     Type: AWS::IAM::Policy
     Properties:
@@ -343,21 +365,13 @@ Resources:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - ":logs:"
-                    - Ref: AWS::Region
-                    - ":"
-                    - Ref: AWS::AccountId
-                    - :log-group:/aws/codebuild/
+                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelineBuildProject9F59E8AA
               - Fn::Join:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - ":logs:"
-                    - Ref: AWS::Region
-                    - ":"
-                    - Ref: AWS::AccountId
-                    - :log-group:/aws/codebuild/
+                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelineBuildProject9F59E8AA
                     - :*
           - Action:
@@ -383,7 +397,7 @@ Resources:
       Roles:
         - Ref: CodeCommitPipelineBuildProjectRoleC6347B6E
     Metadata:
-      aws:cdk:path: delivlib-test-3/CodeCommitPipeline/BuildProject/Role/DefaultPolicy/Resource
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/BuildProject/Role/DefaultPolicy/Resource
   CodeCommitPipelineBuildProject9F59E8AA:
     Type: AWS::CodeBuild::Project
     Properties:
@@ -391,10 +405,6 @@ Resources:
         Type: CODEPIPELINE
       Environment:
         ComputeType: BUILD_GENERAL1_SMALL
-        EnvironmentVariables:
-          - Name: DELIVLIB_ENV_TEST
-            Type: PLAINTEXT
-            Value: MAGIC_1924
         Image:
           Fn::Join:
             - ""
@@ -406,11 +416,7 @@ Resources:
                           - ""
                           - - "arn:"
                             - Ref: AWS::Partition
-                            - ":ecr:"
-                            - Ref: AWS::Region
-                            - ":"
-                            - Ref: AWS::AccountId
-                            - :repository/
+                            - :ecr:us-east-1:712950704752:repository/
                             - Fn::GetAtt:
                                 - CodeCommitPipelinesuperchainAdoptRepository67DBB814
                                 - RepositoryName
@@ -423,11 +429,7 @@ Resources:
                           - ""
                           - - "arn:"
                             - Ref: AWS::Partition
-                            - ":ecr:"
-                            - Ref: AWS::Region
-                            - ":"
-                            - Ref: AWS::AccountId
-                            - :repository/
+                            - :ecr:us-east-1:712950704752:repository/
                             - Fn::GetAtt:
                                 - CodeCommitPipelinesuperchainAdoptRepository67DBB814
                                 - RepositoryName
@@ -450,7 +452,7 @@ Resources:
       Source:
         Type: CODEPIPELINE
     Metadata:
-      aws:cdk:path: delivlib-test-3/CodeCommitPipeline/BuildProject/Resource
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/BuildProject/Resource
   CodeCommitPipelineBuildProjectOnBuildFailed2A08058D:
     Type: AWS::Events::Rule
     Properties:
@@ -472,11 +474,11 @@ Resources:
           InputTransformer:
             InputTemplate: '"aws-delivlib test pipeline build failed"'
     Metadata:
-      aws:cdk:path: delivlib-test-3/CodeCommitPipeline/BuildProject/OnBuildFailed/Resource
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/BuildProject/OnBuildFailed/Resource
   CodeCommitPipelineNotificationsTopic36C2D667:
     Type: AWS::SNS::Topic
     Metadata:
-      aws:cdk:path: delivlib-test-3/CodeCommitPipeline/NotificationsTopic/Resource
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/NotificationsTopic/Resource
   CodeCommitPipelineNotificationsTopicNotifyEmail146B339F:
     Type: AWS::SNS::Subscription
     Properties:
@@ -485,7 +487,7 @@ Resources:
       TopicArn:
         Ref: CodeCommitPipelineNotificationsTopic36C2D667
     Metadata:
-      aws:cdk:path: delivlib-test-3/CodeCommitPipeline/NotificationsTopic/NotifyEmail/Resource
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/NotificationsTopic/NotifyEmail/Resource
   CodeCommitPipelineNotificationsTopicPolicyBBE90C33:
     Type: AWS::SNS::TopicPolicy
     Properties:
@@ -502,7 +504,7 @@ Resources:
       Topics:
         - Ref: CodeCommitPipelineNotificationsTopic36C2D667
     Metadata:
-      aws:cdk:path: delivlib-test-3/CodeCommitPipeline/NotificationsTopic/Policy/Resource
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/NotificationsTopic/Policy/Resource
   CodeCommitPipelinePipelineWatcherPollerServiceRole0A1D8005:
     Type: AWS::IAM::Role
     Properties:
@@ -520,7 +522,7 @@ Resources:
               - Ref: AWS::Partition
               - :iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
     Metadata:
-      aws:cdk:path: delivlib-test-3/CodeCommitPipeline/PipelineWatcher/Poller/ServiceRole/Resource
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/PipelineWatcher/Poller/ServiceRole/Resource
   CodeCommitPipelinePipelineWatcherPollerServiceRoleDefaultPolicyE2104AD1:
     Type: AWS::IAM::Policy
     Properties:
@@ -533,18 +535,14 @@ Resources:
                 - ""
                 - - "arn:"
                   - Ref: AWS::Partition
-                  - ":codepipeline:"
-                  - Ref: AWS::Region
-                  - ":"
-                  - Ref: AWS::AccountId
-                  - ":"
+                  - ":codepipeline:us-east-1:712950704752:"
                   - Ref: CodeCommitPipelineBuildPipeline656B8CCB
         Version: "2012-10-17"
       PolicyName: CodeCommitPipelinePipelineWatcherPollerServiceRoleDefaultPolicyE2104AD1
       Roles:
         - Ref: CodeCommitPipelinePipelineWatcherPollerServiceRole0A1D8005
     Metadata:
-      aws:cdk:path: delivlib-test-3/CodeCommitPipeline/PipelineWatcher/Poller/ServiceRole/DefaultPolicy/Resource
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/PipelineWatcher/Poller/ServiceRole/DefaultPolicy/Resource
   CodeCommitPipelinePipelineWatcherPoller5C65ACDE:
     Type: AWS::Lambda::Function
     Properties:
@@ -604,11 +602,11 @@ Resources:
           PIPELINE_NAME:
             Ref: CodeCommitPipelineBuildPipeline656B8CCB
     DependsOn:
-      - CodeCommitPipelinePipelineWatcherPollerServiceRole0A1D8005
       - CodeCommitPipelinePipelineWatcherPollerServiceRoleDefaultPolicyE2104AD1
+      - CodeCommitPipelinePipelineWatcherPollerServiceRole0A1D8005
     Metadata:
-      aws:cdk:path: delivlib-test-3/CodeCommitPipeline/PipelineWatcher/Poller/Resource
-  CodeCommitPipelinePipelineWatcherPollerAllowEventRuledelivlibtest3CodeCommitPipelinePipelineWatcherTriggerA7C4B81BE5B90F10:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/PipelineWatcher/Poller/Resource
+  CodeCommitPipelinePipelineWatcherPollerAllowEventRuledelivlibtestCodeCommitPipelinePipelineWatcherTrigger0F55C26402F871FD:
     Type: AWS::Lambda::Permission
     Properties:
       Action: lambda:InvokeFunction
@@ -620,7 +618,7 @@ Resources:
           - CodeCommitPipelinePipelineWatcherTriggerA38A4AD0
           - Arn
     Metadata:
-      aws:cdk:path: delivlib-test-3/CodeCommitPipeline/PipelineWatcher/Poller/AllowEventRuledelivlibtest3CodeCommitPipelinePipelineWatcherTriggerA7C4B81B
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/PipelineWatcher/Poller/AllowEventRuledelivlibtestCodeCommitPipelinePipelineWatcherTrigger0F55C264
   CodeCommitPipelinePipelineWatcherLogs5DE54482:
     Type: AWS::Logs::LogGroup
     Properties:
@@ -632,7 +630,7 @@ Resources:
       RetentionInDays: 731
     DeletionPolicy: Retain
     Metadata:
-      aws:cdk:path: delivlib-test-3/CodeCommitPipeline/PipelineWatcher/Logs/Resource
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/PipelineWatcher/Logs/Resource
   CodeCommitPipelinePipelineWatcherTriggerA38A4AD0:
     Type: AWS::Events::Rule
     Properties:
@@ -647,7 +645,7 @@ Resources:
     DependsOn:
       - CodeCommitPipelinePipelineWatcherLogs5DE54482
     Metadata:
-      aws:cdk:path: delivlib-test-3/CodeCommitPipeline/PipelineWatcher/Trigger/Resource
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/PipelineWatcher/Trigger/Resource
   CodeCommitPipelinePipelineWatcherMetricFilter1D1A0C4D:
     Type: AWS::Logs::MetricFilter
     Properties:
@@ -663,7 +661,7 @@ Resources:
           MetricNamespace: CDK/Delivlib
           MetricValue: $.failedCount
     Metadata:
-      aws:cdk:path: delivlib-test-3/CodeCommitPipeline/PipelineWatcher/MetricFilter/Resource
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/PipelineWatcher/MetricFilter/Resource
   CodeCommitPipelinePipelineWatcherAlarm73779F48:
     Type: AWS::CloudWatch::Alarm
     Properties:
@@ -681,8 +679,8 @@ Resources:
       Statistic: Maximum
       TreatMissingData: ignore
     Metadata:
-      aws:cdk:path: delivlib-test-3/CodeCommitPipeline/PipelineWatcher/Alarm/Resource
-  CodeCommitPipelineHelloLinuxRoleFA5AA729:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/PipelineWatcher/Alarm/Resource
+  CodeCommitPipelineHelloLinuxRole97734933:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
@@ -693,8 +691,8 @@ Resources:
               Service: codebuild.amazonaws.com
         Version: "2012-10-17"
     Metadata:
-      aws:cdk:path: delivlib-test-3/CodeCommitPipeline/HelloLinux/Resource/Resource/Role/Resource
-  CodeCommitPipelineHelloLinuxRoleDefaultPolicy08A1DE35:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/HelloLinux/Resource/Role/Resource
+  CodeCommitPipelineHelloLinuxRoleDefaultPolicy234DABC6:
     Type: AWS::IAM::Policy
     Properties:
       PolicyDocument:
@@ -709,22 +707,14 @@ Resources:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - ":logs:"
-                    - Ref: AWS::Region
-                    - ":"
-                    - Ref: AWS::AccountId
-                    - :log-group:/aws/codebuild/
-                    - Ref: CodeCommitPipelineHelloLinux82ECC4D2
+                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
+                    - Ref: CodeCommitPipelineHelloLinuxCB82AB68
               - Fn::Join:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - ":logs:"
-                    - Ref: AWS::Region
-                    - ":"
-                    - Ref: AWS::AccountId
-                    - :log-group:/aws/codebuild/
-                    - Ref: CodeCommitPipelineHelloLinux82ECC4D2
+                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
+                    - Ref: CodeCommitPipelineHelloLinuxCB82AB68
                     - :*
           - Action:
               - s3:GetObject*
@@ -737,19 +727,19 @@ Resources:
                   - - "arn:"
                     - Ref: AWS::Partition
                     - ":s3:::"
-                    - Ref: CodeCommitPipelineHelloLinuxScriptDirectoryS3Bucket1CA6FAFD
+                    - Ref: CodeCommitPipelineHelloLinuxScriptDirectoryS3Bucket56DFBFCD
               - Fn::Join:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
                     - ":s3:::"
-                    - Ref: CodeCommitPipelineHelloLinuxScriptDirectoryS3Bucket1CA6FAFD
+                    - Ref: CodeCommitPipelineHelloLinuxScriptDirectoryS3Bucket56DFBFCD
                     - /
                     - Fn::Select:
                         - 0
                         - Fn::Split:
                             - "||"
-                            - Ref: CodeCommitPipelineHelloLinuxScriptDirectoryS3VersionKey1E4A3291
+                            - Ref: CodeCommitPipelineHelloLinuxScriptDirectoryS3VersionKey0036B1AA
                     - "*"
           - Action:
               - s3:GetObject*
@@ -770,12 +760,12 @@ Resources:
                         - Arn
                     - /*
         Version: "2012-10-17"
-      PolicyName: CodeCommitPipelineHelloLinuxRoleDefaultPolicy08A1DE35
+      PolicyName: CodeCommitPipelineHelloLinuxRoleDefaultPolicy234DABC6
       Roles:
-        - Ref: CodeCommitPipelineHelloLinuxRoleFA5AA729
+        - Ref: CodeCommitPipelineHelloLinuxRole97734933
     Metadata:
-      aws:cdk:path: delivlib-test-3/CodeCommitPipeline/HelloLinux/Resource/Resource/Role/DefaultPolicy/Resource
-  CodeCommitPipelineHelloLinux82ECC4D2:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/HelloLinux/Resource/Role/DefaultPolicy/Resource
+  CodeCommitPipelineHelloLinuxCB82AB68:
     Type: AWS::CodeBuild::Project
     Properties:
       Artifacts:
@@ -786,7 +776,7 @@ Resources:
           - Name: SCRIPT_S3_BUCKET
             Type: PLAINTEXT
             Value:
-              Ref: CodeCommitPipelineHelloLinuxScriptDirectoryS3Bucket1CA6FAFD
+              Ref: CodeCommitPipelineHelloLinuxScriptDirectoryS3Bucket56DFBFCD
           - Name: SCRIPT_S3_KEY
             Type: PLAINTEXT
             Value:
@@ -796,18 +786,18 @@ Resources:
                       - 0
                       - Fn::Split:
                           - "||"
-                          - Ref: CodeCommitPipelineHelloLinuxScriptDirectoryS3VersionKey1E4A3291
+                          - Ref: CodeCommitPipelineHelloLinuxScriptDirectoryS3VersionKey0036B1AA
                   - Fn::Select:
                       - 1
                       - Fn::Split:
                           - "||"
-                          - Ref: CodeCommitPipelineHelloLinuxScriptDirectoryS3VersionKey1E4A3291
+                          - Ref: CodeCommitPipelineHelloLinuxScriptDirectoryS3VersionKey0036B1AA
         Image: aws/codebuild/ubuntu-base:14.04
         PrivilegedMode: false
         Type: LINUX_CONTAINER
       ServiceRole:
         Fn::GetAtt:
-          - CodeCommitPipelineHelloLinuxRoleFA5AA729
+          - CodeCommitPipelineHelloLinuxRole97734933
           - Arn
       Source:
         BuildSpec: >-
@@ -833,8 +823,8 @@ Resources:
           }
         Type: CODEPIPELINE
     Metadata:
-      aws:cdk:path: delivlib-test-3/CodeCommitPipeline/HelloLinux/Resource/Resource/Resource
-  CodeCommitPipelineHelloLinuxOnBuildFailedD1EEA29A:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/HelloLinux/Resource/Resource
+  CodeCommitPipelineHelloLinuxOnBuildFailedD96AF043:
     Type: AWS::Events::Rule
     Properties:
       EventPattern:
@@ -844,7 +834,7 @@ Resources:
           - CodeBuild Build State Change
         detail:
           project-name:
-            - Ref: CodeCommitPipelineHelloLinux82ECC4D2
+            - Ref: CodeCommitPipelineHelloLinuxCB82AB68
           build-status:
             - FAILED
       State: ENABLED
@@ -855,8 +845,8 @@ Resources:
           InputTransformer:
             InputTemplate: '"Test HelloLinux failed"'
     Metadata:
-      aws:cdk:path: delivlib-test-3/CodeCommitPipeline/HelloLinux/Resource/Resource/OnBuildFailed/Resource
-  CodeCommitPipelineHelloWindowsRole1F446E70:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/HelloLinux/Resource/OnBuildFailed/Resource
+  CodeCommitPipelineHelloWindowsRole769C073E:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
@@ -867,8 +857,8 @@ Resources:
               Service: codebuild.amazonaws.com
         Version: "2012-10-17"
     Metadata:
-      aws:cdk:path: delivlib-test-3/CodeCommitPipeline/HelloWindows/Resource/Resource/Role/Resource
-  CodeCommitPipelineHelloWindowsRoleDefaultPolicy94524A3B:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/HelloWindows/Resource/Role/Resource
+  CodeCommitPipelineHelloWindowsRoleDefaultPolicyA240EEEE:
     Type: AWS::IAM::Policy
     Properties:
       PolicyDocument:
@@ -883,22 +873,14 @@ Resources:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - ":logs:"
-                    - Ref: AWS::Region
-                    - ":"
-                    - Ref: AWS::AccountId
-                    - :log-group:/aws/codebuild/
-                    - Ref: CodeCommitPipelineHelloWindows397414E5
+                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
+                    - Ref: CodeCommitPipelineHelloWindows61CA8F73
               - Fn::Join:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - ":logs:"
-                    - Ref: AWS::Region
-                    - ":"
-                    - Ref: AWS::AccountId
-                    - :log-group:/aws/codebuild/
-                    - Ref: CodeCommitPipelineHelloWindows397414E5
+                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
+                    - Ref: CodeCommitPipelineHelloWindows61CA8F73
                     - :*
           - Action:
               - s3:GetObject*
@@ -911,19 +893,19 @@ Resources:
                   - - "arn:"
                     - Ref: AWS::Partition
                     - ":s3:::"
-                    - Ref: CodeCommitPipelineHelloWindowsScriptDirectoryS3BucketE5455B35
+                    - Ref: CodeCommitPipelineHelloWindowsScriptDirectoryS3Bucket368E02F9
               - Fn::Join:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
                     - ":s3:::"
-                    - Ref: CodeCommitPipelineHelloWindowsScriptDirectoryS3BucketE5455B35
+                    - Ref: CodeCommitPipelineHelloWindowsScriptDirectoryS3Bucket368E02F9
                     - /
                     - Fn::Select:
                         - 0
                         - Fn::Split:
                             - "||"
-                            - Ref: CodeCommitPipelineHelloWindowsScriptDirectoryS3VersionKey85D66DB9
+                            - Ref: CodeCommitPipelineHelloWindowsScriptDirectoryS3VersionKey00CFAE1A
                     - "*"
           - Action:
               - s3:GetObject*
@@ -944,12 +926,12 @@ Resources:
                         - Arn
                     - /*
         Version: "2012-10-17"
-      PolicyName: CodeCommitPipelineHelloWindowsRoleDefaultPolicy94524A3B
+      PolicyName: CodeCommitPipelineHelloWindowsRoleDefaultPolicyA240EEEE
       Roles:
-        - Ref: CodeCommitPipelineHelloWindowsRole1F446E70
+        - Ref: CodeCommitPipelineHelloWindowsRole769C073E
     Metadata:
-      aws:cdk:path: delivlib-test-3/CodeCommitPipeline/HelloWindows/Resource/Resource/Role/DefaultPolicy/Resource
-  CodeCommitPipelineHelloWindows397414E5:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/HelloWindows/Resource/Role/DefaultPolicy/Resource
+  CodeCommitPipelineHelloWindows61CA8F73:
     Type: AWS::CodeBuild::Project
     Properties:
       Artifacts:
@@ -960,7 +942,7 @@ Resources:
           - Name: SCRIPT_S3_BUCKET
             Type: PLAINTEXT
             Value:
-              Ref: CodeCommitPipelineHelloWindowsScriptDirectoryS3BucketE5455B35
+              Ref: CodeCommitPipelineHelloWindowsScriptDirectoryS3Bucket368E02F9
           - Name: SCRIPT_S3_KEY
             Type: PLAINTEXT
             Value:
@@ -970,18 +952,18 @@ Resources:
                       - 0
                       - Fn::Split:
                           - "||"
-                          - Ref: CodeCommitPipelineHelloWindowsScriptDirectoryS3VersionKey85D66DB9
+                          - Ref: CodeCommitPipelineHelloWindowsScriptDirectoryS3VersionKey00CFAE1A
                   - Fn::Select:
                       - 1
                       - Fn::Split:
                           - "||"
-                          - Ref: CodeCommitPipelineHelloWindowsScriptDirectoryS3VersionKey85D66DB9
+                          - Ref: CodeCommitPipelineHelloWindowsScriptDirectoryS3VersionKey00CFAE1A
         Image: aws/codebuild/windows-base:1.0
         PrivilegedMode: false
         Type: WINDOWS_CONTAINER
       ServiceRole:
         Fn::GetAtt:
-          - CodeCommitPipelineHelloWindowsRole1F446E70
+          - CodeCommitPipelineHelloWindowsRole769C073E
           - Arn
       Source:
         BuildSpec: >-
@@ -1005,8 +987,8 @@ Resources:
           }
         Type: CODEPIPELINE
     Metadata:
-      aws:cdk:path: delivlib-test-3/CodeCommitPipeline/HelloWindows/Resource/Resource/Resource
-  CodeCommitPipelineHelloWindowsOnBuildFailed0BED9349:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/HelloWindows/Resource/Resource
+  CodeCommitPipelineHelloWindowsOnBuildFailed25F55C59:
     Type: AWS::Events::Rule
     Properties:
       EventPattern:
@@ -1016,7 +998,7 @@ Resources:
           - CodeBuild Build State Change
         detail:
           project-name:
-            - Ref: CodeCommitPipelineHelloWindows397414E5
+            - Ref: CodeCommitPipelineHelloWindows61CA8F73
           build-status:
             - FAILED
       State: ENABLED
@@ -1027,7 +1009,389 @@ Resources:
           InputTransformer:
             InputTemplate: '"Test HelloWindows failed"'
     Metadata:
-      aws:cdk:path: delivlib-test-3/CodeCommitPipeline/HelloWindows/Resource/Resource/OnBuildFailed/Resource
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/HelloWindows/Resource/OnBuildFailed/Resource
+  CodeCommitPipelineAssumeRoleRole1186B781:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: codebuild.amazonaws.com
+        Version: "2012-10-17"
+    Metadata:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/AssumeRole/Resource/Role/Resource
+  CodeCommitPipelineAssumeRoleRoleDefaultPolicy438D80DD:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - logs:CreateLogGroup
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+            Effect: Allow
+            Resource:
+              - Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
+                    - Ref: CodeCommitPipelineAssumeRole05A76F51
+              - Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
+                    - Ref: CodeCommitPipelineAssumeRole05A76F51
+                    - :*
+          - Action:
+              - s3:GetObject*
+              - s3:GetBucket*
+              - s3:List*
+            Effect: Allow
+            Resource:
+              - Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - ":s3:::"
+                    - Ref: CodeCommitPipelineAssumeRoleScriptDirectoryS3Bucket019558B4
+              - Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - ":s3:::"
+                    - Ref: CodeCommitPipelineAssumeRoleScriptDirectoryS3Bucket019558B4
+                    - /
+                    - Fn::Select:
+                        - 0
+                        - Fn::Split:
+                            - "||"
+                            - Ref: CodeCommitPipelineAssumeRoleScriptDirectoryS3VersionKeyC04C2FE1
+                    - "*"
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Resource:
+              Fn::GetAtt:
+                - AssumeMe924099BB
+                - Arn
+          - Action:
+              - s3:GetObject*
+              - s3:GetBucket*
+              - s3:List*
+              - s3:DeleteObject*
+              - s3:PutObject*
+              - s3:Abort*
+            Effect: Allow
+            Resource:
+              - Fn::GetAtt:
+                  - CodeCommitPipelineBuildPipelineArtifactsBucketED2813B3
+                  - Arn
+              - Fn::Join:
+                  - ""
+                  - - Fn::GetAtt:
+                        - CodeCommitPipelineBuildPipelineArtifactsBucketED2813B3
+                        - Arn
+                    - /*
+        Version: "2012-10-17"
+      PolicyName: CodeCommitPipelineAssumeRoleRoleDefaultPolicy438D80DD
+      Roles:
+        - Ref: CodeCommitPipelineAssumeRoleRole1186B781
+    Metadata:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/AssumeRole/Resource/Role/DefaultPolicy/Resource
+  CodeCommitPipelineAssumeRole05A76F51:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Artifacts:
+        Type: CODEPIPELINE
+      Environment:
+        ComputeType: BUILD_GENERAL1_MEDIUM
+        EnvironmentVariables:
+          - Name: SCRIPT_S3_BUCKET
+            Type: PLAINTEXT
+            Value:
+              Ref: CodeCommitPipelineAssumeRoleScriptDirectoryS3Bucket019558B4
+          - Name: SCRIPT_S3_KEY
+            Type: PLAINTEXT
+            Value:
+              Fn::Join:
+                - ""
+                - - Fn::Select:
+                      - 0
+                      - Fn::Split:
+                          - "||"
+                          - Ref: CodeCommitPipelineAssumeRoleScriptDirectoryS3VersionKeyC04C2FE1
+                  - Fn::Select:
+                      - 1
+                      - Fn::Split:
+                          - "||"
+                          - Ref: CodeCommitPipelineAssumeRoleScriptDirectoryS3VersionKeyC04C2FE1
+          - Name: EXPECTED_ROLE_NAME
+            Type: PLAINTEXT
+            Value:
+              Ref: AssumeMe924099BB
+        Image: aws/codebuild/ubuntu-base:14.04
+        PrivilegedMode: false
+        Type: LINUX_CONTAINER
+      ServiceRole:
+        Fn::GetAtt:
+          - CodeCommitPipelineAssumeRoleRole1186B781
+          - Arn
+      Source:
+        BuildSpec:
+          Fn::Join:
+            - ""
+            - - >-
+                {
+                  "version": "0.2",
+                  "phases": {
+                    "pre_build": {
+                      "commands": [
+                        "echo \"Downloading scripts from s3://${SCRIPT_S3_BUCKET}/${SCRIPT_S3_KEY}\"",
+                        "aws s3 cp s3://${SCRIPT_S3_BUCKET}/${SCRIPT_S3_KEY} /tmp",
+                        "mkdir -p /tmp/scriptdir",
+                        "unzip /tmp/$(basename $SCRIPT_S3_KEY) -d /tmp/scriptdir",
+                        "creds=$(mktemp -d)/creds.json",
+                        "aws sts assume-role --role-arn \"
+              - Fn::GetAtt:
+                  - AssumeMe924099BB
+                  - Arn
+              - >-
+                \" --role-session-name \"assume-role-test\" --external-id
+                \"require-me-please\" > $creds",
+                        "export AWS_ACCESS_KEY_ID=\"$(cat ${creds} | grep \"AccessKeyId\" | cut -d'\"' -f 4)\"",
+                        "export AWS_SECRET_ACCESS_KEY=\"$(cat ${creds} | grep \"SecretAccessKey\" | cut -d'\"' -f 4)\"",
+                        "export AWS_SESSION_TOKEN=\"$(cat ${creds} | grep \"SessionToken\" | cut -d'\"' -f 4)\""
+                      ]
+                    },
+                    "build": {
+                      "commands": [
+                        "export SCRIPT_DIR=/tmp/scriptdir",
+                        "echo \"Running test.sh\"",
+                        "/bin/bash /tmp/scriptdir/test.sh"
+                      ]
+                    }
+                  }
+                }
+        Type: CODEPIPELINE
+    Metadata:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/AssumeRole/Resource/Resource
+  CodeCommitPipelineAssumeRoleOnBuildFailed494CD87B:
+    Type: AWS::Events::Rule
+    Properties:
+      EventPattern:
+        source:
+          - aws.codebuild
+        detail-type:
+          - CodeBuild Build State Change
+        detail:
+          project-name:
+            - Ref: CodeCommitPipelineAssumeRole05A76F51
+          build-status:
+            - FAILED
+      State: ENABLED
+      Targets:
+        - Arn:
+            Ref: CodeCommitPipelineNotificationsTopic36C2D667
+          Id: NotificationsTopic
+          InputTransformer:
+            InputTemplate: '"Test AssumeRole failed"'
+    Metadata:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/AssumeRole/Resource/OnBuildFailed/Resource
+  CodeCommitPipelineCanaryHelloCanaryShellableRole65D634EB:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: codebuild.amazonaws.com
+        Version: "2012-10-17"
+    Metadata:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/CanaryHelloCanary/Shellable/Resource/Role/Resource
+  CodeCommitPipelineCanaryHelloCanaryShellableRoleDefaultPolicyD466B3CA:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - logs:CreateLogGroup
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+            Effect: Allow
+            Resource:
+              - Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
+                    - Ref: CodeCommitPipelineCanaryHelloCanaryShellableC8458471
+              - Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
+                    - Ref: CodeCommitPipelineCanaryHelloCanaryShellableC8458471
+                    - :*
+          - Action:
+              - s3:GetObject*
+              - s3:GetBucket*
+              - s3:List*
+            Effect: Allow
+            Resource:
+              - Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - ":s3:::"
+                    - Ref: CodeCommitPipelineCanaryHelloCanaryShellableScriptDirectoryS3BucketFE4212CD
+              - Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - ":s3:::"
+                    - Ref: CodeCommitPipelineCanaryHelloCanaryShellableScriptDirectoryS3BucketFE4212CD
+                    - /
+                    - Fn::Select:
+                        - 0
+                        - Fn::Split:
+                            - "||"
+                            - Ref: CodeCommitPipelineCanaryHelloCanaryShellableScriptDirectoryS3VersionKey8BCEB745
+                    - "*"
+        Version: "2012-10-17"
+      PolicyName: CodeCommitPipelineCanaryHelloCanaryShellableRoleDefaultPolicyD466B3CA
+      Roles:
+        - Ref: CodeCommitPipelineCanaryHelloCanaryShellableRole65D634EB
+    Metadata:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/CanaryHelloCanary/Shellable/Resource/Role/DefaultPolicy/Resource
+  CodeCommitPipelineCanaryHelloCanaryShellableC8458471:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Artifacts:
+        Type: NO_ARTIFACTS
+      Environment:
+        ComputeType: BUILD_GENERAL1_MEDIUM
+        EnvironmentVariables:
+          - Name: SCRIPT_S3_BUCKET
+            Type: PLAINTEXT
+            Value:
+              Ref: CodeCommitPipelineCanaryHelloCanaryShellableScriptDirectoryS3BucketFE4212CD
+          - Name: SCRIPT_S3_KEY
+            Type: PLAINTEXT
+            Value:
+              Fn::Join:
+                - ""
+                - - Fn::Select:
+                      - 0
+                      - Fn::Split:
+                          - "||"
+                          - Ref: CodeCommitPipelineCanaryHelloCanaryShellableScriptDirectoryS3VersionKey8BCEB745
+                  - Fn::Select:
+                      - 1
+                      - Fn::Split:
+                          - "||"
+                          - Ref: CodeCommitPipelineCanaryHelloCanaryShellableScriptDirectoryS3VersionKey8BCEB745
+          - Name: IS_CANARY
+            Type: PLAINTEXT
+            Value: "true"
+        Image: aws/codebuild/ubuntu-base:14.04
+        PrivilegedMode: false
+        Type: LINUX_CONTAINER
+      ServiceRole:
+        Fn::GetAtt:
+          - CodeCommitPipelineCanaryHelloCanaryShellableRole65D634EB
+          - Arn
+      Source:
+        BuildSpec: >-
+          {
+            "version": "0.2",
+            "phases": {
+              "pre_build": {
+                "commands": [
+                  "echo \"Downloading scripts from s3://${SCRIPT_S3_BUCKET}/${SCRIPT_S3_KEY}\"",
+                  "aws s3 cp s3://${SCRIPT_S3_BUCKET}/${SCRIPT_S3_KEY} /tmp",
+                  "mkdir -p /tmp/scriptdir",
+                  "unzip /tmp/$(basename $SCRIPT_S3_KEY) -d /tmp/scriptdir"
+                ]
+              },
+              "build": {
+                "commands": [
+                  "export SCRIPT_DIR=/tmp/scriptdir",
+                  "echo \"Running test.sh\"",
+                  "/bin/bash /tmp/scriptdir/test.sh"
+                ]
+              }
+            }
+          }
+        Type: NO_SOURCE
+    Metadata:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/CanaryHelloCanary/Shellable/Resource/Resource
+  CodeCommitPipelineCanaryHelloCanaryShellableEventsRole0F756230:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: events.amazonaws.com
+        Version: "2012-10-17"
+    Metadata:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/CanaryHelloCanary/Shellable/Resource/EventsRole/Resource
+  CodeCommitPipelineCanaryHelloCanaryShellableEventsRoleDefaultPolicy6CE0D6E4:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action: codebuild:StartBuild
+            Effect: Allow
+            Resource:
+              Fn::GetAtt:
+                - CodeCommitPipelineCanaryHelloCanaryShellableC8458471
+                - Arn
+        Version: "2012-10-17"
+      PolicyName: CodeCommitPipelineCanaryHelloCanaryShellableEventsRoleDefaultPolicy6CE0D6E4
+      Roles:
+        - Ref: CodeCommitPipelineCanaryHelloCanaryShellableEventsRole0F756230
+    Metadata:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/CanaryHelloCanary/Shellable/Resource/EventsRole/DefaultPolicy/Resource
+  CodeCommitPipelineCanaryHelloCanarySchedule6177762B:
+    Type: AWS::Events::Rule
+    Properties:
+      ScheduleExpression: rate(1 minute)
+      State: ENABLED
+      Targets:
+        - Arn:
+            Fn::GetAtt:
+              - CodeCommitPipelineCanaryHelloCanaryShellableC8458471
+              - Arn
+          Id: Resource
+          RoleArn:
+            Fn::GetAtt:
+              - CodeCommitPipelineCanaryHelloCanaryShellableEventsRole0F756230
+              - Arn
+    Metadata:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/CanaryHelloCanary/Schedule/Resource
+  CodeCommitPipelineCanaryHelloCanaryAlarm1D4695AA:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      EvaluationPeriods: 1
+      Threshold: 1
+      Dimensions:
+        - Name: ProjectName
+          Value:
+            Ref: CodeCommitPipelineCanaryHelloCanaryShellableC8458471
+      MetricName: FailedBuilds
+      Namespace: AWS/CodeBuild
+      Period: 300
+      Statistic: Sum
+      TreatMissingData: ignore
+    Metadata:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/CanaryHelloCanary/Alarm/Resource
   CodeCommitPipelineNpmRole219D5F49:
     Type: AWS::IAM::Role
     Properties:
@@ -1039,7 +1403,7 @@ Resources:
               Service: codebuild.amazonaws.com
         Version: "2012-10-17"
     Metadata:
-      aws:cdk:path: delivlib-test-3/CodeCommitPipeline/Npm/Default/Resource/Role/Resource
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/Npm/Default/Resource/Role/Resource
   CodeCommitPipelineNpmRoleDefaultPolicy1AFB68F0:
     Type: AWS::IAM::Policy
     Properties:
@@ -1055,21 +1419,13 @@ Resources:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - ":logs:"
-                    - Ref: AWS::Region
-                    - ":"
-                    - Ref: AWS::AccountId
-                    - :log-group:/aws/codebuild/
+                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelineNpm0D31AEFC
               - Fn::Join:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - ":logs:"
-                    - Ref: AWS::Region
-                    - ":"
-                    - Ref: AWS::AccountId
-                    - :log-group:/aws/codebuild/
+                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelineNpm0D31AEFC
                     - :*
           - Action:
@@ -1126,7 +1482,7 @@ Resources:
       Roles:
         - Ref: CodeCommitPipelineNpmRole219D5F49
     Metadata:
-      aws:cdk:path: delivlib-test-3/CodeCommitPipeline/Npm/Default/Resource/Role/DefaultPolicy/Resource
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/Npm/Default/Resource/Role/DefaultPolicy/Resource
   CodeCommitPipelineNpm0D31AEFC:
     Type: AWS::CodeBuild::Project
     Properties:
@@ -1191,7 +1547,7 @@ Resources:
           }
         Type: CODEPIPELINE
     Metadata:
-      aws:cdk:path: delivlib-test-3/CodeCommitPipeline/Npm/Default/Resource/Resource
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/Npm/Default/Resource/Resource
   CodeCommitPipelineNuGetRole488DA302:
     Type: AWS::IAM::Role
     Properties:
@@ -1203,7 +1559,7 @@ Resources:
               Service: codebuild.amazonaws.com
         Version: "2012-10-17"
     Metadata:
-      aws:cdk:path: delivlib-test-3/CodeCommitPipeline/NuGet/Default/Resource/Role/Resource
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/NuGet/Default/Resource/Role/Resource
   CodeCommitPipelineNuGetRoleDefaultPolicy9AF66D81:
     Type: AWS::IAM::Policy
     Properties:
@@ -1219,21 +1575,13 @@ Resources:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - ":logs:"
-                    - Ref: AWS::Region
-                    - ":"
-                    - Ref: AWS::AccountId
-                    - :log-group:/aws/codebuild/
+                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelineNuGet67CE1BA7
               - Fn::Join:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - ":logs:"
-                    - Ref: AWS::Region
-                    - ":"
-                    - Ref: AWS::AccountId
-                    - :log-group:/aws/codebuild/
+                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelineNuGet67CE1BA7
                     - :*
           - Action:
@@ -1283,11 +1631,8 @@ Resources:
                 - ""
                 - - "arn:"
                   - Ref: AWS::Partition
-                  - ":ssm:"
-                  - Ref: AWS::Region
-                  - ":"
-                  - Ref: AWS::AccountId
-                  - :parameter/delivlib-test-3/X509CodeSigningKey/Certificate
+                  - :ssm:us-east-1:712950704752:parameter
+                  - Ref: X509CodeSigningKey8DE65BF8
           - Action:
               - s3:GetObject*
               - s3:GetBucket*
@@ -1311,7 +1656,7 @@ Resources:
       Roles:
         - Ref: CodeCommitPipelineNuGetRole488DA302
     Metadata:
-      aws:cdk:path: delivlib-test-3/CodeCommitPipeline/NuGet/Default/Resource/Role/DefaultPolicy/Resource
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/NuGet/Default/Resource/Role/DefaultPolicy/Resource
   CodeCommitPipelineNuGet67CE1BA7:
     Type: AWS::CodeBuild::Project
     Properties:
@@ -1344,8 +1689,7 @@ Resources:
             Value: "true"
           - Name: NUGET_SECRET_REGION
             Type: PLAINTEXT
-            Value:
-              Ref: AWS::Region
+            Value: us-east-1
           - Name: NUGET_SECRET_ID
             Type: PLAINTEXT
             Value: arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/nuget-fHzSUD
@@ -1357,7 +1701,8 @@ Resources:
                 - SecretArn
           - Name: CODE_SIGNING_PARAMETER_NAME
             Type: PLAINTEXT
-            Value: /delivlib-test-3/X509CodeSigningKey/Certificate
+            Value:
+              Ref: X509CodeSigningKey8DE65BF8
         Image: aws/codebuild/dot-net:core-2.1
         PrivilegedMode: false
         Type: LINUX_CONTAINER
@@ -1389,7 +1734,7 @@ Resources:
           }
         Type: CODEPIPELINE
     Metadata:
-      aws:cdk:path: delivlib-test-3/CodeCommitPipeline/NuGet/Default/Resource/Resource
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/NuGet/Default/Resource/Resource
   CodeCommitPipelineMavenRoleC3A7769B:
     Type: AWS::IAM::Role
     Properties:
@@ -1401,7 +1746,7 @@ Resources:
               Service: codebuild.amazonaws.com
         Version: "2012-10-17"
     Metadata:
-      aws:cdk:path: delivlib-test-3/CodeCommitPipeline/Maven/Default/Resource/Role/Resource
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/Maven/Default/Resource/Role/Resource
   CodeCommitPipelineMavenRoleDefaultPolicyBCD15357:
     Type: AWS::IAM::Policy
     Properties:
@@ -1417,21 +1762,13 @@ Resources:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - ":logs:"
-                    - Ref: AWS::Region
-                    - ":"
-                    - Ref: AWS::AccountId
-                    - :log-group:/aws/codebuild/
+                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelineMavenB7154296
               - Fn::Join:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - ":logs:"
-                    - Ref: AWS::Region
-                    - ":"
-                    - Ref: AWS::AccountId
-                    - :log-group:/aws/codebuild/
+                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelineMavenB7154296
                     - :*
           - Action:
@@ -1472,13 +1809,13 @@ Resources:
             Effect: Allow
             Resource:
               Fn::GetAtt:
-                - CodeSignSecretF6FDE552
+                - CodeSign52FB6674
                 - SecretArn
           - Action: kms:Decrypt
             Effect: Allow
             Resource:
               Fn::GetAtt:
-                - CodeSignKey2302B99A
+                - CodeSignCMKC986BB89
                 - Arn
           - Action:
               - s3:GetObject*
@@ -1503,7 +1840,7 @@ Resources:
       Roles:
         - Ref: CodeCommitPipelineMavenRoleC3A7769B
     Metadata:
-      aws:cdk:path: delivlib-test-3/CodeCommitPipeline/Maven/Default/Resource/Role/DefaultPolicy/Resource
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/Maven/Default/Resource/Role/DefaultPolicy/Resource
   CodeCommitPipelineMavenB7154296:
     Type: AWS::CodeBuild::Project
     Properties:
@@ -1534,9 +1871,12 @@ Resources:
           - Name: STAGING_PROFILE_ID
             Type: PLAINTEXT
             Value: 68a05363083174
-          - Name: SIGNING_KEY_SCOPE
+          - Name: SIGNING_KEY_ARN
             Type: PLAINTEXT
-            Value: delivlib-test/CodeSign
+            Value:
+              Fn::GetAtt:
+                - CodeSign52FB6674
+                - SecretArn
           - Name: FOR_REAL
             Type: PLAINTEXT
             Value: "true"
@@ -1574,7 +1914,7 @@ Resources:
           }
         Type: CODEPIPELINE
     Metadata:
-      aws:cdk:path: delivlib-test-3/CodeCommitPipeline/Maven/Default/Resource/Resource
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/Maven/Default/Resource/Resource
   CodeCommitPipelineGitHubRole77F2217D:
     Type: AWS::IAM::Role
     Properties:
@@ -1586,7 +1926,7 @@ Resources:
               Service: codebuild.amazonaws.com
         Version: "2012-10-17"
     Metadata:
-      aws:cdk:path: delivlib-test-3/CodeCommitPipeline/GitHub/Default/Resource/Role/Resource
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/GitHub/Default/Resource/Role/Resource
   CodeCommitPipelineGitHubRoleDefaultPolicy3FEA7E07:
     Type: AWS::IAM::Policy
     Properties:
@@ -1602,21 +1942,13 @@ Resources:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - ":logs:"
-                    - Ref: AWS::Region
-                    - ":"
-                    - Ref: AWS::AccountId
-                    - :log-group:/aws/codebuild/
+                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelineGitHub0797840C
               - Fn::Join:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - ":logs:"
-                    - Ref: AWS::Region
-                    - ":"
-                    - Ref: AWS::AccountId
-                    - :log-group:/aws/codebuild/
+                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelineGitHub0797840C
                     - :*
           - Action:
@@ -1651,13 +1983,13 @@ Resources:
             Effect: Allow
             Resource:
               Fn::GetAtt:
-                - CodeSignSecretF6FDE552
+                - CodeSign52FB6674
                 - SecretArn
           - Action: kms:Decrypt
             Effect: Allow
             Resource:
               Fn::GetAtt:
-                - CodeSignKey2302B99A
+                - CodeSignCMKC986BB89
                 - Arn
           - Action:
               - s3:GetObject*
@@ -1682,7 +2014,7 @@ Resources:
       Roles:
         - Ref: CodeCommitPipelineGitHubRole77F2217D
     Metadata:
-      aws:cdk:path: delivlib-test-3/CodeCommitPipeline/GitHub/Default/Resource/Role/DefaultPolicy/Resource
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/GitHub/Default/Resource/Role/DefaultPolicy/Resource
   CodeCommitPipelineGitHub0797840C:
     Type: AWS::CodeBuild::Project
     Properties:
@@ -1716,9 +2048,12 @@ Resources:
           - Name: CHANGELOG
             Type: PLAINTEXT
             Value: ./CHANGELOG.md
-          - Name: SIGNING_KEY_SCOPE
+          - Name: SIGNING_KEY_ARN
             Type: PLAINTEXT
-            Value: delivlib-test/CodeSign
+            Value:
+              Fn::GetAtt:
+                - CodeSign52FB6674
+                - SecretArn
           - Name: GITHUB_TOKEN
             Type: PLAINTEXT
             Value:
@@ -1763,7 +2098,7 @@ Resources:
           }
         Type: CODEPIPELINE
     Metadata:
-      aws:cdk:path: delivlib-test-3/CodeCommitPipeline/GitHub/Default/Resource/Resource
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/GitHub/Default/Resource/Resource
   CodeCommitPipelineGitHubPagesRole10784D1D:
     Type: AWS::IAM::Role
     Properties:
@@ -1775,7 +2110,7 @@ Resources:
               Service: codebuild.amazonaws.com
         Version: "2012-10-17"
     Metadata:
-      aws:cdk:path: delivlib-test-3/CodeCommitPipeline/GitHubPages/Default/Resource/Role/Resource
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/GitHubPages/Default/Resource/Role/Resource
   CodeCommitPipelineGitHubPagesRoleDefaultPolicy23292E7F:
     Type: AWS::IAM::Policy
     Properties:
@@ -1791,21 +2126,13 @@ Resources:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - ":logs:"
-                    - Ref: AWS::Region
-                    - ":"
-                    - Ref: AWS::AccountId
-                    - :log-group:/aws/codebuild/
+                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelineGitHubPages53B77CF6
               - Fn::Join:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - ":logs:"
-                    - Ref: AWS::Region
-                    - ":"
-                    - Ref: AWS::AccountId
-                    - :log-group:/aws/codebuild/
+                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelineGitHubPages53B77CF6
                     - :*
           - Action:
@@ -1862,7 +2189,7 @@ Resources:
       Roles:
         - Ref: CodeCommitPipelineGitHubPagesRole10784D1D
     Metadata:
-      aws:cdk:path: delivlib-test-3/CodeCommitPipeline/GitHubPages/Default/Resource/Role/DefaultPolicy/Resource
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/GitHubPages/Default/Resource/Role/DefaultPolicy/Resource
   CodeCommitPipelineGitHubPages53B77CF6:
     Type: AWS::CodeBuild::Project
     Properties:
@@ -1942,7 +2269,7 @@ Resources:
           }
         Type: CODEPIPELINE
     Metadata:
-      aws:cdk:path: delivlib-test-3/CodeCommitPipeline/GitHubPages/Default/Resource/Resource
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/GitHubPages/Default/Resource/Resource
   AdoptEcrRepositorydbc60defc59544bcaa5c28c95d68f62cServiceRoleD788AA17:
     Type: AWS::IAM::Role
     Properties:
@@ -1960,7 +2287,7 @@ Resources:
               - Ref: AWS::Partition
               - :iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
     Metadata:
-      aws:cdk:path: delivlib-test-3/AdoptEcrRepositorydbc60defc59544bcaa5c28c95d68f62c/ServiceRole/Resource
+      aws:cdk:path: delivlib-test/AdoptEcrRepositorydbc60defc59544bcaa5c28c95d68f62c/ServiceRole/Resource
   AdoptEcrRepositorydbc60defc59544bcaa5c28c95d68f62cServiceRoleDefaultPolicy6BC8737C:
     Type: AWS::IAM::Policy
     Properties:
@@ -1978,11 +2305,7 @@ Resources:
                 - ""
                 - - "arn:"
                   - Ref: AWS::Partition
-                  - ":ecr:"
-                  - Ref: AWS::Region
-                  - ":"
-                  - Ref: AWS::AccountId
-                  - :repository/
+                  - :ecr:us-east-1:712950704752:repository/
                   - Fn::Select:
                       - 0
                       - Fn::Split:
@@ -2000,11 +2323,7 @@ Resources:
                 - ""
                 - - "arn:"
                   - Ref: AWS::Partition
-                  - ":ecr:"
-                  - Ref: AWS::Region
-                  - ":"
-                  - Ref: AWS::AccountId
-                  - :repository/
+                  - :ecr:us-east-1:712950704752:repository/
                   - Fn::Select:
                       - 0
                       - Fn::Split:
@@ -2015,7 +2334,7 @@ Resources:
       Roles:
         - Ref: AdoptEcrRepositorydbc60defc59544bcaa5c28c95d68f62cServiceRoleD788AA17
     Metadata:
-      aws:cdk:path: delivlib-test-3/AdoptEcrRepositorydbc60defc59544bcaa5c28c95d68f62c/ServiceRole/DefaultPolicy/Resource
+      aws:cdk:path: delivlib-test/AdoptEcrRepositorydbc60defc59544bcaa5c28c95d68f62c/ServiceRole/DefaultPolicy/Resource
   AdoptEcrRepositorydbc60defc59544bcaa5c28c95d68f62c52BE89E9:
     Type: AWS::Lambda::Function
     Properties:
@@ -2043,27 +2362,47 @@ Resources:
       Runtime: nodejs8.10
       Timeout: 300
     DependsOn:
-      - AdoptEcrRepositorydbc60defc59544bcaa5c28c95d68f62cServiceRoleD788AA17
       - AdoptEcrRepositorydbc60defc59544bcaa5c28c95d68f62cServiceRoleDefaultPolicy6BC8737C
+      - AdoptEcrRepositorydbc60defc59544bcaa5c28c95d68f62cServiceRoleD788AA17
     Metadata:
-      aws:cdk:path: delivlib-test-3/AdoptEcrRepositorydbc60defc59544bcaa5c28c95d68f62c/Resource
+      aws:cdk:path: delivlib-test/AdoptEcrRepositorydbc60defc59544bcaa5c28c95d68f62c/Resource
+  AssumeMe924099BB:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Condition:
+              StringEquals:
+                sts:ExternalId: require-me-please
+            Effect: Allow
+            Principal:
+              AWS:
+                Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - :iam::712950704752:root
+        Version: "2012-10-17"
+    Metadata:
+      aws:cdk:path: delivlib-test/AssumeMe/Resource
   X509CodeSigningKeyRSAPrivateKeyE5980A70:
     Type: Custom::RsaPrivateKeySecret
     Properties:
       ServiceToken:
         Fn::GetAtt:
-          - SingletonLambda72FD327D38134632934028EC437AA4865ADA6EFF
+          - RSAPrivateKey72FD327D38134632934028EC437AA486D8EE708F
           - Arn
-      ResourceVersion: o8JnP2XTTtCgWWOOXBP+FdxCcBuld5BLDSjV1aceSoA=
+      ResourceVersion: J1G9PwnefOm+V5RoZ2gea8L11MLb3EGOmvE92Y/E6fM=
       Description: The PEM-encoded private key of the x509 Code-Signing Certificate
       KeySize: 2048
-      SecretName: delivlib-test-3/X509CodeSigningKey/RSAPrivateKey
+      SecretName: delivlib-test/X509CodeSigningKey/RSAPrivateKey
     DependsOn:
-      - SingletonLambda72FD327D38134632934028EC437AA486ServiceRole225F46F5
-      - SingletonLambda72FD327D38134632934028EC437AA486ServiceRoleDefaultPolicy77701415
+      - RSAPrivateKey72FD327D38134632934028EC437AA486ServiceRoleDefaultPolicy487DB1EA
+      - RSAPrivateKey72FD327D38134632934028EC437AA486ServiceRole76094455
     DeletionPolicy: Retain
     Metadata:
-      aws:cdk:path: delivlib-test-3/X509CodeSigningKey/RSAPrivateKey/Resource
+      aws:cdk:path: delivlib-test/X509CodeSigningKey/RSAPrivateKey/Resource
   X509CodeSigningKeyRSAPrivateKeyCertificateSigningRequest7F706C9D:
     Type: Custom::CertificateSigningRequest
     Properties:
@@ -2071,15 +2410,11 @@ Resources:
         Fn::GetAtt:
           - CreateCSR541F67826DCF49A78C5A67715ADD9E4C8F4169F6
           - Arn
-      ResourceVersion: ZoW6O4uYPopBMnQf8ez+oq24LIaxXD/BOEIN022J71Q=
+      ResourceVersion: NoT8wts2zoCTJfaEBKdHwqykhwjq0NVqcO0CcWTMGQA=
       PrivateKeySecretId:
         Fn::GetAtt:
           - X509CodeSigningKeyRSAPrivateKeyE5980A70
           - SecretArn
-      PrivateKeySecretVersion:
-        Fn::GetAtt:
-          - X509CodeSigningKeyRSAPrivateKeyE5980A70
-          - SecretVersionId
       DnCommonName: delivlib-test
       DnCountry: IL
       DnStateOrProvince: Ztate
@@ -2090,11 +2425,11 @@ Resources:
       ExtendedKeyUsage: critical,codeSigning
       KeyUsage: critical,digitalSignature
     DependsOn:
-      - CreateCSR541F67826DCF49A78C5A67715ADD9E4CServiceRoleD2990C92
       - CreateCSR541F67826DCF49A78C5A67715ADD9E4CServiceRoleDefaultPolicyC0800208
+      - CreateCSR541F67826DCF49A78C5A67715ADD9E4CServiceRoleD2990C92
     Metadata:
-      aws:cdk:path: delivlib-test-3/X509CodeSigningKey/RSAPrivateKey/CertificateSigningRequest/Resource
-  X509CodeSigningKey46995D64:
+      aws:cdk:path: delivlib-test/X509CodeSigningKey/RSAPrivateKey/CertificateSigningRequest/Resource
+  X509CodeSigningKey8DE65BF8:
     Type: AWS::SSM::Parameter
     Properties:
       Type: String
@@ -2109,15 +2444,11 @@ Resources:
             - Fn::GetAtt:
                 - X509CodeSigningKeyRSAPrivateKeyE5980A70
                 - SecretArn
-            - " version "
-            - Fn::GetAtt:
-                - X509CodeSigningKeyRSAPrivateKeyE5980A70
-                - SecretVersionId
             - )
-      Name: /delivlib-test-3/X509CodeSigningKey/Certificate
+      Name: /delivlib-test/X509CodeSigningKey/Certificate
     Metadata:
-      aws:cdk:path: delivlib-test-3/X509CodeSigningKey/Resource
-  SingletonLambda72FD327D38134632934028EC437AA486ServiceRole225F46F5:
+      aws:cdk:path: delivlib-test/X509CodeSigningKey/Resource/Resource
+  RSAPrivateKey72FD327D38134632934028EC437AA486ServiceRole76094455:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
@@ -2134,8 +2465,8 @@ Resources:
               - Ref: AWS::Partition
               - :iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
     Metadata:
-      aws:cdk:path: delivlib-test-3/SingletonLambda72FD327D38134632934028EC437AA486/ServiceRole/Resource
-  SingletonLambda72FD327D38134632934028EC437AA486ServiceRoleDefaultPolicy77701415:
+      aws:cdk:path: delivlib-test/RSAPrivate-Key72FD327D38134632934028EC437AA486/ServiceRole/Resource
+  RSAPrivateKey72FD327D38134632934028EC437AA486ServiceRoleDefaultPolicy487DB1EA:
     Type: AWS::IAM::Policy
     Properties:
       PolicyDocument:
@@ -2143,7 +2474,6 @@ Resources:
           - Action:
               - secretsmanager:CreateSecret
               - secretsmanager:DeleteSecret
-              - secretsmanager:ListSecretVersionIds
               - secretsmanager:UpdateSecret
             Effect: Allow
             Resource:
@@ -2151,23 +2481,19 @@ Resources:
                 - ""
                 - - "arn:"
                   - Ref: AWS::Partition
-                  - ":secretsmanager:"
-                  - Ref: AWS::Region
-                  - ":"
-                  - Ref: AWS::AccountId
-                  - :secret:delivlib-test/X509CodeSigningKey/RSAPrivateKey-??????
+                  - :secretsmanager:us-east-1:712950704752:secret:delivlib-test/X509CodeSigningKey/RSAPrivateKey-??????
         Version: "2012-10-17"
-      PolicyName: SingletonLambda72FD327D38134632934028EC437AA486ServiceRoleDefaultPolicy77701415
+      PolicyName: RSAPrivateKey72FD327D38134632934028EC437AA486ServiceRoleDefaultPolicy487DB1EA
       Roles:
-        - Ref: SingletonLambda72FD327D38134632934028EC437AA486ServiceRole225F46F5
+        - Ref: RSAPrivateKey72FD327D38134632934028EC437AA486ServiceRole76094455
     Metadata:
-      aws:cdk:path: delivlib-test-3/SingletonLambda72FD327D38134632934028EC437AA486/ServiceRole/DefaultPolicy/Resource
-  SingletonLambda72FD327D38134632934028EC437AA4865ADA6EFF:
+      aws:cdk:path: delivlib-test/RSAPrivate-Key72FD327D38134632934028EC437AA486/ServiceRole/DefaultPolicy/Resource
+  RSAPrivateKey72FD327D38134632934028EC437AA486D8EE708F:
     Type: AWS::Lambda::Function
     Properties:
       Code:
         S3Bucket:
-          Ref: SingletonLambda72FD327D38134632934028EC437AA486CodeS3BucketE07F4BCB
+          Ref: RSAPrivateKey72FD327D38134632934028EC437AA486CodeS3BucketE105F27D
         S3Key:
           Fn::Join:
             - ""
@@ -2175,25 +2501,25 @@ Resources:
                   - 0
                   - Fn::Split:
                       - "||"
-                      - Ref: SingletonLambda72FD327D38134632934028EC437AA486CodeS3VersionKeyF016F0F7
+                      - Ref: RSAPrivateKey72FD327D38134632934028EC437AA486CodeS3VersionKey24DB0645
               - Fn::Select:
                   - 1
                   - Fn::Split:
                       - "||"
-                      - Ref: SingletonLambda72FD327D38134632934028EC437AA486CodeS3VersionKeyF016F0F7
+                      - Ref: RSAPrivateKey72FD327D38134632934028EC437AA486CodeS3VersionKey24DB0645
       Handler: index.handler
       Role:
         Fn::GetAtt:
-          - SingletonLambda72FD327D38134632934028EC437AA486ServiceRole225F46F5
+          - RSAPrivateKey72FD327D38134632934028EC437AA486ServiceRole76094455
           - Arn
       Runtime: nodejs8.10
       Description: Generates an RSA Private Key and stores it in AWS Secrets Manager
       Timeout: 300
     DependsOn:
-      - SingletonLambda72FD327D38134632934028EC437AA486ServiceRole225F46F5
-      - SingletonLambda72FD327D38134632934028EC437AA486ServiceRoleDefaultPolicy77701415
+      - RSAPrivateKey72FD327D38134632934028EC437AA486ServiceRoleDefaultPolicy487DB1EA
+      - RSAPrivateKey72FD327D38134632934028EC437AA486ServiceRole76094455
     Metadata:
-      aws:cdk:path: delivlib-test-3/SingletonLambda72FD327D38134632934028EC437AA486/Resource
+      aws:cdk:path: delivlib-test/RSAPrivate-Key72FD327D38134632934028EC437AA486/Resource
   CreateCSR541F67826DCF49A78C5A67715ADD9E4CServiceRoleD2990C92:
     Type: AWS::IAM::Role
     Properties:
@@ -2211,7 +2537,7 @@ Resources:
               - Ref: AWS::Partition
               - :iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
     Metadata:
-      aws:cdk:path: delivlib-test-3/CreateCSR541F67826DCF49A78C5A67715ADD9E4C/ServiceRole/Resource
+      aws:cdk:path: delivlib-test/CreateCSR541F67826DCF49A78C5A67715ADD9E4C/ServiceRole/Resource
   CreateCSR541F67826DCF49A78C5A67715ADD9E4CServiceRoleDefaultPolicyC0800208:
     Type: AWS::IAM::Policy
     Properties:
@@ -2228,7 +2554,7 @@ Resources:
       Roles:
         - Ref: CreateCSR541F67826DCF49A78C5A67715ADD9E4CServiceRoleD2990C92
     Metadata:
-      aws:cdk:path: delivlib-test-3/CreateCSR541F67826DCF49A78C5A67715ADD9E4C/ServiceRole/DefaultPolicy/Resource
+      aws:cdk:path: delivlib-test/CreateCSR541F67826DCF49A78C5A67715ADD9E4C/ServiceRole/DefaultPolicy/Resource
   CreateCSR541F67826DCF49A78C5A67715ADD9E4C8F4169F6:
     Type: AWS::Lambda::Function
     Properties:
@@ -2257,11 +2583,11 @@ Resources:
       Description: Creates a Certificate Signing Request document for an x509 certificate
       Timeout: 300
     DependsOn:
-      - CreateCSR541F67826DCF49A78C5A67715ADD9E4CServiceRoleD2990C92
       - CreateCSR541F67826DCF49A78C5A67715ADD9E4CServiceRoleDefaultPolicyC0800208
+      - CreateCSR541F67826DCF49A78C5A67715ADD9E4CServiceRoleD2990C92
     Metadata:
-      aws:cdk:path: delivlib-test-3/CreateCSR541F67826DCF49A78C5A67715ADD9E4C/Resource
-  CodeSignKey2302B99A:
+      aws:cdk:path: delivlib-test/CreateCSR541F67826DCF49A78C5A67715ADD9E4C/Resource
+  CodeSignCMKC986BB89:
     Type: AWS::KMS::Key
     Properties:
       KeyPolicy:
@@ -2286,14 +2612,14 @@ Resources:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - ":iam::"
-                    - Ref: AWS::AccountId
-                    - :root
+                    - :iam::712950704752:root
             Resource: "*"
           - Action:
-              - kms:GenerateDataKey
-              - kms:Encrypt
               - kms:Decrypt
+              - kms:GenerateDataKey
+            Condition:
+              StringEquals:
+                kms:ViaService: secretsmanager.us-east-1.amazonaws.com
             Effect: Allow
             Principal:
               AWS:
@@ -2318,41 +2644,47 @@ Resources:
                   - Arn
             Resource: "*"
         Version: "2012-10-17"
-      Description: Encryption key for PGP secret delivlib-test/CodeSign/SigningKey
     DeletionPolicy: Retain
     Metadata:
-      aws:cdk:path: delivlib-test-3/CodeSign/Key/Resource
-  CodeSignKeyAliasCEA10CD5:
-    Type: AWS::KMS::Alias
-    Properties:
-      AliasName: alias/delivlib-test/CodeSign/SigningKeyKey
-      TargetKeyId:
-        Fn::GetAtt:
-          - CodeSignKey2302B99A
-          - Arn
-    Metadata:
-      aws:cdk:path: delivlib-test-3/CodeSign/Key/Alias/Resource
-  CodeSignSecretF6FDE552:
+      aws:cdk:path: delivlib-test/CodeSign-CMK/Resource
+  CodeSign52FB6674:
     Type: AWS::CloudFormation::CustomResource
     Properties:
       ServiceToken:
         Fn::GetAtt:
           - SingletonLambdaf25803d3054b44fc985f4860d7d6ee746203BDE6
           - Arn
-      ResourceVersion: 2r+P/PYE15kX8fy++XxbfU9reHaQlaCF82/hQ0EntTA=
+      ResourceVersion: BmJrhE3IJniqTXFb2Ow8EVjpFqUcJJcEjwztst10nzM=
       Identity: aws-cdk-dev
       Email: aws-cdk-dev+delivlib@amazon.com
       Expiry: 4y
       KeySizeBits: 4096
-      SecretName: delivlib-test/CodeSign/SigningKey
+      SecretName: delivlib-test/CodeSign
       KeyArn:
         Fn::GetAtt:
-          - CodeSignKey2302B99A
+          - CodeSignCMKC986BB89
           - Arn
-      ParameterName: /delivlib-test/CodeSign/SigningKey.pub
-      Version: 1
+      Version: 0
     Metadata:
-      aws:cdk:path: delivlib-test-3/CodeSign/Secret/Resource
+      aws:cdk:path: delivlib-test/CodeSign/Resource
+  CodeSignPrincipal30E4C212:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Type: String
+      Value:
+        Fn::GetAtt:
+          - CodeSign52FB6674
+          - PublicKey
+      Description:
+        Fn::Join:
+          - ""
+          - - "The public part of the OpenPGP key in "
+            - Fn::GetAtt:
+                - CodeSign52FB6674
+                - SecretArn
+      Name: /delivlib-test/CodeSign.pub
+    Metadata:
+      aws:cdk:path: delivlib-test/CodeSign/Principal/Resource
   SingletonLambdaf25803d3054b44fc985f4860d7d6ee74ServiceRole410148CF:
     Type: AWS::IAM::Role
     Properties:
@@ -2370,7 +2702,7 @@ Resources:
               - Ref: AWS::Partition
               - :iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
     Metadata:
-      aws:cdk:path: delivlib-test-3/SingletonLambdaf25803d3054b44fc985f4860d7d6ee74/ServiceRole/Resource
+      aws:cdk:path: delivlib-test/SingletonLambdaf25803d3054b44fc985f4860d7d6ee74/ServiceRole/Resource
   SingletonLambdaf25803d3054b44fc985f4860d7d6ee74ServiceRoleDefaultPolicyA8FDF5BD:
     Type: AWS::IAM::Policy
     Properties:
@@ -2378,28 +2710,32 @@ Resources:
         Statement:
           - Action:
               - secretsmanager:CreateSecret
-              - secretsmanager:ListSecretVersionIds
-              - secretsmanager:UpdateSecret
               - secretsmanager:DeleteSecret
+              - secretsmanager:GetSecretValue
+              - secretsmanager:UpdateSecret
+            Effect: Allow
+            Resource:
+              Fn::Join:
+                - ""
+                - - "arn:"
+                  - Ref: AWS::Partition
+                  - :secretsmanager:us-east-1:712950704752:secret:delivlib-test/CodeSign-??????
+          - Action:
               - ssm:PutParameter
               - ssm:DeleteParameter
             Effect: Allow
-            Resource: "*"
-          - Action:
-              - kms:GenerateDataKey
-              - kms:Encrypt
-              - kms:Decrypt
-            Effect: Allow
             Resource:
-              Fn::GetAtt:
-                - CodeSignKey2302B99A
-                - Arn
+              Fn::Join:
+                - ""
+                - - "arn:"
+                  - Ref: AWS::Partition
+                  - :ssm:us-east-1:712950704752:parameter/delivlib-test/CodeSign.pub
         Version: "2012-10-17"
       PolicyName: SingletonLambdaf25803d3054b44fc985f4860d7d6ee74ServiceRoleDefaultPolicyA8FDF5BD
       Roles:
         - Ref: SingletonLambdaf25803d3054b44fc985f4860d7d6ee74ServiceRole410148CF
     Metadata:
-      aws:cdk:path: delivlib-test-3/SingletonLambdaf25803d3054b44fc985f4860d7d6ee74/ServiceRole/DefaultPolicy/Resource
+      aws:cdk:path: delivlib-test/SingletonLambdaf25803d3054b44fc985f4860d7d6ee74/ServiceRole/DefaultPolicy/Resource
   SingletonLambdaf25803d3054b44fc985f4860d7d6ee746203BDE6:
     Type: AWS::Lambda::Function
     Properties:
@@ -2429,10 +2765,10 @@ Resources:
         and the public key in an SSM Parameter
       Timeout: 300
     DependsOn:
-      - SingletonLambdaf25803d3054b44fc985f4860d7d6ee74ServiceRole410148CF
       - SingletonLambdaf25803d3054b44fc985f4860d7d6ee74ServiceRoleDefaultPolicyA8FDF5BD
+      - SingletonLambdaf25803d3054b44fc985f4860d7d6ee74ServiceRole410148CF
     Metadata:
-      aws:cdk:path: delivlib-test-3/SingletonLambdaf25803d3054b44fc985f4860d7d6ee74/Resource
+      aws:cdk:path: delivlib-test/SingletonLambdaf25803d3054b44fc985f4860d7d6ee74/Resource
   AutoBumpsuperchainAdoptRepository5F9F24E6:
     Type: Custom::ECRAdoptedRepository
     Properties:
@@ -2458,7 +2794,7 @@ Resources:
             Sid: CodeBuild
         Version: "2012-10-17"
     Metadata:
-      aws:cdk:path: delivlib-test-3/AutoBump/superchain/AdoptRepository/Resource
+      aws:cdk:path: delivlib-test/AutoBump/superchain/AdoptRepository/Resource
   AutoBumpRoleE1B4C34E:
     Type: AWS::IAM::Role
     Properties:
@@ -2470,7 +2806,7 @@ Resources:
               Service: codebuild.amazonaws.com
         Version: "2012-10-17"
     Metadata:
-      aws:cdk:path: delivlib-test-3/AutoBump/Bump/Role/Resource
+      aws:cdk:path: delivlib-test/AutoBump/Bump/Role/Resource
   AutoBumpRoleDefaultPolicy8746CC1B:
     Type: AWS::IAM::Policy
     Properties:
@@ -2486,21 +2822,13 @@ Resources:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - ":logs:"
-                    - Ref: AWS::Region
-                    - ":"
-                    - Ref: AWS::AccountId
-                    - :log-group:/aws/codebuild/
+                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
                     - Ref: AutoBump14E8D8B4
               - Fn::Join:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - ":logs:"
-                    - Ref: AWS::Region
-                    - ":"
-                    - Ref: AWS::AccountId
-                    - :log-group:/aws/codebuild/
+                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
                     - Ref: AutoBump14E8D8B4
                     - :*
           - Action:
@@ -2514,7 +2842,7 @@ Resources:
       Roles:
         - Ref: AutoBumpRoleE1B4C34E
     Metadata:
-      aws:cdk:path: delivlib-test-3/AutoBump/Bump/Role/DefaultPolicy/Resource
+      aws:cdk:path: delivlib-test/AutoBump/Bump/Role/DefaultPolicy/Resource
   AutoBump14E8D8B4:
     Type: AWS::CodeBuild::Project
     Properties:
@@ -2533,11 +2861,7 @@ Resources:
                           - ""
                           - - "arn:"
                             - Ref: AWS::Partition
-                            - ":ecr:"
-                            - Ref: AWS::Region
-                            - ":"
-                            - Ref: AWS::AccountId
-                            - :repository/
+                            - :ecr:us-east-1:712950704752:repository/
                             - Fn::GetAtt:
                                 - AutoBumpsuperchainAdoptRepository5F9F24E6
                                 - RepositoryName
@@ -2550,11 +2874,7 @@ Resources:
                           - ""
                           - - "arn:"
                             - Ref: AWS::Partition
-                            - ":ecr:"
-                            - Ref: AWS::Region
-                            - ":"
-                            - Ref: AWS::AccountId
-                            - :repository/
+                            - :ecr:us-east-1:712950704752:repository/
                             - Fn::GetAtt:
                                 - AutoBumpsuperchainAdoptRepository5F9F24E6
                                 - RepositoryName
@@ -2608,9 +2928,10 @@ Resources:
             }
           }
         Location: https://github.com/awslabs/aws-delivlib-sample.git
+        ReportBuildStatus: true
         Type: GITHUB
     Metadata:
-      aws:cdk:path: delivlib-test-3/AutoBump/Bump/Resource
+      aws:cdk:path: delivlib-test/AutoBump/Bump/Resource
   AutoBumpEventsRoleF68DAC3F:
     Type: AWS::IAM::Role
     Properties:
@@ -2622,7 +2943,7 @@ Resources:
               Service: events.amazonaws.com
         Version: "2012-10-17"
     Metadata:
-      aws:cdk:path: delivlib-test-3/AutoBump/Bump/EventsRole/Resource
+      aws:cdk:path: delivlib-test/AutoBump/Bump/EventsRole/Resource
   AutoBumpEventsRoleDefaultPolicyF09AAA36:
     Type: AWS::IAM::Policy
     Properties:
@@ -2639,7 +2960,7 @@ Resources:
       Roles:
         - Ref: AutoBumpEventsRoleF68DAC3F
     Metadata:
-      aws:cdk:path: delivlib-test-3/AutoBump/Bump/EventsRole/DefaultPolicy/Resource
+      aws:cdk:path: delivlib-test/AutoBump/Bump/EventsRole/DefaultPolicy/Resource
   AutoBumpSchedulerD7254AD7:
     Type: AWS::Events::Rule
     Properties:
@@ -2657,7 +2978,7 @@ Resources:
               - AutoBumpEventsRoleF68DAC3F
               - Arn
     Metadata:
-      aws:cdk:path: delivlib-test-3/AutoBump/Scheduler/Resource
+      aws:cdk:path: delivlib-test/AutoBump/Scheduler/Resource
 Parameters:
   CodeCommitPipelineBuildPipelineGitHubTokenParameter9FBEDC6B:
     Type: AWS::SSM::Parameter::Value<String>
@@ -2666,47 +2987,63 @@ Parameters:
   CodeCommitPipelinesuperchainImageNameF1669FD4:
     Type: String
     Description: ECR repository name and tag asset
-      "delivlib-test-3/CodeCommitPipeline/superchain"
-  CodeCommitPipelineHelloLinuxScriptDirectoryS3Bucket1CA6FAFD:
+      "delivlib-test/CodeCommitPipeline/superchain"
+  CodeCommitPipelineHelloLinuxScriptDirectoryS3Bucket56DFBFCD:
     Type: String
     Description: S3 bucket for asset
-      "delivlib-test-3/CodeCommitPipeline/HelloLinux/Resource/ScriptDirectory"
-  CodeCommitPipelineHelloLinuxScriptDirectoryS3VersionKey1E4A3291:
+      "delivlib-test/CodeCommitPipeline/HelloLinux/ScriptDirectory"
+  CodeCommitPipelineHelloLinuxScriptDirectoryS3VersionKey0036B1AA:
     Type: String
     Description: S3 key for asset version
-      "delivlib-test-3/CodeCommitPipeline/HelloLinux/Resource/ScriptDirectory"
-  CodeCommitPipelineHelloWindowsScriptDirectoryS3BucketE5455B35:
+      "delivlib-test/CodeCommitPipeline/HelloLinux/ScriptDirectory"
+  CodeCommitPipelineHelloWindowsScriptDirectoryS3Bucket368E02F9:
     Type: String
     Description: S3 bucket for asset
-      "delivlib-test-3/CodeCommitPipeline/HelloWindows/Resource/ScriptDirectory"
-  CodeCommitPipelineHelloWindowsScriptDirectoryS3VersionKey85D66DB9:
+      "delivlib-test/CodeCommitPipeline/HelloWindows/ScriptDirectory"
+  CodeCommitPipelineHelloWindowsScriptDirectoryS3VersionKey00CFAE1A:
     Type: String
     Description: S3 key for asset version
-      "delivlib-test-3/CodeCommitPipeline/HelloWindows/Resource/ScriptDirectory"
+      "delivlib-test/CodeCommitPipeline/HelloWindows/ScriptDirectory"
+  CodeCommitPipelineAssumeRoleScriptDirectoryS3Bucket019558B4:
+    Type: String
+    Description: S3 bucket for asset
+      "delivlib-test/CodeCommitPipeline/AssumeRole/ScriptDirectory"
+  CodeCommitPipelineAssumeRoleScriptDirectoryS3VersionKeyC04C2FE1:
+    Type: String
+    Description: S3 key for asset version
+      "delivlib-test/CodeCommitPipeline/AssumeRole/ScriptDirectory"
+  CodeCommitPipelineCanaryHelloCanaryShellableScriptDirectoryS3BucketFE4212CD:
+    Type: String
+    Description: S3 bucket for asset
+      "delivlib-test/CodeCommitPipeline/CanaryHelloCanary/Shellable/ScriptDirectory"
+  CodeCommitPipelineCanaryHelloCanaryShellableScriptDirectoryS3VersionKey8BCEB745:
+    Type: String
+    Description: S3 key for asset version
+      "delivlib-test/CodeCommitPipeline/CanaryHelloCanary/Shellable/ScriptDirectory"
   CodeCommitPipelineNpmScriptDirectoryS3BucketFC1B4A74:
     Type: String
     Description: S3 bucket for asset
-      "delivlib-test-3/CodeCommitPipeline/Npm/Default/ScriptDirectory"
+      "delivlib-test/CodeCommitPipeline/Npm/Default/ScriptDirectory"
   CodeCommitPipelineNpmScriptDirectoryS3VersionKey007F90CF:
     Type: String
     Description: S3 key for asset version
-      "delivlib-test-3/CodeCommitPipeline/Npm/Default/ScriptDirectory"
+      "delivlib-test/CodeCommitPipeline/Npm/Default/ScriptDirectory"
   CodeCommitPipelineNuGetScriptDirectoryS3Bucket3EE4493E:
     Type: String
     Description: S3 bucket for asset
-      "delivlib-test-3/CodeCommitPipeline/NuGet/Default/ScriptDirectory"
+      "delivlib-test/CodeCommitPipeline/NuGet/Default/ScriptDirectory"
   CodeCommitPipelineNuGetScriptDirectoryS3VersionKeyA319F624:
     Type: String
     Description: S3 key for asset version
-      "delivlib-test-3/CodeCommitPipeline/NuGet/Default/ScriptDirectory"
+      "delivlib-test/CodeCommitPipeline/NuGet/Default/ScriptDirectory"
   CodeCommitPipelineMavenScriptDirectoryS3Bucket8BD14FB0:
     Type: String
     Description: S3 bucket for asset
-      "delivlib-test-3/CodeCommitPipeline/Maven/Default/ScriptDirectory"
+      "delivlib-test/CodeCommitPipeline/Maven/Default/ScriptDirectory"
   CodeCommitPipelineMavenScriptDirectoryS3VersionKey8E6343D1:
     Type: String
     Description: S3 key for asset version
-      "delivlib-test-3/CodeCommitPipeline/Maven/Default/ScriptDirectory"
+      "delivlib-test/CodeCommitPipeline/Maven/Default/ScriptDirectory"
   CodeCommitPipelineGitHubGitHubTokenParameterA51FA80C:
     Type: AWS::SSM::Parameter::Value<String>
     Default: github-token
@@ -2714,50 +3051,58 @@ Parameters:
   CodeCommitPipelineGitHubScriptDirectoryS3Bucket0F36AC0A:
     Type: String
     Description: S3 bucket for asset
-      "delivlib-test-3/CodeCommitPipeline/GitHub/Default/ScriptDirectory"
+      "delivlib-test/CodeCommitPipeline/GitHub/Default/ScriptDirectory"
   CodeCommitPipelineGitHubScriptDirectoryS3VersionKey1C039B7C:
     Type: String
     Description: S3 key for asset version
-      "delivlib-test-3/CodeCommitPipeline/GitHub/Default/ScriptDirectory"
+      "delivlib-test/CodeCommitPipeline/GitHub/Default/ScriptDirectory"
   CodeCommitPipelineGitHubPagesScriptDirectoryS3BucketFC75D454:
     Type: String
     Description: S3 bucket for asset
-      "delivlib-test-3/CodeCommitPipeline/GitHubPages/Default/ScriptDirectory"
+      "delivlib-test/CodeCommitPipeline/GitHubPages/Default/ScriptDirectory"
   CodeCommitPipelineGitHubPagesScriptDirectoryS3VersionKey5CE2FF2C:
     Type: String
     Description: S3 key for asset version
-      "delivlib-test-3/CodeCommitPipeline/GitHubPages/Default/ScriptDirectory"
+      "delivlib-test/CodeCommitPipeline/GitHubPages/Default/ScriptDirectory"
   AdoptEcrRepositorydbc60defc59544bcaa5c28c95d68f62cCodeS3Bucket92AB06B6:
     Type: String
     Description: S3 bucket for asset
-      "delivlib-test-3/AdoptEcrRepositorydbc60defc59544bcaa5c28c95d68f62c/Code"
+      "delivlib-test/AdoptEcrRepositorydbc60defc59544bcaa5c28c95d68f62c/Code"
   AdoptEcrRepositorydbc60defc59544bcaa5c28c95d68f62cCodeS3VersionKey393B7276:
     Type: String
     Description: S3 key for asset version
       "delivlib-test/AdoptEcrRepositorydbc60defc59544bcaa5c28c95d68f62c/Code"
-  SingletonLambda72FD327D38134632934028EC437AA486CodeS3BucketE07F4BCB:
+  RSAPrivateKey72FD327D38134632934028EC437AA486CodeS3BucketE105F27D:
     Type: String
     Description: S3 bucket for asset
-      "delivlib-test/SingletonLambda72FD327D38134632934028EC437AA486/Code"
-  SingletonLambda72FD327D38134632934028EC437AA486CodeS3VersionKeyF016F0F7:
+      "delivlib-test/RSAPrivate-Key72FD327D38134632934028EC437AA486/Code"
+  RSAPrivateKey72FD327D38134632934028EC437AA486CodeS3VersionKey24DB0645:
     Type: String
     Description: S3 key for asset version
-      "delivlib-test/SingletonLambda72FD327D38134632934028EC437AA486/Code"
+      "delivlib-test/RSAPrivate-Key72FD327D38134632934028EC437AA486/Code"
   CreateCSR541F67826DCF49A78C5A67715ADD9E4CCodeS3Bucket45923B19:
     Type: String
     Description: S3 bucket for asset
-      "delivlib-test-3/CreateCSR541F67826DCF49A78C5A67715ADD9E4C/Code"
+      "delivlib-test/CreateCSR541F67826DCF49A78C5A67715ADD9E4C/Code"
   CreateCSR541F67826DCF49A78C5A67715ADD9E4CCodeS3VersionKey9D63F460:
     Type: String
     Description: S3 key for asset version
-      "delivlib-test-3/CreateCSR541F67826DCF49A78C5A67715ADD9E4C/Code"
+      "delivlib-test/CreateCSR541F67826DCF49A78C5A67715ADD9E4C/Code"
+  SingletonLambdaf25803d3054b44fc985f4860d7d6ee74CodeS3BucketAC499781:
+    Type: String
+    Description: S3 bucket for asset
+      "delivlib-test/SingletonLambdaf25803d3054b44fc985f4860d7d6ee74/Code"
+  SingletonLambdaf25803d3054b44fc985f4860d7d6ee74CodeS3VersionKey10D2DDF5:
+    Type: String
+    Description: S3 key for asset version
+      "delivlib-test/SingletonLambdaf25803d3054b44fc985f4860d7d6ee74/Code"
   AutoBumpGitHubTokenParameter44B7949A:
     Type: AWS::SSM::Parameter::Value<String>
     Default: github-token
     NoEcho: true
   AutoBumpsuperchainImageNameDD64FDFB:
     Type: String
-    Description: ECR repository name and tag asset "delivlib-test-3/AutoBump/superchain"
+    Description: ECR repository name and tag asset "delivlib-test/AutoBump/superchain"
 Outputs:
   X509CodeSigningKeyCSR5137C5A3:
     Description: A PEM-encoded Certificate Signing Request for a Code-Signing Certificate

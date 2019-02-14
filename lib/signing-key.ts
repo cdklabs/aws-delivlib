@@ -44,7 +44,7 @@ export class OpenPgpKey extends cdk.Construct {
   constructor(parent: cdk.Construct, name: string, props: SigningKeyProps) {
     super(parent, name);
 
-    this.scope = props.secretName || this.uniqueId;
+    this.scope = props.secretName || this.node.uniqueId;
     const secretName = `${this.scope}/SigningKey`;
 
     this.key = new kms.EncryptionKey(this, 'Key', {
