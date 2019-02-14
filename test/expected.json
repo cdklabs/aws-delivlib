@@ -2640,7 +2640,7 @@ Resources:
         Fn::GetAtt:
           - SingletonLambdaf25803d3054b44fc985f4860d7d6ee746203BDE6
           - Arn
-      ResourceVersion: 9vHZAAb5QYItZQp3IjvrrMycdq3qr77dTQs45NOIRy0=
+      ResourceVersion: VVrILYyu7ZONNxT/mZGdOSrn13JdHPQGZxV0KooSlw4=
       Identity: aws-cdk-dev
       Email: aws-cdk-dev+delivlib@amazon.com
       Expiry: 4y

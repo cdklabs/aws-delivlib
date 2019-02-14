@@ -143,6 +143,7 @@ async function _getPublicKey(secretArn: string): Promise<string> {
   const keyData = JSON.parse(secretValue.SecretString!);
   const tempDir = await mkdtemp(path.join(os.tmpdir(), 'OpenPGP-'));
   try {
+    process.env.GNUPGHOME = tempDir;
     const privateKeyFile = path.join(tempDir, 'private.key');
     await writeFile(privateKeyFile, keyData.PrivateKey, { encoding: 'utf-8' });
     // Note: importing a private key does NOT require entering it's passphrase!
