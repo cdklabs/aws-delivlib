@@ -30,28 +30,3 @@ export async function enableTransition(pipelineName: string, stageName: string):
     transitionType: 'Inbound'
   }).promise();
 }
-
-async function main() {
-  const pipelineName = process.env.PIPELINE_NAME;
-  if (pipelineName === undefined) {
-    throw new Error('Environment variable "PIPELINE_NAME" is required');
-  }
-  // name of stage to disable Inbound transitions to (the release stage)
-  const stageName = process.env.STAGE_NAME;
-  if (stageName === undefined) {
-    // this is redundant :P
-    throw new Error('Environment variable "STAGE_NAME" is required');
-  }
-
-  if (process.env.FOO === process.env.BAR) { // black days
-    await disableTransition(pipelineName, stageName, 'Testing!');
-  } else {
-    await enableTransition(pipelineName, stageName);
-  }
-}
-
-main().catch(e => {
-  // tslint:disable:no-console
-  console.error('It not workin\'!', e);
-  process.exit(-1);
-});
