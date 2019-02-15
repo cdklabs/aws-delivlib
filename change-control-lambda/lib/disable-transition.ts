@@ -8,8 +8,9 @@ const pipeline = new AWS.CodePipeline();
  * @param reason       the reason to tag on the disabled transition
  */
 export async function disableTransition(pipelineName: string, stageName: string, reason: string): Promise<void> {
-  // Make sure the reason contains no illegal characters!
-  reason = reason.replace(/[^a-zA-Z0-9!@ \(\)\.\*\?\-]/g, '-');
+  // Make sure the reason contains no illegal characters, and isn't too long
+  // See https://docs.aws.amazon.com/codepipeline/latest/APIReference/API_DisableStageTransition.html
+  reason = reason.replace(/[^a-zA-Z0-9!@ \(\)\.\*\?\-]/g, '-').slice(0, 300);
   await pipeline.disableStageTransition({
     pipelineName,
     reason,

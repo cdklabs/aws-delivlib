@@ -4,7 +4,7 @@ const ical = require('node-ical');
 /**
  * A calendar event describing a "blocked" time window.
  */
-interface CalendarEvent {
+export interface CalendarEvent {
   /** The description of the event */
   summary: string;
   /** The time at which the block starts */
