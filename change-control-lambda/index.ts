@@ -18,7 +18,7 @@ const readFile = util.promisify(fs.readFile);
  * PIPELINE_NAME              - the name of the pipeline in which promotions will be managed
  * STAGE_NAME                 - the name of the stage into which transitions are managed
  */
-export async function handler(_event: any, _context: any) {
+export async function handler(/*_event: any, _context: any*/) {
   const bucketName = env('CHANGE_CONTROL_BUCKET_NAME');
   const objectKey = env('CHANGE_CONTROL_OBJECT_KEY');
   const stageName = env('STAGE_NAME');
