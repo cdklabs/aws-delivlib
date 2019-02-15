@@ -12,9 +12,12 @@ export interface CalendarEvent {
   /** The time at which the block ends */
   end: Date;
   /** The time at which the event was last modified. */
-  dtstamp: Date;
-  type: 'VEVENT';
-  params: any[];
+  dtstamp?: Date;
+  /** The type of a calendar event */
+  type: 'VEVENT' | string;
+  /** Parameters to the event, if any. */
+  params?: any[];
+  /** The type of the boundaries for the event */
   datetype: 'date-time';
 }
 type Events = { [uuid: string]: CalendarEvent };
@@ -31,7 +34,7 @@ type Events = { [uuid: string]: CalendarEvent };
  * @returns the events that represent the blocked time, or `undefined` if `now` is not "blocked".
  */
 export function shouldBlockPipeline(icalData: string | Buffer, now: Date, advanceMarginSec = 3600): CalendarEvent | undefined {
-  const events = ical.parseICS(icalData.toString('utf8'));
+  const events: Events = ical.parseICS(icalData.toString('utf8'));
   const blocks = containingEventsWithMargin(events, now, advanceMarginSec);
   return blocks.size > 0 ? Array.from(blocks)[0] : undefined;
 }
@@ -52,7 +55,7 @@ function containingEvents(events: Events, date: Date): Set<CalendarEvent> {
 }
 
 function isInCalendarEvent(event: CalendarEvent, x: Date) {
-  return isInDateRange(event.start, event.end, x);
+  return event.type === 'VEVENT' && isInDateRange(event.start, event.end, x);
 }
 
 function isInDateRange(start: Date, end: Date, x: Date) {
