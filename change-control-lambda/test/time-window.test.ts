@@ -35,7 +35,7 @@ END:VCALENDAR
 `;
 
 test('non blocked time before all events', () => {
-  const x = shouldBlockPipeline(ics, new Date('2019-02-03T07:00:00.000Z'));
+  const x = shouldBlockPipeline(ics, new Date('2019-02-03T07:00:00.000Z'), 300);
   expect(x).toBeUndefined();
 });
 
@@ -52,4 +52,10 @@ test('left edge', () => {
 test('right edge', () => {
   const x = shouldBlockPipeline(ics, new Date('2017-11-27T08:00:00.000Z'));
   expect(x && x.summary).toBe('Block2');
+});
+
+test('a blocked window starts AND finishes within margin', () => {
+  // Using 72 hours padding to widely overlap Block3
+  const x = shouldBlockPipeline(ics, new Date('2019-02-03T07:00:00.000Z'), 72 * 3_600);
+  expect(x && x.summary).toBe('Block3');
 });

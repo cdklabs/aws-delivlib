@@ -33,31 +33,39 @@ type Events = { [uuid: string]: CalendarEvent };
  *
  * @returns the events that represent the blocked time, or `undefined` if `now` is not "blocked".
  */
-export function shouldBlockPipeline(icalData: string | Buffer, now: Date, advanceMarginSec = 3600): CalendarEvent | undefined {
+export function shouldBlockPipeline(icalData: string | Buffer, now = new Date(), advanceMarginSec = 3600): CalendarEvent | undefined {
   const events: Events = ical.parseICS(icalData.toString('utf8'));
   const blocks = containingEventsWithMargin(events, now, advanceMarginSec);
-  return blocks.size > 0 ? Array.from(blocks)[0] : undefined;
+  return blocks.length > 0 ? blocks[0] : undefined;
 }
 
-function containingEventsWithMargin(events: Events, date: Date, advanceMarginSec: number): Set<CalendarEvent> {
-  const now = containingEvents(events, date);
-  const upcomingEvents = containingEvents(events, new Date(date.getTime() + advanceMarginSec));
-
-  for (const e of upcomingEvents) {
-    now.add(e);
-  }
-
-  return now;
+function containingEventsWithMargin(events: Events, date: Date, advanceMarginSec: number): CalendarEvent[] {
+  const bufferedDate = new Date(date.getTime() + advanceMarginSec * 1_000);
+  return Object.values(events)
+    .filter(e => e.type === 'VEVENT')
+    .filter(e => happensBetween(e, date, bufferedDate));
 }
 
-function containingEvents(events: Events, date: Date): Set<CalendarEvent> {
-  return new Set<CalendarEvent>(Object.values(events).filter(e => isInCalendarEvent(e, date)));
+/**
+ * Checks whether an event occurs within a specified time period, which should match the following:
+ * |------------------<=========EVENT=========>------------------------->
+ *                         <WITHIN EVENT>
+ *            <OVERLAP AT START>
+ *                                      <OVERLAP AT END>
+ *               <===COMPLETELY INCLUDES EVENT=====>
+ * |------------------<=========EVENT=========>------------------------->
+ *
+ * @param event    the event being checked.
+ * @param fromDate the beginning of the time period.
+ * @param toDate   the end of the time period.
+ */
+function happensBetween(event: CalendarEvent, fromDate: Date, toDate: Date): boolean {
+  return isBetween(fromDate, event.start, event.end)
+    || isBetween(toDate, event.start, event.end)
+    || isBetween(event.start, fromDate, toDate)
+    || isBetween(event.end, fromDate, toDate);
 }
 
-function isInCalendarEvent(event: CalendarEvent, x: Date) {
-  return event.type === 'VEVENT' && isInDateRange(event.start, event.end, x);
-}
-
-function isInDateRange(start: Date, end: Date, x: Date) {
-  return x >= start && x <= end;
+function isBetween(date: Date, left: Date, right: Date): boolean {
+  return date >= left && date <= right;
 }
