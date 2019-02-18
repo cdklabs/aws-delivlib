@@ -62,6 +62,9 @@ function containingEventsWithMargin(events: Events, date: Date, advanceMarginSec
  * @returns true if `left` and `right` overlap
  */
 function overlaps(left: { start: Date, end: Date }, right: { start: Date, end: Date }): boolean {
+  // Neutering out the milliseconds portions, so they don't interfere
+  [left.start, left.end, right.start, right.end].forEach(d => d.setMilliseconds(0));
+
   return isBetween(right.start, left.start, left.end)
     || isBetween(right.end, left.start, left.end)
     || isBetween(left.start, right.start, right.end)
