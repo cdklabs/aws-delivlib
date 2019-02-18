@@ -29,7 +29,8 @@ type Events = { [uuid: string]: CalendarEvent };
  * @param ical is an iCal document that describes "blocked" time windows (there needs to be an event only for times
  *             during which promotions should not happen).
  * @param now  is the reference time considered when assessing the need to block or not.
- * @param advanceMarginSec is the padding applied before events (defaults to 1 hour).
+ * @param advanceMarginSec how many seconds from `now` should be free of any "blocked" time window for the pipeline to
+ *             not be blocked (defaults to 1 hour).
  *
  * @returns the events that represent the blocked time, or `undefined` if `now` is not "blocked".
  */
@@ -43,27 +44,28 @@ function containingEventsWithMargin(events: Events, date: Date, advanceMarginSec
   const bufferedDate = new Date(date.getTime() + advanceMarginSec * 1_000);
   return Object.values(events)
     .filter(e => e.type === 'VEVENT')
-    .filter(e => happensBetween(e, date, bufferedDate));
+    .filter(e => overlaps(e, { start: date, end: bufferedDate }));
 }
 
 /**
  * Checks whether an event occurs within a specified time period, which should match the following:
- * |------------------<=========EVENT=========>------------------------->
- *                         <WITHIN EVENT>
+ * |------------------<=========LEFT=========>------------------------->
+ *                         <WITHIN LEFT>
  *            <OVERLAP AT START>
  *                                      <OVERLAP AT END>
- *               <===COMPLETELY INCLUDES EVENT=====>
- * |------------------<=========EVENT=========>------------------------->
+ *               <===COMPLETELY INCLUDES LEFT=====>
+ * |------------------<=========LEFT=========>------------------------->
  *
- * @param event    the event being checked.
- * @param fromDate the beginning of the time period.
- * @param toDate   the end of the time period.
+ * @param left  the first time window.
+ * @param right the second time window.
+ *
+ * @returns true if `left` and `right` overlap
  */
-function happensBetween(event: CalendarEvent, fromDate: Date, toDate: Date): boolean {
-  return isBetween(fromDate, event.start, event.end)
-    || isBetween(toDate, event.start, event.end)
-    || isBetween(event.start, fromDate, toDate)
-    || isBetween(event.end, fromDate, toDate);
+function overlaps(left: { start: Date, end: Date }, right: { start: Date, end: Date }): boolean {
+  return isBetween(right.start, left.start, left.end)
+    || isBetween(right.end, left.start, left.end)
+    || isBetween(left.start, right.start, right.end)
+    || isBetween(left.end, right.start, right.end);
 }
 
 function isBetween(date: Date, left: Date, right: Date): boolean {

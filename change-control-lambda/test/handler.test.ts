@@ -2,6 +2,15 @@ import AWS = require('aws-sdk');
 import transitions = require('../lib/disable-transition');
 import timeWindow = require('../lib/time-window');
 
+// _____                                _   _
+// |  __ \                              | | (_)
+// | |__) | __ ___ _ __   __ _ _ __ __ _| |_ _  ___  _ __
+// |  ___/ '__/ _ \ '_ \ / _` | '__/ _` | __| |/ _ \| '_ \
+// | |   | | |  __/ |_) | (_| | | | (_| | |_| | (_) | | | |
+// |_|   |_|  \___| .__/ \__,_|_|  \__,_|\__|_|\___/|_| |_|
+//                | |
+//                |_|
+
 jest.mock('aws-sdk');
 jest.mock('../lib/disable-transition');
 jest.mock('../lib/time-window');
@@ -44,6 +53,13 @@ const testEnv = {
   PIPELINE_NAME: pipelineName,
 };
 
+// _______        _
+// |__   __|      | |
+//    | | ___  ___| |_ ___
+//    | |/ _ \/ __| __/ __|
+//    | |  __/\__ \ |_\__ \
+//    |_|\___||___/\__|___/
+
 describe('handler', () => {
   const handler = require('../lib/index').handler;
 
@@ -52,6 +68,7 @@ describe('handler', () => {
       test(`when ${variable} is not set`, () => {
         // GIVEN
         delete process.env[variable];
+
         // THEN
         return expect(handler())
           .rejects.toThrow(`Environment variable "${variable}" is required`);
@@ -64,6 +81,7 @@ describe('handler', () => {
       mockGetObject.mockImplementationOnce(() => ({
         promise: () => Promise.reject(e)
       }));
+
       // THEN
       return expect(handler()).rejects.toThrow(e);
     });
@@ -82,14 +100,18 @@ describe('handler', () => {
         dtstamp: new Date(), type: 'VEVENT',
         datetype: 'date-time', params: [],
       });
+
       // WHEN
       await expect(handler()).resolves.toBeUndefined();
+
       // THEN
       await expect(mockGetObject)
         .toHaveBeenCalledWith({ Bucket: bucketName, Key: objectKey });
+
       await expect(mockShouldBlockPipeline)
         .toHaveBeenCalledWith(expect.stringContaining('No change control calendar was found'),
                               expect.any(Date));
+
       return expect(mockDisableTransition)
         .toHaveBeenCalledWith(pipelineName, stageName, 'Blocked by default');
     });
@@ -102,13 +124,17 @@ describe('handler', () => {
       promise: () => Promise.resolve({ Body: iCalBody }),
     }));
     mockShouldBlockPipeline.mockReturnValueOnce(undefined);
+
     // WHEN
     await expect(handler()).resolves.toBeUndefined();
+
     // THEN
     await expect(mockGetObject)
       .toHaveBeenCalledWith({ Bucket: bucketName, Key: objectKey });
+
     await expect(mockShouldBlockPipeline)
       .toHaveBeenCalledWith(iCalBody, expect.any(Date));
+
     return expect(mockEnableTransition)
       .toHaveBeenCalledWith(pipelineName, stageName);
   });
