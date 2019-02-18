@@ -1,14 +1,10 @@
 {
     "compilerOptions": {
-        "target": "es2018",
-        "lib": [
-            "es2016",
-            "es2017.object",
-            "es2017.string"
-        ],
+        "target": "es2017",
+        "lib": ["es2017"],
         "module": "commonjs",
         "strict": true,
-        "declaration": true,
+        "declaration": false,
         "strictPropertyInitialization": true,
         "noImplicitAny": true,
         "strictNullChecks": true,
@@ -22,8 +18,5 @@
         "experimentalDecorators": true,
         "jsx": "react",
         "jsxFactory": "jsx.create"
-    },
-    "exclude": [
-        "change-control-lambda"
-    ]
+    }
 }

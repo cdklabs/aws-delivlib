@@ -6,8 +6,10 @@
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "scripts": {
-    "build": "npm run build-custom-resource-handlers && tsc && tslint --fix --project .",
-    "build-custom-resource-handlers": "/bin/bash ./build-custom-resource-handlers.sh",
+    "build": "npm run build:assets && tsc && tslint --fix --project .",
+    "build:assets": "npm run build:assets:custom-resource-handlers && npm run build:assets:lambda-handlers",
+    "build:assets:custom-resource-handlers": "/bin/bash ./build-custom-resource-handlers.sh",
+    "build:assets:lambda-handlers": "/bin/bash ./build-lambda-handlers.sh",
     "package": "/bin/bash ./package.sh",
     "watch": "tsc -w",
     "test": "/bin/bash ./test.sh",

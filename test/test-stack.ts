@@ -134,5 +134,11 @@ export class TestStack extends cdk.Stack {
       commitEmail: 'foo@bar.com',
       commitUsername: 'foobar',
     });
+
+    //
+    // CHANGE CONTROL
+    //
+
+    pipeline.addChangeControl();
   }
 }

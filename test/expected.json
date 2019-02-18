@@ -2248,6 +2248,198 @@ Resources:
         Type: CODEPIPELINE
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/GitHubPages/Default/Resource/Resource
+  CodeCommitPipelineChangeControllerCalendar94B1DEA8:
+    Type: AWS::S3::Bucket
+    Properties:
+      VersioningConfiguration:
+        Status: Enabled
+    Metadata:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/ChangeController/Calendar/Resource
+  CodeCommitPipelineChangeControllerCalendarNotifications1AFBE6E9:
+    Type: Custom::S3BucketNotifications
+    Properties:
+      ServiceToken:
+        Fn::GetAtt:
+          - BucketNotificationsHandler050a0587b7544547bf325f094a3db8347ECC3691
+          - Arn
+      BucketName:
+        Ref: CodeCommitPipelineChangeControllerCalendar94B1DEA8
+      NotificationConfiguration:
+        LambdaFunctionConfigurations:
+          - Events:
+              - s3:ObjectCreated:*
+            Filter:
+              Key:
+                FilterRules:
+                  - Name: prefix
+                    Value: change-control.ics
+            LambdaFunctionArn:
+              Fn::GetAtt:
+                - CodeCommitPipelineChangeControllerFunction776EAE6A
+                - Arn
+    DependsOn:
+      - CodeCommitPipelineChangeControllerFunctionAllowBucketNotificationsFromdelivlibtestCodeCommitPipelineChangeControllerCalendarEBE698816996B3BB
+    Metadata:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/ChangeController/Calendar/Notifications/Resource
+  CodeCommitPipelineChangeControllerFunctionServiceRoleF02841DB:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+        Version: "2012-10-17"
+      ManagedPolicyArns:
+        - Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+    Metadata:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/ChangeController/Function/ServiceRole/Resource
+  CodeCommitPipelineChangeControllerFunctionServiceRoleDefaultPolicy315F7AF5:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - codepipeline:EnableStageTransition
+              - codepipeline:DisableStageTransition
+            Effect: Allow
+            Resource:
+              Fn::Join:
+                - ""
+                - - "arn:"
+                  - Ref: AWS::Partition
+                  - ":codepipeline:us-east-1:712950704752:"
+                  - Ref: CodeCommitPipelineBuildPipeline656B8CCB
+                  - /Publish
+          - Action:
+              - s3:GetObject*
+              - s3:GetBucket*
+              - s3:List*
+            Effect: Allow
+            Resource:
+              - Fn::GetAtt:
+                  - CodeCommitPipelineChangeControllerCalendar94B1DEA8
+                  - Arn
+              - Fn::Join:
+                  - ""
+                  - - Fn::GetAtt:
+                        - CodeCommitPipelineChangeControllerCalendar94B1DEA8
+                        - Arn
+                    - /*
+        Version: "2012-10-17"
+      PolicyName: CodeCommitPipelineChangeControllerFunctionServiceRoleDefaultPolicy315F7AF5
+      Roles:
+        - Ref: CodeCommitPipelineChangeControllerFunctionServiceRoleF02841DB
+    Metadata:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/ChangeController/Function/ServiceRole/DefaultPolicy/Resource
+  CodeCommitPipelineChangeControllerFunction776EAE6A:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        S3Bucket:
+          Ref: CodeCommitPipelineChangeControllerFunctionCodeS3BucketD3AE9241
+        S3Key:
+          Fn::Join:
+            - ""
+            - - Fn::Select:
+                  - 0
+                  - Fn::Split:
+                      - "||"
+                      - Ref: CodeCommitPipelineChangeControllerFunctionCodeS3VersionKey1A85D84D
+              - Fn::Select:
+                  - 1
+                  - Fn::Split:
+                      - "||"
+                      - Ref: CodeCommitPipelineChangeControllerFunctionCodeS3VersionKey1A85D84D
+      Handler: index.handler
+      Role:
+        Fn::GetAtt:
+          - CodeCommitPipelineChangeControllerFunctionServiceRoleF02841DB
+          - Arn
+      Runtime: nodejs8.10
+      Description: Enforces a Change Control Policy into CodePipeline's Publish stage
+      Environment:
+        Variables:
+          CHANGE_CONTROL_BUCKET_NAME:
+            Ref: CodeCommitPipelineChangeControllerCalendar94B1DEA8
+          CHANGE_CONTROL_OBJECT_KEY: change-control.ics
+          PIPELINE_NAME:
+            Ref: CodeCommitPipelineBuildPipeline656B8CCB
+          STAGE_NAME: Publish
+      Timeout: 300
+    DependsOn:
+      - CodeCommitPipelineChangeControllerFunctionServiceRoleDefaultPolicy315F7AF5
+      - CodeCommitPipelineChangeControllerFunctionServiceRoleF02841DB
+    Metadata:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/ChangeController/Function/Resource
+  CodeCommitPipelineChangeControllerFunctionAllowBucketNotificationsFromdelivlibtestCodeCommitPipelineChangeControllerCalendarEBE698816996B3BB:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Ref: CodeCommitPipelineChangeControllerFunction776EAE6A
+      Principal: s3.amazonaws.com
+      SourceAccount: "712950704752"
+      SourceArn:
+        Fn::GetAtt:
+          - CodeCommitPipelineChangeControllerCalendar94B1DEA8
+          - Arn
+    Metadata:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/ChangeController/Function/AllowBucketNotificationsFromdelivlibtestCodeCommitPipelineChangeControllerCalendarEBE69881
+  CodeCommitPipelineChangeControllerFunctionAllowEventRuledelivlibtestCodeCommitPipelineChangeControllerRule9C4D9DE885142D66:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Ref: CodeCommitPipelineChangeControllerFunction776EAE6A
+      Principal: events.amazonaws.com
+      SourceArn:
+        Fn::GetAtt:
+          - CodeCommitPipelineChangeControllerRuleAEEA7A52
+          - Arn
+    Metadata:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/ChangeController/Function/AllowEventRuledelivlibtestCodeCommitPipelineChangeControllerRule9C4D9DE8
+  CodeCommitPipelineChangeControllerFailed03331BFB:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      EvaluationPeriods: 1
+      Threshold: 1
+      DatapointsToAlarm: 1
+      Dimensions:
+        - Name: FunctionName
+          Value:
+            Ref: CodeCommitPipelineChangeControllerFunction776EAE6A
+      MetricName: Errors
+      Namespace: AWS/Lambda
+      Period: 300
+      Statistic: Sum
+    Metadata:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/ChangeController/Failed/Resource
+  CodeCommitPipelineChangeControllerRuleAEEA7A52:
+    Type: AWS::Events::Rule
+    Properties:
+      Description:
+        Fn::Join:
+          - ""
+          - - "Run the change controller for promotions into "
+            - Ref: CodeCommitPipelineBuildPipeline656B8CCB
+            - "'s Publish on a rate(15 minutes) schedule"
+      ScheduleExpression: rate(15 minutes)
+      State: ENABLED
+      Targets:
+        - Arn:
+            Fn::GetAtt:
+              - CodeCommitPipelineChangeControllerFunction776EAE6A
+              - Arn
+          Id: Function
+    Metadata:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/ChangeController/Rule/Resource
   ED3906BE3B2E4990A6A93B3409FCB2C2AdoptRepository01206045:
     Type: Custom::ECRAdoptedRepository
     Properties:
@@ -2747,6 +2939,116 @@ Resources:
       - SingletonLambdaf25803d3054b44fc985f4860d7d6ee74ServiceRole410148CF
     Metadata:
       aws:cdk:path: delivlib-test/SingletonLambdaf25803d3054b44fc985f4860d7d6ee74/Resource
+  BucketNotificationsHandler050a0587b7544547bf325f094a3db834RoleB6FB88EC:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+        Version: "2012-10-17"
+      ManagedPolicyArns:
+        - Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+    Metadata:
+      aws:cdk:path: delivlib-test/BucketNotificationsHandler050a0587b7544547bf325f094a3db834/Role/Resource
+  BucketNotificationsHandler050a0587b7544547bf325f094a3db834RoleDefaultPolicy2CF63D36:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action: s3:PutBucketNotification
+            Effect: Allow
+            Resource: "*"
+        Version: "2012-10-17"
+      PolicyName: BucketNotificationsHandler050a0587b7544547bf325f094a3db834RoleDefaultPolicy2CF63D36
+      Roles:
+        - Ref: BucketNotificationsHandler050a0587b7544547bf325f094a3db834RoleB6FB88EC
+    Metadata:
+      aws:cdk:path: delivlib-test/BucketNotificationsHandler050a0587b7544547bf325f094a3db834/Role/DefaultPolicy/Resource
+  BucketNotificationsHandler050a0587b7544547bf325f094a3db8347ECC3691:
+    Type: AWS::Lambda::Function
+    Properties:
+      Description: AWS CloudFormation handler for "Custom::S3BucketNotifications" resources
+        (@aws-cdk/aws-s3)
+      Code:
+        ZipFile: >-
+          exports.handler = (event, context) => {
+              const s3 = new (require('aws-sdk').S3)();
+              const https = require("https");
+              const url = require("url");
+              log(JSON.stringify(event, undefined, 2));
+              const props = event.ResourceProperties;
+              if (event.RequestType === 'Delete') {
+                  props.NotificationConfiguration = {}; // this is how you clean out notifications
+              }
+              const req = {
+                  Bucket: props.BucketName,
+                  NotificationConfiguration: props.NotificationConfiguration
+              };
+              return s3.putBucketNotificationConfiguration(req, (err, data) => {
+                  log({ err, data });
+                  if (err) {
+                      return submitResponse("FAILED", err.message + `\nMore information in CloudWatch Log Stream: ${context.logStreamName}`);
+                  }
+                  else {
+                      return submitResponse("SUCCESS");
+                  }
+              });
+              function log(obj) {
+                  console.error(event.RequestId, event.StackId, event.LogicalResourceId, obj);
+              }
+              // tslint:disable-next-line:max-line-length
+              // adapted from https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-lambda-function-code.html#cfn-lambda-function-code-cfnresponsemodule
+              // to allow sending an error messge as a reason.
+              function submitResponse(responseStatus, reason) {
+                  const responseBody = JSON.stringify({
+                      Status: responseStatus,
+                      Reason: reason || "See the details in CloudWatch Log Stream: " + context.logStreamName,
+                      PhysicalResourceId: context.logStreamName,
+                      StackId: event.StackId,
+                      RequestId: event.RequestId,
+                      LogicalResourceId: event.LogicalResourceId,
+                      NoEcho: false,
+                  });
+                  log({ responseBody });
+                  const parsedUrl = url.parse(event.ResponseURL);
+                  const options = {
+                      hostname: parsedUrl.hostname,
+                      port: 443,
+                      path: parsedUrl.path,
+                      method: "PUT",
+                      headers: {
+                          "content-type": "",
+                          "content-length": responseBody.length
+                      }
+                  };
+                  const request = https.request(options, (r) => {
+                      log({ statusCode: r.statusCode, statusMessage: r.statusMessage });
+                      context.done();
+                  });
+                  request.on("error", (error) => {
+                      log({ sendError: error });
+                      context.done();
+                  });
+                  request.write(responseBody);
+                  request.end();
+              }
+          };
+      Handler: index.handler
+      Role:
+        Fn::GetAtt:
+          - BucketNotificationsHandler050a0587b7544547bf325f094a3db834RoleB6FB88EC
+          - Arn
+      Runtime: nodejs8.10
+      Timeout: 300
+    Metadata:
+      aws:cdk:path: delivlib-test/BucketNotificationsHandler050a0587b7544547bf325f094a3db834/Resource
 Parameters:
   CodeCommitPipelineBuildPipelineGitHubTokenParameter9FBEDC6B:
     Type: AWS::SSM::Parameter::Value<String>
@@ -2828,6 +3130,14 @@ Parameters:
     Type: String
     Description: S3 key for asset version
       "delivlib-test/CodeCommitPipeline/GitHubPages/Default/ScriptDirectory"
+  CodeCommitPipelineChangeControllerFunctionCodeS3BucketD3AE9241:
+    Type: String
+    Description: S3 bucket for asset
+      "delivlib-test/CodeCommitPipeline/ChangeController/Function/Code"
+  CodeCommitPipelineChangeControllerFunctionCodeS3VersionKey1A85D84D:
+    Type: String
+    Description: S3 key for asset version
+      "delivlib-test/CodeCommitPipeline/ChangeController/Function/Code"
   ED3906BE3B2E4990A6A93B3409FCB2C2ImageName05CA9938:
     Type: String
     Description: ECR repository name and tag asset
@@ -2865,6 +3175,11 @@ Parameters:
     Description: S3 key for asset version
       "delivlib-test/SingletonLambdaf25803d3054b44fc985f4860d7d6ee74/Code"
 Outputs:
+  CodeCommitPipelineChangeControllerChangeControlBucketKeyCA921D21:
+    Value: change-control.ics
+  CodeCommitPipelineChangeControllerChangeControlBucket707A9E21:
+    Value:
+      Ref: CodeCommitPipelineChangeControllerCalendar94B1DEA8
   X509CodeSigningKeyCSR5137C5A3:
     Description: A PEM-encoded Certificate Signing Request for a Code-Signing Certificate
     Value:
