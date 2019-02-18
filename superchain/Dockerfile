@@ -126,7 +126,8 @@ RUN set -ex \
 		&& tar -xzf "node-v$NODE_VERSION-linux-x64.tar.gz" -C /usr/local --strip-components=1 \
 		&& rm "node-v$NODE_VERSION-linux-x64.tar.gz" SHASUMS256.txt.asc SHASUMS256.txt \
 		&& ln -s /usr/local/bin/node /usr/local/bin/nodejs \
-		&& rm -fr /var/lib/apt/lists/* /tmp/* /var/tmp/*
+		&& rm -fr /var/lib/apt/lists/* /tmp/* /var/tmp/* \
+		&& npm -g install npm@~6.8.0
 
 RUN npm set unsafe-perm true
 
