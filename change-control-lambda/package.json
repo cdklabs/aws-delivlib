@@ -8,6 +8,6 @@
     "prepare": "../node_modules/.bin/tsc"
   },
   "dependencies": {
-    "node-ical": "^0.9.0"
+    "node-ical": "^0.9.1"
   }
 }
