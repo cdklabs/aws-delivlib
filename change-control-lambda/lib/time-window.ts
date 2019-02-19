@@ -36,6 +36,8 @@ type Events = { [uuid: string]: CalendarEvent };
  */
 export function shouldBlockPipeline(icalData: string | Buffer, now = new Date(), advanceMarginSec = 3600): CalendarEvent | undefined {
   const events: Events = ical.parseICS(icalData.toString('utf8'));
+  // tslint:disable-next-line:no-console
+  console.log(JSON.stringify(events, null, 2));
   const blocks = containingEventsWithMargin(events, now, advanceMarginSec);
   return blocks.length > 0 ? blocks[0] : undefined;
 }
@@ -43,12 +45,12 @@ export function shouldBlockPipeline(icalData: string | Buffer, now = new Date(),
 function containingEventsWithMargin(events: Events, date: Date, advanceMarginSec: number): CalendarEvent[] {
   const bufferedDate = new Date(date.getTime() + advanceMarginSec * 1_000);
   return Object.values(events)
-    // .filter(e => e.type === 'VEVENT')
+    .filter(e => e.type === 'VEVENT')
     .filter(e => {
       const result = overlaps(e, { start: date, end: bufferedDate });
       // tslint:disable:no-console
       console.log('##########');
-      console.log(`Event:    ${e.start.toUTCString()} ==> ${e.end.toUTCString()} (${e.type} - ${e.type === 'VEVENT'} - ${e.summary})`);
+      console.log(`Event:    ${e.start.toUTCString()} ==> ${e.end.toUTCString()} (${e.summary})`);
       console.log(`Window:   ${date.toUTCString()} ==> ${bufferedDate.toUTCString()}`);
       console.log(`Overlaps: ${result ? 'YES' : 'NOPE'}`);
       // tslint:enable:no-console
