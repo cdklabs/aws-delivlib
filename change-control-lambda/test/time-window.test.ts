@@ -41,12 +41,16 @@ test('non blocked time in between events', () => {
 });
 
 test('left edge', () => {
+  console.log('----LEFT EDGE----');
   const x = shouldBlockPipeline(ics, new Date('2017-04-12T07:00:00.000Z'));
+  console.log('----END LEFT EDGE----');
   expect(x && x.summary).toBe('Block1');
 });
 
 test('right edge', () => {
+  console.log('----RIGHT EDGE----');
   const x = shouldBlockPipeline(ics, new Date('2017-11-27T08:00:00.000Z'));
+  console.log('----END RIGHT EDGE----');
   expect(x && x.summary).toBe('Block2');
 });
 
