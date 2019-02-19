@@ -44,7 +44,16 @@ function containingEventsWithMargin(events: Events, date: Date, advanceMarginSec
   const bufferedDate = new Date(date.getTime() + advanceMarginSec * 1_000);
   return Object.values(events)
     .filter(e => e.type === 'VEVENT')
-    .filter(e => overlaps(e, { start: date, end: bufferedDate }));
+    .filter(e => {
+      const result = overlaps(e, { start: date, end: bufferedDate });
+      // tslint:disable:no-console
+      console.log('##########');
+      console.log(`Event:    ${e.start.toUTCString()} ==> ${e.end.toUTCString()} (${e.summary})`);
+      console.log(`Window:   ${date.toUTCString()} ==> ${bufferedDate.toUTCString()}`);
+      console.log(`Overlaps: ${result ? 'YES' : 'NOPE'}`);
+      // tslint:enable:no-console
+      return result;
+    });
 }
 
 /**
