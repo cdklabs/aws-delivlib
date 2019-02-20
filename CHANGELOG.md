@@ -2,15 +2,38 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="3.0.0"></a>
+## [3.0.0](https://github.com/awslabs/aws-delivlib/compare/v2.0.1...v3.0.0) (2019-02-20)
+
+
+### Bug Fixes
+
+* Correctly set environment before using gpg ([#69](https://github.com/awslabs/aws-delivlib/issues/69)) ([19aeed5](https://github.com/awslabs/aws-delivlib/commit/19aeed5))
+* Don't attempt deleting OpenPGP keys' secrets ([#70](https://github.com/awslabs/aws-delivlib/issues/70)) ([de02f7c](https://github.com/awslabs/aws-delivlib/commit/de02f7c))
+* Upgrade npm if 'npm ci' is unsupported ([#72](https://github.com/awslabs/aws-delivlib/issues/72)) ([e8a19ca](https://github.com/awslabs/aws-delivlib/commit/e8a19ca))
+
+
+### Features
+
+* Rename PGPSecret to OpenPGPKeyPair ([#67](https://github.com/awslabs/aws-delivlib/issues/67)) ([c540def](https://github.com/awslabs/aws-delivlib/commit/c540def))
+* Support Change Control Policies ([#71](https://github.com/awslabs/aws-delivlib/issues/71)) ([82acca9](https://github.com/awslabs/aws-delivlib/commit/82acca9)), closes [awslabs/cdk-ops#231](https://github.com/awslabs/cdk-ops/issues/231)
+
+
+### BREAKING CHANGES
+
+* The `PGPSecret` class was renamed to `OpenPGPKeyPair`.
+
+
+
 <a name="2.0.1"></a>
-# [2.0.1](https://github.com/awslabs/aws-delivlib/compare/v2.0.0...v2.0.1) (2019-02-11)
+## [2.0.1](https://github.com/awslabs/aws-delivlib/compare/v2.0.0...v2.0.1) (2019-02-11)
 
 ### Bug Fixes
 
 * Add missing permission to PGPSecret CustomResource
 
 <a name="2.0.0"></a>
-# [2.0.0](https://github.com/awslabs/aws-delivlib/compare/v1.0.0...v2.0.0) (2019-02-11)
+## [2.0.0](https://github.com/awslabs/aws-delivlib/compare/v1.0.0...v2.0.0) (2019-02-11)
 
 
 ### Features
@@ -24,7 +47,7 @@ All notable changes to this project will be documented in this file. See [standa
 
 
 <a name="1.0.0"></a>
-# [1.0.0](https://github.com/awslabs/aws-delivlib/compare/v0.4.0...v1.0.0) (2019-01-29)
+## [1.0.0](https://github.com/awslabs/aws-delivlib/compare/v0.4.0...v1.0.0) (2019-01-29)
 
 
 ### Bug Fixes
@@ -53,7 +76,7 @@ has been renamed to `env` and changed schema; `pipeline.env` renamed to `environ
 
 
 <a name="0.5.0"></a>
-# [0.5.0](https://github.com/awslabs/aws-delivlib/compare/v0.4.0...v0.5.0) (2019-01-15)
+## [0.5.0](https://github.com/awslabs/aws-delivlib/compare/v0.4.0...v0.5.0) (2019-01-15)
 
 
 ### Bug Fixes
