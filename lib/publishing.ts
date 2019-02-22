@@ -1,11 +1,13 @@
 import cbuild = require('@aws-cdk/aws-codebuild');
+import cpipeline = require('@aws-cdk/aws-codepipeline');
 import iam = require('@aws-cdk/aws-iam');
+import s3 = require('@aws-cdk/aws-s3');
 import cdk = require('@aws-cdk/cdk');
 import path = require('path');
 import { ICodeSigningCertificate } from './code-signing';
 import { OpenPGPKeyPair } from './open-pgp-key-pair';
 import permissions = require('./permissions');
-import { IPublisher } from './pipeline';
+import { AddToPipelineOptions, IPublisher } from './pipeline';
 import { GitHubRepo } from './repo';
 import { LinuxPlatform, Shellable } from './shellable';
 
@@ -64,6 +66,10 @@ export class PublishToMavenProject extends cdk.Construct implements IPublisher {
     this.role = shellable.role;
     this.project = shellable.project;
   }
+
+  public addToPipeline(stage: cpipeline.Stage, id: string, options: AddToPipelineOptions): void {
+    this.project.addToPipeline(stage, id, options);
+  }
 }
 
 export interface PublishToNpmProjectProps {
@@ -107,6 +113,10 @@ export class PublishToNpmProject extends cdk.Construct implements IPublisher {
 
     this.role = shellable.role;
     this.project = shellable.project;
+  }
+
+  public addToPipeline(stage: cpipeline.Stage, id: string, options: AddToPipelineOptions): void {
+    this.project.addToPipeline(stage, id, options);
   }
 }
 
@@ -181,6 +191,10 @@ export class PublishToNuGetProject extends cdk.Construct implements IPublisher {
 
     this.role = shellable.role;
     this.project = shellable.project;
+  }
+
+  public addToPipeline(stage: cpipeline.Stage, id: string, options: AddToPipelineOptions): void {
+    this.project.addToPipeline(stage, id, options);
   }
 }
 
@@ -262,6 +276,10 @@ export class PublishDocsToGitHubProject extends cdk.Construct implements IPublis
     this.role = shellable.role;
     this.project = shellable.project;
   }
+
+  public addToPipeline(stage: cpipeline.Stage, id: string, options: AddToPipelineOptions): void {
+    this.project.addToPipeline(stage, id, options);
+  }
 }
 
 export interface PublishToGitHubProps {
@@ -328,5 +346,23 @@ export class PublishToGitHub extends cdk.Construct implements IPublisher {
 
     this.role = shellable.role;
     this.project = shellable.project;
+  }
+
+  public addToPipeline(stage: cpipeline.Stage, id: string, options: AddToPipelineOptions): void {
+    this.project.addToPipeline(stage, id, options);
+  }
+}
+
+export interface PublishToS3Props {
+  bucket: s3.IBucket;
+}
+
+export class PublishToS3 extends cdk.Construct implements IPublisher {
+  constructor(scope: cdk.Construct, id: string, private readonly props: PublishToS3Props) {
+    super(scope, id);
+  }
+
+  public addToPipeline(stage: cpipeline.Stage, id: string, options: AddToPipelineOptions): void {
+    this.props.bucket.addToPipelineAsDeploy(stage, id, options);
   }
 }
