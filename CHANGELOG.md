@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="3.1.0"></a>
+# [3.1.0](https://github.com/awslabs/aws-delivlib/compare/v3.0.0...v3.1.0) (2019-02-25)
+
+
+### Features
+
+* make it possible to add arbitrary processing steps ([#77](https://github.com/awslabs/aws-delivlib/issues/77)) ([f2ceb8a](https://github.com/awslabs/aws-delivlib/commit/f2ceb8a))
+* **superchain:** add MSBuild to Superchain image ([#76](https://github.com/awslabs/aws-delivlib/issues/76)) ([b2f1dfa](https://github.com/awslabs/aws-delivlib/commit/b2f1dfa))
+
+
+
 <a name="3.0.0"></a>
 ## [3.0.0](https://github.com/awslabs/aws-delivlib/compare/v2.0.1...v3.0.0) (2019-02-20)
 
