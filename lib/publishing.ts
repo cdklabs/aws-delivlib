@@ -355,14 +355,51 @@ export class PublishToGitHub extends cdk.Construct implements IPublisher {
 
 export interface PublishToS3Props {
   bucket: s3.IBucket;
+
+  /**
+   * Make files publicly readable
+   *
+   * @default false
+   */
+  public?: boolean;
+
+  /**
+   * If `true` (default) will only perform a dry-run but will not actually publish.
+   * @default true
+   */
+  dryRun?: boolean;
 }
 
 export class PublishToS3 extends cdk.Construct implements IPublisher {
-  constructor(scope: cdk.Construct, id: string, private readonly props: PublishToS3Props) {
+  public readonly role?: iam.Role;
+  public readonly project: cbuild.Project;
+
+  constructor(scope: cdk.Construct, id: string, props: PublishToS3Props) {
     super(scope, id);
+
+    const forReal = props.dryRun === undefined ? 'false' : (!props.dryRun).toString();
+
+    const shellable = new Shellable(this, 'Default', {
+      platform: new LinuxPlatform(cbuild.LinuxBuildImage.UBUNTU_14_04_BASE),
+      scriptDirectory: path.join(__dirname, 'publishing', 's3'),
+      entrypoint: 'publish.sh',
+      environment: {
+        BUCKET_URL: `s3://${props.bucket.bucketName}`,
+        CHANGELOG: props.public ? 'true' : 'false',
+        FOR_REAL: forReal,
+      }
+    });
+
+    // Allow script to write to bucket
+    if (shellable.role) {
+      props.bucket.grantReadWrite(shellable.role);
+    }
+
+    this.role = shellable.role;
+    this.project = shellable.project;
   }
 
   public addToPipeline(stage: cpipeline.Stage, id: string, options: AddToPipelineOptions): void {
-    this.props.bucket.addToPipelineAsDeploy(stage, id, options);
+    this.project.addToPipeline(stage, id, options);
   }
 }
