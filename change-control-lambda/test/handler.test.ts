@@ -2,6 +2,8 @@ import AWS = require('aws-sdk');
 import transitions = require('../lib/disable-transition');
 import timeWindow = require('../lib/time-window');
 
+// tslint:disable:no-console
+
 // _____                                _   _
 // |  __ \                              | | (_)
 // | |__) | __ ___ _ __   __ _ _ __ __ _| |_ _  ___  _ __
@@ -28,8 +30,7 @@ const mockDisableTransition =
     .mockName('disableTransition');
 transitions.disableTransition = mockDisableTransition;
 
-const mockShouldBlockPipeline: jest.Mock<undefined | timeWindow.CalendarEvent> =
-  jest.fn((_icsData: string | Buffer, _date: Date) => undefined)
+const mockShouldBlockPipeline = jest.fn((_icsData: string | Buffer, _date: Date) => undefined)
     .mockName('shouldBlockPipeline');
 timeWindow.shouldBlockPipeline = mockShouldBlockPipeline;
 

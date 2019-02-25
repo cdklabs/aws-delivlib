@@ -6,14 +6,15 @@ import iam = require('@aws-cdk/aws-iam');
 import s3 = require('@aws-cdk/aws-s3');
 import sns = require('@aws-cdk/aws-sns');
 import cdk = require('@aws-cdk/cdk');
+import { createBuildEnvironment } from './build-env';
+import { AutoBump, AutoBumpOptions } from './bump';
 import { Canary, CanaryProps } from './canary';
 import { ChangeController } from './change-controller';
 import { PipelineWatcher } from './pipeline-watcher';
 import publishing = require('./publishing');
-import { IRepo } from './repo';
+import { IRepo, WritableGitHubRepo } from './repo';
 import { Shellable, ShellableProps } from './shellable';
-import { Superchain } from './superchain';
-import { determineRunOrder, renderEnvironmentVariables } from './util';
+import { determineRunOrder } from './util';
 
 const PUBLISH_STAGE_NAME = 'Publish';
 const TEST_STAGE_NAME = 'Test';
@@ -115,11 +116,13 @@ export class Pipeline extends cdk.Construct {
   private stages: { [name: string]: cpipeline.Stage } = { };
 
   private readonly concurrency?: number;
+  private readonly repo: IRepo;
 
   constructor(parent: cdk.Construct, name: string, props: PipelineProps) {
     super(parent, name);
 
     this.concurrency = props.concurrency;
+    this.repo = props.repo;
 
     this.pipeline = new cpipeline.Pipeline(this, 'BuildPipeline', {
       pipelineName: props.pipelineName,
@@ -129,15 +132,8 @@ export class Pipeline extends cdk.Construct {
     this.branch = props.branch || 'master';
     const source = props.repo.createSourceStage(this.pipeline, this.branch);
 
-    const environment: cbuild.BuildEnvironment = {
-      computeType: props.computeType || cbuild.ComputeType.Small,
-      privileged: props.privileged,
-      environmentVariables: renderEnvironmentVariables(props.environment),
-      buildImage: props.buildImage || new Superchain(this).buildImage
-    };
-
     const buildProject = new cbuild.PipelineProject(this, 'BuildProject', {
-      environment,
+      environment: createBuildEnvironment(this, props),
       buildSpec: props.buildSpec,
     });
 
@@ -255,6 +251,21 @@ export class Pipeline extends cdk.Construct {
       dryRun: false,
       ...options
     }));
+  }
+
+  /**
+   * Enables automatic bumps for the source repo.
+   * @param options Options for auto bump (see AutoBumpOptions for description of defaults)
+   */
+  public autoBump(options?: AutoBumpOptions): AutoBump {
+    if (!WritableGitHubRepo.isWritableGitHubRepo(this.repo)) {
+      throw new Error(`"repo" must be a WritableGitHubRepo in order to enable auto-bump`);
+    }
+
+    return new AutoBump(this, 'AutoBump', {
+      repo: this.repo,
+      ...options
+    });
   }
 
   private addFailureAlarm(title?: string): cloudwatch.Alarm {

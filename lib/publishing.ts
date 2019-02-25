@@ -7,8 +7,8 @@ import path = require('path');
 import { ICodeSigningCertificate } from './code-signing';
 import { OpenPGPKeyPair } from './open-pgp-key-pair';
 import permissions = require('./permissions');
-import { AddToPipelineOptions, IPublisher } from './pipeline';
-import { GitHubRepo } from './repo';
+import { IPublisher } from './pipeline';
+import { WritableGitHubRepo } from './repo';
 import { LinuxPlatform, Shellable } from './shellable';
 
 export interface PublishToMavenProjectProps {
@@ -67,7 +67,7 @@ export class PublishToMavenProject extends cdk.Construct implements IPublisher {
     this.project = shellable.project;
   }
 
-  public addToPipeline(stage: cpipeline.Stage, id: string, options: AddToPipelineOptions): void {
+  public addToPipeline(stage: cpipeline.Stage, id: string, options: cbuild.CommonPipelineBuildActionProps): void {
     this.project.addToPipeline(stage, id, options);
   }
 }
@@ -115,7 +115,7 @@ export class PublishToNpmProject extends cdk.Construct implements IPublisher {
     this.project = shellable.project;
   }
 
-  public addToPipeline(stage: cpipeline.Stage, id: string, options: AddToPipelineOptions): void {
+  public addToPipeline(stage: cpipeline.Stage, id: string, options: cbuild.CommonPipelineBuildActionProps): void {
     this.project.addToPipeline(stage, id, options);
   }
 }
@@ -193,7 +193,7 @@ export class PublishToNuGetProject extends cdk.Construct implements IPublisher {
     this.project = shellable.project;
   }
 
-  public addToPipeline(stage: cpipeline.Stage, id: string, options: AddToPipelineOptions): void {
+  public addToPipeline(stage: cpipeline.Stage, id: string, options: cbuild.CommonPipelineBuildActionProps): void {
     this.project.addToPipeline(stage, id, options);
   }
 }
@@ -202,24 +202,7 @@ export interface PublishDocsToGitHubProjectProps {
   /**
    * The repository to publish to
    */
-  githubRepo: GitHubRepo;
-
-  /**
-   * Secret with the private SSH key to write to GitHub.
-   * The secret should be stored as plain text.
-   * (Public counterpart should be added to Deploy Keys on GitHub repository)
-   */
-  sshKeySecret: permissions.ExternalSecret;
-
-  /**
-   * The username to use for the published commits
-   */
-  commitUsername: string;
-
-  /**
-   * The email address to use for the published commits
-   */
-  commitEmail: string;
+  githubRepo: WritableGitHubRepo;
 
   /**
    * If `true` (default) will only perform a dry-run but will not actually publish.
@@ -259,25 +242,25 @@ export class PublishDocsToGitHubProject extends cdk.Construct implements IPublis
       entrypoint: 'publish.sh',
       environment: {
         // Must be SSH because we use an SSH key to authenticate
-        GITHUB_REPO: `git@github.com:${props.githubRepo.owner}/${props.githubRepo.repo}`,
+        GITHUB_REPO: props.githubRepo.repositoryUrlSsh,
         GITHUB_PAGES_BRANCH: props.branch || 'gh-pages',
-        SSH_KEY_SECRET: props.sshKeySecret.secretArn,
+        SSH_KEY_SECRET: props.githubRepo.sshKeySecret.secretArn,
         FOR_REAL: forReal,
-        COMMIT_USERNAME: props.commitUsername,
-        COMMIT_EMAIL: props.commitEmail,
+        COMMIT_USERNAME: props.githubRepo.commitUsername,
+        COMMIT_EMAIL: props.githubRepo.commitEmail,
         BUILD_MANIFEST: props.buildManifestFileName || './build.json',
       }
     });
 
     if (shellable.role) {
-      permissions.grantSecretRead(props.sshKeySecret, shellable.role);
+      permissions.grantSecretRead(props.githubRepo.sshKeySecret, shellable.role);
     }
 
     this.role = shellable.role;
     this.project = shellable.project;
   }
 
-  public addToPipeline(stage: cpipeline.Stage, id: string, options: AddToPipelineOptions): void {
+  public addToPipeline(stage: cpipeline.Stage, id: string, options: cbuild.CommonPipelineBuildActionProps): void {
     this.project.addToPipeline(stage, id, options);
   }
 }
@@ -292,7 +275,7 @@ export interface PublishToGitHubProps {
   /**
    * The repository to create a release in.
    */
-  githubRepo: GitHubRepo;
+  githubRepo: WritableGitHubRepo;
 
   /**
    * The signign key to use to create a GPG signature of the artifact.
@@ -348,7 +331,7 @@ export class PublishToGitHub extends cdk.Construct implements IPublisher {
     this.project = shellable.project;
   }
 
-  public addToPipeline(stage: cpipeline.Stage, id: string, options: AddToPipelineOptions): void {
+  public addToPipeline(stage: cpipeline.Stage, id: string, options: cbuild.CommonPipelineBuildActionProps): void {
     this.project.addToPipeline(stage, id, options);
   }
 }
@@ -399,7 +382,7 @@ export class PublishToS3 extends cdk.Construct implements IPublisher {
     this.project = shellable.project;
   }
 
-  public addToPipeline(stage: cpipeline.Stage, id: string, options: AddToPipelineOptions): void {
+  public addToPipeline(stage: cpipeline.Stage, id: string, options: cbuild.CommonPipelineBuildActionProps): void {
     this.project.addToPipeline(stage, id, options);
   }
 }

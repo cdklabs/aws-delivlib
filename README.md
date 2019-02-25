@@ -596,6 +596,65 @@ To create an ssh deploy key for your repository:
    (not key/value).
 1. Use the name of the AWS Secrets Manager secret in the `sshKeySecret` option.
 
+## Automatic Bumps and Pull Request Builds
+
+### GitHub Access
+
+If your source repository is GitHub, in order to enable these features you will
+need to manually connect AWS CodeBuild to your GitHub account. Otherwise, you
+will receive the following error message:
+
+```
+No Access token found, please visit AWS CodeBuild console to connect to GitHub
+(Service: AWSCodeBuild; Status Code: 400; Error Code: InvalidInputException;
+Request ID: ab458603-6fd4-11e8-9310-ff116e0423f9)
+```
+
+To connect, go to the AWS CodeBuild console, click "Create Project", select a
+GitHub source and hit "Connect". There is no need to save the new project. This
+needs to be done once per account/region.
+
+### Automatic Bumps
+
+A bump is the process of incrementing the version number of the project. When
+the version number is incremented and a commit is pushed to the master branch,
+the publishing actions will release the new version to all repositories.
+
+This feature enables achieving full continuous delivery for libraries.
+
+To enable automatic bumps, you will first need to determine how to perform a
+bump in your repository. What command should be executed in order to increment
+the version number, update change log, etc.
+
+The bump command is expected to perform the bump and issue a **commit** and a
+**tag** to the local repository with the version number.
+
+For JavaScript projects, the
+[standard-version](https://github.com/conventional-changelog/standard-version)
+tool will do exactly that, so it is the recommended mechanism for such projects.
+
+Once a bump is committed, the commit will be pushed either to a dedicated branch
+called `bumps/VERSION` or to a branch of your choosing such as `master`.
+
+To set up bumps, simply call `autoBump` on your pipeline. The following example
+sets up a bump on the default schedule (12pm UTC daily) which will automatically
+push the to "master" (which will trigger a release).
+
+```ts
+const bump = pipeline.autoBump({
+  bumpCommand: 'npm i && npm run bump',
+  branch: 'master'
+});
+```
+
+You can customize the environment used for running the bump script.
+
+If a bump fails, the `bump.alarm` CloudWatch alarm will be triggered.
+
+NOTE: there is currently no way for the bump command to indicate to the
+system that a bump is not needed (i.e. no changes have been made to the
+library).
+
 ## Contributing
 
 See the [contribution guide](./CONTRIBUTING.md) for details on how to submit

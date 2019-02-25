@@ -52,7 +52,7 @@
     "@types/node": "^8.10.39",
     "@types/nodeunit": "0.0.30",
     "aws-cdk": "^0.24.1",
-    "jest": "^23.6.0",
+    "jest": "^24.1.0",
     "jest-create-mock-instance": "^1.1.0",
     "nodeunit": "^0.11.3",
     "standard-version": "^4.4.0",
@@ -65,6 +65,7 @@
     "coverageReporters": [
       "lcov"
     ],
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "moduleFileExtensions": [ "js" ]
   }
 }

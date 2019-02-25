@@ -14,9 +14,12 @@ export class TestStack extends cdk.Stack {
     // SOURCE
     //
 
-    const repo = new delivlib.GitHubRepo({
+    const githubRepo = new delivlib.WritableGitHubRepo({
       repository: 'awslabs/aws-delivlib-sample',
-      tokenParameterName: 'github-token'
+      tokenParameterName: 'github-token',
+      sshKeySecret: { secretArn: 'arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/github-ssh-lwzfjW' },
+      commitEmail: 'foo@bar.com',
+      commitUsername: 'foobar',
     });
 
     //
@@ -25,7 +28,7 @@ export class TestStack extends cdk.Stack {
 
     const pipeline = new delivlib.Pipeline(this, 'CodeCommitPipeline', {
       title: 'aws-delivlib test pipeline',
-      repo,
+      repo: githubRepo,
       notificationEmail: 'aws-cdk-dev+delivlib-test@amazon.com',
       environment: {
         DELIVLIB_ENV_TEST: 'MAGIC_1924'
@@ -124,15 +127,20 @@ export class TestStack extends cdk.Stack {
     });
 
     pipeline.publishToGitHub({
-      githubRepo: repo,
+      githubRepo,
       signingKey
     });
 
     pipeline.publishToGitHubPages({
-      sshKeySecret: { secretArn: 'arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/github-ssh-lwzfjW' },
-      githubRepo: repo,
-      commitEmail: 'foo@bar.com',
-      commitUsername: 'foobar',
+      githubRepo,
+    });
+
+    //
+    // BUMP
+
+    pipeline.autoBump({
+      bumpCommand: 'npm i && npm run bump',
+      branch: 'master'
     });
 
     //

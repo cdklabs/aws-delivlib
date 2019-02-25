@@ -1,4 +1,5 @@
 import cdk = require('@aws-cdk/cdk');
+// import os = require('os');
 import { TestStack } from './test-stack';
 
 const stackName = process.env.TEST_STACK_NAME;

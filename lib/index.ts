@@ -8,4 +8,6 @@ export * from './publishing';
 export * from './repo';
 export * from './shellable';
 export * from './signing-key';
+export * from './code-signing';
 export * from './superchain';
+export * from './bump';

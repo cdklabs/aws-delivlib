@@ -43,16 +43,7 @@ export class Canary extends cdk.Construct {
       targets: [shellable.project]
     });
 
-    this.alarm = new cloudwatch.Alarm(this, `Alarm`, {
-      metric: shellable.project.metricFailedBuilds({
-        periodSec: 300
-      }),
-      threshold: 1,
-      comparisonOperator: cloudwatch.ComparisonOperator.GreaterThanOrEqualToThreshold,
-      evaluationPeriods: 1,
-      treatMissingData: cloudwatch.TreatMissingData.Ignore
-    });
-
+    this.alarm = shellable.alarm;
     this.project = shellable.project;
   }
 }

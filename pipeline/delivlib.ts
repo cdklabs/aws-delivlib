@@ -13,9 +13,12 @@ export class DelivLibPipelineStack extends cdk.Stack {
   constructor(parent: cdk.App, id: string, props: cdk.StackProps = { }) {
     super(parent, id, props);
 
-    const github = new delivlib.GitHubRepo({
+    const github = new delivlib.WritableGitHubRepo({
       repository: 'awslabs/aws-delivlib',
-      tokenParameterName: 'github-token'
+      tokenParameterName: 'github-token',
+      commitEmail: 'aws-cdk-dev+delivlib@amazon.com',
+      commitUsername: 'aws-cdk-dev',
+      sshKeySecret: { secretArn: 'arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/github-ssh-lwzfjW' }
     });
 
     const pipeline = new delivlib.Pipeline(this, 'GitHubPipeline', {
@@ -48,6 +51,11 @@ export class DelivLibPipelineStack extends cdk.Stack {
 
     pipeline.publishToNpm({
       npmTokenSecret: { secretArn: 'arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/npm-OynG62' }
+    });
+
+    pipeline.autoBump({
+      bumpCommand: 'npm i && npm run bump',
+      branch: 'master'
     });
   }
 }
