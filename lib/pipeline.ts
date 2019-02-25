@@ -143,7 +143,7 @@ export class Pipeline extends cdk.Construct {
 
     this.buildRole = buildProject.role;
 
-    const buildStage = new cpipeline.Stage(this, 'Build', { pipeline: this.pipeline });
+    const buildStage = this.getOrCreateStage('Build');
     const build = buildProject.addToPipeline(buildStage, 'Build', { inputArtifact: source.outputArtifact });
 
     this.buildOutput = build.outputArtifact;
@@ -160,13 +160,32 @@ export class Pipeline extends cdk.Construct {
     this.addBuildFailureNotification(buildProject, `${props.title} build failed`);
   }
 
+  /**
+   * Add an action to run a shell script to the pipeline
+   */
+  public addShellable(stageName: string, id: string, options: AddShellableOptions): cbuild.PipelineBuildAction {
+    const stage = this.getOrCreateStage(stageName);
+
+    const sh = new Shellable(this, id, options);
+    const action = sh.addToPipeline(
+        stage,
+        options.actionName || `Action${id}`,
+        options.inputArtifact || this.buildOutput,
+        this.determineRunOrderForNewAction(stage));
+
+    if (options.failureNotification) {
+      this.addBuildFailureNotification(sh.project, options.failureNotification);
+    }
+
+    return action;
+  }
+
   public addTest(id: string, props: ShellableProps) {
-    const stage = this.getOrCreateStage(TEST_STAGE_NAME);
-
-    const test = new Shellable(this, id, props);
-    test.addToPipeline(stage, `Test${id}`, this.buildOutput, this.determineRunOrderForNewAction(stage));
-
-    this.addBuildFailureNotification(test.project, `Test ${id} failed`);
+    this.addShellable(TEST_STAGE_NAME, id, {
+      actionName: `Test${id}`,
+      failureNotification: `Test ${id} failed`,
+      ...props
+    });
   }
 
   /**
@@ -178,11 +197,11 @@ export class Pipeline extends cdk.Construct {
     return new Canary(this, `Canary${id}`, props);
   }
 
-  public addPublish(publisher: IPublisher) {
+  public addPublish(publisher: IPublisher, options: AddPublishOptions = {}) {
     const stage = this.getOrCreateStage(PUBLISH_STAGE_NAME);
 
-    publisher.project.addToPipeline(stage, `${publisher.node.id}Publish`, {
-      inputArtifact: this.buildOutput,
+    publisher.addToPipeline(stage, `${publisher.node.id}Publish`, {
+      inputArtifact: options.inputArtifact || this.buildOutput,
       runOrder: this.determineRunOrderForNewAction(stage)
     });
   }
@@ -278,10 +297,12 @@ export class Pipeline extends cdk.Construct {
 }
 
 export interface IPublisher extends cdk.IConstruct {
-  /**
-   * The publisher's codebuild project.
-   */
-  readonly project: cbuild.IProject;
+  addToPipeline(stage: cpipeline.Stage, id: string, options: AddToPipelineOptions): void;
+}
+
+export interface AddToPipelineOptions {
+  inputArtifact?: cpipelineapi.Artifact;
+  runOrder?: number;
 }
 
 export interface AddChangeControlOptions {
@@ -305,4 +326,35 @@ export interface AddChangeControlOptions {
    * @default rate(15 minutes)
    */
   scheduleExpression?: string;
+}
+export interface AddPublishOptions {
+  /**
+   * The input artifact to use
+   *
+   * @default Build output artifact
+   */
+  inputArtifact?: cpipelineapi.Artifact;
+}
+
+export interface AddShellableOptions extends ShellableProps {
+  /**
+   * String to use as action name
+   *
+   * @default Id
+   */
+  actionName?: string;
+
+  /**
+   * Message to use as failure notification
+   *
+   * @default No notification
+   */
+  failureNotification?: string;
+
+  /**
+   * The input artifact to use
+   *
+   * @default Build output artifact
+   */
+  inputArtifact?: cpipelineapi.Artifact;
 }

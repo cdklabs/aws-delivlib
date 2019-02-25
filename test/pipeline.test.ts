@@ -1,9 +1,11 @@
-import { expect as cdk_expect, haveResource } from '@aws-cdk/assert';
+import { expect as cdk_expect, haveResource, haveResourceLike } from '@aws-cdk/assert';
 import codebuild = require('@aws-cdk/aws-codebuild');
 import codecommit = require('@aws-cdk/aws-codecommit');
+import cpipeline = require('@aws-cdk/aws-codepipeline');
 import cdk = require('@aws-cdk/cdk');
 import path = require('path');
 import delivlib = require('../lib');
+import { AddToPipelineOptions, IPublisher } from '../lib';
 import { determineRunOrder } from '../lib/util';
 
 test('pipelineName can be used to set a physical name for the pipeline', async () => {
@@ -113,5 +115,91 @@ class TestPublishable extends cdk.Construct implements delivlib.IPublisher {
     super(scope, id);
 
     this.project = props.project;
+  }
+
+  public addToPipeline(stage: cpipeline.Stage, id: string, options: AddToPipelineOptions): void {
+    this.project.addToPipeline(stage, id, options);
+  }
+}
+
+test('can add arbitrary shellables with different artifacts', () => {
+  const stack = new cdk.Stack();
+
+  const pipeline = new delivlib.Pipeline(stack, 'Pipeline', {
+    repo: createTestRepo(stack),
+    pipelineName: 'HelloPipeline'
+  });
+
+  const action = pipeline.addShellable('Build', 'SecondStep', {
+    scriptDirectory: __dirname,
+    entrypoint: 'run-test.sh',
+  });
+
+  pipeline.addPublish(new Pub(stack, 'Pub'), { inputArtifact: action.outputArtifact });
+
+  cdk_expect(stack).to(haveResourceLike('AWS::CodePipeline::Pipeline', {
+    Stages: [
+      {
+        Name: "Source",
+        Actions: [
+          {
+            ActionTypeId: { Category: "Source", Owner: "AWS", Provider: "CodeCommit" },
+            Name: "Pull",
+            OutputArtifacts: [
+              {
+                Name: "Source"
+              }
+            ],
+          }
+        ],
+      },
+      {
+        Name: "Build",
+        Actions: [
+          {
+            Name: "Build",
+            ActionTypeId: { Category: "Build", Owner: "AWS", Provider: "CodeBuild" },
+            InputArtifacts: [ { Name: "Source" } ],
+            OutputArtifacts: [ { Name: "Artifact_PipelineBuildProjectBuildC2DBA0FC" } ],
+            RunOrder: 1
+          },
+          {
+            ActionTypeId: { Category: "Build", Owner: "AWS", Provider: "CodeBuild", },
+            InputArtifacts: [ { Name: "Artifact_PipelineBuildProjectBuildC2DBA0FC" } ],
+            Name: "ActionSecondStep",
+            OutputArtifacts: [ { Name: "Artifact_PipelineSecondStepActionSecondStep47D84CAC" } ],
+            RunOrder: 1
+          }
+        ],
+      },
+      {
+        Name: "Publish",
+        Actions: [
+          {
+            ActionTypeId: { Category: "Build", Owner: "AWS", Provider: "CodeBuild", },
+            InputArtifacts: [ { Name: "Artifact_PipelineSecondStepActionSecondStep47D84CAC" } ],
+            Name: "PubPublish",
+            OutputArtifacts: [ { Name: "Artifact_PubProjectPubPublishFC7A3C85" } ],
+            RunOrder: 1
+          }
+        ],
+      }
+    ],
+  }));
+});
+
+class Pub extends cdk.Construct implements IPublisher {
+  public readonly project: codebuild.IProject;
+
+  constructor(scope: cdk.Construct, id: string) {
+    super(scope, id);
+
+    this.project = new codebuild.Project(this, 'Project', {
+      source: new codebuild.CodePipelineSource()
+    });
+  }
+
+  public addToPipeline(stage: cpipeline.Stage, id: string, options: AddToPipelineOptions): void {
+    this.project.addToPipeline(stage, id, options);
   }
 }
