@@ -1,6 +1,6 @@
 {
   "name": "aws-delivlib",
-  "version": "3.1.0",
+  "version": "3.2.0",
   "homepage": "https://github.com/awslabs/aws-delivlib",
   "description": "A fabulous library for defining continuous pipelines for building, testing and releasing code libraries.",
   "main": "lib/index.js",
@@ -66,6 +66,8 @@
       "lcov"
     ],
     "testEnvironment": "node",
-    "moduleFileExtensions": [ "js" ]
+    "moduleFileExtensions": [
+      "js"
+    ]
   }
 }
