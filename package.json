@@ -1,13 +1,15 @@
 {
   "name": "aws-delivlib",
-  "version": "2.0.1",
+  "version": "3.1.0",
   "homepage": "https://github.com/awslabs/aws-delivlib",
   "description": "A fabulous library for defining continuous pipelines for building, testing and releasing code libraries.",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "scripts": {
-    "build": "npm run build-custom-resource-handlers && tsc && tslint --fix --project .",
-    "build-custom-resource-handlers": "/bin/bash ./build-custom-resource-handlers.sh",
+    "build": "npm run build:assets && tsc && tslint --fix --project .",
+    "build:assets": "npm run build:assets:custom-resource-handlers && npm run build:assets:lambda-handlers",
+    "build:assets:custom-resource-handlers": "/bin/bash ./build-custom-resource-handlers.sh",
+    "build:assets:lambda-handlers": "/bin/bash ./build-lambda-handlers.sh",
     "package": "/bin/bash ./package.sh",
     "watch": "tsc -w",
     "test": "/bin/bash ./test.sh",
@@ -50,7 +52,7 @@
     "@types/node": "^8.10.39",
     "@types/nodeunit": "0.0.30",
     "aws-cdk": "^0.24.1",
-    "jest": "^23.6.0",
+    "jest": "^24.1.0",
     "jest-create-mock-instance": "^1.1.0",
     "nodeunit": "^0.11.3",
     "standard-version": "^4.4.0",
@@ -63,6 +65,7 @@
     "coverageReporters": [
       "lcov"
     ],
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "moduleFileExtensions": [ "js" ]
   }
 }

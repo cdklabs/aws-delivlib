@@ -30,7 +30,7 @@ export class DelivLibPipelineStack extends cdk.Stack {
         version: '0.2',
         phases: {
           install: {
-            commands: [ 'npm install' ]
+            commands: [ 'npm ci' ]
           },
           build: {
             commands: [

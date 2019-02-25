@@ -50,6 +50,7 @@ const writeFile = fs.writeFile = jest.fn().mockName('fs.writeFile')
   .mockImplementation((_pth, _data, _opts, cb) => cb()) as any;
 jest.mock('../../custom-resource-handlers/src/_exec', () => async (cmd: string, ...args: string[]) => {
   await expect(cmd).toBe('gpg');
+  await expect(process.env.GNUPGHOME).toBe(mockTmpDir);
   await expect(args).toContain('--batch');
   if (args.indexOf('--gen-key') !== -1) {
     await expect(args[args.indexOf('--gen-key') + 1]).toBe(require('path').join(mockTmpDir, 'key.config'));
@@ -167,13 +168,8 @@ test('Delete', async () => {
     ...mockEventBase
   };
 
-  mockSecretsManager.deleteSecret = jest.fn().mockName('SecretsManager.deleteSecret')
-    .mockImplementation(() => ({ promise: () => Promise.resolve({}) })) as any;
-
   const { handler } = require('../../custom-resource-handlers/src/pgp-secret');
   await expect(handler(event, context)).resolves.toBe(undefined);
-  await expect(mockSecretsManager.deleteSecret)
-    .toBeCalledWith({ SecretId: secretArn });
   return expect(mockSendResponse)
     .toBeCalledWith(event,
                     cfn.Status.SUCCESS,

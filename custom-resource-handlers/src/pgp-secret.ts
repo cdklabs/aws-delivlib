@@ -61,7 +61,7 @@ async function handleEvent(event: cfn.Event, context: lambda.Context): Promise<c
           ? await _createNewKey(event, context)
           : await _updateExistingKey(event as cfn.UpdateEvent, context);
   case cfn.RequestType.DELETE:
-    return await _deleteSecret(event);
+    return { Ref: event.PhysicalResourceId };
   }
 }
 
@@ -109,16 +109,6 @@ async function _createNewKey(event: cfn.CreateEvent | cfn.UpdateEvent, context: 
   }
 }
 
-async function _deleteSecret(event: cfn.DeleteEvent): Promise<cfn.ResourceAttributes> {
-  if (event.PhysicalResourceId.startsWith('arn:')) {
-    if (event.ResourceProperties.ParameterName) {
-      await ssm.deleteParameter({ Name: event.ResourceProperties.ParameterName }).promise();
-    }
-    await secretsManager.deleteSecret({ SecretId: event.PhysicalResourceId }).promise();
-  }
-  return { Ref: event.PhysicalResourceId };
-}
-
 async function _updateExistingKey(event: cfn.UpdateEvent, context: lambda.Context): Promise<ResourceAttributes> {
   const publicKey = await _getPublicKey(event.PhysicalResourceId);
   const result = await secretsManager.updateSecret({
@@ -153,6 +143,7 @@ async function _getPublicKey(secretArn: string): Promise<string> {
   const keyData = JSON.parse(secretValue.SecretString!);
   const tempDir = await mkdtemp(path.join(os.tmpdir(), 'OpenPGP-'));
   try {
+    process.env.GNUPGHOME = tempDir;
     const privateKeyFile = path.join(tempDir, 'private.key');
     await writeFile(privateKeyFile, keyData.PrivateKey, { encoding: 'utf-8' });
     // Note: importing a private key does NOT require entering it's passphrase!

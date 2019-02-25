@@ -142,5 +142,11 @@ export class TestStack extends cdk.Stack {
       bumpCommand: 'npm i && npm run bump',
       branch: 'master'
     });
+
+    //
+    // CHANGE CONTROL
+    //
+
+    pipeline.addChangeControl();
   }
 }

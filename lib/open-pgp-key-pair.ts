@@ -61,7 +61,7 @@ interface OpenPGPKeyPairProps {
 }
 
 /**
- * A PGP key that is stored in Secrets Manager
+ * A PGP key that is stored in Secrets Manager. The SecretsManager secret is retained when the resource is deleted.
  *
  * The string in secrets manager will be a JSON struct of
  *
@@ -88,7 +88,6 @@ export class OpenPGPKeyPair extends cdk.Construct implements ICredentialPair {
     fn.addToRolePolicy(new iam.PolicyStatement()
       .allow()
       .addActions('secretsmanager:CreateSecret',
-                  'secretsmanager:DeleteSecret',
                   'secretsmanager:GetSecretValue',
                   'secretsmanager:UpdateSecret')
       .addResource(cdk.Stack.find(this).formatArn({
@@ -98,13 +97,11 @@ export class OpenPGPKeyPair extends cdk.Construct implements ICredentialPair {
         resourceName: `${props.secretName}-??????`
       })));
 
+    // To allow easy migration from verison that handled the SSM parameter in the custom resource
     fn.addToRolePolicy(new iam.PolicyStatement()
       .allow()
-      .addActions('ssm:PutParameter', 'ssm:DeleteParameter')
-      .addResource(cdk.Stack.find(this).formatArn({
-        service: 'ssm',
-        resource: `parameter${props.pubKeyParameterName}`,
-      })));
+      .addAction('ssm:DeleteParameter')
+      .addAllResources());
 
     if (props.encryptionKey) {
       props.encryptionKey.addToResourcePolicy(new iam.PolicyStatement()

@@ -58,6 +58,13 @@ export interface ShellableOptions {
    * tests in isolation).
    */
   assumeRole?: AssumeRole;
+
+  /**
+   * If given, output the given directory as artifact
+   *
+   * @default No output artifact
+   */
+  artifactDirectory?: string;
 }
 
 /**
@@ -192,7 +199,11 @@ export class Shellable extends cdk.Construct {
         phases: {
           pre_build: { commands: this.platform.prebuildCommands(props.assumeRole) },
           build: { commands: this.platform.buildCommands(props.entrypoint) },
-        }
+        },
+        artifacts: props.artifactDirectory !== undefined ? {
+          'files': ['**/*'],
+          'base-directory': props.artifactDirectory
+        } : undefined,
       }
     });
 
@@ -215,7 +226,7 @@ export class Shellable extends cdk.Construct {
   }
 
   public addToPipeline(stage: cpipeline.Stage, name: string, inputArtifact: cpipelineapi.Artifact, runOrder?: number) {
-    this.project.addToPipeline(stage, name, { inputArtifact, runOrder });
+    return this.project.addToPipeline(stage, name, { inputArtifact, runOrder });
   }
 }
 
