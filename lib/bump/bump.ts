@@ -68,7 +68,7 @@ export interface AutoBumpOptions {
    * The name of the branch to push the bump commit (e.g. "master")
    * This branch has to exist.
    *
-   * @default the commit will be *forced* pushed to the branch `bump/$(git describe)`
+   * @default the commit will be pushed to the branch `bump/$(git describe)`
    */
   branch?: string;
 }
@@ -127,11 +127,8 @@ export class AutoBump extends cdk.Construct {
     pushCommands.push(`git remote add origin_ssh ${props.repo.repositoryUrlSsh}`);
 
     // now push either to our bump branch or the destination branch
-    if (props.branch) {
-      pushCommands.push(`git push --force --follow-tags origin_ssh ${props.branch}`);
-    } else {
-      pushCommands.push(`git push --force --follow-tags origin_ssh $BRANCH`);
-    }
+    const targetBranch = props.branch || '$BRANCH';
+    pushCommands.push(`git push --follow-tags origin_ssh ${targetBranch }`);
 
     const project = new cbuild.Project(this, 'Bump', {
       source: props.repo.createBuildSource(this),

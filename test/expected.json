@@ -2505,7 +2505,7 @@ Resources:
                   "git checkout master",
                   "git merge $BRANCH",
                   "git remote add origin_ssh git@github.com:awslabs/aws-delivlib-sample.git",
-                  "git push --force --follow-tags origin_ssh master"
+                  "git push --follow-tags origin_ssh master"
                 ]
               }
             }
