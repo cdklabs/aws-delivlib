@@ -138,9 +138,9 @@ export class TestStack extends cdk.Stack {
     //
     // BUMP
 
-    new delivlib.AutoBump(this, 'AutoBump', {
-      repo: githubRepo,
-      bumpCommand: 'npm i && npm run bump'
+    pipeline.autoBump({
+      bumpCommand: 'npm i && npm run bump',
+      branch: 'master'
     });
   }
 }

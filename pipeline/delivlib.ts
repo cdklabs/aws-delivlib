@@ -53,8 +53,9 @@ export class DelivLibPipelineStack extends cdk.Stack {
       npmTokenSecret: { secretArn: 'arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/npm-OynG62' }
     });
 
-    new delivlib.AutoBump(this, 'AutoBump', {
-      repo: github
+    pipeline.autoBump({
+      bumpCommand: 'npm i && npm run bump',
+      branch: 'master'
     });
   }
 }

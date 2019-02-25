@@ -1,4 +1,5 @@
 import assets = require('@aws-cdk/assets');
+import cloudwatch = require('@aws-cdk/aws-cloudwatch');
 import cbuild = require('@aws-cdk/aws-codebuild');
 import cpipeline = require('@aws-cdk/aws-codepipeline');
 import cpipelineapi = require('@aws-cdk/aws-codepipeline-api');
@@ -153,6 +154,11 @@ export class Shellable extends cdk.Construct {
   public readonly project: cbuild.Project;
   public readonly role?: iam.Role;
 
+  /**
+   * CloudWatch alarm that will be triggered if this action fails.
+   */
+  public readonly alarm: cloudwatch.Alarm;
+
   private readonly platform: ShellPlatform;
 
   constructor(parent: cdk.Construct, id: string, props: ShellableProps) {
@@ -198,6 +204,14 @@ export class Shellable extends cdk.Construct {
         .addAction('sts:AssumeRole')
         .addResource(props.assumeRole.roleArn));
     }
+
+    this.alarm = new cloudwatch.Alarm(this, `Alarm`, {
+      metric: this.project.metricFailedBuilds({ periodSec: 300 }),
+      threshold: 1,
+      comparisonOperator: cloudwatch.ComparisonOperator.GreaterThanOrEqualToThreshold,
+      evaluationPeriods: 1,
+      treatMissingData: cloudwatch.TreatMissingData.Ignore
+    });
   }
 
   public addToPipeline(stage: cpipeline.Stage, name: string, inputArtifact: cpipelineapi.Artifact, runOrder?: number) {

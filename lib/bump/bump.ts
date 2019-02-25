@@ -1,3 +1,4 @@
+import cloudwatch = require('@aws-cdk/aws-cloudwatch');
 import cbuild = require('@aws-cdk/aws-codebuild');
 import events = require('@aws-cdk/aws-events');
 import cdk = require('@aws-cdk/cdk');
@@ -5,12 +6,7 @@ import { createBuildEnvironment } from '../build-env';
 import permissions = require('../permissions');
 import { WritableGitHubRepo } from '../repo';
 
-export interface AutoBumpProps {
-  /**
-   * The repository to bump.
-   */
-  repo: WritableGitHubRepo;
-
+export interface AutoBumpOptions {
   /**
    * The command to execute in order to bump the repo.
    *
@@ -67,9 +63,30 @@ export interface AutoBumpProps {
    * Environment variables to pass to build
    */
   env?: { [key: string]: string };
+
+  /**
+   * The name of the branch to push the bump commit (e.g. "master")
+   * This branch has to exist.
+   *
+   * @default the commit will be *forced* pushed to the branch `bump/$(git describe)`
+   */
+  branch?: string;
+}
+
+export interface AutoBumpProps extends AutoBumpOptions {
+  /**
+   * The repository to bump.
+   */
+  repo: WritableGitHubRepo;
 }
 
 export class AutoBump extends cdk.Construct {
+
+  /**
+   * CloudWatch alarm that will be triggered if bump fails.
+   */
+  public readonly alarm: cloudwatch.Alarm;
+
   constructor(parent: cdk.Construct, id: string, props: AutoBumpProps) {
     super(parent, id);
 
@@ -90,6 +107,32 @@ export class AutoBump extends cdk.Construct {
       throw new Error(`Cannot install auto-bump on a repo without "commitUsername"`);
     }
 
+    const pushCommands = new Array<string>();
+
+    pushCommands.push(...[
+      `BRANCH=bump/$(git describe)`,
+      `git branch -D $BRANCH || true`,                    // force delete the branch if it already exists
+      `git checkout -b $BRANCH`,                          // create a new branch from HEAD
+    ]);
+
+    // if we want to merge this to a branch automatically, then check out the branch and merge
+    if (props.branch) {
+      pushCommands.push(...[
+        `git checkout ${props.branch}`,
+        `git merge $BRANCH`
+      ]);
+    }
+
+    // add "origin" remote
+    pushCommands.push(`git remote add origin_ssh ${props.repo.repositoryUrlSsh}`);
+
+    // now push either to our bump branch or the destination branch
+    if (props.branch) {
+      pushCommands.push(`git push --force --follow-tags origin_ssh ${props.branch}`);
+    } else {
+      pushCommands.push(`git push --force --follow-tags origin_ssh $BRANCH`);
+    }
+
     const project = new cbuild.Project(this, 'Bump', {
       source: props.repo.createBuildSource(this),
       environment: createBuildEnvironment(this, props),
@@ -104,20 +147,12 @@ export class AutoBump extends cdk.Construct {
           },
           build: {
             commands: [
-              bumpCommand
-            ]
-          },
-          post_build: {
-            commands: [
-              'find ${CODEBUILD_SRC_DIR_BUMPSCRIPTS}',
+              bumpCommand,
               `aws secretsmanager get-secret-value --secret-id "${sshKeySecret.secretArn}" --output=text --query=SecretString > ~/.ssh/id_rsa`,
               `chmod 0600 ~/.ssh/id_rsa`,
-              `git branch -D bump/$(git describe) || true`,                    // force delete the branch if it already exists
-              `git checkout -b bump/$(git describe)`,                          // create a new branch from HEAD
-              `git remote add origin_ssh ${props.repo.repositoryUrlSsh}`,      // add origin as ssh url
-              `git push --force --follow-tags origin_ssh bump/$(git describe)` // push!
+              ...pushCommands
             ]
-          }
+          },
         }
       }
     });
@@ -135,5 +170,11 @@ export class AutoBump extends cdk.Construct {
         targets: [ project ]
       });
     }
+
+    this.alarm = project.metricFailedBuilds({ periodSec: 300 }).newAlarm(this, 'BumpFailedAlarm', {
+      threshold: 1,
+      evaluationPeriods: 1,
+      treatMissingData: cloudwatch.TreatMissingData.Ignore
+    });
   }
 }

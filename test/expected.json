@@ -312,32 +312,6 @@ Resources:
       RegisterWithThirdParty: true
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/BuildPipeline/Source/Pull/WebhookResource
-  CodeCommitPipelinesuperchainAdoptRepository67DBB814:
-    Type: Custom::ECRAdoptedRepository
-    Properties:
-      ServiceToken:
-        Fn::GetAtt:
-          - AdoptEcrRepositorydbc60defc59544bcaa5c28c95d68f62c52BE89E9
-          - Arn
-      RepositoryName:
-        Fn::Select:
-          - 0
-          - Fn::Split:
-              - ":"
-              - Ref: CodeCommitPipelinesuperchainImageNameF1669FD4
-      PolicyDocument:
-        Statement:
-          - Action:
-              - ecr:GetDownloadUrlForLayer
-              - ecr:BatchGetImage
-              - ecr:BatchCheckLayerAvailability
-            Effect: Allow
-            Principal:
-              Service: codebuild.amazonaws.com
-            Sid: CodeBuild
-        Version: "2012-10-17"
-    Metadata:
-      aws:cdk:path: delivlib-test/CodeCommitPipeline/superchain/AdoptRepository/Resource
   CodeCommitPipelineBuildProjectRoleC6347B6E:
     Type: AWS::IAM::Role
     Properties:
@@ -418,7 +392,7 @@ Resources:
                             - Ref: AWS::Partition
                             - :ecr:us-east-1:712950704752:repository/
                             - Fn::GetAtt:
-                                - CodeCommitPipelinesuperchainAdoptRepository67DBB814
+                                - ED3906BE3B2E4990A6A93B3409FCB2C2AdoptRepository01206045
                                 - RepositoryName
               - .dkr.ecr.
               - Fn::Select:
@@ -431,18 +405,18 @@ Resources:
                             - Ref: AWS::Partition
                             - :ecr:us-east-1:712950704752:repository/
                             - Fn::GetAtt:
-                                - CodeCommitPipelinesuperchainAdoptRepository67DBB814
+                                - ED3906BE3B2E4990A6A93B3409FCB2C2AdoptRepository01206045
                                 - RepositoryName
               - .amazonaws.com/
               - Fn::GetAtt:
-                  - CodeCommitPipelinesuperchainAdoptRepository67DBB814
+                  - ED3906BE3B2E4990A6A93B3409FCB2C2AdoptRepository01206045
                   - RepositoryName
               - ":"
               - Fn::Select:
                   - 1
                   - Fn::Split:
                       - ":"
-                      - Ref: CodeCommitPipelinesuperchainImageNameF1669FD4
+                      - Ref: ED3906BE3B2E4990A6A93B3409FCB2C2ImageName05CA9938
         PrivilegedMode: false
         Type: LINUX_CONTAINER
       ServiceRole:
@@ -2270,6 +2244,219 @@ Resources:
         Type: CODEPIPELINE
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/GitHubPages/Default/Resource/Resource
+  CodeCommitPipelineAutoBumpRole669D4CAA:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: codebuild.amazonaws.com
+        Version: "2012-10-17"
+    Metadata:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/AutoBump/Bump/Role/Resource
+  CodeCommitPipelineAutoBumpRoleDefaultPolicyD6024577:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - logs:CreateLogGroup
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+            Effect: Allow
+            Resource:
+              - Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
+                    - Ref: CodeCommitPipelineAutoBumpA6619552
+              - Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
+                    - Ref: CodeCommitPipelineAutoBumpA6619552
+                    - :*
+          - Action:
+              - secretsmanager:ListSecrets
+              - secretsmanager:DescribeSecret
+              - secretsmanager:GetSecretValue
+            Effect: Allow
+            Resource: arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/github-ssh-lwzfjW
+        Version: "2012-10-17"
+      PolicyName: CodeCommitPipelineAutoBumpRoleDefaultPolicyD6024577
+      Roles:
+        - Ref: CodeCommitPipelineAutoBumpRole669D4CAA
+    Metadata:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/AutoBump/Bump/Role/DefaultPolicy/Resource
+  CodeCommitPipelineAutoBumpA6619552:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Artifacts:
+        Type: NO_ARTIFACTS
+      Environment:
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image:
+          Fn::Join:
+            - ""
+            - - Fn::Select:
+                  - 4
+                  - Fn::Split:
+                      - ":"
+                      - Fn::Join:
+                          - ""
+                          - - "arn:"
+                            - Ref: AWS::Partition
+                            - :ecr:us-east-1:712950704752:repository/
+                            - Fn::GetAtt:
+                                - ED3906BE3B2E4990A6A93B3409FCB2C2AdoptRepository01206045
+                                - RepositoryName
+              - .dkr.ecr.
+              - Fn::Select:
+                  - 3
+                  - Fn::Split:
+                      - ":"
+                      - Fn::Join:
+                          - ""
+                          - - "arn:"
+                            - Ref: AWS::Partition
+                            - :ecr:us-east-1:712950704752:repository/
+                            - Fn::GetAtt:
+                                - ED3906BE3B2E4990A6A93B3409FCB2C2AdoptRepository01206045
+                                - RepositoryName
+              - .amazonaws.com/
+              - Fn::GetAtt:
+                  - ED3906BE3B2E4990A6A93B3409FCB2C2AdoptRepository01206045
+                  - RepositoryName
+              - ":"
+              - Fn::Select:
+                  - 1
+                  - Fn::Split:
+                      - ":"
+                      - Ref: ED3906BE3B2E4990A6A93B3409FCB2C2ImageName05CA9938
+        PrivilegedMode: false
+        Type: LINUX_CONTAINER
+      ServiceRole:
+        Fn::GetAtt:
+          - CodeCommitPipelineAutoBumpRole669D4CAA
+          - Arn
+      Source:
+        Auth:
+          Resource:
+            Ref: CodeCommitPipelineAutoBumpGitHubTokenParameter20350017
+          Type: OAUTH
+        BuildSpec: >-
+          {
+            "version": "0.2",
+            "phases": {
+              "pre_build": {
+                "commands": [
+                  "git config --global user.email \"foo@bar.com\"",
+                  "git config --global user.name \"foobar\""
+                ]
+              },
+              "build": {
+                "commands": [
+                  "npm i && npm run bump"
+                ]
+              },
+              "post_build": {
+                "commands": [
+                  "find ${CODEBUILD_SRC_DIR_BUMPSCRIPTS}",
+                  "aws secretsmanager get-secret-value --secret-id \"arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/github-ssh-lwzfjW\" --output=text --query=SecretString > ~/.ssh/id_rsa",
+                  "chmod 0600 ~/.ssh/id_rsa",
+                  "BRANCH=bump/$(git describe)",
+                  "git branch -D $BRANCH || true",
+                  "git checkout -b $BRANCH",
+                  "git checkout master",
+                  "git merge $BRANCH",
+                  "git remote add origin_ssh git@github.com:awslabs/aws-delivlib-sample.git",
+                  "git push --force --follow-tags origin_ssh master"
+                ]
+              }
+            }
+          }
+        Location: https://github.com/awslabs/aws-delivlib-sample.git
+        ReportBuildStatus: true
+        Type: GITHUB
+    Metadata:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/AutoBump/Bump/Resource
+  CodeCommitPipelineAutoBumpEventsRole63A4AC28:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: events.amazonaws.com
+        Version: "2012-10-17"
+    Metadata:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/AutoBump/Bump/EventsRole/Resource
+  CodeCommitPipelineAutoBumpEventsRoleDefaultPolicy20B2B829:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action: codebuild:StartBuild
+            Effect: Allow
+            Resource:
+              Fn::GetAtt:
+                - CodeCommitPipelineAutoBumpA6619552
+                - Arn
+        Version: "2012-10-17"
+      PolicyName: CodeCommitPipelineAutoBumpEventsRoleDefaultPolicy20B2B829
+      Roles:
+        - Ref: CodeCommitPipelineAutoBumpEventsRole63A4AC28
+    Metadata:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/AutoBump/Bump/EventsRole/DefaultPolicy/Resource
+  CodeCommitPipelineAutoBumpSchedulerC4D05D9B:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: Schedules an automatic bump for this repository
+      ScheduleExpression: cron(0 12 * * ? *)
+      State: ENABLED
+      Targets:
+        - Arn:
+            Fn::GetAtt:
+              - CodeCommitPipelineAutoBumpA6619552
+              - Arn
+          Id: Bump
+          RoleArn:
+            Fn::GetAtt:
+              - CodeCommitPipelineAutoBumpEventsRole63A4AC28
+              - Arn
+    Metadata:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/AutoBump/Scheduler/Resource
+  ED3906BE3B2E4990A6A93B3409FCB2C2AdoptRepository01206045:
+    Type: Custom::ECRAdoptedRepository
+    Properties:
+      ServiceToken:
+        Fn::GetAtt:
+          - AdoptEcrRepositorydbc60defc59544bcaa5c28c95d68f62c52BE89E9
+          - Arn
+      RepositoryName:
+        Fn::Select:
+          - 0
+          - Fn::Split:
+              - ":"
+              - Ref: ED3906BE3B2E4990A6A93B3409FCB2C2ImageName05CA9938
+      PolicyDocument:
+        Statement:
+          - Action:
+              - ecr:GetDownloadUrlForLayer
+              - ecr:BatchGetImage
+              - ecr:BatchCheckLayerAvailability
+            Effect: Allow
+            Principal:
+              Service: codebuild.amazonaws.com
+            Sid: CodeBuild
+        Version: "2012-10-17"
+    Metadata:
+      aws:cdk:path: delivlib-test/ED3906BE-3B2E-4990-A6A9-3B3409FCB2C2/AdoptRepository/Resource
   AdoptEcrRepositorydbc60defc59544bcaa5c28c95d68f62cServiceRoleD788AA17:
     Type: AWS::IAM::Role
     Properties:
@@ -2310,25 +2497,7 @@ Resources:
                       - 0
                       - Fn::Split:
                           - ":"
-                          - Ref: CodeCommitPipelinesuperchainImageNameF1669FD4
-          - Action:
-              - ecr:GetRepositoryPolicy
-              - ecr:SetRepositoryPolicy
-              - ecr:DeleteRepository
-              - ecr:ListImages
-              - ecr:BatchDeleteImage
-            Effect: Allow
-            Resource:
-              Fn::Join:
-                - ""
-                - - "arn:"
-                  - Ref: AWS::Partition
-                  - :ecr:us-east-1:712950704752:repository/
-                  - Fn::Select:
-                      - 0
-                      - Fn::Split:
-                          - ":"
-                          - Ref: AutoBumpsuperchainImageNameDD64FDFB
+                          - Ref: ED3906BE3B2E4990A6A93B3409FCB2C2ImageName05CA9938
         Version: "2012-10-17"
       PolicyName: AdoptEcrRepositorydbc60defc59544bcaa5c28c95d68f62cServiceRoleDefaultPolicy6BC8737C
       Roles:
@@ -2769,225 +2938,11 @@ Resources:
       - SingletonLambdaf25803d3054b44fc985f4860d7d6ee74ServiceRole410148CF
     Metadata:
       aws:cdk:path: delivlib-test/SingletonLambdaf25803d3054b44fc985f4860d7d6ee74/Resource
-  AutoBumpsuperchainAdoptRepository5F9F24E6:
-    Type: Custom::ECRAdoptedRepository
-    Properties:
-      ServiceToken:
-        Fn::GetAtt:
-          - AdoptEcrRepositorydbc60defc59544bcaa5c28c95d68f62c52BE89E9
-          - Arn
-      RepositoryName:
-        Fn::Select:
-          - 0
-          - Fn::Split:
-              - ":"
-              - Ref: AutoBumpsuperchainImageNameDD64FDFB
-      PolicyDocument:
-        Statement:
-          - Action:
-              - ecr:GetDownloadUrlForLayer
-              - ecr:BatchGetImage
-              - ecr:BatchCheckLayerAvailability
-            Effect: Allow
-            Principal:
-              Service: codebuild.amazonaws.com
-            Sid: CodeBuild
-        Version: "2012-10-17"
-    Metadata:
-      aws:cdk:path: delivlib-test/AutoBump/superchain/AdoptRepository/Resource
-  AutoBumpRoleE1B4C34E:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Statement:
-          - Action: sts:AssumeRole
-            Effect: Allow
-            Principal:
-              Service: codebuild.amazonaws.com
-        Version: "2012-10-17"
-    Metadata:
-      aws:cdk:path: delivlib-test/AutoBump/Bump/Role/Resource
-  AutoBumpRoleDefaultPolicy8746CC1B:
-    Type: AWS::IAM::Policy
-    Properties:
-      PolicyDocument:
-        Statement:
-          - Action:
-              - logs:CreateLogGroup
-              - logs:CreateLogStream
-              - logs:PutLogEvents
-            Effect: Allow
-            Resource:
-              - Fn::Join:
-                  - ""
-                  - - "arn:"
-                    - Ref: AWS::Partition
-                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
-                    - Ref: AutoBump14E8D8B4
-              - Fn::Join:
-                  - ""
-                  - - "arn:"
-                    - Ref: AWS::Partition
-                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
-                    - Ref: AutoBump14E8D8B4
-                    - :*
-          - Action:
-              - secretsmanager:ListSecrets
-              - secretsmanager:DescribeSecret
-              - secretsmanager:GetSecretValue
-            Effect: Allow
-            Resource: arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/github-ssh-lwzfjW
-        Version: "2012-10-17"
-      PolicyName: AutoBumpRoleDefaultPolicy8746CC1B
-      Roles:
-        - Ref: AutoBumpRoleE1B4C34E
-    Metadata:
-      aws:cdk:path: delivlib-test/AutoBump/Bump/Role/DefaultPolicy/Resource
-  AutoBump14E8D8B4:
-    Type: AWS::CodeBuild::Project
-    Properties:
-      Artifacts:
-        Type: NO_ARTIFACTS
-      Environment:
-        ComputeType: BUILD_GENERAL1_SMALL
-        Image:
-          Fn::Join:
-            - ""
-            - - Fn::Select:
-                  - 4
-                  - Fn::Split:
-                      - ":"
-                      - Fn::Join:
-                          - ""
-                          - - "arn:"
-                            - Ref: AWS::Partition
-                            - :ecr:us-east-1:712950704752:repository/
-                            - Fn::GetAtt:
-                                - AutoBumpsuperchainAdoptRepository5F9F24E6
-                                - RepositoryName
-              - .dkr.ecr.
-              - Fn::Select:
-                  - 3
-                  - Fn::Split:
-                      - ":"
-                      - Fn::Join:
-                          - ""
-                          - - "arn:"
-                            - Ref: AWS::Partition
-                            - :ecr:us-east-1:712950704752:repository/
-                            - Fn::GetAtt:
-                                - AutoBumpsuperchainAdoptRepository5F9F24E6
-                                - RepositoryName
-              - .amazonaws.com/
-              - Fn::GetAtt:
-                  - AutoBumpsuperchainAdoptRepository5F9F24E6
-                  - RepositoryName
-              - ":"
-              - Fn::Select:
-                  - 1
-                  - Fn::Split:
-                      - ":"
-                      - Ref: AutoBumpsuperchainImageNameDD64FDFB
-        PrivilegedMode: false
-        Type: LINUX_CONTAINER
-      ServiceRole:
-        Fn::GetAtt:
-          - AutoBumpRoleE1B4C34E
-          - Arn
-      Source:
-        Auth:
-          Resource:
-            Ref: AutoBumpGitHubTokenParameter44B7949A
-          Type: OAUTH
-        BuildSpec: >-
-          {
-            "version": "0.2",
-            "phases": {
-              "pre_build": {
-                "commands": [
-                  "git config --global user.email \"foo@bar.com\"",
-                  "git config --global user.name \"foobar\""
-                ]
-              },
-              "build": {
-                "commands": [
-                  "npm i && npm run bump"
-                ]
-              },
-              "post_build": {
-                "commands": [
-                  "find ${CODEBUILD_SRC_DIR_BUMPSCRIPTS}",
-                  "aws secretsmanager get-secret-value --secret-id \"arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/github-ssh-lwzfjW\" --output=text --query=SecretString > ~/.ssh/id_rsa",
-                  "chmod 0600 ~/.ssh/id_rsa",
-                  "git branch -D bump/$(git describe) || true",
-                  "git checkout -b bump/$(git describe)",
-                  "git remote add origin_ssh git@github.com:awslabs/aws-delivlib-sample.git",
-                  "git push --force --follow-tags origin_ssh bump/$(git describe)"
-                ]
-              }
-            }
-          }
-        Location: https://github.com/awslabs/aws-delivlib-sample.git
-        ReportBuildStatus: true
-        Type: GITHUB
-    Metadata:
-      aws:cdk:path: delivlib-test/AutoBump/Bump/Resource
-  AutoBumpEventsRoleF68DAC3F:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Statement:
-          - Action: sts:AssumeRole
-            Effect: Allow
-            Principal:
-              Service: events.amazonaws.com
-        Version: "2012-10-17"
-    Metadata:
-      aws:cdk:path: delivlib-test/AutoBump/Bump/EventsRole/Resource
-  AutoBumpEventsRoleDefaultPolicyF09AAA36:
-    Type: AWS::IAM::Policy
-    Properties:
-      PolicyDocument:
-        Statement:
-          - Action: codebuild:StartBuild
-            Effect: Allow
-            Resource:
-              Fn::GetAtt:
-                - AutoBump14E8D8B4
-                - Arn
-        Version: "2012-10-17"
-      PolicyName: AutoBumpEventsRoleDefaultPolicyF09AAA36
-      Roles:
-        - Ref: AutoBumpEventsRoleF68DAC3F
-    Metadata:
-      aws:cdk:path: delivlib-test/AutoBump/Bump/EventsRole/DefaultPolicy/Resource
-  AutoBumpSchedulerD7254AD7:
-    Type: AWS::Events::Rule
-    Properties:
-      Description: Schedules an automatic bump for this repository
-      ScheduleExpression: cron(0 12 * * ? *)
-      State: ENABLED
-      Targets:
-        - Arn:
-            Fn::GetAtt:
-              - AutoBump14E8D8B4
-              - Arn
-          Id: Bump
-          RoleArn:
-            Fn::GetAtt:
-              - AutoBumpEventsRoleF68DAC3F
-              - Arn
-    Metadata:
-      aws:cdk:path: delivlib-test/AutoBump/Scheduler/Resource
 Parameters:
   CodeCommitPipelineBuildPipelineGitHubTokenParameter9FBEDC6B:
     Type: AWS::SSM::Parameter::Value<String>
     Default: github-token
     NoEcho: true
-  CodeCommitPipelinesuperchainImageNameF1669FD4:
-    Type: String
-    Description: ECR repository name and tag asset
-      "delivlib-test/CodeCommitPipeline/superchain"
   CodeCommitPipelineHelloLinuxScriptDirectoryS3Bucket56DFBFCD:
     Type: String
     Description: S3 bucket for asset
@@ -3064,6 +3019,14 @@ Parameters:
     Type: String
     Description: S3 key for asset version
       "delivlib-test/CodeCommitPipeline/GitHubPages/Default/ScriptDirectory"
+  CodeCommitPipelineAutoBumpGitHubTokenParameter20350017:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: github-token
+    NoEcho: true
+  ED3906BE3B2E4990A6A93B3409FCB2C2ImageName05CA9938:
+    Type: String
+    Description: ECR repository name and tag asset
+      "delivlib-test/ED3906BE-3B2E-4990-A6A9-3B3409FCB2C2"
   AdoptEcrRepositorydbc60defc59544bcaa5c28c95d68f62cCodeS3Bucket92AB06B6:
     Type: String
     Description: S3 bucket for asset
@@ -3096,13 +3059,6 @@ Parameters:
     Type: String
     Description: S3 key for asset version
       "delivlib-test/SingletonLambdaf25803d3054b44fc985f4860d7d6ee74/Code"
-  AutoBumpGitHubTokenParameter44B7949A:
-    Type: AWS::SSM::Parameter::Value<String>
-    Default: github-token
-    NoEcho: true
-  AutoBumpsuperchainImageNameDD64FDFB:
-    Type: String
-    Description: ECR repository name and tag asset "delivlib-test/AutoBump/superchain"
 Outputs:
   X509CodeSigningKeyCSR5137C5A3:
     Description: A PEM-encoded Certificate Signing Request for a Code-Signing Certificate

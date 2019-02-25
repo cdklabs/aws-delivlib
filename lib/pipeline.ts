@@ -6,10 +6,11 @@ import iam = require('@aws-cdk/aws-iam');
 import sns = require('@aws-cdk/aws-sns');
 import cdk = require('@aws-cdk/cdk');
 import { createBuildEnvironment } from './build-env';
+import { AutoBump, AutoBumpOptions } from './bump';
 import { Canary, CanaryProps } from './canary';
 import { PipelineWatcher } from './pipeline-watcher';
 import publishing = require('./publishing');
-import { IRepo } from './repo';
+import { IRepo, WritableGitHubRepo } from './repo';
 import { Shellable, ShellableProps } from './shellable';
 import { determineRunOrder } from './util';
 
@@ -110,11 +111,13 @@ export class Pipeline extends cdk.Construct {
   private stages: { [name: string]: cpipeline.Stage } = { };
 
   private readonly concurrency?: number;
+  private readonly repo: IRepo;
 
   constructor(parent: cdk.Construct, name: string, props: PipelineProps) {
     super(parent, name);
 
     this.concurrency = props.concurrency;
+    this.repo = props.repo;
 
     this.pipeline = new cpipeline.Pipeline(this, 'BuildPipeline', {
       pipelineName: props.pipelineName,
@@ -208,6 +211,21 @@ export class Pipeline extends cdk.Construct {
       dryRun: false,
       ...options
     }));
+  }
+
+  /**
+   * Enables automatic bumps for the source repo.
+   * @param options Options for auto bump (see AutoBumpOptions for description of defaults)
+   */
+  public autoBump(options?: AutoBumpOptions): AutoBump {
+    if (!WritableGitHubRepo.isWritableGitHubRepo(this.repo)) {
+      throw new Error(`"repo" must be a WritableGitHubRepo in order to enable auto-bump`);
+    }
+
+    return new AutoBump(this, 'AutoBump', {
+      repo: this.repo,
+      ...options
+    });
   }
 
   private addFailureAlarm(title?: string): cloudwatch.Alarm {

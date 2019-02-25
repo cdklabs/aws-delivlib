@@ -135,6 +135,15 @@ export interface WritableGitHubRepoProps extends GitHubRepoProps {
 }
 
 export class WritableGitHubRepo extends GitHubRepo {
+
+  public static isWritableGitHubRepo(repo: IRepo): repo is WritableGitHubRepo {
+    const obj = repo as any;
+
+    return 'sshKeySecret' in obj
+      && 'commitEmail' in obj
+      && 'commitUsername' in obj;
+  }
+
   public readonly sshKeySecret: ExternalSecret;
   public readonly commitEmail: string;
   public readonly commitUsername: string;
