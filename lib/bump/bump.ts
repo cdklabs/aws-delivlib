@@ -13,7 +13,7 @@ export interface AutoBumpOptions {
    * The bump command is responsible to bump any version metadata, update
    * CHANGELOG and commit this to the repository.
    *
-   * @default "/bin/sh ./bump.sh"
+   * @default "/bin/bash ./bump.sh"
    */
   bumpCommand?: string;
 
