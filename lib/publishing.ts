@@ -363,7 +363,7 @@ export class PublishToS3 extends cdk.Construct implements IPublisher {
     const forReal = props.dryRun === undefined ? 'false' : (!props.dryRun).toString();
 
     const shellable = new Shellable(this, 'Default', {
-      platform: new LinuxPlatform(cbuild.LinuxBuildImage.UBUNTU_14_04_BASE),
+      platform: new LinuxPlatform(cbuild.LinuxBuildImage.UBUNTU_14_04_NODEJS_8_11_0),
       scriptDirectory: path.join(__dirname, 'publishing', 's3'),
       entrypoint: 'publish.sh',
       environment: {
