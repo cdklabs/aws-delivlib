@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="3.3.0"></a>
+# [3.3.0](https://github.com/awslabs/aws-delivlib/compare/v3.2.13...v3.3.0) (2019-03-11)
+
+
+### Features
+
+* **s3:** make S3 publisher idempotent ([#81](https://github.com/awslabs/aws-delivlib/issues/81)) ([d8bc2d8](https://github.com/awslabs/aws-delivlib/commit/d8bc2d8))
+
+
+
 <a name="3.2.13"></a>
 ## [3.2.13](https://github.com/awslabs/aws-delivlib/compare/v3.2.12...v3.2.13) (2019-03-10)
 
