@@ -120,6 +120,15 @@ Resources:
               Fn::GetAtt:
                 - CodeCommitPipelineGitHubPages53B77CF6
                 - Arn
+          - Action:
+              - codebuild:BatchGetBuilds
+              - codebuild:StartBuild
+              - codebuild:StopBuild
+            Effect: Allow
+            Resource:
+              Fn::GetAtt:
+                - CodeCommitPipelinePyPI2C59CE7B
+                - Arn
         Version: "2012-10-17"
       PolicyName: CodeCommitPipelineBuildPipelineRoleDefaultPolicy94C30F44
       Roles:
@@ -283,6 +292,20 @@ Resources:
               Name: GitHubPagesPublish
               OutputArtifacts:
                 - Name: Artifact_delivlibtestCodeCommitPipelineGitHubPagesGitHubPagesPublishCDA7CDC1
+              RunOrder: 1
+            - ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Provider: CodeBuild
+                Version: "1"
+              Configuration:
+                ProjectName:
+                  Ref: CodeCommitPipelinePyPI2C59CE7B
+              InputArtifacts:
+                - Name: Artifact_delivlibtestCodeCommitPipelineBuildProjectBuildEB1D42D1
+              Name: PyPIPublish
+              OutputArtifacts:
+                - Name: Artifact_delivlibtestCodeCommitPipelinePyPIPyPIPublishD455771C
               RunOrder: 1
           Name: Publish
       ArtifactStore:
@@ -2380,6 +2403,179 @@ Resources:
       TreatMissingData: ignore
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/GitHubPages/Default/Alarm/Resource
+  CodeCommitPipelinePyPIRole30E20A9B:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: codebuild.amazonaws.com
+        Version: "2012-10-17"
+    Metadata:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/PyPI/Default/Resource/Role/Resource
+  CodeCommitPipelinePyPIRoleDefaultPolicy5062B3BA:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - logs:CreateLogGroup
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+            Effect: Allow
+            Resource:
+              - Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
+                    - Ref: CodeCommitPipelinePyPI2C59CE7B
+              - Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
+                    - Ref: CodeCommitPipelinePyPI2C59CE7B
+                    - :*
+          - Action:
+              - s3:GetObject*
+              - s3:GetBucket*
+              - s3:List*
+            Effect: Allow
+            Resource:
+              - Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - ":s3:::"
+                    - Ref: CodeCommitPipelinePyPIScriptDirectoryS3BucketA2764F2D
+              - Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - ":s3:::"
+                    - Ref: CodeCommitPipelinePyPIScriptDirectoryS3BucketA2764F2D
+                    - /
+                    - Fn::Select:
+                        - 0
+                        - Fn::Split:
+                            - "||"
+                            - Ref: CodeCommitPipelinePyPIScriptDirectoryS3VersionKeyECBD841C
+                    - "*"
+          - Action:
+              - secretsmanager:ListSecrets
+              - secretsmanager:DescribeSecret
+              - secretsmanager:GetSecretValue
+            Effect: Allow
+            Resource: arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/pypi-tOhH6X
+          - Action:
+              - s3:GetObject*
+              - s3:GetBucket*
+              - s3:List*
+              - s3:DeleteObject*
+              - s3:PutObject*
+              - s3:Abort*
+            Effect: Allow
+            Resource:
+              - Fn::GetAtt:
+                  - CodeCommitPipelineBuildPipelineArtifactsBucketED2813B3
+                  - Arn
+              - Fn::Join:
+                  - ""
+                  - - Fn::GetAtt:
+                        - CodeCommitPipelineBuildPipelineArtifactsBucketED2813B3
+                        - Arn
+                    - /*
+        Version: "2012-10-17"
+      PolicyName: CodeCommitPipelinePyPIRoleDefaultPolicy5062B3BA
+      Roles:
+        - Ref: CodeCommitPipelinePyPIRole30E20A9B
+    Metadata:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/PyPI/Default/Resource/Role/DefaultPolicy/Resource
+  CodeCommitPipelinePyPI2C59CE7B:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Artifacts:
+        Type: CODEPIPELINE
+      Environment:
+        ComputeType: BUILD_GENERAL1_MEDIUM
+        EnvironmentVariables:
+          - Name: SCRIPT_S3_BUCKET
+            Type: PLAINTEXT
+            Value:
+              Ref: CodeCommitPipelinePyPIScriptDirectoryS3BucketA2764F2D
+          - Name: SCRIPT_S3_KEY
+            Type: PLAINTEXT
+            Value:
+              Fn::Join:
+                - ""
+                - - Fn::Select:
+                      - 0
+                      - Fn::Split:
+                          - "||"
+                          - Ref: CodeCommitPipelinePyPIScriptDirectoryS3VersionKeyECBD841C
+                  - Fn::Select:
+                      - 1
+                      - Fn::Split:
+                          - "||"
+                          - Ref: CodeCommitPipelinePyPIScriptDirectoryS3VersionKeyECBD841C
+          - Name: FOR_REAL
+            Type: PLAINTEXT
+            Value: "true"
+          - Name: PYPI_CREDENTIALS_SECRET_ID
+            Type: PLAINTEXT
+            Value: arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/pypi-tOhH6X
+        Image: aws/codebuild/python:3.6.5
+        PrivilegedMode: false
+        Type: LINUX_CONTAINER
+      ServiceRole:
+        Fn::GetAtt:
+          - CodeCommitPipelinePyPIRole30E20A9B
+          - Arn
+      Source:
+        BuildSpec: >-
+          {
+            "version": "0.2",
+            "phases": {
+              "pre_build": {
+                "commands": [
+                  "echo \"Downloading scripts from s3://${SCRIPT_S3_BUCKET}/${SCRIPT_S3_KEY}\"",
+                  "aws s3 cp s3://${SCRIPT_S3_BUCKET}/${SCRIPT_S3_KEY} /tmp",
+                  "mkdir -p /tmp/scriptdir",
+                  "unzip /tmp/$(basename $SCRIPT_S3_KEY) -d /tmp/scriptdir"
+                ]
+              },
+              "build": {
+                "commands": [
+                  "export SCRIPT_DIR=/tmp/scriptdir",
+                  "echo \"Running publish.sh\"",
+                  "/bin/bash /tmp/scriptdir/publish.sh"
+                ]
+              }
+            }
+          }
+        Type: CODEPIPELINE
+    Metadata:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/PyPI/Default/Resource/Resource
+  CodeCommitPipelinePyPIAlarmEA15EF14:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      EvaluationPeriods: 1
+      Threshold: 1
+      Dimensions:
+        - Name: ProjectName
+          Value:
+            Ref: CodeCommitPipelinePyPI2C59CE7B
+      MetricName: FailedBuilds
+      Namespace: AWS/CodeBuild
+      Period: 300
+      Statistic: Sum
+      TreatMissingData: ignore
+    Metadata:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/PyPI/Default/Alarm/Resource
   CodeCommitPipelineAutoBumpRole669D4CAA:
     Type: AWS::IAM::Role
     Properties:
@@ -3461,6 +3657,14 @@ Parameters:
     Type: String
     Description: S3 key for asset version
       "delivlib-test/CodeCommitPipeline/GitHubPages/Default/ScriptDirectory"
+  CodeCommitPipelinePyPIScriptDirectoryS3BucketA2764F2D:
+    Type: String
+    Description: S3 bucket for asset
+      "delivlib-test/CodeCommitPipeline/PyPI/Default/ScriptDirectory"
+  CodeCommitPipelinePyPIScriptDirectoryS3VersionKeyECBD841C:
+    Type: String
+    Description: S3 key for asset version
+      "delivlib-test/CodeCommitPipeline/PyPI/Default/ScriptDirectory"
   CodeCommitPipelineAutoBumpGitHubTokenParameter20350017:
     Type: AWS::SSM::Parameter::Value<String>
     Default: github-token
