@@ -9,6 +9,8 @@ cdk_app="test/integ.delivlib.js"
 expected="test/expected.json"
 actual="/tmp/actual.json"
 
+custom_stack_name="${TEST_STACK_NAME:-}"
+
 export TEST_STACK_NAME="delivlib-test"
 
 if [ "${1:-}" == "synth" ]; then
@@ -20,7 +22,7 @@ npx cdk --no-version-reporting --no-asset-metadata -a ${cdk_app} synth > ${actua
 
 if [ "${1:-}" == "update" ]; then
   hash="$(cat ${actual} | shasum | cut -c1-6 | xargs)"
-  export TEST_STACK_NAME="delivlib-test-${hash}"
+  export TEST_STACK_NAME="${custom_stack_name:-"delivlib-test-${hash}"}"
   npx cdk --no-version-reporting -a ${cdk_app} deploy ${2:-} ${3:-} ${4:-}
   echo "Stack deployed, now, go to the console and wait for the pipeline to fully stabalize"
   echo "Press ENTER to confirm that pipeline is green"

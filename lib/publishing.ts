@@ -386,3 +386,50 @@ export class PublishToS3 extends cdk.Construct implements IPublisher {
     this.project.addToPipeline(stage, id, options);
   }
 }
+
+export interface PublishToPyPiProps {
+  /**
+   * Identifier of the secret that contains the PyPI credentials under
+   * "username" and "password" keys.
+   */
+  loginSecret: permissions.ExternalSecret;
+
+  /**
+   * If `true` (default) will only perform a dry-run but will not actually publish.
+   * @default true
+   */
+  dryRun?: boolean;
+}
+
+export class PublishToPyPi extends cdk.Construct {
+
+  public readonly project: cbuild.Project;
+  public readonly role?: iam.Role;
+
+  constructor(scope: cdk.Construct, id: string, props: PublishToPyPiProps) {
+    super(scope, id);
+
+    const forReal = props.dryRun === undefined ? 'false' : (!props.dryRun).toString();
+
+    const shellable = new Shellable(this, 'Default', {
+      platform: new LinuxPlatform(cbuild.LinuxBuildImage.UBUNTU_14_04_PYTHON_3_6_5),
+      scriptDirectory: path.join(__dirname, 'publishing', 'pypi'),
+      entrypoint: 'publish.sh',
+      environment: {
+        FOR_REAL: forReal,
+        PYPI_CREDENTIALS_SECRET_ID: props.loginSecret.secretArn
+      },
+    });
+
+    if (shellable.role) {
+      permissions.grantSecretRead(props.loginSecret, shellable.role);
+    }
+
+    this.role = shellable.role;
+    this.project = shellable.project;
+  }
+
+  public addToPipeline(stage: cpipeline.Stage, id: string, options: cbuild.CommonPipelineBuildActionProps): void {
+    this.project.addToPipeline(stage, id, options);
+  }
+}

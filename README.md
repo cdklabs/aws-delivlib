@@ -28,8 +28,10 @@ execute all tasks concurrently:
                                     +-----------+     +---------------+
                                     |   Test3   |     | Maven Central |
                                     +-----------+     +---------------+
-                                    |    ...    |     | GitHub Pages  |
+                                    |    ...    |     |     PyPI      |
                                     +-----------+     +---------------+
+                                                      |  GitHub Pages |
+                                                      +---------------+
                                                       |GitHub Releases|
                                                       +---------------+
 ```
@@ -271,7 +273,7 @@ available. This is useful for testing.
 
 The following sections describe how to use each one of the built-in publishers.
 
-### npm.js
+### npm.js (JavaScript)
 
 The method `pipeline.publishToNpm` will add a publisher to your pipeline which
 can publish JavaScript modules to [npmjs](https://www.npmjs.com/).
@@ -293,8 +295,7 @@ pipeline.publishToNpm({
 });
 ```
 
-
-### NuGet
+### NuGet (.NET)
 
 This publisher can publish .NET NuGet packages to [nuget.org](https://www.nuget.org/).
 
@@ -399,7 +400,7 @@ an `Output` so you can pass it to your Certificate Authority (CA) of choice:
     $ cdk deploy $stackName
     ```
 
-### Maven Central
+### Maven Central (Java)
 
 This publisher can publish Java packages to [Maven
 Central](https://search.maven.org/).
@@ -476,6 +477,30 @@ After you've obtained a Sonatype account and Maven Central project:
 4. The URL of the page should change and include your profile ID. For example: `https://oss.sonatype.org/#stagingProfiles;11a33451234521`
 
 This is the value you should assign to the `stagingProfileId` option.
+
+### PyPI (Python)
+
+This publisher can publish modules to [PyPI](https://pypi.org/).
+
+This publisher will publish all files under the `python/` directory in your
+build output artifacts to PyPI using the following command:
+
+```sh
+twine upload --skip-existing python/**
+```
+
+To use this publisher, you will need to an
+[account](https://pypi.org/account/register/) with PyPI. Then store your
+credentials in an AWS Secrets Manager secret, under the `username` and
+`password` fields.
+
+Now, use `pipeline.publishToPyPi` to add this publisher to your pipeline:
+
+```ts
+pipeline.publishToPyPi({
+  loginSecret: { secretArn: 'my-pypi-credentials-secret-arn' }
+});
+```
 
 ### GitHub Releases
 

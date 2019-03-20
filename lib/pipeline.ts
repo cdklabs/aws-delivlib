@@ -253,6 +253,13 @@ export class Pipeline extends cdk.Construct {
     }));
   }
 
+  public publishToPyPI(options: publishing.PublishToPyPiProps) {
+    this.addPublish(new publishing.PublishToPyPi(this, 'PyPI', {
+      dryRun: false,
+      ...options
+    }));
+  }
+
   /**
    * Enables automatic bumps for the source repo.
    * @param options Options for auto bump (see AutoBumpOptions for description of defaults)

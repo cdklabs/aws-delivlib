@@ -135,6 +135,10 @@ export class TestStack extends cdk.Stack {
       githubRepo,
     });
 
+    pipeline.publishToPyPI({
+      loginSecret: { secretArn: 'arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/pypi-tOhH6X' }
+    });
+
     //
     // BUMP
 
