@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="3.5.0"></a>
+# [3.5.0](https://github.com/awslabs/aws-delivlib/compare/v3.4.9...v3.5.0) (2019-03-21)
+
+
+### Features
+
+* PyPI publisher ([#84](https://github.com/awslabs/aws-delivlib/issues/84)) ([9ccce36](https://github.com/awslabs/aws-delivlib/commit/9ccce36))
+
+
+
 <a name="3.4.9"></a>
 ## [3.4.9](https://github.com/awslabs/aws-delivlib/compare/v3.4.8...v3.4.9) (2019-03-20)
 
