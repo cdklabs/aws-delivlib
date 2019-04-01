@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="3.5.11"></a>
+## [3.5.11](https://github.com/awslabs/aws-delivlib/compare/v3.5.10...v3.5.11) (2019-04-01)
+
+
+
 <a name="3.5.10"></a>
 ## [3.5.10](https://github.com/awslabs/aws-delivlib/compare/v3.5.9...v3.5.10) (2019-03-31)
 
