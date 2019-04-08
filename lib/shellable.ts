@@ -65,6 +65,24 @@ export interface ShellableOptions {
    * @default No output artifact
    */
   artifactDirectory?: string;
+
+  /**
+   * Alarm period (in seconds)
+   * @default 300 (5 minutes)
+   */
+  alarmPeriodSec?: number;
+
+  /**
+   * Alarm threshold.
+   * @default 1
+   */
+  alarmThreshold?: number;
+
+  /**
+   * Alarm evaluation periods.
+   * @default 1
+   */
+  alarmEvaluationPeriods?: number;
 }
 
 /**
@@ -217,10 +235,10 @@ export class Shellable extends cdk.Construct {
     }
 
     this.alarm = new cloudwatch.Alarm(this, `Alarm`, {
-      metric: this.project.metricFailedBuilds({ periodSec: 300 }),
-      threshold: 1,
+      metric: this.project.metricFailedBuilds({ periodSec: props.alarmPeriodSec || 300 }),
+      threshold: props.alarmThreshold || 1,
       comparisonOperator: cloudwatch.ComparisonOperator.GreaterThanOrEqualToThreshold,
-      evaluationPeriods: 1,
+      evaluationPeriods: props.alarmEvaluationPeriods || 1,
       treatMissingData: cloudwatch.TreatMissingData.Ignore
     });
   }
