@@ -69,3 +69,36 @@ test('assume role not supported on windows', () => {
     }
   })).toThrow('assumeRole is not supported on Windows');
 });
+
+test('alarm options - defaults', () => {
+  const stack = new Stack();
+
+  new Shellable(stack, 'MyShellable', {
+    scriptDirectory: path.join(__dirname, 'delivlib-tests/linux'),
+    entrypoint: 'test.sh',
+  });
+
+  assert(stack).to(haveResource('AWS::CloudWatch::Alarm', {
+    EvaluationPeriods: 1,
+    Threshold: 1,
+    Period: 300
+  }));
+});
+
+test('alarm options - custom', () => {
+  const stack = new Stack();
+
+  new Shellable(stack, 'MyShellable', {
+    scriptDirectory: path.join(__dirname, 'delivlib-tests/linux'),
+    entrypoint: 'test.sh',
+    alarmEvaluationPeriods: 2,
+    alarmThreshold: 5,
+    alarmPeriodSec: 60 * 60
+  });
+
+  assert(stack).to(haveResource('AWS::CloudWatch::Alarm', {
+    EvaluationPeriods: 2,
+    Threshold: 5,
+    Period: 3600
+  }));
+});
