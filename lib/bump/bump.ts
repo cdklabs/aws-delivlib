@@ -140,6 +140,7 @@ export class AutoBump extends cdk.Construct {
             commands: [
               `git config --global user.email "${commitEmail}"`,
               `git config --global user.name "${commitUsername}"`,
+              `git describe --exact-match HEAD && { echo "Already released."; exit 0; } || echo "There are changes to release."`,
             ]
           },
           build: {
