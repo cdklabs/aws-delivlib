@@ -2,6 +2,41 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="3.6.3"></a>
+## [3.6.3](https://github.com/awslabs/aws-delivlib/compare/v3.6.2...v3.6.3) (2019-04-09)
+
+
+### Bug Fixes
+
+* **autobump:** stop AutoBump from releasing 0 changes ([#89](https://github.com/awslabs/aws-delivlib/issues/89)) ([a271016](https://github.com/awslabs/aws-delivlib/commit/a271016))
+
+
+
+<a name="3.6.2"></a>
+## [3.6.2](https://github.com/awslabs/aws-delivlib/compare/v3.6.1...v3.6.2) (2019-04-09)
+
+
+
+<a name="3.6.1"></a>
+## [3.6.1](https://github.com/awslabs/aws-delivlib/compare/v3.6.0...v3.6.1) (2019-04-09)
+
+
+
+<a name="3.6.0"></a>
+# [3.6.0](https://github.com/awslabs/aws-delivlib/compare/v3.5.18...v3.6.0) (2019-04-09)
+
+
+### Features
+
+* shellable alarm configuration ([#88](https://github.com/awslabs/aws-delivlib/issues/88)) ([4beddad](https://github.com/awslabs/aws-delivlib/commit/4beddad)), closes [awslabs/cdk-ops#329](https://github.com/awslabs/cdk-ops/issues/329)
+
+
+
+<a name="3.5.18"></a>
+## [3.5.18](https://github.com/awslabs/aws-delivlib/compare/v3.5.17...v3.5.18) (2019-04-08)
+
+
+
 <a name="3.5.17"></a>
 ## [3.5.17](https://github.com/awslabs/aws-delivlib/compare/v3.5.16...v3.5.17) (2019-04-07)
 
