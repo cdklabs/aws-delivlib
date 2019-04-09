@@ -140,15 +140,20 @@ export class AutoBump extends cdk.Construct {
             commands: [
               `git config --global user.email "${commitEmail}"`,
               `git config --global user.name "${commitUsername}"`,
-              `git describe --exact-match HEAD && { echo "Already released."; exit 0; } || echo "There are changes to release."`,
             ]
           },
           build: {
             commands: [
-              bumpCommand,
-              `aws secretsmanager get-secret-value --secret-id "${sshKeySecret.secretArn}" --output=text --query=SecretString > ~/.ssh/id_rsa`,
-              `chmod 0600 ~/.ssh/id_rsa`,
-              ...pushCommands
+              // We would like to do the equivalent of "if (!changes) { return success; }" here, but we can't because
+              // there's no way to stop a BuildSpec execution halfway through without throwing an error. Believe me, I
+              // checked the code. Instead we define a variable that we will switch all other lines on.
+              // tslint:disable-next-line:max-line-length
+              `git describe --exact-match HEAD && { echo "No new commits."; export SKIP=true; } || { echo "Changes to release."; export SKIP=false; }`,
+              `$SKIP || { ${bumpCommand}; }`,
+              // tslint:disable-next-line:max-line-length
+              `$SKIP || aws secretsmanager get-secret-value --secret-id "${sshKeySecret.secretArn}" --output=text --query=SecretString > ~/.ssh/id_rsa`,
+              `$SKIP || chmod 0600 ~/.ssh/id_rsa`,
+              ...pushCommands.map(c => `$SKIP || { ${c} ; }`)
             ]
           },
         }
