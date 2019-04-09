@@ -1,4 +1,5 @@
 export * from './canary';
+export * from './build-spec';
 export * from './code-signing';
 export * from './credential-pair';
 export * from './open-pgp-key-pair';

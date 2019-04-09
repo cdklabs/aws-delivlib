@@ -50,3 +50,21 @@ export function renderEnvironmentVariables(env?: { [key: string]: string }) {
   }
   return out;
 }
+
+export function noUndefined<T>(xs: Partial<T>): {[k in keyof T]: T[k]} {
+  const ret: any = {};
+  for (const [k, v] of Object.entries(xs)) {
+    if (v !== undefined) {
+      ret[k] = v;
+    }
+  }
+  return ret;
+}
+
+export function mapValues<T, U>(xs: {[key: string]: T}, fn: (x: T) => U): {[key: string]: U} {
+  const ret: {[key: string]: U} = {};
+  for (const [k, v] of Object.entries(xs)) {
+    ret[k] = fn(v);
+  }
+  return ret;
+}

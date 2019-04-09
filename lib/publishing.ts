@@ -11,6 +11,7 @@ import permissions = require('./permissions');
 import { AddToPipelineOptions, IPublisher } from './pipeline';
 import { WritableGitHubRepo } from './repo';
 import { LinuxPlatform, Shellable } from './shellable';
+import { noUndefined } from './util';
 
 export interface PublishToMavenProjectProps {
   /**
@@ -326,7 +327,7 @@ export class PublishToGitHub extends cdk.Construct implements IPublisher {
       platform: new LinuxPlatform(cbuild.LinuxBuildImage.UBUNTU_14_04_NODEJS_10_1_0),
       scriptDirectory: path.join(__dirname, 'publishing', 'github'),
       entrypoint: 'publish.sh',
-      environment: {
+      environment: noUndefined({
         BUILD_MANIFEST: props.buildManifestFileName || './build.json',
         CHANGELOG: props.changelogFileName || './CHANGELOG.md',
         SIGNING_KEY_ARN: props.signingKey.credential.secretArn,
@@ -335,9 +336,9 @@ export class PublishToGitHub extends cdk.Construct implements IPublisher {
         GITHUB_REPO: props.githubRepo.repo,
         FOR_REAL: forReal,
         // Transmit the names of the secondary sources to the shell script (for easier iteration)
-        SECONDARY_SOURCE_NAMES: props.additionalInputArtifacts ? props.additionalInputArtifacts.map(a => a.name).join(' ') : '',
-        SIGN_ADDITIONAL_ARTIFACTS: props.signAdditionalArtifacts !== false ? 'true' : 'false'
-      }
+        SECONDARY_SOURCE_NAMES: props.additionalInputArtifacts ? props.additionalInputArtifacts.map(a => a.name).join(' ') : undefined,
+        SIGN_ADDITIONAL_ARTIFACTS: props.additionalInputArtifacts && props.signAdditionalArtifacts !== false ? 'true' : undefined,
+      })
     });
 
     // allow script to read the signing key
