@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="3.6.0"></a>
+# [3.6.0](https://github.com/awslabs/aws-delivlib/compare/v3.5.18...v3.6.0) (2019-04-09)
+
+
+### Features
+
+* shellable alarm configuration ([#88](https://github.com/awslabs/aws-delivlib/issues/88)) ([4beddad](https://github.com/awslabs/aws-delivlib/commit/4beddad)), closes [awslabs/cdk-ops#329](https://github.com/awslabs/cdk-ops/issues/329)
+
+
+
 <a name="3.5.18"></a>
 ## [3.5.18](https://github.com/awslabs/aws-delivlib/compare/v3.5.17...v3.5.18) (2019-04-08)
 
