@@ -69,4 +69,5 @@ fi
 (cd ${scriptdir} && npm i)
 
 heading "Creating release"
+ls ${workdir}
 node ${scriptdir}/create-release.js ${workdir}/*
