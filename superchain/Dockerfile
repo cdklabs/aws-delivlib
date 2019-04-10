@@ -185,7 +185,7 @@ RUN set -ex \
 
 COPY m2-settings.xml $MAVEN_CONFIG/settings.xml
 
-### .NET CLI -- https://github.com/aws/aws-codebuild-docker-images/blob/master/ubuntu/dot-net/core-2.1/Dockerfile
+### .NET CLI
 
 # Install .NET CLI dependencies
 RUN set -ex \
