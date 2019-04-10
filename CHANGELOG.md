@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="3.7.0"></a>
+# [3.7.0](https://github.com/awslabs/aws-delivlib/compare/v3.6.3...v3.7.0) (2019-04-10)
+
+
+### Features
+
+* upgrade superchain to dotnet to 2.2.202 ([#87](https://github.com/awslabs/aws-delivlib/issues/87)) ([1b74842](https://github.com/awslabs/aws-delivlib/commit/1b74842))
+
+
+
 <a name="3.6.3"></a>
 ## [3.6.3](https://github.com/awslabs/aws-delivlib/compare/v3.6.2...v3.6.3) (2019-04-09)
 
