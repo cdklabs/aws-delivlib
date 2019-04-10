@@ -70,4 +70,15 @@ fi
 
 heading "Creating release"
 ls ${workdir}
-node ${scriptdir}/create-release.js ${workdir}/*
+
+if $FOR_REAL; then
+    node ${scriptdir}/create-release.js ${workdir}/*
+else
+    echo "==========================================="
+    echo "            🏜️ DRY-RUN MODE 🏜️"
+    echo
+    echo "Skipping the actual publishing step."
+    echo
+    echo "Set FOR_REAL=true to do it!"
+    echo "==========================================="
+fi

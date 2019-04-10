@@ -38,9 +38,20 @@ fi
 # Do the copy
 echo "Starting the upload to $BUCKET_URL"
 echo "(Args: $args)"
-aws s3 cp --recursive . $BUCKET_URL $args
 
-if [[ "${idempotency_token:-}" != "" ]]; then
-    echo "Writing idempotency token..."
-    echo 1 | aws s3 cp - $BUCKET_URL/$idempotency_token
+if $FOR_REAL; then
+    aws s3 cp --recursive . $BUCKET_URL $args
+
+    if [[ "${idempotency_token:-}" != "" ]]; then
+        echo "Writing idempotency token..."
+        echo 1 | aws s3 cp - $BUCKET_URL/$idempotency_token
+    fi
+else
+    echo "==========================================="
+    echo "            🏜️ DRY-RUN MODE 🏜️"
+    echo
+    echo "Skipping the actual publishing step."
+    echo
+    echo "Set FOR_REAL=true to do it!"
+    echo "==========================================="
 fi
