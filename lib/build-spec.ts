@@ -115,7 +115,12 @@ export class BuildSpec {
 
 export interface MergeOptions {
   /**
-   * Rename the primary artifact on the right-hand-side of the merge operation, if present
+   * Rename the primary artifact on the right-hand-side of the merge operation.
+   *
+   * Required if the RHS BuildSpec contains a primary artifact (it will become
+   * a secondery artifact of the merged BuildSpec).
+   *
+   * @default - No renaming
    */
   renamePrimaryArtifact?: string;
 }
