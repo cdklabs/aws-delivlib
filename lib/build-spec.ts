@@ -38,6 +38,10 @@ export class BuildSpec {
   private constructor(private readonly spec: BuildSpecStruct) {
   }
 
+  public get additionalArtifactNames(): string[] {
+    return Object.keys(this.spec.artifacts && this.spec.artifacts["secondary-artifacts"] || {});
+  }
+
   public merge(other: BuildSpec, options: MergeOptions = {}): BuildSpec {
     return new BuildSpec({
       "version": "0.2",

@@ -169,6 +169,7 @@ export class Shellable extends cdk.Construct {
   public readonly alarm: cloudwatch.Alarm;
 
   private readonly platform: ShellPlatform;
+  private readonly buildSpec: BuildSpec;
 
   constructor(parent: cdk.Construct, id: string, props: ShellableProps) {
     super(parent, id);
@@ -184,6 +185,11 @@ export class Shellable extends cdk.Construct {
       path: props.scriptDirectory
     });
 
+    this.buildSpec = BuildSpec.simple({
+      preBuild: this.platform.prebuildCommands(props.assumeRole),
+      build: this.platform.buildCommands(props.entrypoint)
+    }).merge(props.buildSpec || BuildSpec.empty());
+
     this.project = new cbuild.Project(this, 'Resource', {
       projectName: props.buildProjectName,
       source: props.source || new cbuild.CodePipelineSource(),
@@ -196,10 +202,7 @@ export class Shellable extends cdk.Construct {
         [S3_KEY_ENV]: { value: asset.s3ObjectKey },
         ...renderEnvironmentVariables(props.environment)
       },
-      buildSpec: BuildSpec.simple({
-        preBuild: this.platform.prebuildCommands(props.assumeRole),
-        build: this.platform.buildCommands(props.entrypoint)
-      }).merge(props.buildSpec || BuildSpec.empty()).render(),
+      buildSpec: this.buildSpec.render(),
     });
 
     this.role = this.project.role;
@@ -221,7 +224,11 @@ export class Shellable extends cdk.Construct {
   }
 
   public addToPipeline(stage: cpipeline.Stage, name: string, inputArtifact: cpipelineapi.Artifact, runOrder?: number) {
-    return this.project.addToPipeline(stage, name, { inputArtifact, runOrder });
+    return this.project.addToPipeline(stage, name, {
+      additionalOutputArtifactNames: this.buildSpec.additionalArtifactNames,
+      inputArtifact,
+      runOrder
+    });
   }
 }
 
