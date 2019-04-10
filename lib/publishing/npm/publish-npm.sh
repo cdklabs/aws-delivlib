@@ -22,6 +22,11 @@ fi
 # NPM #
 #######
 
+DISTTAG=${DISTTAG:-""}
+if [ -n "${DISTTAG}" ]; then
+    DISTTAG="--tag=${DISTTAG}"
+fi
+
 echo "📦 Publishing to NPM"
 
 TOKENS=$(npm token list 2>&1 || echo '')
@@ -40,13 +45,13 @@ for TGZ in $(find ${PWD}/js -iname '*.tgz'); do
     ver="$(node -e "console.log(${packageInfo}.version);")"
 
     echo "-------------------------------------------------------------------------------------------------"
-    echo "Publishing to npm: ${mod}@${ver} from $TGZ"
+    echo "Publishing to npm: ${mod}@${ver} from $TGZ ${DISTTAG}"
 
     # check that the package is not already published using "npm view"
     # returns an empty string if the package exists, but version doesn't
     npm_view=$(npm view ${mod}@${ver} 2> /dev/null || true)
     if [ -z "${npm_view}" ]; then
-        $dry_npm publish $TGZ --access=public --loglevel silly
+        $dry_npm publish $TGZ --access=public "${DISTTAG}" --loglevel=silly
     else
         echo "⚠️ Package ${mod}@${ver} already published. Skipping."
     fi
