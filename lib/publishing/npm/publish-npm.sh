@@ -51,7 +51,7 @@ for TGZ in $(find ${PWD}/js -iname '*.tgz'); do
     # returns an empty string if the package exists, but version doesn't
     npm_view=$(npm view ${mod}@${ver} 2> /dev/null || true)
     if [ -z "${npm_view}" ]; then
-        $dry_npm publish $TGZ --access=public "${DISTTAG}" --loglevel=silly
+        $dry_npm publish $TGZ --access=public ${DISTTAG} --loglevel=silly
     else
         echo "⚠️ Package ${mod}@${ver} already published. Skipping."
     fi
