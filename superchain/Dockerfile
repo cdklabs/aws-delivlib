@@ -185,7 +185,7 @@ RUN set -ex \
 
 COPY m2-settings.xml $MAVEN_CONFIG/settings.xml
 
-### .NET CLI 2.1 -- https://github.com/aws/aws-codebuild-docker-images/blob/master/ubuntu/dot-net/core-2.1/Dockerfile
+### .NET CLI
 
 # Install .NET CLI dependencies
 RUN set -ex \
@@ -207,10 +207,12 @@ RUN set -ex \
     && apt-get install -y libstdc++6=8*\
     && rm -rf /var/lib/apt/lists/*
 
+
+
 # Install .NET Core SDK
-ENV DOTNET_SDK_VERSION 2.1.402
+ENV DOTNET_SDK_VERSION 2.2.202
 ENV DOTNET_SDK_DOWNLOAD_URL https://dotnetcli.blob.core.windows.net/dotnet/Sdk/$DOTNET_SDK_VERSION/dotnet-sdk-$DOTNET_SDK_VERSION-linux-x64.tar.gz
-ENV DOTNET_SDK_DOWNLOAD_SHA dd7f15a8202ffa2a435b7289865af4483bb0f642ffcf98a1eb10464cb9c51dd1d771efbb6120f129fe9666f62707ba0b7c476cf1fd3536d3a29329f07456de48
+ENV DOTNET_SDK_DOWNLOAD_SHA 14F5C0E6FBB874A882334E0D500E494B01D7F363028E72DB58DFFF6DB43C54670533539DCF6B8F50A97CE1E099119A8286CE84E193B361D65B1FD8C7DFFCE63D
 
 RUN set -ex \
     && curl -SL $DOTNET_SDK_DOWNLOAD_URL --output dotnet.tar.gz \
