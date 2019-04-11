@@ -30,7 +30,7 @@ const mockDisableTransition =
     .mockName('disableTransition');
 transitions.disableTransition = mockDisableTransition;
 
-const mockShouldBlockPipeline = jest.fn((_icsData: string | Buffer, _date: Date) => undefined)
+const mockShouldBlockPipeline = jest.fn((_icsData: string | Buffer, _now?: Date): timeWindow.CalendarEvent | undefined => undefined)
     .mockName('shouldBlockPipeline');
 timeWindow.shouldBlockPipeline = mockShouldBlockPipeline;
 

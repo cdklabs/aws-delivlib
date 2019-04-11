@@ -11,15 +11,21 @@ SOFTWARE_PUBLISHER_CERTIFICATE=$2
 PRIVATE_KEY=$3
 TIMESTAMP_URL=$4
 
-# Ensure signcode is available...
-command -v signcode > /dev/null || {
-  echo "Installing mono-devel..."
-  apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF            \
-    && apt install -y apt-transport-https                                                                               \
-    && echo "deb https://download.mono-project.com/repo/ubuntu stable-trusty main"                                      \
-        | tee /etc/apt/sources.list.d/mono-official-stable.list                                                         \
-    && apt-get update                                                                                                   \
-    && apt-get install -y mono-devel
+# Ensure osslsigncode is available...
+command -v osslsigncode > /dev/null || {
+  # It's not available for Ubuntu trusty, so we'll have to back-port it from Xenial
+  echo "Installing osslsigncode..."
+  echo "deb http://archive.ubuntu.com/ubuntu/ xenial main restricted universe" > /etc/apt/sources.list.d/xenial.list \
+    && echo "deb http://security.ubuntu.com/ubuntu/ xenial-security main restricted universe" >> /etc/apt/sources.list.d/xenial.list \
+    && echo "Package: *" > /etc/apt/preferences.d/xenial.pref                  \
+    && echo "Pin: release n=xenial" >> /etc/apt/preferences.d/xenial.pref      \
+    && echo "Pin-Priority: -10" >> /etc/apt/preferences.d/xenial.pref          \
+    && echo "" >> /etc/apt/preferences.d/xenial.pref                           \
+    && echo "Package: osslsigncode" >> /etc/apt/preferences.d/xenial.pref      \
+    && echo "Pin: release n=xenial" >> /etc/apt/preferences.d/xenial.pref      \
+    && echo "Pin-Priority: 500" >> /etc/apt/preferences.d/xenial.pref          \
+    && apt-get update                                                          \
+    && apt-get install -y osslsigncode
 }
 
 echo "🔑 Applying authenticode signatures to assemblies in ${NUGET_PACKAGE}"
@@ -32,13 +38,14 @@ do
   # Need to set appropriate permissions, otherwise the file has none.
   chmod u+rw ${TMP}/${FILE}
   # Sign the DLL
-  signcode -a sha1                                                             \
-           -spc ${SOFTWARE_PUBLISHER_CERTIFICATE}                              \
-           -k   ${PRIVATE_KEY}                                                 \
-           -t   ${TIMESTAMP_URL}                                               \
-           ${TMP}/${FILE}
-  # Remove the .bak file that was created
-  rm -f ${TMP}/${FILE}.bak
+  osslsigncode -h sha256                                                       \
+               -certs ${SOFTWARE_PUBLISHER_CERTIFICATE}                        \
+               -key   ${PRIVATE_KEY}                                           \
+               -t     ${TIMESTAMP_URL}                                         \
+               -in    ${TMP}/${FILE}                                           \
+               -out   ${TMP}/${FILE}.signed
+  # Replace the un-signed binary with the signed one
+  mv ${TMP}/${FILE}.signed ${TMP}/${FILE}
   # Replace the DLL in the NuGet package
   (
     cd ${TMP} # Need to step in so the TMP prefix isn't mirrored in the ZIP -_-
