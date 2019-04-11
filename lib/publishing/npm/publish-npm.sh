@@ -45,7 +45,7 @@ for TGZ in $(find ${PWD}/js -iname '*.tgz'); do
     ver="$(node -e "console.log(${packageInfo}.version);")"
 
     echo "-------------------------------------------------------------------------------------------------"
-    echo "Publishing to npm: ${mod}@${ver} from $TGZ ${DISTTAG}"
+    echo "Publishing to npm: ${mod}@${ver} ${DISTTAG} from $TGZ"
 
     # check that the package is not already published using "npm view"
     # returns an empty string if the package exists, but version doesn't
