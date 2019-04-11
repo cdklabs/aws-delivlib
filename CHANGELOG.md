@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="3.7.1"></a>
+# [3.7.1](https://github.com/awslabs/aws-delivlib/compare/v3.7.0...v3.7.1) (2019-04-11)
+
+
+### Bug Fixes
+
+* **nuget-sign:** Use  osslsigncode for now, so SHA256 signatures can be used ([#92](https://github.com/awslabs/aws-delivlib/pull/92)) ([e2855af](https://github.com/awslabs/aws-delivlib/commit/e2855af))
+
+
+
 <a name="3.7.0"></a>
 # [3.7.0](https://github.com/awslabs/aws-delivlib/compare/v3.6.3...v3.7.0) (2019-04-10)
 
