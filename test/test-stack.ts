@@ -101,7 +101,8 @@ export class TestStack extends cdk.Stack {
         organizationName: 'Amazon Test',
         organizationalUnitName: 'AWS',
         stateOrProvince: 'Ztate'
-      }
+      },
+      retainPrivateKey: false,
     });
 
     pipeline.publishToNuGet({
