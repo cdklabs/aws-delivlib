@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+# [3.8.0](https://github.com/awslabs/aws-delivlib/compare/v3.7.0...v3.8.0) (2019-04-11)
+
+
+### Features
+
+* support npm disttags ([#91](https://github.com/awslabs/aws-delivlib/issues/91)) ([90aa1d0](https://github.com/awslabs/aws-delivlib/commit/90aa1d0))
+
+
+
 <a name="3.7.1"></a>
 # [3.7.1](https://github.com/awslabs/aws-delivlib/compare/v3.7.0...v3.7.1) (2019-04-11)
 
