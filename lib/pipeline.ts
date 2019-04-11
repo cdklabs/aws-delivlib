@@ -100,6 +100,15 @@ export interface PipelineProps {
    * @default no limit
    */
   concurrency?: number;
+
+  /**
+   * Set the default dryRun for all publishing steps
+   *
+   * (Can still be changed when adding a step).
+   *
+   * @default false
+   */
+  dryRun?: boolean;
 }
 
 /**
@@ -117,12 +126,14 @@ export class Pipeline extends cdk.Construct {
 
   private readonly concurrency?: number;
   private readonly repo: IRepo;
+  private readonly dryRun: boolean;
 
   constructor(parent: cdk.Construct, name: string, props: PipelineProps) {
     super(parent, name);
 
     this.concurrency = props.concurrency;
     this.repo = props.repo;
+    this.dryRun = !!props.dryRun;
 
     this.pipeline = new cpipeline.Pipeline(this, 'BuildPipeline', {
       pipelineName: props.pipelineName,
@@ -220,44 +231,51 @@ export class Pipeline extends cdk.Construct {
 
   public publishToNpm(options: publishing.PublishToNpmProjectProps) {
     this.addPublish(new publishing.PublishToNpmProject(this, 'Npm', {
-      dryRun: false,
+      dryRun: this.dryRun,
       ...options
     }));
   }
 
   public publishToMaven(options: publishing.PublishToMavenProjectProps) {
     this.addPublish(new publishing.PublishToMavenProject(this, 'Maven', {
-      dryRun: false,
+      dryRun: this.dryRun,
       ...options
     }));
   }
 
   public publishToNuGet(options: publishing.PublishToNuGetProjectProps) {
     this.addPublish(new publishing.PublishToNuGetProject(this, 'NuGet', {
-      dryRun: false,
+      dryRun: this.dryRun,
       ...options
     }));
   }
 
   public publishToGitHubPages(options: publishing.PublishDocsToGitHubProjectProps) {
     this.addPublish(new publishing.PublishDocsToGitHubProject(this, 'GitHubPages', {
-      dryRun: false,
+      dryRun: this.dryRun,
       ...options,
     }));
   }
 
   public publishToGitHub(options: publishing.PublishToGitHubProps) {
     this.addPublish(new publishing.PublishToGitHub(this, 'GitHub', {
-      dryRun: false,
+      dryRun: this.dryRun,
       ...options
     }));
   }
 
   public publishToPyPI(options: publishing.PublishToPyPiProps) {
     this.addPublish(new publishing.PublishToPyPi(this, 'PyPI', {
-      dryRun: false,
+      dryRun: this.dryRun,
       ...options
     }));
+  }
+
+  public publishToS3(id: string, options: publishing.PublishToS3Props & AddPublishOptions) {
+    this.addPublish(new publishing.PublishToS3(this, id, {
+      dryRun: this.dryRun,
+      ...options
+  }), options);
   }
 
   /**

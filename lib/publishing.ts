@@ -1,5 +1,6 @@
 import cbuild = require('@aws-cdk/aws-codebuild');
 import cpipeline = require('@aws-cdk/aws-codepipeline');
+import cpapi = require('@aws-cdk/aws-codepipeline-api');
 import iam = require('@aws-cdk/aws-iam');
 import s3 = require('@aws-cdk/aws-s3');
 import cdk = require('@aws-cdk/cdk');
@@ -7,9 +8,10 @@ import path = require('path');
 import { ICodeSigningCertificate } from './code-signing';
 import { OpenPGPKeyPair } from './open-pgp-key-pair';
 import permissions = require('./permissions');
-import { IPublisher } from './pipeline';
+import { AddToPipelineOptions, IPublisher } from './pipeline';
 import { WritableGitHubRepo } from './repo';
 import { LinuxPlatform, Shellable } from './shellable';
+import { noUndefined } from './util';
 
 export interface PublishToMavenProjectProps {
   /**
@@ -67,7 +69,7 @@ export class PublishToMavenProject extends cdk.Construct implements IPublisher {
     this.project = shellable.project;
   }
 
-  public addToPipeline(stage: cpipeline.Stage, id: string, options: cbuild.CommonPipelineBuildActionProps): void {
+  public addToPipeline(stage: cpipeline.Stage, id: string, options: AddToPipelineOptions): void {
     this.project.addToPipeline(stage, id, options);
   }
 }
@@ -123,7 +125,7 @@ export class PublishToNpmProject extends cdk.Construct implements IPublisher {
     this.project = shellable.project;
   }
 
-  public addToPipeline(stage: cpipeline.Stage, id: string, options: cbuild.CommonPipelineBuildActionProps): void {
+  public addToPipeline(stage: cpipeline.Stage, id: string, options: AddToPipelineOptions): void {
     this.project.addToPipeline(stage, id, options);
   }
 }
@@ -201,7 +203,7 @@ export class PublishToNuGetProject extends cdk.Construct implements IPublisher {
     this.project = shellable.project;
   }
 
-  public addToPipeline(stage: cpipeline.Stage, id: string, options: cbuild.CommonPipelineBuildActionProps): void {
+  public addToPipeline(stage: cpipeline.Stage, id: string, options: AddToPipelineOptions): void {
     this.project.addToPipeline(stage, id, options);
   }
 }
@@ -268,7 +270,7 @@ export class PublishDocsToGitHubProject extends cdk.Construct implements IPublis
     this.project = shellable.project;
   }
 
-  public addToPipeline(stage: cpipeline.Stage, id: string, options: cbuild.CommonPipelineBuildActionProps): void {
+  public addToPipeline(stage: cpipeline.Stage, id: string, options: AddToPipelineOptions): void {
     this.project.addToPipeline(stage, id, options);
   }
 }
@@ -303,23 +305,37 @@ export interface PublishToGitHubProps {
    * @default "./CHANGELOG.md"
    */
   changelogFileName?: string;
+
+  /**
+   * Additional input artifacts to publish binaries from to GitHub release
+   */
+  additionalInputArtifacts?: cpapi.Artifact[];
+
+  /**
+   * Whether to sign the additional artifacts
+   *
+   * @default true
+   */
+  signAdditionalArtifacts?: boolean;
 }
 
 export class PublishToGitHub extends cdk.Construct implements IPublisher {
   public role?: iam.Role;
   public readonly project: cbuild.Project;
+  private readonly additionalInputArtifacts?: cpapi.Artifact[];
 
   constructor(parent: cdk.Construct, id: string, props: PublishToGitHubProps) {
     super(parent, id);
 
     const forReal = props.dryRun === undefined ? 'false' : (!props.dryRun).toString();
     const oauth = new cdk.SecretParameter(this, 'GitHubToken', { ssmParameter: props.githubRepo.tokenParameterName });
+    this.additionalInputArtifacts = props.additionalInputArtifacts;
 
     const shellable = new Shellable(this, 'Default', {
       platform: new LinuxPlatform(cbuild.LinuxBuildImage.UBUNTU_14_04_NODEJS_10_1_0),
       scriptDirectory: path.join(__dirname, 'publishing', 'github'),
       entrypoint: 'publish.sh',
-      environment: {
+      environment: noUndefined({
         BUILD_MANIFEST: props.buildManifestFileName || './build.json',
         CHANGELOG: props.changelogFileName || './CHANGELOG.md',
         SIGNING_KEY_ARN: props.signingKey.credential.secretArn,
@@ -327,7 +343,10 @@ export class PublishToGitHub extends cdk.Construct implements IPublisher {
         GITHUB_OWNER: props.githubRepo.owner,
         GITHUB_REPO: props.githubRepo.repo,
         FOR_REAL: forReal,
-      }
+        // Transmit the names of the secondary sources to the shell script (for easier iteration)
+        SECONDARY_SOURCE_NAMES: props.additionalInputArtifacts ? props.additionalInputArtifacts.map(a => a.name).join(' ') : undefined,
+        SIGN_ADDITIONAL_ARTIFACTS: props.additionalInputArtifacts && props.signAdditionalArtifacts !== false ? 'true' : undefined,
+      })
     });
 
     // allow script to read the signing key
@@ -339,8 +358,11 @@ export class PublishToGitHub extends cdk.Construct implements IPublisher {
     this.project = shellable.project;
   }
 
-  public addToPipeline(stage: cpipeline.Stage, id: string, options: cbuild.CommonPipelineBuildActionProps): void {
-    this.project.addToPipeline(stage, id, options);
+  public addToPipeline(stage: cpipeline.Stage, id: string, options: AddToPipelineOptions): void {
+    this.project.addToPipeline(stage, id, {
+      ...options,
+      additionalInputArtifacts: this.additionalInputArtifacts,
+    });
   }
 }
 
@@ -390,7 +412,7 @@ export class PublishToS3 extends cdk.Construct implements IPublisher {
     this.project = shellable.project;
   }
 
-  public addToPipeline(stage: cpipeline.Stage, id: string, options: cbuild.CommonPipelineBuildActionProps): void {
+  public addToPipeline(stage: cpipeline.Stage, id: string, options: AddToPipelineOptions): void {
     this.project.addToPipeline(stage, id, options);
   }
 }
@@ -437,7 +459,7 @@ export class PublishToPyPi extends cdk.Construct {
     this.project = shellable.project;
   }
 
-  public addToPipeline(stage: cpipeline.Stage, id: string, options: cbuild.CommonPipelineBuildActionProps): void {
+  public addToPipeline(stage: cpipeline.Stage, id: string, options: AddToPipelineOptions): void {
     this.project.addToPipeline(stage, id, options);
   }
 }

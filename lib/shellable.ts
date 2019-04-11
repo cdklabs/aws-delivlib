@@ -7,6 +7,7 @@ import iam = require('@aws-cdk/aws-iam');
 import cdk = require('@aws-cdk/cdk');
 import fs = require('fs');
 import path = require('path');
+import { BuildSpec } from './build-spec';
 import { renderEnvironmentVariables } from './util';
 
 const S3_BUCKET_ENV = 'SCRIPT_S3_BUCKET';
@@ -60,11 +61,11 @@ export interface ShellableOptions {
   assumeRole?: AssumeRole;
 
   /**
-   * If given, output the given directory as artifact
+   * Additional buildspec (for artifacts etc.)
    *
-   * @default No output artifact
+   * @default No additional buildspec
    */
-  artifactDirectory?: string;
+  buildSpec?: BuildSpec;
 
   /**
    * Alarm period (in seconds)
@@ -83,6 +84,8 @@ export interface ShellableOptions {
    * @default 1
    */
   alarmEvaluationPeriods?: number;
+
+  secondaryArtifactNames?: string[];
 }
 
 /**
@@ -146,23 +149,6 @@ export interface AssumeRole {
 }
 
 /**
- * Properties used to create a Shellable
- */
-export interface ShellableProps extends ShellableOptions {
-  /**
-   * Directory with the scripts.
-   *
-   * The whole directory will be uploaded.
-   */
-  scriptDirectory: string;
-
-  /**
-   * Filename of the initial script to start, relative to scriptDirectory.
-   */
-  entrypoint: string;
-}
-
-/**
  * A CodeBuild project that runs arbitrary scripts.
  *
  * The scripts to be run are specified by supplying a directory.
@@ -185,6 +171,9 @@ export class Shellable extends cdk.Construct {
   public readonly alarm: cloudwatch.Alarm;
 
   private readonly platform: ShellPlatform;
+  private readonly buildSpec: BuildSpec;
+
+  private readonly outputArtifactName: string;
 
   constructor(parent: cdk.Construct, id: string, props: ShellableProps) {
     super(parent, id);
@@ -200,6 +189,16 @@ export class Shellable extends cdk.Construct {
       path: props.scriptDirectory
     });
 
+    this.outputArtifactName = `Artifact_${this.node.uniqueId}`;
+    if (this.outputArtifactName.length > 100) {
+      throw new Error(`Whoops, too long: ${this.outputArtifactName}`);
+    }
+
+    this.buildSpec = BuildSpec.simple({
+      preBuild: this.platform.prebuildCommands(props.assumeRole),
+      build: this.platform.buildCommands(props.entrypoint)
+    }).merge(props.buildSpec || BuildSpec.empty());
+
     this.project = new cbuild.Project(this, 'Resource', {
       projectName: props.buildProjectName,
       source: props.source || new cbuild.CodePipelineSource(),
@@ -212,17 +211,7 @@ export class Shellable extends cdk.Construct {
         [S3_KEY_ENV]: { value: asset.s3ObjectKey },
         ...renderEnvironmentVariables(props.environment)
       },
-      buildSpec: {
-        version: '0.2',
-        phases: {
-          pre_build: { commands: this.platform.prebuildCommands(props.assumeRole) },
-          build: { commands: this.platform.buildCommands(props.entrypoint) },
-        },
-        artifacts: props.artifactDirectory !== undefined ? {
-          'files': ['**/*'],
-          'base-directory': props.artifactDirectory
-        } : undefined,
-      }
+      buildSpec: this.buildSpec.render({ primaryArtifactName: this.outputArtifactName }),
     });
 
     this.role = this.project.role;
@@ -244,7 +233,12 @@ export class Shellable extends cdk.Construct {
   }
 
   public addToPipeline(stage: cpipeline.Stage, name: string, inputArtifact: cpipelineapi.Artifact, runOrder?: number) {
-    return this.project.addToPipeline(stage, name, { inputArtifact, runOrder });
+    return this.project.addToPipeline(stage, name, {
+      additionalOutputArtifactNames: this.buildSpec.additionalArtifactNames,
+      outputArtifactName: this.outputArtifactName,
+      inputArtifact,
+      runOrder
+    });
   }
 }
 

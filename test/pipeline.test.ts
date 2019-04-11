@@ -167,7 +167,7 @@ test('can add arbitrary shellables with different artifacts', () => {
             ActionTypeId: { Category: "Build", Owner: "AWS", Provider: "CodeBuild", },
             InputArtifacts: [ { Name: "Artifact_PipelineBuildProjectBuildC2DBA0FC" } ],
             Name: "ActionSecondStep",
-            OutputArtifacts: [ { Name: "Artifact_PipelineSecondStepActionSecondStep47D84CAC" } ],
+            OutputArtifacts: [ { Name: "Artifact_PipelineSecondStepD5683DEB" } ],
             RunOrder: 1
           }
         ],
@@ -177,7 +177,7 @@ test('can add arbitrary shellables with different artifacts', () => {
         Actions: [
           {
             ActionTypeId: { Category: "Build", Owner: "AWS", Provider: "CodeBuild", },
-            InputArtifacts: [ { Name: "Artifact_PipelineSecondStepActionSecondStep47D84CAC" } ],
+            InputArtifacts: [ { Name: "Artifact_PipelineSecondStepD5683DEB" } ],
             Name: "PubPublish",
             OutputArtifacts: [ { Name: "Artifact_PubProjectPubPublishFC7A3C85" } ],
             RunOrder: 1
