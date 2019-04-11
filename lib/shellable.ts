@@ -84,6 +84,8 @@ export interface ShellableOptions {
    * @default 1
    */
   alarmEvaluationPeriods?: number;
+
+  secondaryArtifactNames?: string[];
 }
 
 /**
@@ -171,6 +173,8 @@ export class Shellable extends cdk.Construct {
   private readonly platform: ShellPlatform;
   private readonly buildSpec: BuildSpec;
 
+  private readonly outputArtifactName: string;
+
   constructor(parent: cdk.Construct, id: string, props: ShellableProps) {
     super(parent, id);
 
@@ -184,6 +188,11 @@ export class Shellable extends cdk.Construct {
     const asset = new assets.ZipDirectoryAsset(this, 'ScriptDirectory', {
       path: props.scriptDirectory
     });
+
+    this.outputArtifactName = `${this.node.id}_Artifact`;
+    if (this.outputArtifactName.length > 100) {
+      throw new Error(`Whoops, too long: ${this.outputArtifactName}`);
+    }
 
     this.buildSpec = BuildSpec.simple({
       preBuild: this.platform.prebuildCommands(props.assumeRole),
@@ -202,7 +211,7 @@ export class Shellable extends cdk.Construct {
         [S3_KEY_ENV]: { value: asset.s3ObjectKey },
         ...renderEnvironmentVariables(props.environment)
       },
-      buildSpec: this.buildSpec.render(),
+      buildSpec: this.buildSpec.render({ primaryArtifactName: this.outputArtifactName }),
     });
 
     this.role = this.project.role;
@@ -226,6 +235,7 @@ export class Shellable extends cdk.Construct {
   public addToPipeline(stage: cpipeline.Stage, name: string, inputArtifact: cpipelineapi.Artifact, runOrder?: number) {
     return this.project.addToPipeline(stage, name, {
       additionalOutputArtifactNames: this.buildSpec.additionalArtifactNames,
+      outputArtifactName: this.outputArtifactName,
       inputArtifact,
       runOrder
     });

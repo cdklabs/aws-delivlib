@@ -73,6 +73,23 @@ export class TestStack extends cdk.Stack {
       }
     });
 
+    const action = pipeline.addShellable('Test', 'GenerateTwoArtifacts', {
+      entrypoint: 'void.sh',
+      scriptDirectory: path.join(testDir, 'linux'),
+      buildSpec: delivlib.BuildSpec.simple({
+        build: [
+          'mkdir -p output1 output2',
+          'echo \'{"name": "output1", "version": "1.2.3", "commit": "abcdef"}\' > output1/build.json',
+          'echo \'{"name": "output2", "version": "1.2.3", "commit": "abcdef"}\' > output2/build.json',
+        ],
+        artifactDirectories: {
+          PRIMARY: 'output1',
+          artifact2: 'output2'
+        }
+      })
+    });
+    const shellableArtifacts = [action.outputArtifact, ...action.additionalOutputArtifacts()];
+
     //
     // CANARY
     //
@@ -128,7 +145,8 @@ export class TestStack extends cdk.Stack {
 
     pipeline.publishToGitHub({
       githubRepo,
-      signingKey
+      signingKey,
+      additionalInputArtifacts: shellableArtifacts
     });
 
     pipeline.publishToGitHubPages({

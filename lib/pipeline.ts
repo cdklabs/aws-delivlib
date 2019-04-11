@@ -393,9 +393,4 @@ export interface AddShellableOptions extends ShellableProps {
    * @default Build output artifact
    */
   inputArtifact?: cpipelineapi.Artifact;
-
-  /**
-   * Additional output artifact names
-   */
-  additionalOutputArtifactNames?: string[];
 }

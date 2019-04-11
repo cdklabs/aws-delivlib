@@ -1,5 +1,7 @@
 import { mapValues, noUndefined } from "./util";
 
+const MAGIC_ARTIFACT_NAME = 'PRIMARY';
+
 /**
  * Class to model a buildspec version 0.2
  */
@@ -9,10 +11,14 @@ export class BuildSpec {
   }
 
   public static simple(props: SimpleBuildSpecProps) {
-    if (props.secondaryArtifactDirectories !== undefined && props.primaryArtifactDirectory === undefined) {
-      // FIXME: We should treat all artifacts the same and the primary at render time, otherwise
-      // merging gets too complicated for no good reason.
-      throw new Error('Secondary artifacts also require a primary artifact');
+    let artifacts: PrimaryArtifactStruct | undefined;
+    if (Object.keys(props.artifactDirectories || {}).length > 0) {
+      artifacts = {
+        'secondary-artifacts': mapValues(props.artifactDirectories!, d => ({
+          'base-directory': d,
+          'files': ['**/*'],
+        }))
+      };
     }
 
     return new BuildSpec({
@@ -21,13 +27,7 @@ export class BuildSpec {
         pre_build: props.preBuild !== undefined ? { commands: props.preBuild } : undefined,
         build: props.build !== undefined ? { commands: props.build } : undefined,
       }),
-      artifacts: props.primaryArtifactDirectory !== undefined ? noUndefined({
-        "base-directory": props.primaryArtifactDirectory,
-        "files": ['**/*'],
-        "secondary-artifacts": props.secondaryArtifactDirectories !== undefined
-            ? mapValues(props.secondaryArtifactDirectories, d => ({ "base-directory": d, "files": ['**/*'] }))
-            : undefined,
-      }) : undefined,
+      artifacts,
     });
   }
 
@@ -39,10 +39,10 @@ export class BuildSpec {
   }
 
   public get additionalArtifactNames(): string[] {
-    return Object.keys(this.spec.artifacts && this.spec.artifacts["secondary-artifacts"] || {});
+    return Object.keys(this.spec.artifacts && this.spec.artifacts["secondary-artifacts"] || {}).filter(n => n !== MAGIC_ARTIFACT_NAME);
   }
 
-  public merge(other: BuildSpec, options: MergeOptions = {}): BuildSpec {
+  public merge(other: BuildSpec): BuildSpec {
     return new BuildSpec({
       "version": "0.2",
       "run-as": mergeObj(this.spec["run-as"], other.spec["run-as"], equalObjects),
@@ -62,15 +62,11 @@ export class BuildSpec {
     });
 
     function mergeArtifacts(a: PrimaryArtifactStruct, b: PrimaryArtifactStruct): PrimaryArtifactStruct {
-      if (!options.renamePrimaryArtifact) {
-        throw new Error('Right-hand-side has primary artifact. Must supply renamePrimaryArtifact.');
+      if (a.files || b.files) {
+        throw new Error('None of the BuildSpecs may have a primary artifact.');
       }
 
       const artifacts = Object.assign({}, a["secondary-artifacts"] || {});
-      if (options.renamePrimaryArtifact in artifacts) {
-        throw new Error(`There is already an artifact with name ${options.renamePrimaryArtifact}`);
-      }
-      artifacts[options.renamePrimaryArtifact] = Object.assign({}, b, { 'secondary-artifacts': undefined });
       for (const [k, v] of Object.entries(b["secondary-artifacts"] || {})) {
         if (k in artifacts) {
           throw new Error(`There is already an artifact with name ${k}`);
@@ -112,28 +108,41 @@ export class BuildSpec {
     }
   }
 
-  public render(): BuildSpecStruct {
-    return this.spec;
+  public render(options: BuildSpecRenderOptions = {}): BuildSpecStruct {
+    return Object.assign({}, this.spec, { artifacts: this.renderArtifacts(options) });
   }
-}
 
-export interface MergeOptions {
-  /**
-   * Rename the primary artifact on the right-hand-side of the merge operation.
-   *
-   * Required if the RHS BuildSpec contains a primary artifact (it will become
-   * a secondery artifact of the merged BuildSpec).
-   *
-   * @default - No renaming
-   */
-  renamePrimaryArtifact?: string;
+  private renderArtifacts(options: BuildSpecRenderOptions): PrimaryArtifactStruct | undefined {
+    if (!this.spec.artifacts || !this.spec.artifacts['secondary-artifacts']) { return this.spec.artifacts; }
+
+    // Simplify a single "secondary-artifacts" to a single primary artifact (regardless of the name)
+    const singleArt = dictSingletonValue(this.spec.artifacts['secondary-artifacts']);
+    if (singleArt) { return singleArt; }
+
+    // Otherwise rename a 'PRIMARY' key if it exists
+    if (MAGIC_ARTIFACT_NAME in this.spec.artifacts['secondary-artifacts']) {
+      if (!options.primaryArtifactName) {
+        throw new Error(`Replacement name for ${MAGIC_ARTIFACT_NAME} artifact not supplied`);
+      }
+
+      return { 'secondary-artifacts': renameKey(this.spec.artifacts['secondary-artifacts'], MAGIC_ARTIFACT_NAME, options.primaryArtifactName) };
+    }
+
+    return this.spec.artifacts;
+  }
 }
 
 export interface SimpleBuildSpecProps {
   preBuild?: string[];
   build?: string[];
-  primaryArtifactDirectory?: string;
-  secondaryArtifactDirectories?: {[name: string]: string};
+
+  /**
+   * Where the directories for each artifact are
+   *
+   * Use special name PRIMARY to refer to the primary artifact. Will be
+   * replaced with the actual artifact name when the build spec is synthesized.
+   */
+  artifactDirectories?: {[id: string]: string};
 }
 
 export interface BuildSpecStruct {
@@ -157,7 +166,7 @@ export interface PhaseStruct {
 }
 
 export interface ArtifactStruct {
-  files: string[];
+  files?: string[];
   name?: string;
   'base-directory'?: string;
   'discard-paths'?: 'yes' | 'no';
@@ -169,4 +178,35 @@ export interface PrimaryArtifactStruct extends ArtifactStruct {
 
 export interface CacheStruct {
   paths: string[];
+}
+
+export interface BuildSpecRenderOptions {
+  /**
+   * Replace PRIMARY artifact name with this
+   *
+   * Cannot use the special term PRIMARY if this is not supplied.
+   *
+   * @default  Cannot use PRIMARY
+   */
+  primaryArtifactName?: string;
+}
+
+/**
+ * If the dict is a singleton dict, return the value of the first key, otherwise return undefined
+ */
+function dictSingletonValue<T>(xs: {[key: string]: T}): T | undefined {
+  const keys = Object.keys(xs);
+  if (keys.length === 1) {
+    return xs[keys[0]];
+  }
+  return undefined;
+}
+
+function renameKey<T>(xs: {[key: string]: T}, orig: string, rename: string): {[key: string]: T} {
+  const ret = Object.assign({}, xs);
+  if (orig in ret) {
+    ret[rename] = ret[orig];
+    delete ret[orig];
+  }
+  return ret;
 }

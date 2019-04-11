@@ -59,7 +59,8 @@ prepare_artifacts_in_current_dir true
 if [[ "${SECONDARY_SOURCE_NAMES:-}" != "" ]]; then
     for source_name in ${SECONDARY_SOURCE_NAMES}; do
         heading "Additional Source: $source_name"
-        (cd ${CODEBUILD_SRC_DIR_${source_name}} && prepare_artifacts_in_current_dir ${SIGN_ADDITIONAL_ARTIFACTS:-false})
+        source_dir_var=CODEBUILD_SRC_DIR_${source_name}
+        (cd ${!source_dir_var} && prepare_artifacts_in_current_dir ${SIGN_ADDITIONAL_ARTIFACTS:-false})
     done
 fi
 
