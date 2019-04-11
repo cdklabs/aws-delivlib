@@ -2692,16 +2692,17 @@ Resources:
               },
               "build": {
                 "commands": [
-                  "npm i && npm run bump",
-                  "aws secretsmanager get-secret-value --secret-id \"arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/github-ssh-lwzfjW\" --output=text --query=SecretString > ~/.ssh/id_rsa",
-                  "chmod 0600 ~/.ssh/id_rsa",
-                  "BRANCH=bump/$(git describe)",
-                  "git branch -D $BRANCH || true",
-                  "git checkout -b $BRANCH",
-                  "git checkout master",
-                  "git merge $BRANCH",
-                  "git remote add origin_ssh git@github.com:awslabs/aws-delivlib-sample.git",
-                  "git push --follow-tags origin_ssh master"
+                  "git describe --exact-match HEAD && { echo \"No new commits.\"; export SKIP=true; } || { echo \"Changes to release.\"; export SKIP=false; }",
+                  "$SKIP || { npm i && npm run bump; }",
+                  "$SKIP || aws secretsmanager get-secret-value --secret-id \"arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/github-ssh-lwzfjW\" --output=text --query=SecretString > ~/.ssh/id_rsa",
+                  "$SKIP || chmod 0600 ~/.ssh/id_rsa",
+                  "$SKIP || { BRANCH=bump/$(git describe) ; }",
+                  "$SKIP || { git branch -D $BRANCH || true ; }",
+                  "$SKIP || { git checkout -b $BRANCH ; }",
+                  "$SKIP || { git checkout master ; }",
+                  "$SKIP || { git merge $BRANCH ; }",
+                  "$SKIP || { git remote add origin_ssh git@github.com:awslabs/aws-delivlib-sample.git ; }",
+                  "$SKIP || { git push --follow-tags origin_ssh master ; }"
                 ]
               }
             }
