@@ -19,19 +19,15 @@ if [ -n "${CODE_SIGNING_SECRET_ID:-}" ]; then
     cert=$(mktemp -d)
     CLEANUP+=("echo '🚮 Cleaning code-signing certificate'" "rm -fr ${cert}")
 
-    # Transform the certificate into the format expected by signcode
+    # Prepare the PEM encoded certificate for sign.sh to use
     echo "Reading certificate from SSM parameter: ${CODE_SIGNING_PARAMETER_NAME}"
-    signcode_spc="${cert}/certificate.spc"
-    aws ssm get-parameter --name "${CODE_SIGNING_PARAMETER_NAME}" | jq -r '.Parameter.Value' > "${signcode_spc}.pem"
-    openssl crl2pkcs7 -nocrl -certfile "${signcode_spc}.pem" -outform DER -out "${signcode_spc}"
-    echo "Successfully converted certificate from PEM to DER (.spc)"
+    signcode_spc="${cert}/certificate.pem"
+    aws ssm get-parameter --name "${CODE_SIGNING_PARAMETER_NAME}" | jq -r '.Parameter.Value' > "${signcode_spc}"
 
-    # Transform the private key into the format expected by signcode
+    # Prepare the PEM encoded private key for sign.sh to use
     echo "Reading signing key from secret ID: ${CODE_SIGNING_SECRET_ID}"
-    signcode_pvk="${cert}/certificate.pvk"
-    aws secretsmanager get-secret-value --secret-id "${CODE_SIGNING_SECRET_ID}" | jq -r '.SecretString' > "${signcode_pvk}.pem"
-    openssl rsa -in "${signcode_pvk}.pem" -outform PVK -pvk-none -out "${signcode_pvk}"
-    echo "Successfully converted signing key from PEM to PVK"
+    signcode_pvk="${cert}/certificate.key"
+    aws secretsmanager get-secret-value --secret-id "${CODE_SIGNING_SECRET_ID}" | jq -r '.SecretString' > "${signcode_pvk}"
 
     # Set the timestamp server
     signcode_tss="${CODE_SIGNING_TIMESTAMP_SERVER:-http://timestamp.digicert.com}"

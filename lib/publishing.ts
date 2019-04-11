@@ -85,6 +85,13 @@ export interface PublishToNpmProjectProps {
    * @default true
    */
   dryRun?: boolean;
+
+  /**
+   * npm dist-tag to use when publishing artifacts.
+   *
+   * @default - npm default behavior ("latest" unless dist tag is specified in package.json)
+   */
+  distTag?: string;
 }
 
 /**
@@ -105,7 +112,8 @@ export class PublishToNpmProject extends cdk.Construct implements IPublisher {
       entrypoint: 'publish.sh',
       environment: {
         FOR_REAL: forReal,
-        NPM_TOKEN_SECRET: props.npmTokenSecret.secretArn
+        NPM_TOKEN_SECRET: props.npmTokenSecret.secretArn,
+        DISTTAG: props.distTag || ''
       },
     });
 
