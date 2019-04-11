@@ -32,8 +32,8 @@ prepare_artifacts_in_current_dir() {
     echo "version: ${version}"
 
     # --------------------------------------------------------------------------------------------------
-    echo "Preparing .zip archive"
     local archive="${workdir}/${name}-${version}.zip"
+    echo "Preparing .zip archive: ${archive}"
 
     [[ ! -f ${archive} ]] || {
         echo "File already created by a different artifact: $archive" >&2

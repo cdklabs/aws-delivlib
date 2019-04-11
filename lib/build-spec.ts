@@ -4,6 +4,22 @@ const MAGIC_ARTIFACT_NAME = 'PRIMARY';
 
 /**
  * Class to model a buildspec version 0.2
+ *
+ * Artifact handling is a little special: CodeBuild will interpret the
+ * 'artifacts' section differently depending on whether there are secondary
+ * artifacts or not.
+ *
+ * If there is only one artifact, the single artifact must go into the top-level
+ * 'artifacts' section. If there are multiple artifacts, all of them must go
+ * into the 'secondary-artifacts' section. Upon rendering to JSON, the caller
+ * must supply the name of the primary artifact (it's determined by
+ * the CodePipeline Action that invokes the CodeBuild Project that uses this
+ * buildspec).
+ *
+ * INVARIANT: in-memory, the BuildSpec will treat all artifacts the same (as
+ * a bag of secondary artifacts). At the edges (construction or rendering),
+ * if there's only a single artifact it will be rendered to the primary
+ * artifact.
  */
 export class BuildSpec {
   public static literal(struct: BuildSpecStruct) {
@@ -11,10 +27,17 @@ export class BuildSpec {
   }
 
   public static simple(props: SimpleBuildSpecProps) {
+    // We merge the primary artifact into the secondary artifacts under a special key
+    // They will be compacted back together during rendering.
+    const artifactDirectories = Object.assign({},
+      props.additionalArtifactDirectories || {},
+      props.artifactDirectory ? {[MAGIC_ARTIFACT_NAME]: props.artifactDirectory} : {}
+    );
+
     let artifacts: PrimaryArtifactStruct | undefined;
-    if (Object.keys(props.artifactDirectories || {}).length > 0) {
+    if (Object.keys(artifactDirectories || {}).length > 0) {
       artifacts = {
-        'secondary-artifacts': mapValues(props.artifactDirectories!, d => ({
+        'secondary-artifacts': mapValues(artifactDirectories!, d => ({
           'base-directory': d,
           'files': ['**/*'],
         }))
@@ -136,13 +159,15 @@ export interface SimpleBuildSpecProps {
   preBuild?: string[];
   build?: string[];
 
+  artifactDirectory?: string;
+
   /**
    * Where the directories for each artifact are
    *
    * Use special name PRIMARY to refer to the primary artifact. Will be
    * replaced with the actual artifact name when the build spec is synthesized.
    */
-  artifactDirectories?: {[id: string]: string};
+  additionalArtifactDirectories?: {[id: string]: string};
 }
 
 export interface BuildSpecStruct {

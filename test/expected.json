@@ -82,6 +82,15 @@ Resources:
             Effect: Allow
             Resource:
               Fn::GetAtt:
+                - CodeCommitPipelineGenerateTwoArtifactsA9DAD33B
+                - Arn
+          - Action:
+              - codebuild:BatchGetBuilds
+              - codebuild:StartBuild
+              - codebuild:StopBuild
+            Effect: Allow
+            Resource:
+              Fn::GetAtt:
                 - CodeCommitPipelineNpm0D31AEFC
                 - Arn
           - Action:
@@ -191,7 +200,7 @@ Resources:
                 - Name: Artifact_delivlibtestCodeCommitPipelineBuildProjectBuildEB1D42D1
               Name: TestHelloLinux
               OutputArtifacts:
-                - Name: Artifact_delivlibtestCodeCommitPipelineHelloLinuxTestHelloLinux477C71C4
+                - Name: Artifact_delivlibtestCodeCommitPipelineHelloLinux01786D9D
               RunOrder: 1
             - ActionTypeId:
                 Category: Build
@@ -205,7 +214,7 @@ Resources:
                 - Name: Artifact_delivlibtestCodeCommitPipelineBuildProjectBuildEB1D42D1
               Name: TestHelloWindows
               OutputArtifacts:
-                - Name: Artifact_delivlibtestCodeCommitPipelineHelloWindowsTestHelloWindowsA38892AA
+                - Name: Artifact_delivlibtestCodeCommitPipelineHelloWindowsDD89E92A
               RunOrder: 1
             - ActionTypeId:
                 Category: Build
@@ -219,7 +228,22 @@ Resources:
                 - Name: Artifact_delivlibtestCodeCommitPipelineBuildProjectBuildEB1D42D1
               Name: TestAssumeRole
               OutputArtifacts:
-                - Name: Artifact_delivlibtestCodeCommitPipelineAssumeRoleTestAssumeRoleED3B2461
+                - Name: Artifact_delivlibtestCodeCommitPipelineAssumeRole8CA58C9F
+              RunOrder: 1
+            - ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Provider: CodeBuild
+                Version: "1"
+              Configuration:
+                ProjectName:
+                  Ref: CodeCommitPipelineGenerateTwoArtifactsA9DAD33B
+              InputArtifacts:
+                - Name: Artifact_delivlibtestCodeCommitPipelineBuildProjectBuildEB1D42D1
+              Name: ActionGenerateTwoArtifacts
+              OutputArtifacts:
+                - Name: Artifact_delivlibtestCodeCommitPipelineGenerateTwoArtifacts54497DAA
+                - Name: artifact2
               RunOrder: 1
           Name: Test
         - Actions:
@@ -273,8 +297,11 @@ Resources:
               Configuration:
                 ProjectName:
                   Ref: CodeCommitPipelineGitHub0797840C
+                PrimarySource: Artifact_delivlibtestCodeCommitPipelineBuildProjectBuildEB1D42D1
               InputArtifacts:
                 - Name: Artifact_delivlibtestCodeCommitPipelineBuildProjectBuildEB1D42D1
+                - Name: Artifact_delivlibtestCodeCommitPipelineGenerateTwoArtifacts54497DAA
+                - Name: artifact2
               Name: GitHubPublish
               OutputArtifacts:
                 - Name: Artifact_delivlibtestCodeCommitPipelineGitHubGitHubPublish9C2DACED
@@ -1248,6 +1275,186 @@ Resources:
       TreatMissingData: ignore
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/AssumeRole/Alarm/Resource
+  CodeCommitPipelineGenerateTwoArtifactsRole91D2CDCA:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: codebuild.amazonaws.com
+        Version: "2012-10-17"
+    Metadata:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/GenerateTwoArtifacts/Resource/Role/Resource
+  CodeCommitPipelineGenerateTwoArtifactsRoleDefaultPolicy770BE7EA:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - logs:CreateLogGroup
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+            Effect: Allow
+            Resource:
+              - Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
+                    - Ref: CodeCommitPipelineGenerateTwoArtifactsA9DAD33B
+              - Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
+                    - Ref: CodeCommitPipelineGenerateTwoArtifactsA9DAD33B
+                    - :*
+          - Action:
+              - s3:GetObject*
+              - s3:GetBucket*
+              - s3:List*
+            Effect: Allow
+            Resource:
+              - Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - ":s3:::"
+                    - Ref: CodeCommitPipelineGenerateTwoArtifactsScriptDirectoryS3BucketE058B7EF
+              - Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - ":s3:::"
+                    - Ref: CodeCommitPipelineGenerateTwoArtifactsScriptDirectoryS3BucketE058B7EF
+                    - /
+                    - Fn::Select:
+                        - 0
+                        - Fn::Split:
+                            - "||"
+                            - Ref: CodeCommitPipelineGenerateTwoArtifactsScriptDirectoryS3VersionKeyD775EF3D
+                    - "*"
+          - Action:
+              - s3:GetObject*
+              - s3:GetBucket*
+              - s3:List*
+              - s3:DeleteObject*
+              - s3:PutObject*
+              - s3:Abort*
+            Effect: Allow
+            Resource:
+              - Fn::GetAtt:
+                  - CodeCommitPipelineBuildPipelineArtifactsBucketED2813B3
+                  - Arn
+              - Fn::Join:
+                  - ""
+                  - - Fn::GetAtt:
+                        - CodeCommitPipelineBuildPipelineArtifactsBucketED2813B3
+                        - Arn
+                    - /*
+        Version: "2012-10-17"
+      PolicyName: CodeCommitPipelineGenerateTwoArtifactsRoleDefaultPolicy770BE7EA
+      Roles:
+        - Ref: CodeCommitPipelineGenerateTwoArtifactsRole91D2CDCA
+    Metadata:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/GenerateTwoArtifacts/Resource/Role/DefaultPolicy/Resource
+  CodeCommitPipelineGenerateTwoArtifactsA9DAD33B:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Artifacts:
+        Type: CODEPIPELINE
+      Environment:
+        ComputeType: BUILD_GENERAL1_MEDIUM
+        EnvironmentVariables:
+          - Name: SCRIPT_S3_BUCKET
+            Type: PLAINTEXT
+            Value:
+              Ref: CodeCommitPipelineGenerateTwoArtifactsScriptDirectoryS3BucketE058B7EF
+          - Name: SCRIPT_S3_KEY
+            Type: PLAINTEXT
+            Value:
+              Fn::Join:
+                - ""
+                - - Fn::Select:
+                      - 0
+                      - Fn::Split:
+                          - "||"
+                          - Ref: CodeCommitPipelineGenerateTwoArtifactsScriptDirectoryS3VersionKeyD775EF3D
+                  - Fn::Select:
+                      - 1
+                      - Fn::Split:
+                          - "||"
+                          - Ref: CodeCommitPipelineGenerateTwoArtifactsScriptDirectoryS3VersionKeyD775EF3D
+        Image: aws/codebuild/ubuntu-base:14.04
+        PrivilegedMode: false
+        Type: LINUX_CONTAINER
+      ServiceRole:
+        Fn::GetAtt:
+          - CodeCommitPipelineGenerateTwoArtifactsRole91D2CDCA
+          - Arn
+      Source:
+        BuildSpec: >-
+          {
+            "version": "0.2",
+            "phases": {
+              "pre_build": {
+                "commands": [
+                  "echo \"Downloading scripts from s3://${SCRIPT_S3_BUCKET}/${SCRIPT_S3_KEY}\"",
+                  "aws s3 cp s3://${SCRIPT_S3_BUCKET}/${SCRIPT_S3_KEY} /tmp",
+                  "mkdir -p /tmp/scriptdir",
+                  "unzip /tmp/$(basename $SCRIPT_S3_KEY) -d /tmp/scriptdir"
+                ]
+              },
+              "build": {
+                "commands": [
+                  "export SCRIPT_DIR=/tmp/scriptdir",
+                  "echo \"Running void.sh\"",
+                  "/bin/bash /tmp/scriptdir/void.sh",
+                  "mkdir -p output1 output2",
+                  "echo '{\"name\": \"output1\", \"version\": \"1.2.3\", \"commit\": \"abcdef\"}' > output1/build.json",
+                  "echo '{\"name\": \"output2\", \"version\": \"1.2.3\", \"commit\": \"abcdef\"}' > output2/build.json"
+                ]
+              }
+            },
+            "artifacts": {
+              "secondary-artifacts": {
+                "artifact2": {
+                  "base-directory": "output2",
+                  "files": [
+                    "**/*"
+                  ]
+                },
+                "Artifact_delivlibtestCodeCommitPipelineGenerateTwoArtifacts54497DAA": {
+                  "base-directory": "output1",
+                  "files": [
+                    "**/*"
+                  ]
+                }
+              }
+            }
+          }
+        Type: CODEPIPELINE
+    Metadata:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/GenerateTwoArtifacts/Resource/Resource
+  CodeCommitPipelineGenerateTwoArtifactsAlarm4299580B:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      EvaluationPeriods: 1
+      Threshold: 1
+      Dimensions:
+        - Name: ProjectName
+          Value:
+            Ref: CodeCommitPipelineGenerateTwoArtifactsA9DAD33B
+      MetricName: FailedBuilds
+      Namespace: AWS/CodeBuild
+      Period: 300
+      Statistic: Sum
+      TreatMissingData: ignore
+    Metadata:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/GenerateTwoArtifacts/Alarm/Resource
   CodeCommitPipelineCanaryHelloCanaryShellableRole65D634EB:
     Type: AWS::IAM::Role
     Properties:
@@ -2166,6 +2373,13 @@ Resources:
           - Name: FOR_REAL
             Type: PLAINTEXT
             Value: "true"
+          - Name: SECONDARY_SOURCE_NAMES
+            Type: PLAINTEXT
+            Value: Artifact_delivlibtestCodeCommitPipelineGenerateTwoArtifacts54497DAA
+              artifact2
+          - Name: SIGN_ADDITIONAL_ARTIFACTS
+            Type: PLAINTEXT
+            Value: "true"
         Image: aws/codebuild/nodejs:10.1.0
         PrivilegedMode: false
         Type: LINUX_CONTAINER
@@ -2692,16 +2906,17 @@ Resources:
               },
               "build": {
                 "commands": [
-                  "npm i && npm run bump",
-                  "aws secretsmanager get-secret-value --secret-id \"arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/github-ssh-lwzfjW\" --output=text --query=SecretString > ~/.ssh/id_rsa",
-                  "chmod 0600 ~/.ssh/id_rsa",
-                  "BRANCH=bump/$(git describe)",
-                  "git branch -D $BRANCH || true",
-                  "git checkout -b $BRANCH",
-                  "git checkout master",
-                  "git merge $BRANCH",
-                  "git remote add origin_ssh git@github.com:awslabs/aws-delivlib-sample.git",
-                  "git push --follow-tags origin_ssh master"
+                  "git describe --exact-match HEAD && { echo \"No new commits.\"; export SKIP=true; } || { echo \"Changes to release.\"; export SKIP=false; }",
+                  "$SKIP || { npm i && npm run bump; }",
+                  "$SKIP || aws secretsmanager get-secret-value --secret-id \"arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/github-ssh-lwzfjW\" --output=text --query=SecretString > ~/.ssh/id_rsa",
+                  "$SKIP || chmod 0600 ~/.ssh/id_rsa",
+                  "$SKIP || { BRANCH=bump/$(git describe) ; }",
+                  "$SKIP || { git branch -D $BRANCH || true ; }",
+                  "$SKIP || { git checkout -b $BRANCH ; }",
+                  "$SKIP || { git checkout master ; }",
+                  "$SKIP || { git merge $BRANCH ; }",
+                  "$SKIP || { git remote add origin_ssh git@github.com:awslabs/aws-delivlib-sample.git ; }",
+                  "$SKIP || { git push --follow-tags origin_ssh master ; }"
                 ]
               }
             }
@@ -3605,6 +3820,14 @@ Parameters:
     Type: String
     Description: S3 key for asset version
       "delivlib-test/CodeCommitPipeline/AssumeRole/ScriptDirectory"
+  CodeCommitPipelineGenerateTwoArtifactsScriptDirectoryS3BucketE058B7EF:
+    Type: String
+    Description: S3 bucket for asset
+      "delivlib-test/CodeCommitPipeline/GenerateTwoArtifacts/ScriptDirectory"
+  CodeCommitPipelineGenerateTwoArtifactsScriptDirectoryS3VersionKeyD775EF3D:
+    Type: String
+    Description: S3 key for asset version
+      "delivlib-test/CodeCommitPipeline/GenerateTwoArtifacts/ScriptDirectory"
   CodeCommitPipelineCanaryHelloCanaryShellableScriptDirectoryS3BucketFE4212CD:
     Type: String
     Description: S3 bucket for asset

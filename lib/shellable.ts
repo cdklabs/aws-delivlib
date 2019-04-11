@@ -189,7 +189,7 @@ export class Shellable extends cdk.Construct {
       path: props.scriptDirectory
     });
 
-    this.outputArtifactName = `${this.node.id}_Artifact`;
+    this.outputArtifactName = `Artifact_${this.node.uniqueId}`;
     if (this.outputArtifactName.length > 100) {
       throw new Error(`Whoops, too long: ${this.outputArtifactName}`);
     }

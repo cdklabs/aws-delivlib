@@ -82,8 +82,8 @@ export class TestStack extends cdk.Stack {
           'echo \'{"name": "output1", "version": "1.2.3", "commit": "abcdef"}\' > output1/build.json',
           'echo \'{"name": "output2", "version": "1.2.3", "commit": "abcdef"}\' > output2/build.json',
         ],
-        artifactDirectories: {
-          PRIMARY: 'output1',
+        artifactDirectory: 'output1',
+        additionalArtifactDirectories: {
           artifact2: 'output2'
         }
       })
