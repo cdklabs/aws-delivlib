@@ -13,11 +13,11 @@
 FROM ubuntu:14.04.5
 
 ENV DOCKER_BUCKET="download.docker.com" \
-    DOCKER_VERSION="17.09.0-ce" \
+    DOCKER_VERSION="18.09.0" \
     DOCKER_CHANNEL="stable" \
-    DOCKER_SHA256="a9e90a73c3cdfbf238f148e1ec0eaff5eb181f92f35bdd938fd7dab18e1c4647" \
+    DOCKER_SHA256="08795696e852328d66753963249f4396af2295a7fe2847b839f7102e25e47cb9" \
     DIND_COMMIT="3b5fac462d21ca164b3778647420016315289034" \
-    DOCKER_COMPOSE_VERSION="1.21.2" \
+    DOCKER_COMPOSE_VERSION="1.23.2" \
     GITVERSION_VERSION="3.6.5"
 
 # Install git, SSH, and other utilities
@@ -40,7 +40,7 @@ RUN set -ex \
     && ssh-keyscan -t rsa,dsa -H bitbucket.org >> ~/.ssh/known_hosts \
     && chmod 600 ~/.ssh/known_hosts \
     && apt-get install -y --no-install-recommends \
-       wget=1.15-* python=2.7.* python2.7-dev=2.7.* fakeroot=1.20-* ca-certificates \
+       wget=1.15-* python3=3.4.* python3.4-dev=3.4.* fakeroot=1.20-* ca-certificates jq \
        tar=1.27.* gzip=1.6-* zip=3.0-* autoconf=2.69-* automake=1:1.14.* \
        bzip2=1.0.* file=1:5.14-* g++=4:4.8.* gcc=4:4.8.* imagemagick=8:6.7.* \
        libbz2-dev=1.0.* libc6-dev=2.19-* libcurl4-openssl-dev=7.35.* libdb-dev=1:5.3.* \
@@ -52,12 +52,13 @@ RUN set -ex \
        libxml2-dev=2.9.* libxslt1-dev=1.1.* libyaml-dev=0.1.* make=3.81-* \
        patch=2.7.* xz-utils=5.1.* zlib1g-dev=1:1.2.* unzip=6.0-* curl=7.35.* \
        e2fsprogs=1.42.* iptables=1.4.* xfsprogs=3.1.* xz-utils=5.1.* \
-       mono-devel msbuild less=458-* groff=1.22.* liberror-perl=0.17-* \
+       mono-devel=5.* less=458-* groff=1.22.* liberror-perl=0.17-* \
        asciidoc=8.6.* build-essential=11.* bzr=2.6.* cvs=2:1.12.* cvsps=2.1-* docbook-xml=4.5-* docbook-xsl=1.78.* dpkg-dev=1.17.* \
        libdbd-sqlite3-perl=1.40-* libdbi-perl=1.630-* libdpkg-perl=1.17.* libhttp-date-perl=6.02-* \
        libio-pty-perl=1:1.08-* libserf-1-1=1.3.* libsvn-perl=1.8.* libsvn1=1.8.* libtcl8.6=8.6.* libtimedate-perl=2.3000-* \
        libunistring0=0.9.* libxml2-utils=2.9.* libyaml-perl=0.84-* python-bzrlib=2.6.* python-configobj=4.7.* \
-       sgml-base=1.26+* sgml-data=2.0.* subversion=1.8.* tcl=8.6.* tcl8.6=8.6.* xml-core=0.13+* xmlto=0.0.* xsltproc=1.1.* \
+       sgml-base=1.26+* sgml-data=2.0.* subversion=1.8.* tcl=8.6.* tcl8.6=8.6.* xml-core=0.13+* xmlto=0.0.* xsltproc=1.1.* python3-pip \
+       tk=8.6.* gettext=0.18.* gettext-base=0.18.* libapr1=1.5.* libaprutil1=1.5.* libasprintf0c2=0.18.*  \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
 
@@ -90,6 +91,9 @@ RUN set -ex \
 
 VOLUME /var/lib/docker
 
+# Configure SSH
+COPY ssh_config /root/.ssh/config
+
 COPY dockerd-entrypoint.sh /usr/local/bin/
 
 ### NodeJS -- https://github.com/aws/aws-codebuild-docker-images/tree/master/ubuntu/nodejs/8.11.0
@@ -113,21 +117,21 @@ RUN set -ex \
       114F43EE0176B71C7BC219DD50A3051F888C628D \
       7937DFD2AB06298B2293C3187D33FF9D0246406D \
     ; do \
-      gpg --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys "$key" || \
+      gpg --keyserver hkp://pool.sks-keyservers.net:80 --recv-keys "$key" || \
       gpg --keyserver hkp://ipv4.pool.sks-keyservers.net --recv-keys "$key" || \
       gpg --keyserver hkp://pgp.mit.edu:80 --recv-keys "$key" ; \
     done
 
 RUN set -ex \
-	&& wget "https://nodejs.org/download/release/v$NODE_VERSION/node-v$NODE_VERSION-linux-x64.tar.gz" -O node-v$NODE_VERSION-linux-x64.tar.gz \
-	&& wget "https://nodejs.org/download/release/v$NODE_VERSION/SHASUMS256.txt.asc" -O SHASUMS256.txt.asc \
-	&& gpg --batch --decrypt --output SHASUMS256.txt SHASUMS256.txt.asc \
-	&& grep " node-v$NODE_VERSION-linux-x64.tar.gz\$" SHASUMS256.txt | sha256sum -c - \
-		&& tar -xzf "node-v$NODE_VERSION-linux-x64.tar.gz" -C /usr/local --strip-components=1 \
-		&& rm "node-v$NODE_VERSION-linux-x64.tar.gz" SHASUMS256.txt.asc SHASUMS256.txt \
-		&& ln -s /usr/local/bin/node /usr/local/bin/nodejs \
-		&& rm -fr /var/lib/apt/lists/* /tmp/* /var/tmp/* \
-		&& npm -g install npm@~6.8.0
+    && wget "https://nodejs.org/download/release/v$NODE_VERSION/node-v$NODE_VERSION-linux-x64.tar.gz" -O node-v$NODE_VERSION-linux-x64.tar.gz \
+    && wget "https://nodejs.org/download/release/v$NODE_VERSION/SHASUMS256.txt.asc" -O SHASUMS256.txt.asc \
+    && gpg --batch --decrypt --output SHASUMS256.txt SHASUMS256.txt.asc \
+    && grep " node-v$NODE_VERSION-linux-x64.tar.gz\$" SHASUMS256.txt | sha256sum -c - \
+        && tar -xzf "node-v$NODE_VERSION-linux-x64.tar.gz" -C /usr/local --strip-components=1 \
+        && rm "node-v$NODE_VERSION-linux-x64.tar.gz" SHASUMS256.txt.asc SHASUMS256.txt \
+        && ln -s /usr/local/bin/node /usr/local/bin/nodejs \
+        && rm -fr /var/lib/apt/lists/* /tmp/* /var/tmp/* \
+        && npm -g install npm@~6.8.0
 
 RUN npm set unsafe-perm true
 
@@ -263,77 +267,77 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/* \
     \
     && wget -O python.tar.xz "https://www.python.org/ftp/python/${PYTHON_VERSION%%[a-z]*}/Python-$PYTHON_VERSION.tar.xz" \
-	&& wget -O python.tar.xz.asc "https://www.python.org/ftp/python/${PYTHON_VERSION%%[a-z]*}/Python-$PYTHON_VERSION.tar.xz.asc" \
-	&& export GNUPGHOME="$(mktemp -d)" \
-	&& (gpg --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys "$GPG_KEY" \
+    && wget -O python.tar.xz.asc "https://www.python.org/ftp/python/${PYTHON_VERSION%%[a-z]*}/Python-$PYTHON_VERSION.tar.xz.asc" \
+    && export GNUPGHOME="$(mktemp -d)" \
+    && (gpg --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys "$GPG_KEY" \
         || gpg --keyserver pgp.mit.edu --recv-keys "$GPG_KEY" \
         || gpg --keyserver keyserver.ubuntu.com --recv-keys "$GPG_KEY") \
-	&& gpg --batch --verify python.tar.xz.asc python.tar.xz \
-	&& rm -r "$GNUPGHOME" python.tar.xz.asc \
-	&& mkdir -p /usr/src/python \
-	&& tar -xJC /usr/src/python --strip-components=1 -f python.tar.xz \
-	&& rm python.tar.xz \
-	\
-	&& cd /usr/src/python \
-	&& ./configure \
-		--enable-loadable-sqlite-extensions \
-		--enable-shared \
-	&& make -j$(nproc) \
-	&& make install \
-	&& ldconfig \
-	\
+    && gpg --batch --verify python.tar.xz.asc python.tar.xz \
+    && rm -r "$GNUPGHOME" python.tar.xz.asc \
+    && mkdir -p /usr/src/python \
+    && tar -xJC /usr/src/python --strip-components=1 -f python.tar.xz \
+    && rm python.tar.xz \
+    \
+    && cd /usr/src/python \
+    && ./configure \
+        --enable-loadable-sqlite-extensions \
+        --enable-shared \
+    && make -j$(nproc) \
+    && make install \
+    && ldconfig \
+    \
 # explicit path to "pip3" to ensure distribution-provided "pip3" cannot interfere
-	&& if [ ! -e /usr/local/bin/pip3 ]; then : \
-		&& wget -O /tmp/get-pip.py 'https://bootstrap.pypa.io/get-pip.py' \
-		&& python3 /tmp/get-pip.py "pip==$PYTHON_PIP_VERSION" \
-		&& rm /tmp/get-pip.py \
-	; fi \
+    && if [ ! -e /usr/local/bin/pip3 ]; then : \
+        && wget -O /tmp/get-pip.py 'https://bootstrap.pypa.io/get-pip.py' \
+        && python3 /tmp/get-pip.py "pip==$PYTHON_PIP_VERSION" \
+        && rm /tmp/get-pip.py \
+    ; fi \
 # we use "--force-reinstall" for the case where the version of pip we're trying to install is the same as the version bundled with Python
 # ("Requirement already up-to-date: pip==8.1.2 in /usr/local/lib/python3.6/site-packages")
 # https://github.com/docker-library/python/pull/143#issuecomment-241032683
-	&& pip3 install --no-cache-dir --upgrade --force-reinstall "pip==$PYTHON_PIP_VERSION" \
+    && pip3 install --no-cache-dir --upgrade --force-reinstall "pip==$PYTHON_PIP_VERSION" \
         && pip install awscli==1.* boto3 pipenv virtualenv wheel --no-cache-dir \
 # then we use "pip list" to ensure we don't have more than one pip version installed
 # https://github.com/docker-library/python/pull/100
-	&& [ "$(pip list |tac|tac| awk -F '[ ()]+' '$1 == "pip" { print $2; exit }')" = "$PYTHON_PIP_VERSION" ] \
-	\
-	&& find /usr/local -depth \
-		\( \
-			\( -type d -a -name test -o -name tests \) \
-			-o \
-			\( -type f -a -name '*.pyc' -o -name '*.pyo' \) \
-		\) -exec rm -rf '{}' + \
-	&& apt-get purge -y --auto-remove tcl-dev tk-dev \
-	&& rm -rf /usr/src/python ~/.cache \
-	&& cd /usr/local/bin \
-	&& { [ -e easy_install ] || ln -s easy_install-* easy_install; } \
-	&& ln -s idle3 idle \
-	&& ln -s pydoc3 pydoc \
-	&& ln -s python3 python \
-	&& ln -s python3-config python-config \
+    && [ "$(pip list |tac|tac| awk -F '[ ()]+' '$1 == "pip" { print $2; exit }')" = "$PYTHON_PIP_VERSION" ] \
+    \
+    && find /usr/local -depth \
+        \( \
+            \( -type d -a -name test -o -name tests \) \
+            -o \
+            \( -type f -a -name '*.pyc' -o -name '*.pyo' \) \
+        \) -exec rm -rf '{}' + \
+    && apt-get purge -y --auto-remove tcl-dev tk-dev \
+    && rm -rf /usr/src/python ~/.cache \
+    && cd /usr/local/bin \
+    && { [ -e easy_install ] || ln -s easy_install-* easy_install; } \
+    && ln -s idle3 idle \
+    && ln -s pydoc3 pydoc \
+    && ln -s python3 python \
+    && ln -s python3-config python-config \
         && rm -fr /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 ### Ruby 2.5.1 - https://github.com/aws/aws-codebuild-docker-images/blob/master/ubuntu/ruby/2.5.1/Dockerfile
 
 ENV RUBY_MAJOR="2.5" \
-    RUBY_VERSION="2.5.1" \
-    RUBY_DOWNLOAD_SHA256="dac81822325b79c3ba9532b048c2123357d3310b2b40024202f360251d9829b1" \
-    RUBYGEMS_VERSION="2.7.2" \
-    BUNDLER_VERSION="1.16.1" \
-    GEM_HOME="/usr/local/bundle"
+     RUBY_VERSION="2.5.3" \
+     RUBY_DOWNLOAD_SHA256="9828d03852c37c20fa333a0264f2490f07338576734d910ee3fd538c9520846c" \
+     RUBYGEMS_VERSION="2.7.7" \
+     BUNDLER_VERSION="1.16.6" \
+     GEM_HOME="/usr/local/bundle"
 
-ENV BUNDLE_PATH="$GEM_HOME" \
-    BUNDLE_BIN="$GEM_HOME/bin" \
-    BUNDLE_SILENCE_ROOT_WARNING=1 \
-    BUNDLE_APP_CONFIG="$GEM_HOME"
+ ENV BUNDLE_PATH="$GEM_HOME" \
+     BUNDLE_BIN="$GEM_HOME/bin" \
+     BUNDLE_SILENCE_ROOT_WARNING=1 \
+     BUNDLE_APP_CONFIG="$GEM_HOME"
 
-ENV PATH $BUNDLE_BIN:$PATH
+ ENV PATH $BUNDLE_BIN:$PATH
 
-RUN mkdir -p /usr/local/etc \
-	&& { \
-        echo 'install: --no-document'; \
-        echo 'update: --no-document'; \
-    } >> /usr/local/etc/gemrc \
+ RUN mkdir -p /usr/local/etc \
+    && { \
+            echo 'install: --no-document'; \
+            echo 'update: --no-document'; \
+        } >> /usr/local/etc/gemrc \
     && apt-get update && apt-get install -y --no-install-recommends \
        bison libgdbm-dev ruby \
     && wget "https://cache.ruby-lang.org/pub/ruby/$RUBY_MAJOR/ruby-$RUBY_VERSION.tar.gz" -O /tmp/ruby.tar.gz \
@@ -341,11 +345,11 @@ RUN mkdir -p /usr/local/etc \
     && mkdir -p /usr/src/ruby \
     && tar -xzf /tmp/ruby.tar.gz -C /usr/src/ruby --strip-components=1 \
     && cd /usr/src/ruby \
-	&& { \
-             echo '#define ENABLE_PATH_CHECK 0'; \
-             echo; \
-             cat file.c; \
-	   } > file.c.new \
+    && { \
+            echo '#define ENABLE_PATH_CHECK 0'; \
+            echo; \
+            cat file.c; \
+        } > file.c.new \
     && mv file.c.new file.c \
     && autoconf \
     && ./configure --disable-install-doc \
@@ -355,7 +359,7 @@ RUN mkdir -p /usr/local/etc \
     && cd / \
     && rm -r /usr/src/ruby \
     && gem update --system "$RUBYGEMS_VERSION" \
-	&& gem install bundler --version "$BUNDLER_VERSION" \
+    && gem install bundler --version "$BUNDLER_VERSION" \
     && mkdir -p "$GEM_HOME" "$BUNDLE_BIN" \
     && chmod 777 "$GEM_HOME" "$BUNDLE_BIN" \
     && rm -fr /var/lib/apt/lists/* /tmp/* /var/tmp/*
