@@ -1,4 +1,4 @@
-import { expect as assert, haveResource } from '@aws-cdk/assert';
+import { expect as assert, haveResource, ResourcePart } from '@aws-cdk/assert';
 import cdk = require('@aws-cdk/cdk');
 import { Stack } from '@aws-cdk/cdk';
 import path = require('path');
@@ -101,4 +101,20 @@ test('alarm options - custom', () => {
     Threshold: 5,
     Period: 3600
   }));
+});
+
+test('privileged mode', () => {
+  const stack = new Stack();
+
+  new Shellable(stack, 'AllowDocker', {
+    scriptDirectory: path.join(__dirname, 'delivlib-tests/linux'),
+    entrypoint: 'test.sh',
+    privileged: true
+  });
+
+  assert(stack).to(haveResource('AWS::CodeBuild::Project', {
+    Environment: {
+      PrivilegedMode: true
+    }
+  }, ResourcePart.Properties, true));
 });
