@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+# [3.9.0](https://github.com/awslabs/aws-delivlib/compare/v3.8.2...v3.9.0) (2019-05-29)
+
+
+### Features
+
+* **shellable:** support privileged mode ([#95](https://github.com/awslabs/aws-delivlib/issues/95)) ([2558c6e](https://github.com/awslabs/aws-delivlib/commit/2558c6e))
+
+
+
 ## [3.8.2](https://github.com/awslabs/aws-delivlib/compare/v3.8.0...v3.8.2) (2019-05-21)
 
 
