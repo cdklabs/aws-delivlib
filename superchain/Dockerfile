@@ -191,7 +191,7 @@ RUN set -ex \
         software-properties-common=0.92.* \
     && add-apt-repository ppa:ubuntu-toolchain-r/test -y \
     && apt-get update \
-    && apt-get install -y libstdc++6=8*\
+    && apt-get install -y libstdc++6\
     && rm -rf /var/lib/apt/lists/*
 
 
