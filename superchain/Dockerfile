@@ -245,6 +245,7 @@ ENV PATH="/usr/local/bin:$PATH" \
     LC_ALL=C.UTF-8 \
     LANG=C.UTF-8
 
+COPY python-release-keys.asc /tmp/python-release-keys.asc
 RUN apt-get update && apt-get install -y --no-install-recommends \
         tcl-dev tk-dev \
     && rm -rf /var/lib/apt/lists/* \
@@ -252,9 +253,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && wget -O python.tar.xz "https://www.python.org/ftp/python/${PYTHON_VERSION%%[a-z]*}/Python-$PYTHON_VERSION.tar.xz" \
     && wget -O python.tar.xz.asc "https://www.python.org/ftp/python/${PYTHON_VERSION%%[a-z]*}/Python-$PYTHON_VERSION.tar.xz.asc" \
     && export GNUPGHOME="$(mktemp -d)" \
-    && (gpg --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys "$GPG_KEY" \
-        || gpg --keyserver pgp.mit.edu --recv-keys "$GPG_KEY" \
-        || gpg --keyserver keyserver.ubuntu.com --recv-keys "$GPG_KEY") \
+    && gpg --import < /tmp/python-release-keys.asc \
+    && rm /tmp/python-release-keys.asc \
     && gpg --batch --verify python.tar.xz.asc python.tar.xz \
     && rm -r "$GNUPGHOME" python.tar.xz.asc \
     && mkdir -p /usr/src/python \
