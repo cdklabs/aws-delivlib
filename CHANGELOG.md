@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.9.1](https://github.com/awslabs/aws-delivlib/compare/v3.9.0...v3.9.1) (2019-06-03)
+
+
+### Bug Fixes
+
+* Stop pulling GPG keys from the internets ([#96](https://github.com/awslabs/aws-delivlib/issues/96)) ([87db0da](https://github.com/awslabs/aws-delivlib/commit/87db0da))
+
+
+
 # [3.9.0](https://github.com/awslabs/aws-delivlib/compare/v3.8.2...v3.9.0) (2019-05-29)
 
 
