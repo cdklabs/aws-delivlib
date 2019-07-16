@@ -1,0 +1,23 @@
+language: node_js
+node_js:
+  - '8'
+cache: npm
+
+branches:
+  only:
+    - master
+
+services:
+  - docker
+
+before_install:
+  - npm install -g npm@^6.8.0
+
+jobs:
+  include:
+    - stage: build
+      script:
+        - npm run build
+        - npm test
+    - stage: build
+      script: docker image build superchain
