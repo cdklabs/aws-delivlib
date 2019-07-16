@@ -16,8 +16,10 @@ before_install:
 jobs:
   include:
     - stage: build
+      name: NPM Package
       script:
         - npm run build
         - npm test
     - stage: build
+      name: Superchain Docker Image
       script: docker image build superchain
