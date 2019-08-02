@@ -7,19 +7,9 @@ branches:
   only:
     - master
 
-services:
-  - docker
-
 before_install:
   - npm install -g npm@^6.8.0
 
-jobs:
-  include:
-    - stage: build
-      name: NPM Package
-      script:
-        - npm run build
-        - npm test
-    - stage: build
-      name: Superchain Docker Image
-      script: docker image build superchain
+script:
+  - npm run build
+  - npm test

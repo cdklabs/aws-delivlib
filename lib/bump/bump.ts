@@ -35,7 +35,7 @@ export interface AutoBumpOptions {
   /**
    * The image used for the builds.
    *
-   * @default superchain (see docs)
+   * @default jsii/superchain (see docs)
    */
   buildImage?: cbuild.IBuildImage;
 
@@ -132,7 +132,7 @@ export class AutoBump extends cdk.Construct {
 
     const project = new cbuild.Project(this, 'Bump', {
       source: props.repo.createBuildSource(this),
-      environment: createBuildEnvironment(this, props),
+      environment: createBuildEnvironment(props),
       buildSpec: {
         version: '0.2',
         phases: {

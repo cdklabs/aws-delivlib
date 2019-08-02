@@ -51,7 +51,7 @@ export interface PipelineProps {
   /**
    * The image used for the builds.
    *
-   * @default superchain (see docs)
+   * @default jsii/superchain (see docs)
    */
   buildImage?: cbuild.IBuildImage;
 
@@ -144,7 +144,7 @@ export class Pipeline extends cdk.Construct {
     const source = props.repo.createSourceStage(this.pipeline, this.branch);
 
     const buildProject = new cbuild.PipelineProject(this, 'BuildProject', {
-      environment: createBuildEnvironment(this, props),
+      environment: createBuildEnvironment(props),
       buildSpec: props.buildSpec,
     });
 
