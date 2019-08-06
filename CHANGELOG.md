@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.0.0](https://github.com/awslabs/aws-delivlib/compare/v3.9.5...v4.0.0) (2019-08-06)
+
+
+### ⚠ BREAKING CHANGES
+
+* The `Superchain` construct was removed. The default
+build image was changed to `jsii/superchain` instead of being a bundled
+image staged in an ECR registry.
+
+### Features
+
+* use `jsii/superchain` image instead of bundling own ([#121](https://github.com/awslabs/aws-delivlib/issues/121)) ([59aeb80](https://github.com/awslabs/aws-delivlib/commit/59aeb80)), closes [aws/jsii#653](https://github.com/aws/jsii/issues/653)
+
 ### [3.9.5](https://github.com/awslabs/aws-delivlib/compare/v3.9.4...v3.9.5) (2019-07-17)
 
 
