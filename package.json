@@ -52,7 +52,7 @@
     "@types/node": "^8.10.51",
     "@types/nodeunit": "0.0.30",
     "aws-cdk": "^0.24.1",
-    "jest": "^24.8.0",
+    "jest": "^24.9.0",
     "jest-create-mock-instance": "^1.1.0",
     "nodeunit": "^0.11.3",
     "standard-version": "^7.0.0",
