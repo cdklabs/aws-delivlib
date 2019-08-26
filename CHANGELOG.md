@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.1.0](https://github.com/awslabs/aws-delivlib/compare/v4.0.0...v4.1.0) (2019-08-26)
+
+
+### Features
+
+* use mono's signcode to sign .NET assemblies ([#133](https://github.com/awslabs/aws-delivlib/issues/133)) ([630f3c6](https://github.com/awslabs/aws-delivlib/commit/630f3c6))
+
 ## [4.0.0](https://github.com/awslabs/aws-delivlib/compare/v3.9.5...v4.0.0) (2019-08-06)
 
 
