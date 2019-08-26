@@ -1941,7 +1941,7 @@ Resources:
             Type: PLAINTEXT
             Value:
               Ref: X509CodeSigningKey8DE65BF8
-        Image: aws/codebuild/dot-net:core-2.1
+        Image: jsii/superchain
         PrivilegedMode: false
         Type: LINUX_CONTAINER
       ServiceRole:

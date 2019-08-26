@@ -181,7 +181,7 @@ export class PublishToNuGetProject extends cdk.Construct implements IPublisher {
     }
 
     const shellable = new Shellable(this, 'Default', {
-      platform: new LinuxPlatform(cbuild.LinuxBuildImage.UBUNTU_14_04_DOTNET_CORE_2_1),
+      platform: new LinuxPlatform(cbuild.LinuxBuildImage.fromDockerHub('jsii/superchain')),
       scriptDirectory: path.join(__dirname, 'publishing', 'nuget'),
       entrypoint: 'publish.sh',
       environment,
