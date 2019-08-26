@@ -1,9 +1,8 @@
 #!/bin/bash
 set -eu # we don't want "pipefail" to implement idempotency
 
-echo "Installing jq..."
-apt update
-apt install -y jq
+echo "Installing required CLI tools: jq, openssl..."
+yum install -y jq openssl
 
 if [ -n "${CODE_SIGNING_SECRET_ID:-}" ]; then
     declare -a CLEANUP=()
