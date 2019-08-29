@@ -47,7 +47,7 @@
     "@aws-cdk/cdk": "^0.24.1"
   },
   "devDependencies": {
-    "@aws-cdk/assert": "^0.24.1",
+    "@aws-cdk/assert": "^1.6.1",
     "@types/jest": "^24.0.18",
     "@types/node": "^8.10.52",
     "@types/nodeunit": "0.0.30",
