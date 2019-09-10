@@ -56,7 +56,7 @@
     "jest-create-mock-instance": "^1.1.0",
     "nodeunit": "^0.11.3",
     "standard-version": "^7.0.0",
-    "tslint": "^5.19.0",
+    "tslint": "^5.20.0",
     "typescript": "^3.5.1"
   },
   "jest": {
