@@ -188,6 +188,77 @@ test('can add arbitrary shellables with different artifacts', () => {
   }));
 });
 
+test('autoBuild() can be used to add automatic builds to the pipeline', () => {
+  // GIVEN
+  const stack = new cdk.Stack();
+
+  // WHEN
+  new delivlib.Pipeline(stack, 'Pipeline', {
+    repo: createTestRepo(stack),
+    pipelineName: 'HelloPipeline',
+    autoBuild: true
+  });
+
+  // THEN
+  cdk_expect(stack).to(haveResource('AWS::CodeBuild::Project', {
+    Triggers: {
+      Webhook: true,
+      FilterGroups: [
+        [
+          {
+            Type: "EVENT",
+            Pattern: "PUSH,PULL_REQUEST_CREATED,PULL_REQUEST_UPDATED"
+          }
+        ]
+      ]
+    }
+  }));
+
+  cdk_expect(stack).notTo(haveResource('AWS::Serverless::Application', {
+    Location: {
+      ApplicationId: "arn:aws:serverlessrepo:us-east-1:277187709615:applications/github-codebuild-logs",
+      SemanticVersion: "1.0.3"
+    }
+  }));
+});
+
+test('autoBuild() can be configured to publish logs publically', () => {
+  // GIVEN
+  const stack = new cdk.Stack();
+
+  // WHEN
+  new delivlib.Pipeline(stack, 'Pipeline', {
+    repo: createTestRepo(stack),
+    pipelineName: 'HelloPipeline',
+    autoBuild: true,
+    autoBuildOptions: {
+      publicLogs: true
+    }
+  });
+
+  // THEN
+  cdk_expect(stack).to(haveResource('AWS::CodeBuild::Project', {
+    Triggers: {
+      Webhook: true,
+      FilterGroups: [
+        [
+          {
+            Type: "EVENT",
+            Pattern: "PUSH,PULL_REQUEST_CREATED,PULL_REQUEST_UPDATED"
+          }
+        ]
+      ]
+    }
+  }));
+
+  cdk_expect(stack).to(haveResource('AWS::Serverless::Application', {
+    Location: {
+      ApplicationId: "arn:aws:serverlessrepo:us-east-1:277187709615:applications/github-codebuild-logs",
+      SemanticVersion: "1.0.3"
+    }
+  }));
+});
+
 class Pub extends cdk.Construct implements IPublisher {
   public readonly project: codebuild.IProject;
 

@@ -131,7 +131,7 @@ export class AutoBump extends cdk.Construct {
     pushCommands.push(`git push --follow-tags origin_ssh ${targetBranch }`);
 
     const project = new cbuild.Project(this, 'Bump', {
-      source: props.repo.createBuildSource(this),
+      source: props.repo.createBuildSource(this, false),
       environment: createBuildEnvironment(props),
       buildSpec: {
         version: '0.2',

@@ -8,7 +8,7 @@ import { ExternalSecret } from './permissions';
 export interface IRepo {
   repositoryUrlHttp: string;
   repositoryUrlSsh: string;
-  createBuildSource(parent: cdk.Construct): cbuild.BuildSource;
+  createBuildSource(parent: cdk.Construct, webhook: boolean): cbuild.BuildSource;
   createSourceStage(pipeline: cpipeline.Pipeline, branch: string): cpipelineapi.SourceAction;
   describe(): any;
 }
@@ -98,13 +98,15 @@ export class GitHubRepo implements IRepo {
     });
   }
 
-  public createBuildSource(parent: cdk.Construct) {
+  public createBuildSource(parent: cdk.Construct, webhook: boolean) {
     const oauth = new cdk.SecretParameter(parent, 'GitHubToken', { ssmParameter: this.tokenParameterName });
 
     return new cbuild.GitHubSource({
       owner: this.owner,
       repo: this.repo,
       oauthToken: oauth.value,
+      webhook,
+      reportBuildStatus: webhook
     });
   }
 

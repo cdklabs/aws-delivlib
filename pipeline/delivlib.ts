@@ -46,7 +46,9 @@ export class DelivLibPipelineStack extends cdk.Stack {
           'files': [ '**/*' ],
           'base-directory': 'dist'
         }
-      }
+      },
+      autoBuild: true,
+      autoBuildOptions: { publicLogs: true }
     });
 
     pipeline.publishToNpm({
