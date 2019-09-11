@@ -167,6 +167,13 @@ export class TestStack extends cdk.Stack {
     });
 
     //
+    // AUTO-BUILD
+
+    pipeline.autoBuild({
+      publicLogs: true
+    });
+
+    //
     // CHANGE CONTROL
     //
 

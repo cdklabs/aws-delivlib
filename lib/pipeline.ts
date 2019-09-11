@@ -1,11 +1,13 @@
 import cloudwatch = require('@aws-cdk/aws-cloudwatch');
 import cbuild = require('@aws-cdk/aws-codebuild');
+import { BuildEnvironment } from '@aws-cdk/aws-codebuild';
 import cpipeline = require('@aws-cdk/aws-codepipeline');
 import cpipelineapi = require('@aws-cdk/aws-codepipeline-api');
 import iam = require('@aws-cdk/aws-iam');
 import s3 = require('@aws-cdk/aws-s3');
 import sns = require('@aws-cdk/aws-sns');
 import cdk = require('@aws-cdk/cdk');
+import { AutoBuild, AutoBuildOptions } from './auto-build';
 import { createBuildEnvironment } from './build-env';
 import { AutoBump, AutoBumpOptions } from './bump';
 import { Canary, CanaryProps } from './canary';
@@ -109,6 +111,18 @@ export interface PipelineProps {
    * @default false
    */
   dryRun?: boolean;
+
+  /**
+   * Automatically build commits that are pushed to this repository, including PR builds on github.
+   */
+  autoBuild?: boolean;
+
+  /**
+   * Options for auto-build
+   *
+   * @default - defaults
+   */
+  autoBuildOptions?: AutoBuildOptions;
 }
 
 /**
@@ -127,6 +141,8 @@ export class Pipeline extends cdk.Construct {
   private readonly concurrency?: number;
   private readonly repo: IRepo;
   private readonly dryRun: boolean;
+  private readonly buildEnvironment: BuildEnvironment;
+  private readonly buildSpec?: any;
 
   constructor(parent: cdk.Construct, name: string, props: PipelineProps) {
     super(parent, name);
@@ -143,9 +159,12 @@ export class Pipeline extends cdk.Construct {
     this.branch = props.branch || 'master';
     const source = props.repo.createSourceStage(this.pipeline, this.branch);
 
+    this.buildEnvironment = createBuildEnvironment(props);
+    this.buildSpec = props.buildSpec;
+
     const buildProject = new cbuild.PipelineProject(this, 'BuildProject', {
-      environment: createBuildEnvironment(props),
-      buildSpec: props.buildSpec,
+      environment: this.buildEnvironment,
+      buildSpec: this.buildSpec,
     });
 
     this.buildRole = buildProject.role;
@@ -165,6 +184,10 @@ export class Pipeline extends cdk.Construct {
 
     // emit an SNS notification every time build fails.
     this.addBuildFailureNotification(buildProject, `${props.title} build failed`);
+
+    if (props.autoBuild) {
+      this.autoBuild(props.autoBuildOptions);
+    }
   }
 
   /**
@@ -289,6 +312,18 @@ export class Pipeline extends cdk.Construct {
 
     return new AutoBump(this, 'AutoBump', {
       repo: this.repo,
+      ...options
+    });
+  }
+
+  /**
+   * Enables automatic builds of
+   */
+  public autoBuild(options: AutoBuildOptions = { }) {
+    new AutoBuild(this, 'AutoBuild', {
+      environment: this.buildEnvironment,
+      repo: this.repo,
+      buildSpec: this.buildSpec,
       ...options
     });
   }

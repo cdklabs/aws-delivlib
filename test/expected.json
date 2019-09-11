@@ -1,3 +1,4 @@
+Transform: AWS::Serverless-2016-10-31
 Resources:
   CodeCommitPipelineBuildPipelineArtifactsBucketED2813B3:
     Type: AWS::S3::Bucket
@@ -2851,8 +2852,10 @@ Resources:
             }
           }
         Location: https://github.com/awslabs/aws-delivlib-sample.git
-        ReportBuildStatus: true
+        ReportBuildStatus: false
         Type: GITHUB
+      Triggers:
+        Webhook: false
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/AutoBump/Bump/Resource
   CodeCommitPipelineAutoBumpEventsRole63A4AC28:
@@ -2919,6 +2922,89 @@ Resources:
       TreatMissingData: ignore
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/AutoBump/BumpFailedAlarm/Resource
+  CodeCommitPipelineAutoBuildProjectRole733AD222:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: codebuild.amazonaws.com
+        Version: "2012-10-17"
+    Metadata:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/AutoBuild/Project/Role/Resource
+  CodeCommitPipelineAutoBuildProjectRoleDefaultPolicyFF5563AC:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - logs:CreateLogGroup
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+            Effect: Allow
+            Resource:
+              - Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
+                    - Ref: CodeCommitPipelineAutoBuildProject5D212EE9
+              - Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
+                    - Ref: CodeCommitPipelineAutoBuildProject5D212EE9
+                    - :*
+        Version: "2012-10-17"
+      PolicyName: CodeCommitPipelineAutoBuildProjectRoleDefaultPolicyFF5563AC
+      Roles:
+        - Ref: CodeCommitPipelineAutoBuildProjectRole733AD222
+    Metadata:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/AutoBuild/Project/Role/DefaultPolicy/Resource
+  CodeCommitPipelineAutoBuildProject5D212EE9:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Artifacts:
+        Type: NO_ARTIFACTS
+      Environment:
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: jsii/superchain:latest
+        PrivilegedMode: false
+        Type: LINUX_CONTAINER
+      ServiceRole:
+        Fn::GetAtt:
+          - CodeCommitPipelineAutoBuildProjectRole733AD222
+          - Arn
+      Source:
+        Auth:
+          Resource:
+            Ref: CodeCommitPipelineAutoBuildGitHubTokenParameter7CA2BBB3
+          Type: OAUTH
+        Location: https://github.com/awslabs/aws-delivlib-sample.git
+        ReportBuildStatus: true
+        Type: GITHUB
+      BadgeEnabled: true
+      Triggers:
+        Webhook: true
+        FilterGroups:
+          - - Type: EVENT
+              Pattern: PUSH,PULL_REQUEST_CREATED,PULL_REQUEST_UPDATED
+    Metadata:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/AutoBuild/Project/Resource
+  CodeCommitPipelineAutoBuildGitHubCodeBuildLogsSAR75EABC5D:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location:
+        ApplicationId: arn:aws:serverlessrepo:us-east-1:277187709615:applications/github-codebuild-logs
+        SemanticVersion: 1.0.3
+      Parameters:
+        CodeBuildProjectName:
+          Ref: CodeCommitPipelineAutoBuildProject5D212EE9
+    Metadata:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/AutoBuild/GitHubCodeBuildLogsSAR
   CodeCommitPipelineChangeControllerCalendar94B1DEA8:
     Type: AWS::S3::Bucket
     Properties:
@@ -3714,6 +3800,10 @@ Parameters:
     Description: S3 key for asset version
       "delivlib-test/CodeCommitPipeline/PyPI/Default/ScriptDirectory"
   CodeCommitPipelineAutoBumpGitHubTokenParameter20350017:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: github-token
+    NoEcho: true
+  CodeCommitPipelineAutoBuildGitHubTokenParameter7CA2BBB3:
     Type: AWS::SSM::Parameter::Value<String>
     Default: github-token
     NoEcho: true
