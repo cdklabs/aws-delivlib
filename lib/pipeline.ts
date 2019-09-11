@@ -142,6 +142,7 @@ export class Pipeline extends cdk.Construct {
   private readonly repo: IRepo;
   private readonly dryRun: boolean;
   private readonly buildEnvironment: BuildEnvironment;
+  private readonly buildSpec?: any;
 
   constructor(parent: cdk.Construct, name: string, props: PipelineProps) {
     super(parent, name);
@@ -159,10 +160,11 @@ export class Pipeline extends cdk.Construct {
     const source = props.repo.createSourceStage(this.pipeline, this.branch);
 
     this.buildEnvironment = createBuildEnvironment(props);
+    this.buildSpec = props.buildSpec;
 
     const buildProject = new cbuild.PipelineProject(this, 'BuildProject', {
       environment: this.buildEnvironment,
-      buildSpec: props.buildSpec,
+      buildSpec: this.buildSpec,
     });
 
     this.buildRole = buildProject.role;
@@ -321,6 +323,7 @@ export class Pipeline extends cdk.Construct {
     new AutoBuild(this, 'AutoBuild', {
       environment: this.buildEnvironment,
       repo: this.repo,
+      buildSpec: this.buildSpec,
       ...options
     });
   }

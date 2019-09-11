@@ -26,6 +26,10 @@ export interface AutoBuildProps extends AutoBuildOptions {
    */
   readonly environment: BuildEnvironmentProps;
 
+  /**
+   * Build spec.
+   */
+  readonly buildSpec?: any;
 }
 
 export class AutoBuild extends Construct {
@@ -36,6 +40,7 @@ export class AutoBuild extends Construct {
       source: props.repo.createBuildSource(this, true),
       environment: createBuildEnvironment(props.environment),
       badge: true,
+      buildSpec: props.buildSpec
     });
 
     // not support in this version of the cdk
