@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## 4.2.0 (2019-09-12)
+
+
+### Features
+
+* auto-build (with public logs) ([#146](https://github.com/awslabs/aws-delivlib/issues/146)) ([c3cac7e](https://github.com/awslabs/aws-delivlib/commit/c3cac7e)), closes [#42](https://github.com/awslabs/aws-delivlib/issues/42)
+
 ## [4.1.0](https://github.com/awslabs/aws-delivlib/compare/v4.0.0...v4.1.0) (2019-08-26)
 
 
