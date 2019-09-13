@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.3.0](https://github.com/awslabs/aws-delivlib/compare/v4.2.0...v4.3.0) (2019-09-13)
+
+
+### Bug Fixes
+
+* **bump:** add known_hosts before pushing to github ([047ca55](https://github.com/awslabs/aws-delivlib/commit/047ca55))
+
+
+### Features
+
+* auto-build (with public logs) ([4cbc8ab](https://github.com/awslabs/aws-delivlib/commit/4cbc8ab)), closes [#42](https://github.com/awslabs/aws-delivlib/issues/42)
+* update "github-codebuild-logs" sar app to 1.0.4 ([1d0a90d](https://github.com/awslabs/aws-delivlib/commit/1d0a90d))
+
 ## 4.2.0 (2019-09-12)
 
 
