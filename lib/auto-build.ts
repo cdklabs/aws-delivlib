@@ -57,7 +57,7 @@ export class AutoBuild extends Construct {
       new serverless.CfnApplication(this, 'GitHubCodeBuildLogsSAR', {
         location: {
           applicationId: 'arn:aws:serverlessrepo:us-east-1:277187709615:applications/github-codebuild-logs',
-          semanticVersion: '1.0.3'
+          semanticVersion: '1.0.4'
         },
         parameters: {
           CodeBuildProjectName: project.projectName
