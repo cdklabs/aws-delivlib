@@ -6,6 +6,8 @@ import { createBuildEnvironment } from '../build-env';
 import permissions = require('../permissions');
 import { WritableGitHubRepo } from '../repo';
 
+// tslint:disable:max-line-length
+
 export interface AutoBumpOptions {
   /**
    * The command to execute in order to bump the repo.
@@ -147,12 +149,13 @@ export class AutoBump extends cdk.Construct {
               // We would like to do the equivalent of "if (!changes) { return success; }" here, but we can't because
               // there's no way to stop a BuildSpec execution halfway through without throwing an error. Believe me, I
               // checked the code. Instead we define a variable that we will switch all other lines on.
-              // tslint:disable-next-line:max-line-length
               `git describe --exact-match HEAD && { echo "No new commits."; export SKIP=true; } || { echo "Changes to release."; export SKIP=false; }`,
               `$SKIP || { ${bumpCommand}; }`,
-              // tslint:disable-next-line:max-line-length
               `$SKIP || aws secretsmanager get-secret-value --secret-id "${sshKeySecret.secretArn}" --output=text --query=SecretString > ~/.ssh/id_rsa`,
+              `$SKIP || mkdir -p ~/.ssh`,
               `$SKIP || chmod 0600 ~/.ssh/id_rsa`,
+              `$SKIP || chmod 0600 ~/.ssh/config`,
+              `$SKIP || ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts`,
               ...pushCommands.map(c => `$SKIP || { ${c} ; }`)
             ]
           },
