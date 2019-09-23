@@ -39,7 +39,7 @@ export class DelivLibPipelineStack extends cdk.Stack {
             ]
           },
           post_build: {
-            commands: [ 'npm run package' ]
+            commands: [ '[ ${CODEBUILD_BUILD_SUCCEEDING:-1} != 1 ] || npm run package' ]
           }
         },
         artifacts: {
