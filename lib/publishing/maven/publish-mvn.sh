@@ -101,7 +101,7 @@ staging_output="${workdir}/deploy-output.txt"
 $mvn --settings=${mvn_settings}                                                    \
     org.sonatype.plugins:nexus-staging-maven-plugin:1.6.5:deploy-staged-repository \
     -DrepositoryDirectory=${staging}                                               \
-    -DnexusUrl=https://oss.sonatype.org                                            \
+    -DnexusUrl=${MAVEN_ENDPOINT:-https://oss.sonatype.org}                                            \
     -DserverId=ossrh                                                               \
     -DautoReleaseAfterClose=true                                                   \
     -DstagingProfileId=${STAGING_PROFILE_ID} | tee ${staging_output}
@@ -150,7 +150,7 @@ release_output="${workdir}/release-output.txt"
 $mvn --settings ${mvn_settings} -f ${release_pom} \
     org.sonatype.plugins:nexus-staging-maven-plugin:1.6.5:release \
     -DserverId=ossrh \
-    -DnexusUrl=https://oss.sonatype.org \
+    -DnexusUrl=${MAVEN_ENDPOINT:-https://oss.sonatype.org} \
     -DstagingProfileId=${STAGING_PROFILE_ID} \
     -DstagingRepositoryId=${repository_id} | tee ${release_output}
 

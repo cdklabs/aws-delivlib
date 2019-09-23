@@ -34,6 +34,13 @@ export interface PublishToMavenProjectProps {
    * @default true
    */
   dryRun?: boolean;
+
+  /**
+   * The Maven publishing endpoint to be used.
+   *
+   * @default "https://oss.sonatype.org"
+   */
+  mavenEndpoint?: string;
 }
 
 /**
@@ -56,7 +63,8 @@ export class PublishToMavenProject extends cdk.Construct implements IPublisher {
         STAGING_PROFILE_ID: props.stagingProfileId,
         SIGNING_KEY_ARN: props.signingKey.credential.secretArn,
         FOR_REAL: forReal,
-        MAVEN_LOGIN_SECRET: props.mavenLoginSecret.secretArn
+        MAVEN_LOGIN_SECRET: props.mavenLoginSecret.secretArn,
+        MAVEN_ENDPOINT: props.mavenEndpoint || 'https://oss.sonatype.org',
       },
     });
 
