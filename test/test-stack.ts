@@ -140,6 +140,7 @@ export class TestStack extends cdk.Stack {
 
     pipeline.publishToMaven({
       mavenLoginSecret: { secretArn: 'arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/maven-7ROCWi' },
+      mavenEndpoint: 'https://aws.oss.sonatype.org:443/',
       signingKey,
       stagingProfileId: '68a05363083174'
     });

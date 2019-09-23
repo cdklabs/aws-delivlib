@@ -2141,7 +2141,7 @@ Resources:
             Value: arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/maven-7ROCWi
           - Name: MAVEN_ENDPOINT
             Type: PLAINTEXT
-            Value: https://oss.sonatype.org
+            Value: https://aws.oss.sonatype.org:443/
         Image: aws/codebuild/nodejs:10.1.0
         PrivilegedMode: false
         Type: LINUX_CONTAINER
