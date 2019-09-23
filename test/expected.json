@@ -2139,6 +2139,9 @@ Resources:
           - Name: MAVEN_LOGIN_SECRET
             Type: PLAINTEXT
             Value: arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/maven-7ROCWi
+          - Name: MAVEN_ENDPOINT
+            Type: PLAINTEXT
+            Value: https://aws.oss.sonatype.org:443/
         Image: aws/codebuild/nodejs:10.1.0
         PrivilegedMode: false
         Type: LINUX_CONTAINER
@@ -2839,7 +2842,10 @@ Resources:
                   "git describe --exact-match HEAD && { echo \"No new commits.\"; export SKIP=true; } || { echo \"Changes to release.\"; export SKIP=false; }",
                   "$SKIP || { npm i && npm run bump; }",
                   "$SKIP || aws secretsmanager get-secret-value --secret-id \"arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/github-ssh-lwzfjW\" --output=text --query=SecretString > ~/.ssh/id_rsa",
+                  "$SKIP || mkdir -p ~/.ssh",
                   "$SKIP || chmod 0600 ~/.ssh/id_rsa",
+                  "$SKIP || chmod 0600 ~/.ssh/config",
+                  "$SKIP || ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts",
                   "$SKIP || { BRANCH=bump/$(git describe) ; }",
                   "$SKIP || { git branch -D $BRANCH || true ; }",
                   "$SKIP || { git checkout -b $BRANCH ; }",
