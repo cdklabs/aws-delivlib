@@ -48,8 +48,10 @@ available:
    - [npm.js](#npmjs)
    - [NuGet](#nuget)
    - [Maven Central](#maven-central)
+   - [PyPi](#pypi)
    - [GitHub Releases](#github-releases)
    - [GitHub Pages](#github-pages)
+
 
 ## Installation
 
@@ -437,10 +439,14 @@ create a GPG key pair and publish it's public key to a well-known server:
 This library includes a GPG key construct:
 
 ```ts
-const mavenSigningKey = new delivlib.SigningKey(this, 'MavenCodeSign', {
+const mavenSigningKey = new delivlib.OpenPGPKeyPair(this, 'MavenCodeSign', {
   email: 'your-email@domain.com',
   identity: 'your-identity',
-  secretName: 'maven-code-sign' // secrets manager secret name
+  secretName: 'maven-code-sign',
+  pubKeyParameterName: 'mavenPublicKey',
+  keySizeBits: 4096,
+  expiry: '1y',
+  version: 1.0
 });
 ```
 
