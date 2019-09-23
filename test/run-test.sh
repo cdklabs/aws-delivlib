@@ -6,7 +6,7 @@ if [ ! -f package.json ]; then
 fi
 
 cdk_app="test/integ.delivlib.js"
-expected="test/expected.json"
+expected="test/expected.yml"
 actual="/tmp/actual.json"
 
 custom_stack_name="${TEST_STACK_NAME:-}"
