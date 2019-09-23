@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.4.0](https://github.com/awslabs/aws-delivlib/compare/v4.3.0...v4.4.0) (2019-09-23)
+
+
+### Features
+
+* **maven:** allow configuring Maven endpoint ([#151](https://github.com/awslabs/aws-delivlib/issues/151)) ([d659f9c](https://github.com/awslabs/aws-delivlib/commit/d659f9c))
+
 ## [4.3.0](https://github.com/awslabs/aws-delivlib/compare/v4.2.0...v4.3.0) (2019-09-13)
 
 
