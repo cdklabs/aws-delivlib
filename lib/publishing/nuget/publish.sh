@@ -62,7 +62,20 @@ for NUGET_PACKAGE_PATH in $(find dotnet -name *.nupkg -not -iname *.symbols.nupk
         fi
     fi
     echo "📦  Publishing ${NUGET_PACKAGE_PATH} to NuGet"
-    dotnet nuget push $NUGET_PACKAGE_PATH -k $NUGET_API_KEY -s $NUGET_SOURCE -ss $NUGET_SYMBOL_SOURCE | tee ${log}
+    (
+        cd $(dirname $NUGET_PACKAGE_PATH)
+        NUGET_PACKAGE_NAME=$(basename $NUGET_PACKAGE_PATH)
+        NUGET_PACKAGE_BASE=${NUGET_PACKAGE_NAME%.nupkg}
+
+        if [ -f "${NUGET_PACKAGE_BASE}.symbols.nupkg" ]; then
+            # Legacy mode - there's a .symbols.nupkg file that can't go to the NuGet symbols server
+            dotnet nuget push $NUGET_PACKAGE_NAME -k $NUGET_API_KEY -s $NUGET_SOURCE -ss $NUGET_SYMBOL_SOURCE | tee ${log}
+        else
+            # This will publish the .snupkg too if it is in the current directory (doc unclear if "same as .nupkg" is enough or not)
+            # See: https://docs.microsoft.com/en-us/nuget/create-packages/symbol-packages-snupkg
+            dotnet nuget push $NUGET_PACKAGE_NAME -k $NUGET_API_KEY -s $NUGET_SOURCE | tee ${log}
+        fi
+    )
 
     # If push failed, check if this was caused because we are trying to publish
     # the same version again, which is not an error by searching for a magic string in the log
