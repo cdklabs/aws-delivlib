@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.4.1](https://github.com/awslabs/aws-delivlib/compare/v4.4.0...v4.4.1) (2019-09-30)
+
+
+### Bug Fixes
+
+* **nuget:** migrate to snupkg symbols package format ([#153](https://github.com/awslabs/aws-delivlib/issues/153)) ([422c512](https://github.com/awslabs/aws-delivlib/commit/422c512))
+
 ## [4.4.0](https://github.com/awslabs/aws-delivlib/compare/v4.3.0...v4.4.0) (2019-09-23)
 
 
