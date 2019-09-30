@@ -46,6 +46,7 @@ if [ -n "${NUGET_ROLE_ARN:-}" ]; then
 fi
 
 NUGET_SOURCE="https://api.nuget.org/v3/index.json"
+NUGET_SYMBOL_SOURCE="https://nuget.smbsrc.net/"
 NUGET_API_KEY=$(aws secretsmanager get-secret-value --region "${NUGET_SECRET_REGION:-}" --secret-id "${NUGET_SECRET_ID:-}" | jq -r .SecretString | jq -r .NugetApiKey)
 
 log=$(mktemp -d)/log.txt
@@ -62,9 +63,18 @@ for NUGET_PACKAGE_PATH in $(find dotnet -name *.nupkg -not -iname *.symbols.nupk
     fi
     echo "📦  Publishing ${NUGET_PACKAGE_PATH} to NuGet"
     (
-        # This will publish the .snupkg too if it is in the same directory, per https://docs.microsoft.com/en-us/nuget/create-packages/symbol-packages-snupkg
         cd $(dirname $NUGET_PACKAGE_PATH)
-        dotnet nuget push $(basename $NUGET_PACKAGE_PATH) -k $NUGET_API_KEY -s $NUGET_SOURCE | tee ${log}
+        NUGET_PACKAGE_NAME=$(basename $NUGET_PACKAGE_PATH)
+        NUGET_PACKAGE_BASE=${NUGET_PACKAGE_NAME%.nupkg}
+
+        if [ -f "${NUGET_PACKAGE_BASE}.symbols.nupkg" ]; then
+            # Legacy mode - there's a .symbols.nupkg file that can't go to the NuGet symbols server
+            dotnet nuget push $NUGET_PACKAGE_NAME -k $NUGET_API_KEY -s $NUGET_SOURCE -ss $NUGET_SYMBOL_SOURCE | tee ${log}
+        else
+            # This will publish the .snupkg too if it is in the same directory
+            # See: https://docs.microsoft.com/en-us/nuget/create-packages/symbol-packages-snupkg
+            dotnet nuget push $NUGET_PACKAGE_NAME -k $NUGET_API_KEY -s $NUGET_SOURCE | tee ${log}
+        fi
     )
 
     # If push failed, check if this was caused because we are trying to publish
