@@ -319,7 +319,7 @@ export class Pipeline extends cdk.Construct {
 
   /**
    * Enables automatic builds of pull requests in the Github repository and posts the
-   * results of the build back as a comment with a public link to the build logs.
+   * results back as a comment with a public link to the build logs.
    */
   public autoBuild(options: AutoBuildOptions = { }) {
     new AutoBuild(this, 'AutoBuild', {
