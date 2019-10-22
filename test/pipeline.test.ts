@@ -259,6 +259,35 @@ test('autoBuild() can be configured to publish logs publically', () => {
   }));
 });
 
+test('autoBuild() can be configured with a different buildspec', () => {
+  // GIVEN
+  const stack = new cdk.Stack();
+
+  // WHEN
+  new delivlib.Pipeline(stack, 'Pipeline', {
+    repo: createTestRepo(stack),
+    pipelineName: 'HelloPipeline',
+    autoBuild: true,
+    autoBuildOptions: {
+      buildSpec: 'different-buildspec.yaml',
+    },
+  });
+
+  // THEN
+  cdk_expect(stack).to(haveResource('AWS::CodeBuild::Project', {
+    Source: {
+      BuildSpec: "different-buildspec.yaml",
+      Location: {
+        "Fn::GetAtt": [
+          "Repo02AC86CF",
+          "CloneUrlHttp"
+        ]
+      },
+      Type: "CODECOMMIT",
+    }
+  }));
+});
+
 class Pub extends cdk.Construct implements IPublisher {
   public readonly project: codebuild.IProject;
 

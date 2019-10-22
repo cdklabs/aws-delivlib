@@ -13,6 +13,15 @@ export interface AutoBuildOptions {
    * @default false
    */
   readonly publicLogs?: boolean;
+
+  /* tslint:disable:max-line-length */
+  /**
+   * Build spec file to use for AutoBuild
+   *
+   * @default @see https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-codebuild-project-source.html#cfn-codebuild-project-source-buildspec
+   */
+  readonly buildSpec?: any;
+  /* tslint:enable:max-line-length */
 }
 
 export interface AutoBuildProps extends AutoBuildOptions {
@@ -25,11 +34,6 @@ export interface AutoBuildProps extends AutoBuildOptions {
    * Build environment.
    */
   readonly environment: BuildEnvironmentProps;
-
-  /**
-   * Build spec.
-   */
-  readonly buildSpec?: any;
 }
 
 export class AutoBuild extends Construct {
