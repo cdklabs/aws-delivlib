@@ -120,7 +120,8 @@ export interface PipelineProps {
   /**
    * Options for auto-build
    *
-   * @default - defaults
+   * @default - 'autoBuildOptions.publicLogs' will be set to its default. 'autoBuildOptions.buildspec' will be configured to match with the
+   * 'buildSpec' property.
    */
   autoBuildOptions?: AutoBuildOptions;
 }
@@ -317,13 +318,14 @@ export class Pipeline extends cdk.Construct {
   }
 
   /**
-   * Enables automatic builds of
+   * Enables automatic builds of pull requests in the Github repository and posts the
+   * results of the build back as a comment with a public link to the build logs.
    */
   public autoBuild(options: AutoBuildOptions = { }) {
     new AutoBuild(this, 'AutoBuild', {
       environment: this.buildEnvironment,
       repo: this.repo,
-      buildSpec: this.buildSpec,
+      buildSpec: options.buildSpec || this.buildSpec,
       ...options
     });
   }
