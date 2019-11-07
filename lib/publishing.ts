@@ -1,9 +1,9 @@
 import cbuild = require('@aws-cdk/aws-codebuild');
 import cpipeline = require('@aws-cdk/aws-codepipeline');
-import cpapi = require('@aws-cdk/aws-codepipeline-api');
+import cpipeline_actions = require('@aws-cdk/aws-codepipeline-actions');
 import iam = require('@aws-cdk/aws-iam');
 import s3 = require('@aws-cdk/aws-s3');
-import cdk = require('@aws-cdk/cdk');
+import cdk = require('@aws-cdk/core');
 import path = require('path');
 import { ICodeSigningCertificate } from './code-signing';
 import { OpenPGPKeyPair } from './open-pgp-key-pair';
@@ -47,7 +47,7 @@ export interface PublishToMavenProjectProps {
  * CodeBuild project that will publish all packages in a release bundle to Maven
  */
 export class PublishToMavenProject extends cdk.Construct implements IPublisher {
-  public role?: iam.Role;
+  public readonly role: iam.IRole;
   public readonly project: cbuild.Project;
 
   constructor(parent: cdk.Construct, id: string, props: PublishToMavenProjectProps) {
@@ -77,8 +77,13 @@ export class PublishToMavenProject extends cdk.Construct implements IPublisher {
     this.project = shellable.project;
   }
 
-  public addToPipeline(stage: cpipeline.Stage, id: string, options: AddToPipelineOptions): void {
-    this.project.addToPipeline(stage, id, options);
+  public addToPipeline(stage: cpipeline.IStage, id: string, options: AddToPipelineOptions): void {
+    stage.addAction(new cpipeline_actions.CodeBuildAction({
+      actionName: id,
+      input: options.inputArtifact || new cpipeline.Artifact(),
+      runOrder: options.runOrder,
+      project: this.project,
+    }));
   }
 }
 
@@ -106,7 +111,7 @@ export interface PublishToNpmProjectProps {
  * CodeBuild project that will publish all packages in a release bundle to NPM
  */
 export class PublishToNpmProject extends cdk.Construct implements IPublisher {
-  public role?: iam.Role;
+  public readonly role?: iam.IRole;
   public readonly project: cbuild.Project;
 
   constructor(parent: cdk.Construct, id: string, props: PublishToNpmProjectProps) {
@@ -133,8 +138,13 @@ export class PublishToNpmProject extends cdk.Construct implements IPublisher {
     this.project = shellable.project;
   }
 
-  public addToPipeline(stage: cpipeline.Stage, id: string, options: AddToPipelineOptions): void {
-    this.project.addToPipeline(stage, id, options);
+  public addToPipeline(stage: cpipeline.IStage, id: string, options: AddToPipelineOptions): void {
+    stage.addAction(new cpipeline_actions.CodeBuildAction({
+      actionName: id,
+      input: options.inputArtifact || new cpipeline.Artifact(),
+      runOrder: options.runOrder,
+      project: this.project,
+    }));
   }
 }
 
@@ -161,7 +171,7 @@ export interface PublishToNuGetProjectProps {
  * CodeBuild project that will publish all packages in a release bundle to NuGet
  */
 export class PublishToNuGetProject extends cdk.Construct implements IPublisher {
-  public role?: iam.Role;
+  public readonly role: iam.IRole;
   public readonly project: cbuild.Project;
 
   constructor(parent: cdk.Construct, id: string, props: PublishToNuGetProjectProps) {
@@ -178,7 +188,7 @@ export class PublishToNuGetProject extends cdk.Construct implements IPublisher {
     if (props.nugetApiKeySecret.region) {
       environment.NUGET_SECRET_REGION = props.nugetApiKeySecret.region;
     } else {
-      environment.NUGET_SECRET_REGION = cdk.Stack.find(this).region;
+      environment.NUGET_SECRET_REGION = cdk.Stack.of(this).region;
     }
 
     environment.NUGET_SECRET_ID = props.nugetApiKeySecret.secretArn;
@@ -189,7 +199,7 @@ export class PublishToNuGetProject extends cdk.Construct implements IPublisher {
     }
 
     const shellable = new Shellable(this, 'Default', {
-      platform: new LinuxPlatform(cbuild.LinuxBuildImage.fromDockerHub('jsii/superchain')),
+      platform: new LinuxPlatform(cbuild.LinuxBuildImage.fromDockerRegistry('jsii/superchain')),
       scriptDirectory: path.join(__dirname, 'publishing', 'nuget'),
       entrypoint: 'publish.sh',
       environment,
@@ -211,8 +221,13 @@ export class PublishToNuGetProject extends cdk.Construct implements IPublisher {
     this.project = shellable.project;
   }
 
-  public addToPipeline(stage: cpipeline.Stage, id: string, options: AddToPipelineOptions): void {
-    this.project.addToPipeline(stage, id, options);
+  public addToPipeline(stage: cpipeline.IStage, id: string, options: AddToPipelineOptions): void {
+    stage.addAction(new cpipeline_actions.CodeBuildAction({
+      actionName: id,
+      input: options.inputArtifact || new cpipeline.Artifact(),
+      runOrder: options.runOrder,
+      project: this.project,
+    }));
   }
 }
 
@@ -246,7 +261,7 @@ export interface PublishDocsToGitHubProjectProps {
  * CodeBuild project that will publish all packages in a release bundle to NuGet
  */
 export class PublishDocsToGitHubProject extends cdk.Construct implements IPublisher {
-  public role?: iam.Role;
+  public readonly role: iam.IRole;
   public readonly project: cbuild.Project;
 
   constructor(parent: cdk.Construct, id: string, props: PublishDocsToGitHubProjectProps) {
@@ -278,8 +293,13 @@ export class PublishDocsToGitHubProject extends cdk.Construct implements IPublis
     this.project = shellable.project;
   }
 
-  public addToPipeline(stage: cpipeline.Stage, id: string, options: AddToPipelineOptions): void {
-    this.project.addToPipeline(stage, id, options);
+  public addToPipeline(stage: cpipeline.IStage, id: string, options: AddToPipelineOptions): void {
+    stage.addAction(new cpipeline_actions.CodeBuildAction({
+      actionName: id,
+      input: options.inputArtifact || new cpipeline.Artifact(),
+      runOrder: options.runOrder,
+      project: this.project,
+    }));
   }
 }
 
@@ -317,7 +337,7 @@ export interface PublishToGitHubProps {
   /**
    * Additional input artifacts to publish binaries from to GitHub release
    */
-  additionalInputArtifacts?: cpapi.Artifact[];
+  additionalInputArtifacts?: cpipeline.Artifact[];
 
   /**
    * Whether to sign the additional artifacts
@@ -328,15 +348,14 @@ export interface PublishToGitHubProps {
 }
 
 export class PublishToGitHub extends cdk.Construct implements IPublisher {
-  public role?: iam.Role;
+  public readonly role: iam.IRole;
   public readonly project: cbuild.Project;
-  private readonly additionalInputArtifacts?: cpapi.Artifact[];
+  private readonly additionalInputArtifacts?: cpipeline.Artifact[];
 
   constructor(parent: cdk.Construct, id: string, props: PublishToGitHubProps) {
     super(parent, id);
 
     const forReal = props.dryRun === undefined ? 'false' : (!props.dryRun).toString();
-    const oauth = new cdk.SecretParameter(this, 'GitHubToken', { ssmParameter: props.githubRepo.tokenParameterName });
     this.additionalInputArtifacts = props.additionalInputArtifacts;
 
     const shellable = new Shellable(this, 'Default', {
@@ -347,12 +366,12 @@ export class PublishToGitHub extends cdk.Construct implements IPublisher {
         BUILD_MANIFEST: props.buildManifestFileName || './build.json',
         CHANGELOG: props.changelogFileName || './CHANGELOG.md',
         SIGNING_KEY_ARN: props.signingKey.credential.secretArn,
-        GITHUB_TOKEN: oauth.value.toString(),
+        GITHUB_TOKEN: props.githubRepo.token.toString(),
         GITHUB_OWNER: props.githubRepo.owner,
         GITHUB_REPO: props.githubRepo.repo,
         FOR_REAL: forReal,
         // Transmit the names of the secondary sources to the shell script (for easier iteration)
-        SECONDARY_SOURCE_NAMES: props.additionalInputArtifacts ? props.additionalInputArtifacts.map(a => a.name).join(' ') : undefined,
+        SECONDARY_SOURCE_NAMES: props.additionalInputArtifacts ? props.additionalInputArtifacts.map(a => a.artifactName).join(' ') : undefined,
         SIGN_ADDITIONAL_ARTIFACTS: props.additionalInputArtifacts && props.signAdditionalArtifacts !== false ? 'true' : undefined,
       })
     });
@@ -366,11 +385,14 @@ export class PublishToGitHub extends cdk.Construct implements IPublisher {
     this.project = shellable.project;
   }
 
-  public addToPipeline(stage: cpipeline.Stage, id: string, options: AddToPipelineOptions): void {
-    this.project.addToPipeline(stage, id, {
-      ...options,
-      additionalInputArtifacts: this.additionalInputArtifacts,
-    });
+  public addToPipeline(stage: cpipeline.IStage, id: string, options: AddToPipelineOptions): void {
+    stage.addAction(new cpipeline_actions.CodeBuildAction({
+      actionName: id,
+      input: options.inputArtifact || new cpipeline.Artifact(),
+      extraInputs: this.additionalInputArtifacts,
+      runOrder: options.runOrder,
+      project: this.project,
+    }));
   }
 }
 
@@ -392,7 +414,7 @@ export interface PublishToS3Props {
 }
 
 export class PublishToS3 extends cdk.Construct implements IPublisher {
-  public readonly role?: iam.Role;
+  public readonly role?: iam.IRole;
   public readonly project: cbuild.Project;
 
   constructor(scope: cdk.Construct, id: string, props: PublishToS3Props) {
@@ -420,8 +442,13 @@ export class PublishToS3 extends cdk.Construct implements IPublisher {
     this.project = shellable.project;
   }
 
-  public addToPipeline(stage: cpipeline.Stage, id: string, options: AddToPipelineOptions): void {
-    this.project.addToPipeline(stage, id, options);
+  public addToPipeline(stage: cpipeline.IStage, id: string, options: AddToPipelineOptions): void {
+    stage.addAction(new cpipeline_actions.CodeBuildAction({
+      actionName: id,
+      input: options.inputArtifact || new cpipeline.Artifact(),
+      runOrder: options.runOrder,
+      project: this.project,
+    }));
   }
 }
 
@@ -442,7 +469,7 @@ export interface PublishToPyPiProps {
 export class PublishToPyPi extends cdk.Construct {
 
   public readonly project: cbuild.Project;
-  public readonly role?: iam.Role;
+  public readonly role: iam.IRole;
 
   constructor(scope: cdk.Construct, id: string, props: PublishToPyPiProps) {
     super(scope, id);
@@ -467,7 +494,12 @@ export class PublishToPyPi extends cdk.Construct {
     this.project = shellable.project;
   }
 
-  public addToPipeline(stage: cpipeline.Stage, id: string, options: AddToPipelineOptions): void {
-    this.project.addToPipeline(stage, id, options);
+  public addToPipeline(stage: cpipeline.IStage, id: string, options: AddToPipelineOptions): void {
+    stage.addAction(new cpipeline_actions.CodeBuildAction({
+      actionName: id,
+      input: options.inputArtifact || new cpipeline.Artifact(),
+      runOrder: options.runOrder,
+      project: this.project,
+    }));
   }
 }

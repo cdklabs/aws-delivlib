@@ -1,6 +1,6 @@
 import iam = require('@aws-cdk/aws-iam');
 import kms = require('@aws-cdk/aws-kms');
-import cdk = require('@aws-cdk/cdk');
+import cdk = require('@aws-cdk/core');
 import { OpenPGPKeyPair } from './open-pgp-key-pair';
 
 /**
@@ -38,7 +38,7 @@ export interface SigningKeyProps {
 export class OpenPgpKey extends cdk.Construct {
   public readonly scope: string;
 
-  private readonly key: kms.IEncryptionKey;
+  private readonly key: kms.IKey;
   private readonly secret: OpenPGPKeyPair;
 
   constructor(parent: cdk.Construct, name: string, props: SigningKeyProps) {
@@ -47,7 +47,7 @@ export class OpenPgpKey extends cdk.Construct {
     this.scope = props.secretName || this.node.uniqueId;
     const secretName = `${this.scope}/SigningKey`;
 
-    this.key = new kms.EncryptionKey(this, 'Key', {
+    this.key = new kms.Key(this, 'Key', {
       description: `Encryption key for PGP secret ${secretName}`,
     });
 

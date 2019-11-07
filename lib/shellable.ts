@@ -1,10 +1,10 @@
-import assets = require('@aws-cdk/assets');
 import cloudwatch = require('@aws-cdk/aws-cloudwatch');
 import cbuild = require('@aws-cdk/aws-codebuild');
 import cpipeline = require('@aws-cdk/aws-codepipeline');
-import cpipelineapi = require('@aws-cdk/aws-codepipeline-api');
+import cpipeline_actions = require('@aws-cdk/aws-codepipeline-actions');
 import iam = require('@aws-cdk/aws-iam');
-import cdk = require('@aws-cdk/cdk');
+import assets = require('@aws-cdk/aws-s3-assets');
+import cdk = require('@aws-cdk/core');
 import fs = require('fs');
 import path = require('path');
 import { BuildSpec } from './build-spec';
@@ -20,7 +20,7 @@ export interface ShellableOptions {
    *
    * @default CodePipelineSource
    */
-  source?: cbuild.BuildSource;
+  source?: cbuild.ISource;
 
   /**
    * What platform to us to run the scripts on
@@ -80,10 +80,11 @@ export interface ShellableOptions {
   buildSpec?: BuildSpec;
 
   /**
-   * Alarm period (in seconds)
-   * @default 300 (5 minutes)
+   * Alarm period.
+   *
+   * @default 300 seconds (5 minutes)
    */
-  alarmPeriodSec?: number;
+  alarmPeriod?: cdk.Duration;
 
   /**
    * Alarm threshold.
@@ -175,7 +176,7 @@ export interface AssumeRole {
  */
 export class Shellable extends cdk.Construct {
   public readonly project: cbuild.Project;
-  public readonly role?: iam.Role;
+  public readonly role: iam.IRole;
 
   /**
    * CloudWatch alarm that will be triggered if this action fails.
@@ -197,7 +198,7 @@ export class Shellable extends cdk.Construct {
       throw new Error(`Cannot find test entrypoint: ${entrypoint}`);
     }
 
-    const asset = new assets.ZipDirectoryAsset(this, 'ScriptDirectory', {
+    const asset = new assets.Asset(this, 'ScriptDirectory', {
       path: props.scriptDirectory
     });
 
@@ -213,10 +214,10 @@ export class Shellable extends cdk.Construct {
 
     this.project = new cbuild.Project(this, 'Resource', {
       projectName: props.buildProjectName,
-      source: props.source || new cbuild.CodePipelineSource(),
+      source: props.source,
       environment: {
         buildImage: this.platform.buildImage,
-        computeType: props.computeType || cbuild.ComputeType.Medium,
+        computeType: props.computeType || cbuild.ComputeType.MEDIUM,
         privileged: props.privileged
       },
       environmentVariables: {
@@ -224,34 +225,40 @@ export class Shellable extends cdk.Construct {
         [S3_KEY_ENV]: { value: asset.s3ObjectKey },
         ...renderEnvironmentVariables(props.environment)
       },
-      buildSpec: this.buildSpec.render({ primaryArtifactName: this.outputArtifactName }),
+      buildSpec: cbuild.BuildSpec.fromObject(this.buildSpec.render({ primaryArtifactName: this.outputArtifactName })),
     });
 
-    this.role = this.project.role;
+    this.role = this.project.role!; // not undefined, as it's a new Project
     asset.grantRead(this.role);
 
-    if (props.assumeRole && this.project.role) {
-      this.project.role.addToPolicy(new iam.PolicyStatement()
-        .addAction('sts:AssumeRole')
-        .addResource(props.assumeRole.roleArn));
+    if (props.assumeRole) {
+      this.role.addToPolicy(new iam.PolicyStatement({
+        actions: ['sts:AssumeRole'],
+        resources: [props.assumeRole.roleArn],
+      }));
     }
 
     this.alarm = new cloudwatch.Alarm(this, `Alarm`, {
-      metric: this.project.metricFailedBuilds({ periodSec: props.alarmPeriodSec || 300 }),
+      metric: this.project.metricFailedBuilds({ period: props.alarmPeriod || cdk.Duration.seconds(300) }),
       threshold: props.alarmThreshold || 1,
-      comparisonOperator: cloudwatch.ComparisonOperator.GreaterThanOrEqualToThreshold,
+      comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
       evaluationPeriods: props.alarmEvaluationPeriods || 1,
-      treatMissingData: cloudwatch.TreatMissingData.Ignore
+      treatMissingData: cloudwatch.TreatMissingData.IGNORE,
     });
   }
 
-  public addToPipeline(stage: cpipeline.Stage, name: string, inputArtifact: cpipelineapi.Artifact, runOrder?: number) {
-    return this.project.addToPipeline(stage, name, {
-      additionalOutputArtifactNames: this.buildSpec.additionalArtifactNames,
-      outputArtifactName: this.outputArtifactName,
-      inputArtifact,
-      runOrder
+  public addToPipeline(stage: cpipeline.IStage, name: string, inputArtifact: cpipeline.Artifact, runOrder?: number):
+      cpipeline_actions.CodeBuildAction {
+    const codeBuildAction = new cpipeline_actions.CodeBuildAction({
+      actionName: name,
+      project: this.project,
+      runOrder,
+      input: inputArtifact,
+      outputs: [new cpipeline.Artifact(this.outputArtifactName)].concat(
+          this.buildSpec.additionalArtifactNames.map(artifactName => new cpipeline.Artifact(artifactName))),
     });
+    stage.addAction(codeBuildAction);
+    return codeBuildAction;
   }
 }
 

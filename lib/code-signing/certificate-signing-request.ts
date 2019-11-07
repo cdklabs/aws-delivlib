@@ -1,6 +1,6 @@
 import cfn = require('@aws-cdk/aws-cloudformation');
 import lambda = require('@aws-cdk/aws-lambda');
-import cdk = require('@aws-cdk/cdk');
+import cdk = require('@aws-cdk/core');
 import path = require('path');
 import { hashFileOrDirectory } from '../util';
 import { RsaPrivateKeySecret } from './private-key';
@@ -52,14 +52,14 @@ export class CertificateSigningRequest extends cdk.Construct {
       uuid: '541F6782-6DCF-49A7-8C5A-67715ADD9E4C',
       lambdaPurpose: 'CreateCSR',
       description: 'Creates a Certificate Signing Request document for an x509 certificate',
-      runtime: lambda.Runtime.NodeJS810,
+      runtime: lambda.Runtime.NODEJS_8_10,
       handler: 'index.handler',
       code: new lambda.AssetCode(codeLocation),
-      timeout: 300,
+      timeout: cdk.Duration.seconds(300),
     });
 
     const csr = new cfn.CustomResource(this, 'Resource', {
-      lambdaProvider: customResource,
+      provider: cfn.CustomResourceProvider.lambda(customResource),
       resourceType: 'Custom::CertificateSigningRequest',
       properties: {
         resourceVersion: hashFileOrDirectory(codeLocation),

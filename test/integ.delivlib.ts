@@ -1,5 +1,4 @@
-import cdk = require('@aws-cdk/cdk');
-// import os = require('os');
+import cdk = require('@aws-cdk/core');
 import { TestStack } from './test-stack';
 
 const stackName = process.env.TEST_STACK_NAME;
@@ -11,4 +10,4 @@ const app = new cdk.App();
 new TestStack(app, stackName, {
   env: { region: 'us-east-1', account: '712950704752' }
 });
-app.run();
+app.synth();

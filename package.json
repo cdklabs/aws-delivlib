@@ -43,6 +43,7 @@
     "@aws-cdk/aws-codepipeline-actions": "1.15.0",
     "@aws-cdk/aws-ecs": "1.15.0",
     "@aws-cdk/aws-lambda": "1.15.0",
+    "@aws-cdk/aws-s3-notifications": "1.15.0",
     "@aws-cdk/aws-secretsmanager": "1.15.0",
     "@aws-cdk/aws-sns": "1.15.0",
     "@aws-cdk/aws-ssm": "1.15.0",

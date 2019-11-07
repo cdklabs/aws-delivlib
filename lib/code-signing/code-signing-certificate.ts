@@ -2,7 +2,7 @@ import iam = require('@aws-cdk/aws-iam');
 import kms = require('@aws-cdk/aws-kms');
 import secretsManager = require('@aws-cdk/aws-secretsmanager');
 import ssm = require('@aws-cdk/aws-ssm');
-import cdk = require('@aws-cdk/cdk');
+import cdk = require('@aws-cdk/core');
 import { ICredentialPair } from '../credential-pair';
 import permissions = require('../permissions');
 import { DistinguishedName } from './certificate-signing-request';
@@ -22,7 +22,7 @@ interface CodeSigningCertificateProps {
    * The KMS CMK to use for encrypting the Private Key secret.
    * @default A new KMS key will be allocated for you
    */
-  secretEncryptionKey?: kms.IEncryptionKey;
+  secretEncryptionKey?: kms.IKey;
 
   /**
    * The PEM-encoded certificate that was signed by the relevant authority.
@@ -102,14 +102,14 @@ export class CodeSigningCertificate extends cdk.Construct implements ICodeSignin
     const baseName = this.node.path.replace(/^\/+/, '');
 
     const privateKey = new RsaPrivateKeySecret(this, 'RSAPrivateKey', {
-      deletionPolicy: props.retainPrivateKey ? cdk.DeletionPolicy.Retain : undefined,
+      removalPolicy: props.retainPrivateKey ? cdk.RemovalPolicy.RETAIN : undefined,
       description: `The PEM-encoded private key of the x509 Code-Signing Certificate`,
       keySize: props.rsaKeySize || 2048,
       secretEncryptionKey: props.secretEncryptionKey,
       secretName: `${baseName}/RSAPrivateKey`,
     });
 
-    this.credential = secretsManager.Secret.import(this, 'Credential', {
+    this.credential = secretsManager.Secret.fromSecretAttributes(this, 'Credential', {
       encryptionKey: props.secretEncryptionKey,
       secretArn: privateKey.secretArn,
     });
@@ -122,9 +122,8 @@ export class CodeSigningCertificate extends cdk.Construct implements ICodeSignin
                                                           'critical,digitalSignature',
                                                           'critical,codeSigning');
 
-      new cdk.Output(this, 'CSR', {
+      new cdk.CfnOutput(this, 'CSR', {
         description: 'A PEM-encoded Certificate Signing Request for a Code-Signing Certificate',
-        disableExport: true,
         value: csr.pemRequest,
       });
 
@@ -135,8 +134,8 @@ export class CodeSigningCertificate extends cdk.Construct implements ICodeSignin
 
     this.principal = new ssm.StringParameter(this, 'Resource', {
       description: `A PEM-encoded Code-Signing Certificate (private key in ${privateKey.secretArn})`,
-      name: `/${baseName}/Certificate`,
-      value: certificate,
+      parameterName: `/${baseName}/Certificate`,
+      stringValue: certificate!,
     });
   }
 
@@ -152,12 +151,13 @@ export class CodeSigningCertificate extends cdk.Construct implements ICodeSignin
       secretArn: this.credential.secretArn,
     }, principal);
 
-    principal.addToPolicy(new iam.PolicyStatement()
-      .addAction('ssm:GetParameter')
-      .addResource(cdk.Stack.find(this).formatArn({
+    principal.addToPolicy(new iam.PolicyStatement({
+      actions: ['ssm:GetParameter'],
+      resources: [cdk.Stack.of(this).formatArn({
         // TODO: This is a workaround until https://github.com/awslabs/aws-cdk/pull/1726 is released
         service: 'ssm',
         resource: `parameter${this.principal.parameterName}`
-      })));
+      })],
+    }));
   }
 }

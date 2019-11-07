@@ -1,8 +1,9 @@
-import { expect as cdk_expect, haveResource, haveResourceLike } from '@aws-cdk/assert';
+import { expect as cdk_expect, haveResource, haveResourceLike, SynthUtils } from '@aws-cdk/assert';
 import codebuild = require('@aws-cdk/aws-codebuild');
 import codecommit = require('@aws-cdk/aws-codecommit');
 import cpipeline = require('@aws-cdk/aws-codepipeline');
-import cdk = require('@aws-cdk/cdk');
+import cpipeline_actions = require('@aws-cdk/aws-codepipeline-actions');
+import cdk = require('@aws-cdk/core');
 import path = require('path');
 import delivlib = require('../lib');
 import { AddToPipelineOptions, IPublisher } from '../lib';
@@ -83,7 +84,7 @@ function createTestPipelineForConcurrencyTests(stack: cdk.Stack, props?: delivli
   });
 
   const project = new codebuild.Project(stack, 'publish', {
-    buildSpec: { version: '0.2' }
+    buildSpec: codebuild.BuildSpec.fromObject({ version: '0.2' }),
   });
 
   const scriptDirectory = path.join(__dirname, 'delivlib-tests', 'linux');
@@ -100,7 +101,7 @@ function createTestPipelineForConcurrencyTests(stack: cdk.Stack, props?: delivli
   pipeline.addPublish(new TestPublishable(stack, 'pub5', { project }));
   pipeline.addPublish(new TestPublishable(stack, 'pub6', { project }));
 
-  const template = stack.toCloudFormation();
+  const template = SynthUtils.synthesize(stack).template;
   return template.Resources.PipelineBuildPipeline04C6628A.Properties.Stages;
 }
 
@@ -117,8 +118,13 @@ class TestPublishable extends cdk.Construct implements delivlib.IPublisher {
     this.project = props.project;
   }
 
-  public addToPipeline(stage: cpipeline.Stage, id: string, options: AddToPipelineOptions): void {
-    this.project.addToPipeline(stage, id, options);
+  public addToPipeline(stage: cpipeline.IStage, id: string, options: AddToPipelineOptions): void {
+    stage.addAction(new cpipeline_actions.CodeBuildAction({
+      actionName: id,
+      input: options.inputArtifact || new cpipeline.Artifact(),
+      project: this.project,
+      runOrder: options.runOrder,
+    }));
   }
 }
 
@@ -135,7 +141,7 @@ test('can add arbitrary shellables with different artifacts', () => {
     entrypoint: 'run-test.sh',
   });
 
-  pipeline.addPublish(new Pub(stack, 'Pub'), { inputArtifact: action.outputArtifact });
+  pipeline.addPublish(new Pub(stack, 'Pub'), { inputArtifact: action.actionProperties.outputs![0] });
 
   cdk_expect(stack).to(haveResourceLike('AWS::CodePipeline::Pipeline', {
     Stages: [
@@ -160,12 +166,12 @@ test('can add arbitrary shellables with different artifacts', () => {
             Name: "Build",
             ActionTypeId: { Category: "Build", Owner: "AWS", Provider: "CodeBuild" },
             InputArtifacts: [ { Name: "Source" } ],
-            OutputArtifacts: [ { Name: "Artifact_PipelineBuildProjectBuildC2DBA0FC" } ],
+            OutputArtifacts: [ { Name: "Artifact_Build_Build" } ],
             RunOrder: 1
           },
           {
             ActionTypeId: { Category: "Build", Owner: "AWS", Provider: "CodeBuild", },
-            InputArtifacts: [ { Name: "Artifact_PipelineBuildProjectBuildC2DBA0FC" } ],
+            InputArtifacts: [ { Name: "Artifact_Build_Build" } ],
             Name: "ActionSecondStep",
             OutputArtifacts: [ { Name: "Artifact_PipelineSecondStepD5683DEB" } ],
             RunOrder: 1
@@ -179,7 +185,6 @@ test('can add arbitrary shellables with different artifacts', () => {
             ActionTypeId: { Category: "Build", Owner: "AWS", Provider: "CodeBuild", },
             InputArtifacts: [ { Name: "Artifact_PipelineSecondStepD5683DEB" } ],
             Name: "PubPublish",
-            OutputArtifacts: [ { Name: "Artifact_PubProjectPubPublishFC7A3C85" } ],
             RunOrder: 1
           }
         ],
@@ -198,21 +203,6 @@ test('autoBuild() can be used to add automatic builds to the pipeline', () => {
     pipelineName: 'HelloPipeline',
     autoBuild: true
   });
-
-  // THEN
-  cdk_expect(stack).to(haveResource('AWS::CodeBuild::Project', {
-    Triggers: {
-      Webhook: true,
-      FilterGroups: [
-        [
-          {
-            Type: "EVENT",
-            Pattern: "PUSH,PULL_REQUEST_CREATED,PULL_REQUEST_UPDATED"
-          }
-        ]
-      ]
-    }
-  }));
 
   cdk_expect(stack).notTo(haveResource('AWS::Serverless::Application', {
     Location: {
@@ -236,21 +226,6 @@ test('autoBuild() can be configured to publish logs publically', () => {
     }
   });
 
-  // THEN
-  cdk_expect(stack).to(haveResource('AWS::CodeBuild::Project', {
-    Triggers: {
-      Webhook: true,
-      FilterGroups: [
-        [
-          {
-            Type: "EVENT",
-            Pattern: "PUSH,PULL_REQUEST_CREATED,PULL_REQUEST_UPDATED"
-          }
-        ]
-      ]
-    }
-  }));
-
   cdk_expect(stack).to(haveResource('AWS::Serverless::Application', {
     Location: {
       ApplicationId: "arn:aws:serverlessrepo:us-east-1:277187709615:applications/github-codebuild-logs",
@@ -269,7 +244,7 @@ test('autoBuild() can be configured with a different buildspec', () => {
     pipelineName: 'HelloPipeline',
     autoBuild: true,
     autoBuildOptions: {
-      buildSpec: 'different-buildspec.yaml',
+      buildSpec: codebuild.BuildSpec.fromSourceFilename('different-buildspec.yaml'),
     },
   });
 
@@ -294,12 +269,15 @@ class Pub extends cdk.Construct implements IPublisher {
   constructor(scope: cdk.Construct, id: string) {
     super(scope, id);
 
-    this.project = new codebuild.Project(this, 'Project', {
-      source: new codebuild.CodePipelineSource()
-    });
+    this.project = new codebuild.PipelineProject(this, 'Project');
   }
 
-  public addToPipeline(stage: cpipeline.Stage, id: string, options: AddToPipelineOptions): void {
-    this.project.addToPipeline(stage, id, options);
+  public addToPipeline(stage: cpipeline.IStage, id: string, options: AddToPipelineOptions): void {
+    stage.addAction(new cpipeline_actions.CodeBuildAction({
+      actionName: id,
+      input: options.inputArtifact || new cpipeline.Artifact(),
+      project: this.project,
+      runOrder: options.runOrder,
+    }));
   }
 }

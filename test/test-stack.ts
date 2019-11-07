@@ -1,6 +1,7 @@
+import events = require('@aws-cdk/aws-events');
 import iam = require('@aws-cdk/aws-iam');
 import kms = require('@aws-cdk/aws-kms');
-import cdk = require('@aws-cdk/cdk');
+import cdk = require('@aws-cdk/core');
 import path = require('path');
 import delivlib = require('../lib');
 
@@ -16,7 +17,7 @@ export class TestStack extends cdk.Stack {
 
     const githubRepo = new delivlib.WritableGitHubRepo({
       repository: 'awslabs/aws-delivlib-sample',
-      tokenParameterName: 'github-token',
+      token: cdk.SecretValue.cfnDynamicReference(new cdk.CfnDynamicReference(cdk.CfnDynamicReferenceService.SSM, 'github-token')),
       sshKeySecret: { secretArn: 'arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/github-ssh-lwzfjW' },
       commitEmail: 'foo@bar.com',
       commitUsername: 'foobar',
@@ -56,7 +57,7 @@ export class TestStack extends cdk.Stack {
     const externalId = 'require-me-please';
 
     const role = new iam.Role(this, 'AssumeMe', {
-      assumedBy: new iam.AccountPrincipal(this.accountId),
+      assumedBy: new iam.AccountPrincipal(cdk.Stack.of(this).account),
       externalId
     });
 
@@ -88,14 +89,14 @@ export class TestStack extends cdk.Stack {
         }
       })
     });
-    const shellableArtifacts = [action.outputArtifact, ...action.additionalOutputArtifacts()];
+    const shellableArtifacts = action.actionProperties.outputs;
 
     //
     // CANARY
     //
 
     pipeline.addCanary('HelloCanary', {
-      scheduleExpression: 'rate(1 minute)',
+      schedule: events.Schedule.expression('rate(1 minute)'),
       scriptDirectory: path.join(testDir, 'linux'),
       entrypoint: 'test.sh'
     });
@@ -129,7 +130,7 @@ export class TestStack extends cdk.Stack {
 
     const signingKey = new delivlib.OpenPGPKeyPair(this, 'CodeSign', {
       email: 'aws-cdk-dev+delivlib@amazon.com',
-      encryptionKey: new kms.EncryptionKey(this, 'CodeSign-CMK'),
+      encryptionKey: new kms.Key(this, 'CodeSign-CMK'),
       expiry: '4y',
       identity: 'aws-cdk-dev',
       keySizeBits: 4_096,

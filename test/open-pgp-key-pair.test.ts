@@ -1,12 +1,12 @@
 import assert = require('@aws-cdk/assert');
 import kms = require('@aws-cdk/aws-kms');
-import cdk = require('@aws-cdk/cdk');
+import cdk = require('@aws-cdk/core');
 import { OpenPGPKeyPair } from '../lib/open-pgp-key-pair';
 
 test('correctly creates', () => {
   // GIVEN
   const stack = new cdk.Stack(undefined, 'TestStack');
-  const encryptionKey = new kms.EncryptionKey(stack, 'CMK');
+  const encryptionKey = new kms.Key(stack, 'CMK');
   // WHEN
   new OpenPGPKeyPair(stack, 'Secret', {
     email: 'nobody@nowhere.com',
@@ -26,7 +26,7 @@ test('correctly creates', () => {
     Expiry: '1d',
     KeySizeBits: 1024,
     SecretName: 'SecretName',
-    KeyArn: stack.node.resolve(encryptionKey.keyArn),
+    KeyArn: stack.resolve(encryptionKey.keyArn),
     Version: 0
   }));
 });
@@ -40,7 +40,7 @@ test('correctly forwards parameter name', () => {
   new OpenPGPKeyPair(stack, 'Secret', {
     pubKeyParameterName: parameterName,
     email: 'nobody@nowhere.com',
-    encryptionKey: new kms.EncryptionKey(stack, 'CMK'),
+    encryptionKey: new kms.Key(stack, 'CMK'),
     expiry: '1d',
     identity: 'Test',
     keySizeBits: 1_024,
@@ -64,7 +64,7 @@ test('Handler has appropriate permissions', () => {
   new OpenPGPKeyPair(stack, 'Secret', {
     pubKeyParameterName: '/Foo',
     email: 'nobody@nowhere.com',
-    encryptionKey: new kms.EncryptionKey(stack, 'CMK'),
+    encryptionKey: new kms.Key(stack, 'CMK'),
     expiry: '1d',
     identity: 'Test',
     keySizeBits: 1_024,

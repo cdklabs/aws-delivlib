@@ -1,31 +1,38 @@
 import cbuild = require('@aws-cdk/aws-codebuild');
 import ccommit = require('@aws-cdk/aws-codecommit');
 import cpipeline = require('@aws-cdk/aws-codepipeline');
-import cpipelineapi = require('@aws-cdk/aws-codepipeline-api');
-import cdk = require('@aws-cdk/cdk');
+import cpipeline_actions = require('@aws-cdk/aws-codepipeline-actions');
+import cdk = require('@aws-cdk/core');
 import { ExternalSecret } from './permissions';
 
 export interface IRepo {
   repositoryUrlHttp: string;
   repositoryUrlSsh: string;
-  createBuildSource(parent: cdk.Construct, webhook: boolean): cbuild.BuildSource;
-  createSourceStage(pipeline: cpipeline.Pipeline, branch: string): cpipelineapi.SourceAction;
+  readonly allowsBadge: boolean;
+  createBuildSource(parent: cdk.Construct, webhook: boolean): cbuild.ISource;
+  createSourceStage(pipeline: cpipeline.Pipeline, branch: string): cpipeline.Artifact;
   describe(): any;
 }
 
 export class CodeCommitRepo implements IRepo {
+  public readonly allowsBadge = false;
+
   constructor(private readonly repository: ccommit.IRepository) {
 
   }
 
-  public createSourceStage(pipeline: cpipeline.Pipeline, branch: string): cpipelineapi.SourceAction {
-    const stage = new cpipeline.Stage(pipeline, 'Source', { pipeline });
-    return new ccommit.PipelineSourceAction(stage, 'Pull', {
-      stage,
+  public createSourceStage(pipeline: cpipeline.Pipeline, branch: string): cpipeline.Artifact {
+    const stage = pipeline.addStage({
+      stageName: 'Source',
+    });
+    const sourceOutput = new cpipeline.Artifact('Source');
+    stage.addAction(new cpipeline_actions.CodeCommitSourceAction({
+      actionName: 'Pull',
       repository: this.repository,
       branch,
-      outputArtifactName: 'Source'
-    });
+      output: sourceOutput,
+    }));
+    return sourceOutput;
   }
 
   public get repositoryUrlHttp() {
@@ -36,9 +43,9 @@ export class CodeCommitRepo implements IRepo {
     return this.repository.repositoryCloneUrlSsh;
   }
 
-  public createBuildSource(_: cdk.Construct) {
-    return new cbuild.CodeCommitSource({
-      repository: this.repository
+  public createBuildSource(_: cdk.Construct, _webhook: boolean): cbuild.ISource {
+    return cbuild.Source.codeCommit({
+      repository: this.repository,
     });
   }
 
@@ -49,10 +56,9 @@ export class CodeCommitRepo implements IRepo {
 
 interface GitHubRepoProps {
   /**
-   * SSM parameter name that contains an OAuth token that allows access to
-   * your github repo.
+   * The OAuth token secret that allows access to your github repo.
    */
-  tokenParameterName: string;
+  token: cdk.SecretValue;
 
   /**
    * In the form "account/repo".
@@ -61,9 +67,10 @@ interface GitHubRepoProps {
 }
 
 export class GitHubRepo implements IRepo {
+  public readonly allowsBadge = true;
   public readonly owner: string;
   public readonly repo: string;
-  public readonly tokenParameterName: string;
+  public readonly token: cdk.SecretValue;
 
   constructor(props: GitHubRepoProps) {
     const repository = props.repository;
@@ -72,7 +79,7 @@ export class GitHubRepo implements IRepo {
     this.owner = owner;
     this.repo = repo;
 
-    this.tokenParameterName = props.tokenParameterName;
+    this.token = props.token;
   }
 
   public get repositoryUrlHttp() {
@@ -83,30 +90,33 @@ export class GitHubRepo implements IRepo {
     return `git@github.com:${this.owner}/${this.repo}.git`;
   }
 
-  public createSourceStage(pipeline: cpipeline.Pipeline, branch: string): cpipelineapi.SourceAction {
-    const oauth = new cdk.SecretParameter(pipeline, 'GitHubToken', { ssmParameter: this.tokenParameterName });
+  public createSourceStage(pipeline: cpipeline.Pipeline, branch: string): cpipeline.Artifact {
+    const stage = pipeline.addStage({ stageName: 'Source' });
 
-    const stage = new cpipeline.Stage(pipeline, 'Source', { pipeline });
-
-    return new cpipeline.GitHubSourceAction(stage, 'Pull', {
+    const sourceOutput = new cpipeline.Artifact('Source');
+    stage.addAction(new cpipeline_actions.GitHubSourceAction({
+      actionName: 'Pull',
       branch,
-      oauthToken: oauth.value,
-      outputArtifactName: 'Source',
+      oauthToken: this.token,
       owner: this.owner,
       repo: this.repo,
-      stage
-    });
+      output: sourceOutput,
+    }));
+    return sourceOutput;
   }
 
-  public createBuildSource(parent: cdk.Construct, webhook: boolean) {
-    const oauth = new cdk.SecretParameter(parent, 'GitHubToken', { ssmParameter: this.tokenParameterName });
-
-    return new cbuild.GitHubSource({
+  public createBuildSource(_: cdk.Construct, webhook: boolean): cbuild.ISource {
+    return cbuild.Source.gitHub({
       owner: this.owner,
       repo: this.repo,
-      oauthToken: oauth.value,
       webhook,
-      reportBuildStatus: webhook
+      reportBuildStatus: webhook,
+      webhookFilters: webhook
+          ? [cbuild.FilterGroup.inEventOf(
+              cbuild.EventAction.PUSH,
+              cbuild.EventAction.PULL_REQUEST_CREATED,
+              cbuild.EventAction.PULL_REQUEST_UPDATED)]
+          : undefined,
     });
   }
 

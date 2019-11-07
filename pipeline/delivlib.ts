@@ -6,7 +6,8 @@
 //
 //     npm run pipeline-update
 //
-import cdk = require('@aws-cdk/cdk');
+import codebuild = require('@aws-cdk/aws-codebuild');
+import cdk = require('@aws-cdk/core');
 import delivlib = require('../lib');
 
 export class DelivLibPipelineStack extends cdk.Stack {
@@ -15,7 +16,7 @@ export class DelivLibPipelineStack extends cdk.Stack {
 
     const github = new delivlib.WritableGitHubRepo({
       repository: 'awslabs/aws-delivlib',
-      tokenParameterName: 'github-token',
+      token: cdk.SecretValue.cfnDynamicReference(new cdk.CfnDynamicReference(cdk.CfnDynamicReferenceService.SSM, 'github-token')),
       commitEmail: 'aws-cdk-dev+delivlib@amazon.com',
       commitUsername: 'aws-cdk-dev',
       sshKeySecret: { secretArn: 'arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/github-ssh-lwzfjW' }
@@ -26,7 +27,7 @@ export class DelivLibPipelineStack extends cdk.Stack {
       repo: github,
       pipelineName: 'delivlib-master',
       notificationEmail: 'aws-cdk-dev+delivlib-notify@amazon.com',
-      buildSpec: {
+      buildSpec: codebuild.BuildSpec.fromObject({
         version: '0.2',
         phases: {
           install: {
@@ -46,7 +47,7 @@ export class DelivLibPipelineStack extends cdk.Stack {
           'files': [ '**/*' ],
           'base-directory': 'dist'
         }
-      },
+      }),
       autoBuild: true,
       autoBuildOptions: { publicLogs: true }
     });
@@ -69,4 +70,4 @@ new DelivLibPipelineStack(app, 'aws-delivlib-pipeline', {
   env: { region: 'us-east-1', account: '712950704752' }
 });
 
-app.run();
+app.synth();
