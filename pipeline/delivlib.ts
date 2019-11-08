@@ -16,7 +16,7 @@ export class DelivLibPipelineStack extends cdk.Stack {
 
     const github = new delivlib.WritableGitHubRepo({
       repository: 'awslabs/aws-delivlib',
-      token: cdk.SecretValue.cfnDynamicReference(new cdk.CfnDynamicReference(cdk.CfnDynamicReferenceService.SSM, 'github-token')),
+      token: cdk.SecretValue.secretsManager('github-token'),
       commitEmail: 'aws-cdk-dev+delivlib@amazon.com',
       commitUsername: 'aws-cdk-dev',
       sshKeySecret: { secretArn: 'arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/github-ssh-lwzfjW' }

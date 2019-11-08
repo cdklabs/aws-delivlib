@@ -17,7 +17,7 @@ export class TestStack extends cdk.Stack {
 
     const githubRepo = new delivlib.WritableGitHubRepo({
       repository: 'awslabs/aws-delivlib-sample',
-      token: cdk.SecretValue.cfnDynamicReference(new cdk.CfnDynamicReference(cdk.CfnDynamicReferenceService.SSM, 'github-token')),
+      token: cdk.SecretValue.secretsManager('github-token'),
       sshKeySecret: { secretArn: 'arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/github-ssh-lwzfjW' },
       commitEmail: 'foo@bar.com',
       commitUsername: 'foobar',
