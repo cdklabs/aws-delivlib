@@ -58,8 +58,6 @@ export class RsaPrivateKeySecret extends cdk.Construct {
   constructor(parent: cdk.Construct, id: string, props: RsaPrivateKeySecretProps) {
     super(parent, id);
 
-    props.removalPolicy = props.removalPolicy || cdk.RemovalPolicy.RETAIN;
-
     const codeLocation = path.resolve(__dirname, '..', '..', 'custom-resource-handlers', 'bin', 'private-key');
     const customResource = new lambda.SingletonFunction(this, 'ResourceHandler', {
       lambdaPurpose: 'RSAPrivate-Key',
@@ -114,7 +112,7 @@ export class RsaPrivateKeySecret extends cdk.Construct {
         secretName: props.secretName,
         kmsKeyId: props.secretEncryptionKey && props.secretEncryptionKey.keyArn,
       },
-      removalPolicy: props.removalPolicy,
+      removalPolicy: props.removalPolicy || cdk.RemovalPolicy.RETAIN,
     });
     if (customResource.role) {
       privateKey.node.addDependency(customResource.role);

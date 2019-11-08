@@ -63,7 +63,10 @@ async function _createSecret(event: cfn.CreateEvent, context: lambda.Context): P
 
 async function _deleteSecret(event: cfn.DeleteEvent): Promise<cfn.ResourceAttributes> {
   if (event.PhysicalResourceId.startsWith('arn:')) {
-    await secretsManager.deleteSecret({ SecretId: event.PhysicalResourceId }).promise();
+    await secretsManager.deleteSecret({
+      SecretId: event.PhysicalResourceId,
+      ForceDeleteWithoutRecovery: true,
+    }).promise();
   }
   return { Ref: event.PhysicalResourceId };
 }

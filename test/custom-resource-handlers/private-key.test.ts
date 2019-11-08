@@ -186,7 +186,10 @@ test('Delete', async () => {
   await expect(mockSecretsManager.createSecret).not.toBeCalled();
   await expect(mockSecretsManager.updateSecret).not.toBeCalled();
   await expect(mockSecretsManager.deleteSecret)
-    .toBeCalledWith({ SecretId: secretArn });
+    .toBeCalledWith({
+      SecretId: secretArn,
+      ForceDeleteWithoutRecovery: true,
+    });
   return expect(cfn.sendResponse)
     .toBeCalledWith(event,
                     cfn.Status.SUCCESS,

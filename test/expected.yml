@@ -4153,8 +4153,8 @@ Resources:
     DependsOn:
       - RSAPrivateKey72FD327D38134632934028EC437AA486ServiceRoleDefaultPolicy487DB1EA
       - RSAPrivateKey72FD327D38134632934028EC437AA486ServiceRole76094455
-    UpdateReplacePolicy: Retain
-    DeletionPolicy: Retain
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
     Metadata:
       aws:cdk:path: delivlib-test/X509CodeSigningKey/RSAPrivateKey/Resource/Default
   X509CodeSigningKeyRSAPrivateKeyCertificateSigningRequest7F706C9D:

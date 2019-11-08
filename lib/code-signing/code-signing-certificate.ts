@@ -94,15 +94,11 @@ export class CodeSigningCertificate extends cdk.Construct implements ICodeSignin
   constructor(parent: cdk.Construct, id: string, props: CodeSigningCertificateProps) {
     super(parent, id);
 
-    if (props.retainPrivateKey == null) {
-      props.retainPrivateKey = true;
-    }
-
     // The construct path of this construct, without any leading /
     const baseName = this.node.path.replace(/^\/+/, '');
 
     const privateKey = new RsaPrivateKeySecret(this, 'RSAPrivateKey', {
-      removalPolicy: props.retainPrivateKey ? cdk.RemovalPolicy.RETAIN : undefined,
+      removalPolicy: props.retainPrivateKey === false ? cdk.RemovalPolicy.DESTROY : cdk.RemovalPolicy.RETAIN,
       description: `The PEM-encoded private key of the x509 Code-Signing Certificate`,
       keySize: props.rsaKeySize || 2048,
       secretEncryptionKey: props.secretEncryptionKey,
