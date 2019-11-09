@@ -18,7 +18,7 @@ export interface ShellableOptions {
   /**
    * Source for the CodeBuild project
    *
-   * @default CodePipelineSource
+   * @default no source
    */
   source?: cbuild.ISource;
 
