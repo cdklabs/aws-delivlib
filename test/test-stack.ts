@@ -137,6 +137,7 @@ export class TestStack extends cdk.Stack {
       pubKeyParameterName: `/${this.node.path}/CodeSign.pub`,
       secretName: this.node.path + '/CodeSign',
       version: 0,
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
 
     pipeline.publishToMaven({

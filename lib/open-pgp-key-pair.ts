@@ -58,10 +58,19 @@ interface OpenPGPKeyPairProps {
    * A description to attach to the AWS SecretsManager secret.
    */
   description?: string;
+
+  /**
+   * The removal policy of the SecretsManager secret.
+   *
+   * @default RemovalPolicy.RETAIN
+   */
+  removalPolicy?: cdk.RemovalPolicy;
 }
 
 /**
- * A PGP key that is stored in Secrets Manager. The SecretsManager secret is retained when the resource is deleted.
+ * A PGP key that is stored in Secrets Manager.
+ * The SecretsManager secret is by default retained when the resource is deleted,
+ * you can change that with the `removalPolicy` property.
  *
  * The string in secrets manager will be a JSON struct of
  *
@@ -90,6 +99,7 @@ export class OpenPGPKeyPair extends cdk.Construct implements ICredentialPair {
         'secretsmanager:CreateSecret',
         'secretsmanager:GetSecretValue',
         'secretsmanager:UpdateSecret',
+        'secretsmanager:DeleteSecret',
       ],
       resources: [cdk.Stack.of(this).formatArn({
         service: 'secretsmanager',
@@ -131,6 +141,7 @@ export class OpenPGPKeyPair extends cdk.Construct implements ICredentialPair {
         version: props.version,
         description: props.description,
       },
+      removalPolicy: props.removalPolicy || cdk.RemovalPolicy.RETAIN,
     });
     secret.node.addDependency(fn);
 

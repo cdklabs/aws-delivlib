@@ -61,7 +61,7 @@ async function handleEvent(event: cfn.Event, context: lambda.Context): Promise<c
           ? await _createNewKey(event, context)
           : await _updateExistingKey(event as cfn.UpdateEvent, context);
   case cfn.RequestType.DELETE:
-    return { Ref: event.PhysicalResourceId };
+    return await _deleteSecret(event);
   }
 }
 
@@ -152,4 +152,12 @@ async function _getPublicKey(secretArn: string): Promise<string> {
   } finally {
     await _rmrf(tempDir);
   }
+}
+
+async function _deleteSecret(event: cfn.DeleteEvent): Promise<cfn.ResourceAttributes> {
+  await secretsManager.deleteSecret({
+    SecretId: event.PhysicalResourceId,
+    ForceDeleteWithoutRecovery: true,
+  }).promise();
+  return { Ref: event.PhysicalResourceId };
 }

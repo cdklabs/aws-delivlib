@@ -82,6 +82,7 @@ test('Handler has appropriate permissions', () => {
           'secretsmanager:CreateSecret',
           'secretsmanager:GetSecretValue',
           'secretsmanager:UpdateSecret',
+          'secretsmanager:DeleteSecret',
         ],
         Resource: {
           'Fn::Join': ['',

@@ -168,12 +168,20 @@ test('Delete', async () => {
     PhysicalResourceId: secretArn,
     ...mockEventBase
   };
+  mockSecretsManager.deleteSecret = jest.fn()
+    .mockName('SecretsManager.deleteSecret')
+    .mockImplementation(() => ({ promise: () => Promise.resolve() }));
 
   const { handler } = require('../../custom-resource-handlers/src/pgp-secret');
   await expect(handler(event, context)).resolves.toBe(undefined);
+
+  await expect(mockSecretsManager.deleteSecret).toBeCalledWith({
+    SecretId: secretArn,
+    ForceDeleteWithoutRecovery: true,
+  });
+
   return expect(mockSendResponse)
-    .toBeCalledWith(event,
-                    cfn.Status.SUCCESS,
-                    event.PhysicalResourceId,
-                    { Ref: event.PhysicalResourceId });
+    .toBeCalledWith(event, cfn.Status.SUCCESS, event.PhysicalResourceId, {
+      Ref: event.PhysicalResourceId,
+    });
 });
