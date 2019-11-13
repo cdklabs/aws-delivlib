@@ -41,7 +41,7 @@
     "@aws-cdk/aws-serverless": "^0.24.1",
     "@aws-cdk/aws-codepipeline": "^0.24.1",
     "@aws-cdk/aws-ecs": "^0.24.1",
-    "@aws-cdk/aws-lambda": "^0.24.1",
+    "@aws-cdk/aws-lambda": "^1.16.3",
     "@aws-cdk/aws-secretsmanager": "^0.24.1",
     "@aws-cdk/aws-sns": "^0.24.1",
     "@aws-cdk/aws-ssm": "^0.24.1",
