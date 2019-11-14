@@ -27,7 +27,8 @@ test('correctly creates', () => {
     KeySizeBits: 1024,
     SecretName: 'SecretName',
     KeyArn: stack.resolve(encryptionKey.keyArn),
-    Version: 0
+    Version: 0,
+    DeleteImmediately: false,
   }));
 });
 

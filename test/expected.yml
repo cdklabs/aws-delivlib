@@ -4423,6 +4423,7 @@ Resources:
           - CodeSignCMKC986BB89
           - Arn
       Version: 0
+      DeleteImmediately: true
     UpdateReplacePolicy: Delete
     DeletionPolicy: Delete
     Metadata:

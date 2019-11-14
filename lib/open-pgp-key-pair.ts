@@ -9,6 +9,30 @@ import path = require('path');
 import { ICredentialPair } from './credential-pair';
 import { hashFileOrDirectory } from './util';
 
+/**
+ * The type of the {@link OpenPGPKeyPairProps.removalPolicy} property.
+ */
+export enum OpenPGPKeyPairRemovalPolicy {
+  /**
+   * Keep the secret when this resource is deleted from the stack.
+   * This is the default setting.
+   */
+  RETAIN,
+
+  /**
+   * Remove the secret when this resource is deleted from the stack,
+   * but leave a grace period of a few days that allows you to cancel the deletion from the AWS Console.
+   */
+  DESTROY_SAFELY,
+
+  /**
+   * Remove the secret when this resource is deleted from the stack immediately.
+   * Note that if you don't have a backup of this key somewhere,
+   * this means it will be gone forever!
+   */
+  DESTROY_IMMEDIATELY
+}
+
 interface OpenPGPKeyPairProps {
   /**
    * Identity to put into the key
@@ -60,11 +84,12 @@ interface OpenPGPKeyPairProps {
   description?: string;
 
   /**
-   * The removal policy of the SecretsManager secret.
+   * What happens to the SecretsManager secret when this resource is removed from the stack.
+   * The default is to keep the secret.
    *
-   * @default RemovalPolicy.RETAIN
+   * @default OpenPGPKeyPairRemovalPolicy.RETAIN
    */
-  removalPolicy?: cdk.RemovalPolicy;
+  removalPolicy?: OpenPGPKeyPairRemovalPolicy;
 }
 
 /**
@@ -140,8 +165,9 @@ export class OpenPGPKeyPair extends cdk.Construct implements ICredentialPair {
         keyArn: props.encryptionKey && props.encryptionKey.keyArn,
         version: props.version,
         description: props.description,
+        deleteImmediately: props.removalPolicy === OpenPGPKeyPairRemovalPolicy.DESTROY_IMMEDIATELY,
       },
-      removalPolicy: props.removalPolicy || cdk.RemovalPolicy.RETAIN,
+      removalPolicy: openPgpKeyPairRemovalPolicyToCoreRemovalPolicy(props.removalPolicy),
     });
     secret.node.addDependency(fn);
 
@@ -177,4 +203,13 @@ export class OpenPGPKeyPair extends cdk.Construct implements ICredentialPair {
       }));
     }
   }
+}
+
+function openPgpKeyPairRemovalPolicyToCoreRemovalPolicy(removalPolicy?: OpenPGPKeyPairRemovalPolicy): cdk.RemovalPolicy {
+  if (removalPolicy === undefined) {
+    return cdk.RemovalPolicy.RETAIN;
+  }
+  return removalPolicy === OpenPGPKeyPairRemovalPolicy.RETAIN
+    ? cdk.RemovalPolicy.RETAIN
+    : cdk.RemovalPolicy.DESTROY;
 }

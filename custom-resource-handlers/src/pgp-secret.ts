@@ -157,7 +157,7 @@ async function _getPublicKey(secretArn: string): Promise<string> {
 async function _deleteSecret(event: cfn.DeleteEvent): Promise<cfn.ResourceAttributes> {
   await secretsManager.deleteSecret({
     SecretId: event.PhysicalResourceId,
-    ForceDeleteWithoutRecovery: true,
+    ForceDeleteWithoutRecovery: event.ResourceProperties.DeleteImmediately,
   }).promise();
   return { Ref: event.PhysicalResourceId };
 }
