@@ -177,7 +177,7 @@ test('Delete', async () => {
 
   await expect(mockSecretsManager.deleteSecret).toBeCalledWith({
     SecretId: secretArn,
-    ForceDeleteWithoutRecovery: undefined,
+    ForceDeleteWithoutRecovery: false,
   });
 
   return expect(mockSendResponse)

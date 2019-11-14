@@ -36,6 +36,7 @@ async function handleEvent(event: cfn.Event, context: lambda.Context): Promise<c
       KeySizeBits: true,
       SecretName: true,
       Version: false,
+      DeleteImmediately: false,
     });
   }
 
@@ -157,7 +158,7 @@ async function _getPublicKey(secretArn: string): Promise<string> {
 async function _deleteSecret(event: cfn.DeleteEvent): Promise<cfn.ResourceAttributes> {
   await secretsManager.deleteSecret({
     SecretId: event.PhysicalResourceId,
-    ForceDeleteWithoutRecovery: event.ResourceProperties.DeleteImmediately,
+    ForceDeleteWithoutRecovery: !!event.ResourceProperties.DeleteImmediately,
   }).promise();
   return { Ref: event.PhysicalResourceId };
 }
