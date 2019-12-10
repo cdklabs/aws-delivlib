@@ -1,10 +1,11 @@
 import cloudwatch = require('@aws-cdk/aws-cloudwatch');
 import cpipeline = require('@aws-cdk/aws-codepipeline');
 import events = require('@aws-cdk/aws-events');
+import events_targets = require('@aws-cdk/aws-events-targets');
 import iam = require('@aws-cdk/aws-iam');
 import lambda = require('@aws-cdk/aws-lambda');
 import logs = require('@aws-cdk/aws-logs');
-import cdk = require('@aws-cdk/cdk');
+import cdk = require('@aws-cdk/core');
 import fs = require('fs');
 import path = require('path');
 
@@ -12,7 +13,7 @@ export interface PipelineWatcherProps {
   /**
    * Code Pipeline to monitor for failed stages
    */
-  pipeline: cpipeline.Pipeline;
+  pipeline: cpipeline.IPipeline;
 
   /**
    * Set the pipelineName of the alarm description.
@@ -42,7 +43,7 @@ export class PipelineWatcher extends cdk.Construct {
 
     const pipelineWatcher = new lambda.Function(this, 'Poller', {
       handler: 'index.handler',
-      runtime: lambda.Runtime.NodeJS810,
+      runtime: lambda.Runtime.NODEJS_8_10,
       code: lambda.Code.inline(fs.readFileSync(path.join(__dirname, 'watcher-handler.js')).toString('utf8')),
       environment: {
         PIPELINE_NAME: props.pipeline.pipelineName
@@ -50,19 +51,19 @@ export class PipelineWatcher extends cdk.Construct {
     });
 
     // See https://github.com/awslabs/aws-cdk/issues/1340 for exposing grants on the pipeline.
-    pipelineWatcher.addToRolePolicy(new iam.PolicyStatement()
-      .addResource(props.pipeline.pipelineArn)
-      .addAction('codepipeline:GetPipelineState'));
+    pipelineWatcher.addToRolePolicy(new iam.PolicyStatement({
+      resources: [props.pipeline.pipelineArn],
+      actions: ['codepipeline:GetPipelineState'],
+    }));
 
     // ex: arn:aws:logs:us-east-1:123456789012:log-group:my-log-group
     const logGroup = new logs.LogGroup(this, 'Logs', {
       logGroupName: `/aws/lambda/${pipelineWatcher.functionName}`,
-      retentionDays: 731
     });
 
-    const trigger = new events.EventRule(this, 'Trigger', {
-      scheduleExpression: 'rate(1 minute)',
-      targets: [pipelineWatcher]
+    const trigger = new events.Rule(this, 'Trigger', {
+      schedule: events.Schedule.expression('rate(1 minute)'),
+      targets: [new events_targets.LambdaFunction(pipelineWatcher)],
     });
 
     const logGroupResource = logGroup.node.findChild('Resource') as cdk.Resource;
@@ -85,12 +86,12 @@ export class PipelineWatcher extends cdk.Construct {
       metric: new cloudwatch.Metric({
         metricName,
         namespace: metricNamespace,
-        statistic: cloudwatch.Statistic.Maximum
+        statistic: cloudwatch.Statistic.MAXIMUM,
       }),
       threshold: 1,
-      comparisonOperator: cloudwatch.ComparisonOperator.GreaterThanOrEqualToThreshold,
+      comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
       evaluationPeriods: 1,
-      treatMissingData: cloudwatch.TreatMissingData.Ignore, // We expect a steady stream of data points
+      treatMissingData: cloudwatch.TreatMissingData.IGNORE, // We expect a steady stream of data points
     });
   }
 }

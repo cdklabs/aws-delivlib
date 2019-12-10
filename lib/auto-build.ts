@@ -1,6 +1,6 @@
 import codebuild = require('@aws-cdk/aws-codebuild');
-import serverless = require('@aws-cdk/aws-serverless');
-import { Construct, Resource } from '@aws-cdk/cdk';
+import serverless = require('@aws-cdk/aws-sam');
+import { Construct } from '@aws-cdk/core';
 import { BuildEnvironmentProps, createBuildEnvironment } from './build-env';
 import { IRepo } from './repo';
 
@@ -20,7 +20,7 @@ export interface AutoBuildOptions {
    *
    * @default @see https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-codebuild-project-source.html#cfn-codebuild-project-source-buildspec
    */
-  readonly buildSpec?: any;
+  readonly buildSpec?: codebuild.BuildSpec;
   /* tslint:enable:max-line-length */
 }
 
@@ -43,17 +43,8 @@ export class AutoBuild extends Construct {
     const project = new codebuild.Project(this, 'Project', {
       source: props.repo.createBuildSource(this, true),
       environment: createBuildEnvironment(props.environment),
-      badge: true,
+      badge: props.repo.allowsBadge,
       buildSpec: props.buildSpec
-    });
-
-    // not support in this version of the cdk
-    const cfnProject = project.node.tryFindChild('Resource') as Resource;
-    cfnProject.addPropertyOverride('Triggers', {
-      Webhook: true,
-      FilterGroups: [
-        [ { Type: 'EVENT', Pattern: 'PUSH,PULL_REQUEST_CREATED,PULL_REQUEST_UPDATED' } ]
-      ]
     });
 
     const publicLogs = props.publicLogs !== undefined ? props.publicLogs : false;

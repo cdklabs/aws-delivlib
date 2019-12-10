@@ -1,6 +1,6 @@
-import { expect as assert, haveResource, ResourcePart } from '@aws-cdk/assert';
-import cdk = require('@aws-cdk/cdk');
-import { Stack } from '@aws-cdk/cdk';
+import { expect as assert, haveResource, ResourcePart, SynthUtils } from '@aws-cdk/assert';
+import cdk = require('@aws-cdk/core');
+import { Stack } from '@aws-cdk/core';
 import path = require('path');
 import { Shellable, ShellPlatform } from '../lib';
 
@@ -29,7 +29,7 @@ test('assume role', () => {
     }
   });
 
-  const template = stack.toCloudFormation();
+  const template = SynthUtils.synthesize(stack).template;
   const buildSpec = JSON.parse(template.Resources.MyShellableB2FFD397.Properties.Source.BuildSpec);
 
   expect(buildSpec.phases.pre_build.commands)
@@ -49,7 +49,7 @@ test('assume role with external-id', () => {
     }
   });
 
-  const template = stack.toCloudFormation();
+  const template = SynthUtils.synthesize(stack).template;
   const buildSpec = JSON.parse(template.Resources.MyShellableB2FFD397.Properties.Source.BuildSpec);
 
   expect(buildSpec.phases.pre_build.commands)
@@ -93,7 +93,7 @@ test('alarm options - custom', () => {
     entrypoint: 'test.sh',
     alarmEvaluationPeriods: 2,
     alarmThreshold: 5,
-    alarmPeriodSec: 60 * 60
+    alarmPeriod: cdk.Duration.minutes(60),
   });
 
   assert(stack).to(haveResource('AWS::CloudWatch::Alarm', {

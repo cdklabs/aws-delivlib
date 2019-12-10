@@ -1,5 +1,6 @@
 import assert = require('@aws-cdk/assert');
-import cdk = require('@aws-cdk/cdk');
+import events = require('@aws-cdk/aws-events');
+import cdk = require('@aws-cdk/core');
 import path = require('path');
 import { Canary } from '../lib';
 
@@ -10,7 +11,7 @@ test('correctly creates canary', () => {
   const stack = new cdk.Stack(undefined, 'TestStack');
   // WHEN
   new Canary(stack, 'Canary', {
-    scheduleExpression: 'rate(1 minute)',
+    schedule: events.Schedule.expression('rate(1 minute)'),
     scriptDirectory: testDir,
     entrypoint: 'test.sh'
   });
@@ -42,7 +43,6 @@ test('correctly creates canary', () => {
           'Arn'
         ]
       },
-      Id: 'Resource',
       RoleArn: {
         'Fn::GetAtt': [
           'CanaryShellableEventsRoleC4030D0D',
@@ -66,7 +66,7 @@ test('correctly creates canary', () => {
           Name: "SCRIPT_S3_BUCKET",
           Type: "PLAINTEXT",
           Value: {
-            Ref: "CanaryShellableScriptDirectoryS3Bucket436E0FC4"
+            Ref: "AssetParameters3d34b07ba871989d030649c646b3096ba7c78ca531897bcdb0670774d2f9d3e4S3BucketDA91EFBC"
           }
         },
         {
@@ -83,7 +83,7 @@ test('correctly creates canary', () => {
                       "Fn::Split": [
                         "||",
                         {
-                          Ref: "CanaryShellableScriptDirectoryS3VersionKeyC34904E8"
+                          Ref: "AssetParameters3d34b07ba871989d030649c646b3096ba7c78ca531897bcdb0670774d2f9d3e4S3VersionKeyF3F83F76"
                         }
                       ]
                     }
@@ -96,7 +96,7 @@ test('correctly creates canary', () => {
                       "Fn::Split": [
                         "||",
                         {
-                          Ref: "CanaryShellableScriptDirectoryS3VersionKeyC34904E8"
+                          Ref: "AssetParameters3d34b07ba871989d030649c646b3096ba7c78ca531897bcdb0670774d2f9d3e4S3VersionKeyF3F83F76"
                         }
                       ]
                     }

@@ -1,10 +1,12 @@
 import cloudwatch = require('@aws-cdk/aws-cloudwatch');
-import cp = require('@aws-cdk/aws-codepipeline-api');
+import cp = require('@aws-cdk/aws-codepipeline');
 import events = require('@aws-cdk/aws-events');
+import events_targets = require('@aws-cdk/aws-events-targets');
 import iam = require('@aws-cdk/aws-iam');
 import lambda = require('@aws-cdk/aws-lambda');
 import s3 = require('@aws-cdk/aws-s3');
-import cdk = require('@aws-cdk/cdk');
+import s3_notifications = require('@aws-cdk/aws-s3-notifications');
+import cdk = require('@aws-cdk/core');
 import path = require('path');
 
 export interface ChangeControllerProps {
@@ -30,9 +32,9 @@ export interface ChangeControllerProps {
   /**
    * Schedule to run the change controller on
    *
-   * @default rate(15 minutes)
+   * @default once every 15 minutes
    */
-  scheduleExpression?: string;
+  schedule?: events.Schedule;
 
   /**
    * Whether to create outputs to inform of the S3 bucket name and keys where the change control calendar should be
@@ -62,7 +64,7 @@ export class ChangeController extends cdk.Construct {
 
     if (!changeControlBucket) {
       changeControlBucket = ownBucket = new s3.Bucket(this, 'Calendar', {
-        removalPolicy: cdk.RemovalPolicy.Destroy,
+        removalPolicy: cdk.RemovalPolicy.DESTROY,
         versioned: true,
       });
     }
@@ -71,54 +73,57 @@ export class ChangeController extends cdk.Construct {
     const changeControlObjectKey = props.changeControlObjectKey || 'change-control.ics';
 
     const fn = new lambda.Function(this, 'Function', {
-      description: `Enforces a Change Control Policy into CodePipeline's ${props.pipelineStage.name} stage`,
+      description: `Enforces a Change Control Policy into CodePipeline's ${props.pipelineStage.stageName} stage`,
       code: lambda.Code.asset(path.join(__dirname, '../change-control-lambda')),
-      runtime: lambda.Runtime.NodeJS810,
+      runtime: lambda.Runtime.NODEJS_8_10,
       handler: 'index.handler',
       environment: {
         // CAPITAL punishment 👌🏻
         CHANGE_CONTROL_BUCKET_NAME: changeControlBucket.bucketName,
         CHANGE_CONTROL_OBJECT_KEY: changeControlObjectKey,
         PIPELINE_NAME: props.pipelineStage.pipeline.pipelineName,
-        STAGE_NAME: props.pipelineStage.name
+        STAGE_NAME: props.pipelineStage.stageName,
       },
-      timeout: 300
+      timeout: cdk.Duration.seconds(300),
     });
 
-    fn.addToRolePolicy(new iam.PolicyStatement()
-      .addResource(`${props.pipelineStage.pipeline.pipelineArn}/${props.pipelineStage.name}`)
-      .addActions('codepipeline:EnableStageTransition', 'codepipeline:DisableStageTransition'));
+    fn.addToRolePolicy(new iam.PolicyStatement({
+      resources: [`${props.pipelineStage.pipeline.pipelineArn}/${props.pipelineStage.stageName}`],
+      actions: ['codepipeline:EnableStageTransition', 'codepipeline:DisableStageTransition'],
+    }));
 
-    changeControlBucket.grantRead(fn.role, props.changeControlObjectKey);
+    changeControlBucket.grantRead(fn, props.changeControlObjectKey);
 
     if (ownBucket) {
-      ownBucket.onObjectCreated(fn, { prefix: changeControlObjectKey });
+      ownBucket.addObjectCreatedNotification(new s3_notifications.LambdaDestination(fn), {
+        prefix: changeControlObjectKey,
+      });
     }
 
     this.failureAlarm = new cloudwatch.Alarm(this, 'Failed', {
       metric: fn.metricErrors(),
       threshold: 1,
       datapointsToAlarm: 1,
-      periodSec: 300,
+      period: cdk.Duration.seconds(300),
       evaluationPeriods: 1
     });
 
-    const scheduleExpression = props.scheduleExpression || 'rate(15 minutes)';
+    const schedule = props.schedule || events.Schedule.expression('rate(15 minutes)');
 
     // Run this on a schedule
-    new events.EventRule(this, 'Rule', {
+    new events.Rule(this, 'Rule', {
       // tslint:disable-next-line:max-line-length
-      description: `Run the change controller for promotions into ${props.pipelineStage.pipeline.pipelineName}'s ${props.pipelineStage.name} on a ${scheduleExpression} schedule`,
-      scheduleExpression,
-      targets: [fn]
+      description: `Run the change controller for promotions into ${props.pipelineStage.pipeline.pipelineName}'s ${props.pipelineStage.stageName} on a ${schedule} schedule`,
+      schedule,
+      targets: [new events_targets.LambdaFunction(fn)],
     });
 
     if (props.createOutputs !== false) {
-      new cdk.Output(this, 'ChangeControlBucketKey', {
+      new cdk.CfnOutput(this, 'ChangeControlBucketKey', {
         value: changeControlObjectKey
       });
 
-      new cdk.Output(this, 'ChangeControlBucket', {
+      new cdk.CfnOutput(this, 'ChangeControlBucket', {
         value: changeControlBucket.bucketName
       });
     }

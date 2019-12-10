@@ -1,7 +1,8 @@
 import cloudwatch = require('@aws-cdk/aws-cloudwatch');
 import cbuild = require('@aws-cdk/aws-codebuild');
 import events = require('@aws-cdk/aws-events');
-import cdk = require('@aws-cdk/cdk');
+import events_targets = require('@aws-cdk/aws-events-targets');
+import cdk = require('@aws-cdk/core');
 
 import { Shellable, ShellableProps } from './shellable';
 
@@ -9,9 +10,9 @@ export interface CanaryProps extends ShellableProps {
   /**
    * Rate at which to run the canary test.
    *
-   * @default 'rate(1 minute)'
+   * @default every 1 minute
    */
-  scheduleExpression: string;
+  schedule: events.Schedule;
 }
 
 /**
@@ -21,8 +22,8 @@ export interface CanaryProps extends ShellableProps {
  * If not explicitly defined in `environmentVariables`, IS_CANARY is set to "true".
  */
 export class Canary extends cdk.Construct {
-  public readonly alarm: cloudwatch.Alarm;
-  public readonly project: cbuild.Project;
+  public readonly alarm: cloudwatch.IAlarm;
+  public readonly project: cbuild.IProject;
 
   constructor(scope: cdk.Construct, id: string, props: CanaryProps) {
     super(scope, id);
@@ -35,12 +36,11 @@ export class Canary extends cdk.Construct {
     const shellable = new Shellable(this, 'Shellable', {
       ...props,
       environment: env,
-      source: new cbuild.NoSource()
     });
 
-    new events.EventRule(this, `Schedule`, {
-      scheduleExpression: props.scheduleExpression,
-      targets: [shellable.project]
+    new events.Rule(this, `Schedule`, {
+      schedule: props.schedule || events.Schedule.expression('rate(1 minute)'),
+      targets: [new events_targets.CodeBuildProject(shellable.project)],
     });
 
     this.alarm = shellable.alarm;

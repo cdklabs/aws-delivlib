@@ -104,12 +104,11 @@ To use an existing repository:
 import codecommit = require('@aws-cdk/aws-codecommit');
 
 // import an existing repository
-const myRepo = ccommit.Repository.import(this, 'TestRepo', {
-  repositoryName: 'delivlib-test-repo'
-});
+const myRepo = codecommit.Repository.fromRepositoryName(this, 'TestRepo',
+  'delivlib-test-repo');
 
 // ...or define a new repository (probably not what you want)
-const myRepo = new ccomit.Repository(this, 'TestRepo');
+const myRepo = new codecommit.Repository(this, 'TestRepo');
 
 // create a delivlib pipeline associated with this codebuild repo
 new delivlib.Pipeline(this, 'MyPipeline', {
@@ -125,8 +124,13 @@ Token](https://github.com/settings/tokens) as an SSM Parameter and provide the
 name of the SSM parameter.
 
 ```ts
+import cdk = require('@aws-cdk/core');
+
 new delivlib.Pipeline(this, 'MyPipeline', {
-  repo: new delivlib.GitHubRepo('<github-token-ssm-parameter-name>', 'myaccount/myrepo'),
+  repo: new delivlib.GitHubRepo({
+    repository: 'awslabs/aws-delivlib',
+    token: cdk.SecretValue.secretsManager('my-github-token'),
+  }),
   // ...
 })
 ```
@@ -164,9 +168,11 @@ If you wish, you can use the `buildSpec` option, in which case CodeBuild will no
 use the checked-in `buildspec.yaml`:
 
 ```ts
+import codebuild = require('@aws-cdk/aws-codebuild');
+
 new delivlib.Pipeline(this, 'MyPipeline', {
   // ...
-  buildSpec: {
+  buildSpec: codebuild.BuildSpec.fromObject({
     version: '0.2',
     phases: {
       build: {
@@ -179,7 +185,7 @@ new delivlib.Pipeline(this, 'MyPipeline', {
       files: [ '**/*' ],
       'base-directory': 'dist'
     }
-  }
+  }),
 });
 ```
 
@@ -199,7 +205,7 @@ languages supported by [jsii]. Find more information on the contents of the
 You can use the AWS CodeBuild API to specify any Linux/Windows Docker image for
 your build. Here are some examples:
 
-* `codebuild.LinuxBuildImage.fromDockerHub('golang:1.11')` - use an image from Docker Hub
+* `codebuild.LinuxBuildImage.fromDockerRegistry('golang:1.11')` - use an image from Docker Hub
 * `codebuild.LinuxBuildImage.UBUNTU_14_04_OPEN_JDK_9` - OpenJDK 9 available from AWS CodeBuild
 * `codebuild.WindowsBuildImage.WIN_SERVER_CORE_2016_BASE` - Windows Server Core 2016 available from AWS CodeBuild
 * `codebuild.LinuxBuildImage.fromEcrRepository(myRepo)` - use an image from an ECR repository
@@ -211,7 +217,7 @@ Allows adding environment variables to the build environment:
 ```ts
 new delivlib.Pipeline(this, 'MyPipeline', {
   // ...
-  env: {
+  environment: {
     FOO: 'bar'
   }
 });
@@ -233,14 +239,15 @@ scripts are packaged as part of your delivlib CDK app.
 
 ```ts
 delivlib.addTest('MyTest', {
-  platform: TestablePlatform.LinuxUbuntu, // or `TestablePlatform.Windows`
-  testDirectory: 'path/to/local/directory/with/tests'
+  platform: delivlib.ShellPlatform.LinuxUbuntu(), // or `ShellPlatform.Windows()`
+  scriptDirectory: 'path/to/local/directory/with/tests',
+  entrypoint: 'run.sh',
 });
 ```
 
-`testDirectory` refers to a directory on the local file system which must
-contain an entry-point file (either `test.ps1` or `test.sh`). Preferably make
-this path relative to the current file using `path.join(__dirname, ...)`.
+`scriptDirectory` refers to a directory on the local file system which must
+contain the `entrypoint` file.
+Preferably make this path relative to the current file using `path.join(__dirname, ...)`.
 
 The test container will be populated the build output artifacts as well as all
 the files from the test directory.
@@ -340,6 +347,7 @@ pipeline.publishToNuGet({
 ```
 
 ##### Obtaining a new Code Signing Certificate
+
 If you want to create a new certificate, the `CodeSigningCertificate` construct
 will provision a new RSA Private Key and emit a Certificate Signing Request in
 an `Output` so you can pass it to your Certificate Authority (CA) of choice:

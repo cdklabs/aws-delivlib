@@ -1,7 +1,8 @@
 import cloudwatch = require('@aws-cdk/aws-cloudwatch');
 import cbuild = require('@aws-cdk/aws-codebuild');
 import events = require('@aws-cdk/aws-events');
-import cdk = require('@aws-cdk/cdk');
+import events_targets = require('@aws-cdk/aws-events-targets');
+import cdk = require('@aws-cdk/core');
 import { createBuildEnvironment } from '../build-env';
 import permissions = require('../permissions');
 import { WritableGitHubRepo } from '../repo';
@@ -135,7 +136,7 @@ export class AutoBump extends cdk.Construct {
     const project = new cbuild.Project(this, 'Bump', {
       source: props.repo.createBuildSource(this, false),
       environment: createBuildEnvironment(props),
-      buildSpec: {
+      buildSpec: cbuild.BuildSpec.fromObject({
         version: '0.2',
         phases: {
           pre_build: {
@@ -160,27 +161,29 @@ export class AutoBump extends cdk.Construct {
             ]
           },
         }
-      }
+      }),
     });
 
     if (project.role) {
       permissions.grantSecretRead(sshKeySecret, project.role);
     }
 
-    // set up the schedule
-    const schedule = props.scheduleExpression === undefined ? 'cron(0 12 * * ? *)' : props.scheduleExpression;
-    if (schedule !== 'disable') {
-      new events.EventRule(this, 'Scheduler', {
+    if (props.scheduleExpression !== 'disable') {
+      // set up the schedule
+      const schedule = events.Schedule.expression(props.scheduleExpression === undefined
+          ? 'cron(0 12 * * ? *)'
+          : props.scheduleExpression);
+      new events.Rule(this, 'Scheduler', {
         description: 'Schedules an automatic bump for this repository',
-        scheduleExpression: schedule,
-        targets: [ project ]
+        schedule,
+        targets: [new events_targets.CodeBuildProject(project)],
       });
     }
 
-    this.alarm = project.metricFailedBuilds({ periodSec: 300 }).newAlarm(this, 'BumpFailedAlarm', {
+    this.alarm = project.metricFailedBuilds({ period: cdk.Duration.seconds(300) }).createAlarm(this, 'BumpFailedAlarm', {
       threshold: 1,
       evaluationPeriods: 1,
-      treatMissingData: cloudwatch.TreatMissingData.Ignore
+      treatMissingData: cloudwatch.TreatMissingData.IGNORE,
     });
   }
 }

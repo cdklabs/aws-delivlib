@@ -9,10 +9,10 @@ export interface BuildEnvironmentProps {
 
 export function createBuildEnvironment(props: BuildEnvironmentProps) {
   const environment: cbuild.BuildEnvironment = {
-    computeType: props.computeType || cbuild.ComputeType.Small,
+    computeType: props.computeType || cbuild.ComputeType.SMALL,
     privileged: props.privileged,
     environmentVariables: renderEnvironmentVariables(props.env),
-    buildImage: props.buildImage || cbuild.LinuxBuildImage.fromDockerHub('jsii/superchain:latest'),
+    buildImage: props.buildImage || cbuild.LinuxBuildImage.fromDockerRegistry('jsii/superchain:latest'),
   };
 
   return environment;

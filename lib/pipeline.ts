@@ -2,11 +2,14 @@ import cloudwatch = require('@aws-cdk/aws-cloudwatch');
 import cbuild = require('@aws-cdk/aws-codebuild');
 import { BuildEnvironment } from '@aws-cdk/aws-codebuild';
 import cpipeline = require('@aws-cdk/aws-codepipeline');
-import cpipelineapi = require('@aws-cdk/aws-codepipeline-api');
+import cpipeline_actions = require('@aws-cdk/aws-codepipeline-actions');
+import events = require('@aws-cdk/aws-events');
+import events_targets = require('@aws-cdk/aws-events-targets');
 import iam = require('@aws-cdk/aws-iam');
 import s3 = require('@aws-cdk/aws-s3');
 import sns = require('@aws-cdk/aws-sns');
-import cdk = require('@aws-cdk/cdk');
+import sns_subs = require('@aws-cdk/aws-sns-subscriptions');
+import cdk = require('@aws-cdk/core');
 import { AutoBuild, AutoBuildOptions } from './auto-build';
 import { createBuildEnvironment } from './build-env';
 import { AutoBump, AutoBumpOptions } from './bump';
@@ -85,7 +88,7 @@ export interface PipelineProps {
   /**
    * Optional buildspec, as an alternative to a buildspec.yml file
    */
-  buildSpec?: any;
+  buildSpec?: cbuild.BuildSpec;
 
   /**
    * Indicates whether to re-run the pipeline after you've updated it.
@@ -130,20 +133,20 @@ export interface PipelineProps {
  * Defines a delivlib CI/CD pipeline.
  */
 export class Pipeline extends cdk.Construct {
-  public buildRole?: iam.Role;
+  public buildRole?: iam.IRole;
   public readonly failureAlarm: cloudwatch.Alarm;
-  public readonly buildOutput: cpipelineapi.Artifact;
+  public readonly buildOutput: cpipeline.Artifact;
 
   private readonly pipeline: cpipeline.Pipeline;
   private readonly branch: string;
   private readonly notify?: sns.Topic;
-  private stages: { [name: string]: cpipeline.Stage } = { };
+  private stages: { [name: string]: cpipeline.IStage } = { };
 
   private readonly concurrency?: number;
   private readonly repo: IRepo;
   private readonly dryRun: boolean;
   private readonly buildEnvironment: BuildEnvironment;
-  private readonly buildSpec?: any;
+  private readonly buildSpec?: cbuild.BuildSpec;
 
   constructor(parent: cdk.Construct, name: string, props: PipelineProps) {
     super(parent, name);
@@ -158,7 +161,7 @@ export class Pipeline extends cdk.Construct {
     });
 
     this.branch = props.branch || 'master';
-    const source = props.repo.createSourceStage(this.pipeline, this.branch);
+    const sourceArtifact = props.repo.createSourceStage(this.pipeline, this.branch);
 
     this.buildEnvironment = createBuildEnvironment(props);
     this.buildSpec = props.buildSpec;
@@ -171,13 +174,18 @@ export class Pipeline extends cdk.Construct {
     this.buildRole = buildProject.role;
 
     const buildStage = this.getOrCreateStage('Build');
-    const build = buildProject.addToPipeline(buildStage, 'Build', { inputArtifact: source.outputArtifact });
-
-    this.buildOutput = build.outputArtifact;
+    const buildOutput = new cpipeline.Artifact();
+    buildStage.addAction(new cpipeline_actions.CodeBuildAction({
+      actionName: 'Build',
+      project: buildProject,
+      input: sourceArtifact,
+      outputs: [buildOutput],
+    }));
+    this.buildOutput = buildOutput;
 
     if (props.notificationEmail) {
       this.notify = new sns.Topic(this, 'NotificationsTopic');
-      this.notify.subscribeEmail('NotifyEmail', props.notificationEmail);
+      this.notify.addSubscription(new sns_subs.EmailSubscription(props.notificationEmail));
     }
 
     // add a failure alarm for the entire pipeline.
@@ -194,7 +202,7 @@ export class Pipeline extends cdk.Construct {
   /**
    * Add an action to run a shell script to the pipeline
    */
-  public addShellable(stageName: string, id: string, options: AddShellableOptions): cbuild.PipelineBuildAction {
+  public addShellable(stageName: string, id: string, options: AddShellableOptions): cpipeline_actions.CodeBuildAction {
     const stage = this.getOrCreateStage(stageName);
 
     const sh = new Shellable(this, id, options);
@@ -211,7 +219,7 @@ export class Pipeline extends cdk.Construct {
     return action;
   }
 
-  public addTest(id: string, props: ShellableProps) {
+  public addTest(id: string, props: ShellableProps): void {
     this.addShellable(TEST_STAGE_NAME, id, {
       actionName: `Test${id}`,
       failureNotification: `Test ${id} failed`,
@@ -299,7 +307,7 @@ export class Pipeline extends cdk.Construct {
     this.addPublish(new publishing.PublishToS3(this, id, {
       dryRun: this.dryRun,
       ...options
-  }), options);
+    }), options);
   }
 
   /**
@@ -342,39 +350,43 @@ export class Pipeline extends cdk.Construct {
       return;
     }
 
-    buildProject.onBuildFailed('OnBuildFailed').addTarget(this.notify, {
-      textTemplate: message
-    });
+    buildProject.onBuildFailed('OnBuildFailed').addTarget(new events_targets.SnsTopic(this.notify, {
+      message: events.RuleTargetInput.fromText(message),
+    }));
   }
 
   /**
    * @returns the stage or undefined if the stage doesn't exist
    */
-  private getStage(stageName: string): cpipeline.Stage | undefined {
+  private getStage(stageName: string): cpipeline.IStage | undefined {
     return this.stages[stageName];
   }
 
-  private getOrCreateStage(stageName: string, placement?: cpipeline.StagePlacement) {
+  private getOrCreateStage(stageName: string, placement?: cpipeline.StagePlacement): cpipeline.IStage {
     // otherwise, group all actions so they run concurrently.
     let stage = this.getStage(stageName);
     if (!stage) {
-      stage = new cpipeline.Stage(this, stageName, { pipeline: this.pipeline, placement });
+      stage = this.pipeline.addStage({
+        stageName,
+        placement,
+      });
       this.stages[stageName] = stage;
     }
     return stage;
   }
 
-  private determineRunOrderForNewAction(stage: cpipeline.Stage) {
-    return determineRunOrder(stage.actions.length, this.concurrency);
+  private determineRunOrderForNewAction(stage: cpipeline.IStage): number | undefined {
+    // ToDo need to make this better
+    return determineRunOrder((stage as any).actions.length, this.concurrency);
   }
 }
 
 export interface IPublisher extends cdk.IConstruct {
-  addToPipeline(stage: cpipeline.Stage, id: string, options: AddToPipelineOptions): void;
+  addToPipeline(stage: cpipeline.IStage, id: string, options: AddToPipelineOptions): void;
 }
 
 export interface AddToPipelineOptions {
-  inputArtifact?: cpipelineapi.Artifact;
+  inputArtifact?: cpipeline.Artifact;
   runOrder?: number;
 }
 
@@ -406,7 +418,7 @@ export interface AddPublishOptions {
    *
    * @default Build output artifact
    */
-  inputArtifact?: cpipelineapi.Artifact;
+  inputArtifact?: cpipeline.Artifact;
 }
 
 export interface AddShellableOptions extends ShellableProps {
@@ -429,5 +441,5 @@ export interface AddShellableOptions extends ShellableProps {
    *
    * @default Build output artifact
    */
-  inputArtifact?: cpipelineapi.Artifact;
+  inputArtifact?: cpipeline.Artifact;
 }

@@ -77,20 +77,21 @@ Before releasing a new version, you first run an integration test to ensure that
 Here is how to execute an integration test:
 
 1. Setup credentials to our test AWS account: 712950704752
-2. Execute `npm test update`. This will update the integration test infrastructure. Wait until deployment has finished.
-3. Now, you will need to exercise the pipeline:
-   1. Clone https://github.com/awslabs/aws-delivlib-sample to your machine
-   2.
+2. Execute `npm test update`. This will update the integration test infrastructure.
+  Wait until deployment has finished, and follow the prompts.
 
-If the pipeline is all green after a full pass, you can bump the version:
+Every commit pushed to master will be picked up by the build & release pipeline automatically,
+so there's nothing manual you need to do to release a new version.
 
-```console
-$ npm run bump
-$ git checkout -b vX.Y.Z # version number
-$ git push --follow-tags origin vX.Y.Z
-```
+### Cleanup
 
-Submit a PR with the bump and merge it when approved. This will trigger a build+test+publish cycle.
+Updating the integration tests leaves a lot of junk resources behind them.
+Make sure to go into the AWS console for account 712950704752 and delete them afterwards
+(you can use the create date to figure out if it has been used for this test run):
+
+* S3 buckets
+* KMS keys
+* CloudWatch log groups
 
 ## Licensing
 

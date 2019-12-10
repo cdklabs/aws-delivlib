@@ -8,7 +8,7 @@ import path = require('path');
  * @param index Index of new action
  * @param concurrency The concurrency limit
  */
-export function determineRunOrder(index: number, concurrency?: number) {
+export function determineRunOrder(index: number, concurrency?: number): number | undefined {
   // no runOrder if we are at unlimited concurrency
   if (concurrency === undefined) {
     return undefined;

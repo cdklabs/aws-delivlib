@@ -4,10 +4,34 @@ import kms = require('@aws-cdk/aws-kms');
 import lambda = require('@aws-cdk/aws-lambda');
 import secretsManager = require('@aws-cdk/aws-secretsmanager');
 import ssm = require('@aws-cdk/aws-ssm');
-import cdk = require('@aws-cdk/cdk');
+import cdk = require('@aws-cdk/core');
 import path = require('path');
 import { ICredentialPair } from './credential-pair';
 import { hashFileOrDirectory } from './util';
+
+/**
+ * The type of the {@link OpenPGPKeyPairProps.removalPolicy} property.
+ */
+export enum OpenPGPKeyPairRemovalPolicy {
+  /**
+   * Keep the secret when this resource is deleted from the stack.
+   * This is the default setting.
+   */
+  RETAIN,
+
+  /**
+   * Remove the secret when this resource is deleted from the stack,
+   * but leave a grace period of a few days that allows you to cancel the deletion from the AWS Console.
+   */
+  DESTROY_SAFELY,
+
+  /**
+   * Remove the secret when this resource is deleted from the stack immediately.
+   * Note that if you don't have a backup of this key somewhere,
+   * this means it will be gone forever!
+   */
+  DESTROY_IMMEDIATELY
+}
 
 interface OpenPGPKeyPairProps {
   /**
@@ -45,7 +69,7 @@ interface OpenPGPKeyPairProps {
   /**
    * KMS Key ARN to use to encrypt Secrets Manager Secret
    */
-  encryptionKey?: kms.IEncryptionKey;
+  encryptionKey?: kms.IKey;
 
   /**
    * Version of the key
@@ -58,10 +82,20 @@ interface OpenPGPKeyPairProps {
    * A description to attach to the AWS SecretsManager secret.
    */
   description?: string;
+
+  /**
+   * What happens to the SecretsManager secret when this resource is removed from the stack.
+   * The default is to keep the secret.
+   *
+   * @default OpenPGPKeyPairRemovalPolicy.RETAIN
+   */
+  removalPolicy?: OpenPGPKeyPairRemovalPolicy;
 }
 
 /**
- * A PGP key that is stored in Secrets Manager. The SecretsManager secret is retained when the resource is deleted.
+ * A PGP key that is stored in Secrets Manager.
+ * The SecretsManager secret is by default retained when the resource is deleted,
+ * you can change that with the `removalPolicy` property.
  *
  * The string in secrets manager will be a JSON struct of
  *
@@ -81,39 +115,46 @@ export class OpenPGPKeyPair extends cdk.Construct implements ICredentialPair {
       description: 'Generates an OpenPGP Key and stores the private key in Secrets Manager and the public key in an SSM Parameter',
       code: new lambda.AssetCode(codeLocation),
       handler: 'index.handler',
-      timeout: 300,
-      runtime: lambda.Runtime.NodeJS810,
+      timeout: cdk.Duration.seconds(300),
+      runtime: lambda.Runtime.NODEJS_8_10,
     });
 
-    fn.addToRolePolicy(new iam.PolicyStatement()
-      .allow()
-      .addActions('secretsmanager:CreateSecret',
-                  'secretsmanager:GetSecretValue',
-                  'secretsmanager:UpdateSecret')
-      .addResource(cdk.Stack.find(this).formatArn({
+    fn.addToRolePolicy(new iam.PolicyStatement({
+      actions: [
+        'secretsmanager:CreateSecret',
+        'secretsmanager:GetSecretValue',
+        'secretsmanager:UpdateSecret',
+        'secretsmanager:DeleteSecret',
+      ],
+      resources: [cdk.Stack.of(this).formatArn({
         service: 'secretsmanager',
         resource: 'secret',
         sep: ':',
         resourceName: `${props.secretName}-??????`
-      })));
+      })],
+    }));
 
     // To allow easy migration from verison that handled the SSM parameter in the custom resource
-    fn.addToRolePolicy(new iam.PolicyStatement()
-      .allow()
-      .addAction('ssm:DeleteParameter')
-      .addAllResources());
+    fn.addToRolePolicy(new iam.PolicyStatement({
+      actions: ['ssm:DeleteParameter'],
+      resources: ['*'],
+    }));
 
     if (props.encryptionKey) {
-      props.encryptionKey.addToResourcePolicy(new iam.PolicyStatement()
-        .allow()
-        .addActions('kms:Decrypt', 'kms:GenerateDataKey')
-        .addAllResources()
-        .addPrincipal(fn.role!.principal)
-        .addCondition('StringEquals', { 'kms:ViaService': `secretsmanager.${cdk.Stack.find(this).region}.amazonaws.com` }));
+      props.encryptionKey.addToResourcePolicy(new iam.PolicyStatement({
+        actions: ['kms:Decrypt', 'kms:GenerateDataKey'],
+        resources: ['*'],
+        principals: [fn.role!.grantPrincipal],
+        conditions: {
+          StringEquals: {
+            'kms:ViaService': `secretsmanager.${cdk.Stack.of(this).region}.amazonaws.com`,
+          }
+        },
+      }));
     }
 
     const secret = new cfn.CustomResource(this, 'Resource', {
-      lambdaProvider: fn,
+      provider: cfn.CustomResourceProvider.lambda(fn),
       properties: {
         resourceVersion: hashFileOrDirectory(codeLocation),
         identity: props.identity,
@@ -124,37 +165,51 @@ export class OpenPGPKeyPair extends cdk.Construct implements ICredentialPair {
         keyArn: props.encryptionKey && props.encryptionKey.keyArn,
         version: props.version,
         description: props.description,
+        deleteImmediately: props.removalPolicy === OpenPGPKeyPairRemovalPolicy.DESTROY_IMMEDIATELY,
       },
+      removalPolicy: openPgpKeyPairRemovalPolicyToCoreRemovalPolicy(props.removalPolicy),
     });
     secret.node.addDependency(fn);
 
-    this.credential = secretsManager.Secret.import(this, 'Credential', {
+    this.credential = secretsManager.Secret.fromSecretAttributes(this, 'Credential', {
       encryptionKey: props.encryptionKey,
       secretArn: secret.getAtt('SecretArn').toString(),
     });
     this.principal = new ssm.StringParameter(this, 'Principal', {
       description: `The public part of the OpenPGP key in ${this.credential.secretArn}`,
-      name: props.pubKeyParameterName,
-      value: secret.getAtt('PublicKey').toString(),
+      parameterName: props.pubKeyParameterName,
+      stringValue: secret.getAtt('PublicKey').toString(),
     });
   }
 
   public grantRead(grantee: iam.IPrincipal): void {
     // Secret grant, identity-based only
-    grantee.addToPolicy(new iam.PolicyStatement()
-      .addResources(this.credential.secretArn)
-      .addActions('secretsmanager:ListSecrets', 'secretsmanager:DescribeSecret', 'secretsmanager:GetSecretValue'));
+    grantee.addToPolicy(new iam.PolicyStatement({
+      resources: [this.credential.secretArn],
+      actions: ['secretsmanager:ListSecrets', 'secretsmanager:DescribeSecret', 'secretsmanager:GetSecretValue'],
+    }));
 
     // Key grant
     if (this.credential.encryptionKey) {
-      grantee.addToPolicy(new iam.PolicyStatement()
-        .addResources(this.credential.encryptionKey.keyArn)
-        .addActions('kms:Decrypt'));
+      grantee.addToPolicy(new iam.PolicyStatement({
+        resources: [this.credential.encryptionKey.keyArn],
+        actions: ['kms:Decrypt'],
+      }));
 
-      this.credential.encryptionKey.addToResourcePolicy(new iam.PolicyStatement()
-        .addAllResources()
-        .addPrincipal(grantee.principal)
-        .addActions('kms:Decrypt'));
+      this.credential.encryptionKey.addToResourcePolicy(new iam.PolicyStatement({
+        resources: ['*'],
+        principals: [grantee.grantPrincipal],
+        actions: ['kms:Decrypt'],
+      }));
     }
   }
+}
+
+function openPgpKeyPairRemovalPolicyToCoreRemovalPolicy(removalPolicy?: OpenPGPKeyPairRemovalPolicy): cdk.RemovalPolicy {
+  if (removalPolicy === undefined) {
+    return cdk.RemovalPolicy.RETAIN;
+  }
+  return removalPolicy === OpenPGPKeyPairRemovalPolicy.RETAIN
+    ? cdk.RemovalPolicy.RETAIN
+    : cdk.RemovalPolicy.DESTROY;
 }

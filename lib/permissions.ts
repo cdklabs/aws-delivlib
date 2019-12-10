@@ -55,14 +55,16 @@ export type Region =
  * Give the role permission to read a particular secret and its key.
  */
 export function grantSecretRead(secret: ExternalSecret, identity: iam.IPrincipal) {
-  identity.addToPolicy(new iam.PolicyStatement()
-    .addResources(secret.secretArn)
-    .addActions('secretsmanager:ListSecrets', 'secretsmanager:DescribeSecret', 'secretsmanager:GetSecretValue'));
+  identity.addToPolicy(new iam.PolicyStatement({
+    resources: [secret.secretArn],
+    actions: ['secretsmanager:ListSecrets', 'secretsmanager:DescribeSecret', 'secretsmanager:GetSecretValue'],
+  }));
 
   if (secret.keyArn) {
-    identity.addToPolicy(new iam.PolicyStatement()
-      .addResources(secret.keyArn)
-      .addActions('kms:Decrypt'));
+    identity.addToPolicy(new iam.PolicyStatement({
+      resources: [secret.keyArn],
+      actions: ['kms:Decrypt'],
+    }));
   }
 }
 
@@ -70,7 +72,8 @@ export function grantSecretRead(secret: ExternalSecret, identity: iam.IPrincipal
  * Give the role permission to assume another role.
  */
 export function grantAssumeRole(roleToAssumeArn: string, identity: iam.IPrincipal) {
-  identity.addToPolicy(new iam.PolicyStatement()
-    .addResource(roleToAssumeArn)
-    .addAction('sts:AssumeRole'));
+  identity.addToPolicy(new iam.PolicyStatement({
+    resources: [roleToAssumeArn],
+    actions: ['sts:AssumeRole'],
+  }));
 }
