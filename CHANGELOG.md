@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.6.0](https://github.com/awslabs/aws-delivlib/compare/v4.5.1...v4.6.0) (2019-12-11)
+
+
+### Features
+
+* migrate library to General Availability CDK version ([#184](https://github.com/awslabs/aws-delivlib/issues/184)) ([65a707d](https://github.com/awslabs/aws-delivlib/commit/65a707d))
+
 ### [4.5.1](https://github.com/awslabs/aws-delivlib/compare/v4.5.0...v4.5.1) (2019-10-26)
 
 ## [4.5.0](https://github.com/awslabs/aws-delivlib/compare/v4.4.4...v4.5.0) (2019-10-23)
