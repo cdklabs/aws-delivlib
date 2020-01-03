@@ -376,8 +376,7 @@ export class Pipeline extends cdk.Construct {
   }
 
   private determineRunOrderForNewAction(stage: cpipeline.IStage): number | undefined {
-    // ToDo need to make this better
-    return determineRunOrder((stage as any).actions.length, this.concurrency);
+    return determineRunOrder(stage.actions.length, this.concurrency);
   }
 }
 
