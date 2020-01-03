@@ -94,7 +94,7 @@ test('Create', async () => {
   };
 
   mockExec.mockImplementation(async (cmd: string, ...args: string[]) => {
-    await expect(cmd).toBe('openssl');
+    await expect(cmd).toBe('/opt/openssl');
     switch (args[0]) {
     case 'req':
       await expect(args).toEqual(['req', '-config', require('path').join(mockTmpDir, 'csr.config'),
@@ -145,7 +145,7 @@ test('Update', async () => {
   };
 
   mockExec.mockImplementation(async (cmd: string, ...args: string[]) => {
-    await expect(cmd).toBe('openssl');
+    await expect(cmd).toBe('/opt/openssl');
     switch (args[0]) {
     case 'req':
       await expect(args).toEqual(['req', '-config', require('path').join(mockTmpDir, 'csr.config'),

@@ -52,10 +52,14 @@ export class CertificateSigningRequest extends cdk.Construct {
       uuid: '541F6782-6DCF-49A7-8C5A-67715ADD9E4C',
       lambdaPurpose: 'CreateCSR',
       description: 'Creates a Certificate Signing Request document for an x509 certificate',
-      runtime: lambda.Runtime.NODEJS_8_10,
+      runtime: lambda.Runtime.NODEJS_10_X,
       handler: 'index.handler',
       code: new lambda.AssetCode(codeLocation),
       timeout: cdk.Duration.seconds(300),
+      // add the layer that contains the OpenSSL CLI binary
+      layers: [new lambda.LayerVersion(this, 'OpenSslCliLayer', {
+        code: lambda.Code.fromAsset(path.join(__dirname, '..', '..', 'custom-resource-handlers', 'layers', 'openssl-cli-layer.zip')),
+      })],
     });
 
     const csr = new cfn.CustomResource(this, 'Resource', {
