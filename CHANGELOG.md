@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.0.0](https://github.com/awslabs/aws-delivlib/compare/v4.6.0...v5.0.0) (2020-01-03)
+
+
+### ⚠ BREAKING CHANGES
+
+* AutoBuildOptions.buildSpec is now of type codebuild.BuildSpec
+* CanaryProps.scheduleExpression is now of type events.Schedule, and was renamed to 'schedule'
+* ChangeControllerProps.scheduleExpression is now of type events.Schedule, and was renamed to 'schedule'
+* RsaPrivateKeySecretProps.deletionPolicy has been renamed to 'removalPolicy'
+* PipelineProps.buildSpec is now of type codebuild.BuildSpec
+* GitHubRepo.tokenParameterName is now of type cdk.SecretValue, and was renamed to 'token'
+* ShellableOptions.alarmPeriodSec is now of type cdk.Duration, and was renamed to 'alarmPeriod'
+
+### Features
+
+* migrate library to General Availability CDK version ([e6602c1](https://github.com/awslabs/aws-delivlib/commit/e6602c1))
+
 ## [4.6.0](https://github.com/awslabs/aws-delivlib/compare/v4.5.1...v4.6.0) (2019-12-11)
 
 
