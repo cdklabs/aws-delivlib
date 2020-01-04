@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.1.0](https://github.com/awslabs/aws-delivlib/compare/v5.0.0...v5.1.0) (2020-01-04)
+
+
+### Features
+
+* update to CDK version 1.19.0 ([#209](https://github.com/awslabs/aws-delivlib/issues/209)) ([5e7cad2](https://github.com/awslabs/aws-delivlib/commit/5e7cad2))
+
 ## [5.0.0](https://github.com/awslabs/aws-delivlib/compare/v4.6.0...v5.0.0) (2020-01-03)
 
 
