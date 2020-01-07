@@ -9,7 +9,7 @@ export interface IRepo {
   repositoryUrlHttp: string;
   repositoryUrlSsh: string;
   readonly allowsBadge: boolean;
-  createBuildSource(parent: cdk.Construct, webhook: boolean): cbuild.ISource;
+  createBuildSource(parent: cdk.Construct, webhook: boolean, branch?: string): cbuild.ISource;
   createSourceStage(pipeline: cpipeline.Pipeline, branch: string): cpipeline.Artifact;
   describe(): any;
 }
@@ -105,23 +105,39 @@ export class GitHubRepo implements IRepo {
     return sourceOutput;
   }
 
-  public createBuildSource(_: cdk.Construct, webhook: boolean): cbuild.ISource {
+  public createBuildSource(_: cdk.Construct, webhook: boolean, branch?: string): cbuild.ISource {
     return cbuild.Source.gitHub({
       owner: this.owner,
       repo: this.repo,
       webhook,
       reportBuildStatus: webhook,
       webhookFilters: webhook
-          ? [cbuild.FilterGroup.inEventOf(
-              cbuild.EventAction.PUSH,
-              cbuild.EventAction.PULL_REQUEST_CREATED,
-              cbuild.EventAction.PULL_REQUEST_UPDATED)]
+          ? this.createWebhookFilters(branch)
           : undefined,
     });
+
   }
 
   public describe() {
     return `${this.owner}/${this.repo}`;
+  }
+
+  private createWebhookFilters(branch?: string) {
+    if (branch) {
+      return [
+        cbuild.FilterGroup.inEventOf(cbuild.EventAction.PUSH)
+          .andBranchIs(branch),
+        cbuild.FilterGroup.inEventOf(cbuild.EventAction.PULL_REQUEST_CREATED, cbuild.EventAction.PULL_REQUEST_UPDATED)
+          .andBaseBranchIs(branch)
+      ];
+    }
+    return [
+      cbuild.FilterGroup.inEventOf(
+        cbuild.EventAction.PUSH,
+        cbuild.EventAction.PULL_REQUEST_CREATED,
+        cbuild.EventAction.PULL_REQUEST_UPDATED,
+      )
+    ];
   }
 }
 
