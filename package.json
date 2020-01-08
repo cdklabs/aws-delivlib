@@ -39,7 +39,7 @@
     "@aws-cdk/aws-codebuild": "1.19.0",
     "@aws-cdk/aws-codecommit": "1.19.0",
     "@aws-cdk/aws-sam": "1.19.0",
-    "@aws-cdk/aws-codepipeline": "1.19.0",
+    "@aws-cdk/aws-codepipeline": "1.20.0",
     "@aws-cdk/aws-codepipeline-actions": "1.19.0",
     "@aws-cdk/aws-ecs": "1.19.0",
     "@aws-cdk/aws-lambda": "1.19.0",
