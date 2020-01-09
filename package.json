@@ -53,7 +53,7 @@
     "@aws-cdk/assert": "1.19.0",
     "@types/jest": "^24.0.18",
     "@types/node": "^10.17.13",
-    "aws-cdk": "1.19.0",
+    "aws-cdk": "1.20.0",
     "jest": "^24.9.0",
     "jest-create-mock-instance": "^1.1.0",
     "standard-version": "^7.0.1",
