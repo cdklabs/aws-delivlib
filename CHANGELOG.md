@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.2.0](https://github.com/awslabs/aws-delivlib/compare/v5.1.0...v5.2.0) (2020-01-10)
+
+
+### Features
+
+* allow branch-filtering on Pipeline auto-builds ([#210](https://github.com/awslabs/aws-delivlib/issues/210)) ([37ea238](https://github.com/awslabs/aws-delivlib/commit/37ea2380131acbc72920bcffa01cf06abbdf1611))
+
 ## [5.1.0](https://github.com/awslabs/aws-delivlib/compare/v5.0.0...v5.1.0) (2020-01-04)
 
 
