@@ -47,6 +47,7 @@ export class BuildSpec {
     return new BuildSpec({
       version: "0.2",
       phases: noUndefined({
+        install: props.install !== undefined ? { commands: props.install } : undefined,
         pre_build: props.preBuild !== undefined ? { commands: props.preBuild } : undefined,
         build: props.build !== undefined ? { commands: props.build } : undefined,
       }),
@@ -156,6 +157,7 @@ export class BuildSpec {
 }
 
 export interface SimpleBuildSpecProps {
+  install?: string[];
   preBuild?: string[];
   build?: string[];
 

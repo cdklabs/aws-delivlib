@@ -106,6 +106,10 @@ export interface ShellableOptions {
  */
 export interface ShellableProps extends ShellableOptions {
   /**
+   * Install Steps
+   */
+  install?: string[];
+  /**
    * Directory with the scripts.
    *
    * The whole directory will be uploaded.
@@ -208,6 +212,7 @@ export class Shellable extends cdk.Construct {
     }
 
     this.buildSpec = BuildSpec.simple({
+      install: props.install,
       preBuild: this.platform.prebuildCommands(props.assumeRole),
       build: this.platform.buildCommands(props.entrypoint)
     }).merge(props.buildSpec || BuildSpec.empty());

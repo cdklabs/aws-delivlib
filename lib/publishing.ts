@@ -56,9 +56,13 @@ export class PublishToMavenProject extends cdk.Construct implements IPublisher {
     const forReal = props.dryRun === undefined ? 'false' : (!props.dryRun).toString();
 
     const shellable = new Shellable(this, 'Default', {
-      platform: new LinuxPlatform(cbuild.LinuxBuildImage.UBUNTU_14_04_NODEJS_10_1_0),
+      platform: new LinuxPlatform(cbuild.LinuxBuildImage.fromDockerRegistry('node:10-jessie')),
       scriptDirectory: path.join(__dirname, 'publishing', 'maven'),
       entrypoint: 'publish.sh',
+      install: [
+        'apt-get update > /dev/null && apt-get install -y python python-pip',
+        'pip install awscli'
+      ],
       environment: {
         STAGING_PROFILE_ID: props.stagingProfileId,
         SIGNING_KEY_ARN: props.signingKey.credential.secretArn,
