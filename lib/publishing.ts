@@ -56,7 +56,7 @@ export class PublishToMavenProject extends cdk.Construct implements IPublisher {
     const forReal = props.dryRun === undefined ? 'false' : (!props.dryRun).toString();
 
     const shellable = new Shellable(this, 'Default', {
-      platform: new LinuxPlatform(cbuild.LinuxBuildImage.UBUNTU_14_04_NODEJS_10_1_0),
+      platform: new LinuxPlatform(cbuild.LinuxBuildImage.fromDockerRegistry('jsii/superchain')),
       scriptDirectory: path.join(__dirname, 'publishing', 'maven'),
       entrypoint: 'publish.sh',
       environment: {
