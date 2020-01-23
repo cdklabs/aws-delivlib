@@ -14,11 +14,14 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - name: Dump GitHub context
-      env:
-        GITHUB_CONTEXT: ${{ toJson(github) }}
-      run: echo "$GITHUB_CONTEXT"
+      # This is for debugging conditions
+#    - name: Dump GitHub context
+#      env:
+#        GITHUB_CONTEXT: ${{ toJson(github) }}
+#      run: echo "$GITHUB_CONTEXT"
     - uses: hmarr/auto-approve-action@v2.0.0
-      if: github.actor == 'dependabot[bot]' || github.actor == 'dependabot-preview[bot]'
+      # Any action on a PR opened by Dependabot.
+      # Written this way to make it easy to apply workflow to existing PRs.
+      if: github.event.pull_request.user.login == 'dependabot[bot]' || github.event.pull_request.user.login == 'dependabot-preview[bot]'
       with:
         github-token: "${{ secrets.GITHUB_TOKEN }}"
