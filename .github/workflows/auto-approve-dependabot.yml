@@ -1,8 +1,5 @@
 name: Auto approve Dependabot
 on:
-  check_suite:
-    types:
-      - completed
   pull_request:
     types:
       - edited
@@ -17,6 +14,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+    - name: Dump GitHub context
+      env:
+        GITHUB_CONTEXT: ${{ toJson(github) }}
+      run: echo "$GITHUB_CONTEXT"
     - uses: hmarr/auto-approve-action@v2.0.0
       if: github.actor == 'dependabot[bot]' || github.actor == 'dependabot-preview[bot]'
       with:
