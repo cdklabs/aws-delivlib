@@ -1,8 +1,15 @@
-name: Auto approve Dependabot
+# Automatically approve PRs made by Dependabot
+#
+# Written to look at the original author of the PR (instead of the current
+# actor) in order to be able to backresolve existing PRs using this action (by
+# mass labeling them). Leads to slightly unnecessary spammage of aprovals in a
+# PR...
+#
+# Only does approvals! A different GitHub Action takes care of merging.
+name: Auto-approve Dependabot
 on:
   pull_request:
     types:
-      - edited
       - labeled
       - opened
       - ready_for_review
@@ -14,14 +21,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      # This is for debugging conditions
-#    - name: Dump GitHub context
-#      env:
-#        GITHUB_CONTEXT: ${{ toJson(github) }}
-#      run: echo "$GITHUB_CONTEXT"
     - uses: hmarr/auto-approve-action@v2.0.0
-      # Any action on a PR opened by Dependabot.
-      # Written this way to make it easy to apply workflow to existing PRs.
       if: github.event.pull_request.user.login == 'dependabot[bot]' || github.event.pull_request.user.login == 'dependabot-preview[bot]'
       with:
         github-token: "${{ secrets.GITHUB_TOKEN }}"

@@ -11,7 +11,3 @@ update_configs:
           dependency_name: '@types/node'
           version_requirement: '>= 9'
     version_requirement_updates: increase_versions
-    automerged_updates:
-      - match:
-          dependency_type: "all"
-          update_type: "all"
