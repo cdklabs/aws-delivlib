@@ -1,6 +1,6 @@
 {
   "name": "aws-delivlib",
-  "version": "5.2.0",
+  "version": "5.3.0",
   "homepage": "https://github.com/awslabs/aws-delivlib",
   "description": "A fabulous library for defining continuous pipelines for building, testing and releasing code libraries.",
   "main": "lib/index.js",
@@ -51,14 +51,14 @@
   },
   "devDependencies": {
     "@aws-cdk/assert": "1.19.0",
-    "@types/jest": "^24.0.25",
+    "@types/jest": "^24.9.1",
     "@types/node": "^10.17.13",
-    "aws-cdk": "1.20.0",
-    "jest": "^24.9.0",
+    "aws-cdk": "1.22.0",
+    "jest": "^25.1.0",
     "jest-create-mock-instance": "^1.1.0",
-    "standard-version": "^7.0.1",
-    "tslint": "^5.20.1",
-    "typescript": "~3.7.4"
+    "standard-version": "^7.1.0",
+    "tslint": "^6.0.0",
+    "typescript": "~3.7.5"
   },
   "jest": {
     "collectCoverage": true,

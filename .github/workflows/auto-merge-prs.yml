@@ -1,0 +1,50 @@
+# Automatically Merge Pull Requests
+#
+# Is aware of Dependabot and will treat its pull requests differently.
+#
+# Uses https://github.com/marketplace/actions/merge-pull-requests
+name: Automerge Completed PRs
+on:
+  pull_request:
+    types:
+      - reopened
+      - unlocked
+      - unlabeled
+  pull_request_review:
+    types:
+      - submitted
+  check_suite:
+    types:
+      - completed
+  status: {}
+env:
+  # Settings which are the same between the 2 jobs
+  MERGE_LABELS: "!do-not-merge"
+  GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+  MERGE_METHOD: "squash"
+  MERGE_DELETE_BRANCH: "true"
+  MERGE_RETRIES: "3"
+  MERGE_RETRY_SLEEP: "60000"
+jobs:
+  automerge_regular:
+    runs-on: ubuntu-latest
+    steps:
+      - name: automerge
+        if: github.event.pull_request.user.login != 'dependabot[bot]' && github.event.pull_request.user.login != 'dependabot-preview[bot]'
+        uses: "pascalgn/automerge-action@a4b03eff945989d41c623c2784d6602560b91e5b"
+        env:
+          MERGE_COMMIT_MESSAGE: "pull-request-title-and-description"
+          UPDATE_LABELS: "!do-not-merge"
+  automerge_dependabot:
+    # Different behavior for dependabot PRs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: automerge
+        if: github.event.pull_request.user.login == 'dependabot[bot]' || github.event.pull_request.user.login == 'dependabot-preview[bot]'
+        uses: "pascalgn/automerge-action@a4b03eff945989d41c623c2784d6602560b91e5b"
+        env:
+          # Don't merge from master (Dependabot will do that itself)
+          UPDATE_LABELS: "NEVER_MATCHES"
+          # Don't use the PR content as the squash merge message (use the
+          # original commit message instead).
+          MERGE_COMMIT_MESSAGE: "automatic"
