@@ -75,7 +75,7 @@ export class ChangeController extends cdk.Construct {
     const fn = new lambda.Function(this, 'Function', {
       description: `Enforces a Change Control Policy into CodePipeline's ${props.pipelineStage.stageName} stage`,
       code: lambda.Code.asset(path.join(__dirname, '../change-control-lambda')),
-      runtime: lambda.Runtime.NODEJS_8_10,
+      runtime: lambda.Runtime.NODEJS_10_X,
       handler: 'index.handler',
       environment: {
         // CAPITAL punishment 👌🏻
