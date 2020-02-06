@@ -44,7 +44,7 @@ async function _createSecret(event: cfn.CreateEvent, context: lambda.Context): P
   const tmpDir = await mkdtemp(path.join(os.tmpdir(), 'x509PrivateKey-'));
   try {
     const pkeyFile = path.join(tmpDir, 'private_key.pem');
-    await _exec('openssl', 'genrsa', '-out', pkeyFile, event.ResourceProperties.KeySize);
+    await _exec('/opt/openssl', 'genrsa', '-out', pkeyFile, event.ResourceProperties.KeySize);
     const result = await secretsManager.createSecret({
       ClientRequestToken: context.awsRequestId,
       Description: event.ResourceProperties.Description,

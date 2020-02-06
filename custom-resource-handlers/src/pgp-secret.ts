@@ -84,9 +84,10 @@ async function _createNewKey(event: cfn.CreateEvent | cfn.UpdateEvent, context: 
       '%echo done',
     ].join('\n'), { encoding: 'utf8' });
 
-    await _exec('gpg', '--batch', '--gen-key', keyConfig);
-    const keyMaterial = await _exec('gpg', '--batch', '--yes', '--export-secret-keys', '--armor');
-    const publicKey =   await _exec('gpg', '--batch', '--yes', '--export',             '--armor');
+    const gpgCommonArgs = [`--homedir=${tempDir}`, '--agent-program=/opt/gpg-agent'];
+    await _exec('/opt/gpg', ...gpgCommonArgs, '--batch', '--gen-key', keyConfig);
+    const keyMaterial = await _exec('/opt/gpg', ...gpgCommonArgs, '--batch', '--yes', '--export-secret-keys', '--armor');
+    const publicKey =   await _exec('/opt/gpg', ...gpgCommonArgs, '--batch', '--yes', '--export',             '--armor');
     const secretOpts = {
       ClientRequestToken: context.awsRequestId,
       Description: event.ResourceProperties.Description,
@@ -147,9 +148,10 @@ async function _getPublicKey(secretArn: string): Promise<string> {
     process.env.GNUPGHOME = tempDir;
     const privateKeyFile = path.join(tempDir, 'private.key');
     await writeFile(privateKeyFile, keyData.PrivateKey, { encoding: 'utf-8' });
+    const gpgCommonArgs = [`--homedir=${tempDir}`, '--agent-program=/opt/gpg-agent'];
     // Note: importing a private key does NOT require entering it's passphrase!
-    await _exec('gpg', '--batch', '--yes', '--import', privateKeyFile);
-    return await _exec('gpg', '--batch', '--yes', '--export', '--armor');
+    await _exec('/opt/gpg', ...gpgCommonArgs, '--batch', '--yes', '--import', privateKeyFile);
+    return await _exec('/opt/gpg', ...gpgCommonArgs, '--batch', '--yes', '--export', '--armor');
   } finally {
     await _rmrf(tempDir);
   }

@@ -43,7 +43,7 @@ export class PipelineWatcher extends cdk.Construct {
 
     const pipelineWatcher = new lambda.Function(this, 'Poller', {
       handler: 'index.handler',
-      runtime: lambda.Runtime.NODEJS_8_10,
+      runtime: lambda.Runtime.NODEJS_10_X,
       code: lambda.Code.inline(fs.readFileSync(path.join(__dirname, 'watcher-handler.js')).toString('utf8')),
       environment: {
         PIPELINE_NAME: props.pipeline.pipelineName

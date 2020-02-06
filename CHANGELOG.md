@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [5.4.1](https://github.com/awslabs/aws-delivlib/compare/v5.4.0...v5.4.1) (2020-01-30)
+
+## [5.4.0](https://github.com/awslabs/aws-delivlib/compare/v5.3.0...v5.4.0) (2020-01-29)
+
+
+### Features
+
+* upgrade Custom Resources to use Lambda's Node10 runtime ([#226](https://github.com/awslabs/aws-delivlib/issues/226)) ([67c18e0](https://github.com/awslabs/aws-delivlib/commit/67c18e0693da8b9813374ffd40967ce561104a09)), closes [#220](https://github.com/awslabs/aws-delivlib/issues/220)
+
+## [5.3.0](https://github.com/awslabs/aws-delivlib/compare/v5.2.0...v5.3.0) (2020-01-24)
+
+
+### Features
+
+* try switching dependabot to automatic merging ([75b686e](https://github.com/awslabs/aws-delivlib/commit/75b686e19f9541b3cfac03d6f0ab8169f2a4e26a))
+
 ## [5.2.0](https://github.com/awslabs/aws-delivlib/compare/v5.1.0...v5.2.0) (2020-01-10)
 
 
