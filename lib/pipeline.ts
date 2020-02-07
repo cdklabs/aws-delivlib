@@ -20,6 +20,7 @@ import publishing = require('./publishing');
 import { IRepo, WritableGitHubRepo } from './repo';
 import { Shellable, ShellableProps } from './shellable';
 import { determineRunOrder } from './util';
+import { ChimeNotifier } from './chime-notifier';
 
 const PUBLISH_STAGE_NAME = 'Publish';
 const TEST_STAGE_NAME = 'Test';
@@ -127,6 +128,11 @@ export interface PipelineProps {
    * 'buildSpec' property.
    */
   autoBuildOptions?: AutoBuildOptions;
+
+  /**
+   * Post a notification to the given Chime webhooks if the pipeline fails
+   */
+  chimeFailureWebhooks?: string[];
 }
 
 /**
@@ -193,6 +199,14 @@ export class Pipeline extends cdk.Construct {
 
     // emit an SNS notification every time build fails.
     this.addBuildFailureNotification(buildProject, `${props.title} build failed`);
+
+    // Also emit to Chime webhooks if configured
+    if (props.chimeFailureWebhooks) {
+      new ChimeNotifier(this, 'ChimeNotifier', {
+        pipeline: this.pipeline,
+        webhookUrls: props.chimeFailureWebhooks
+      });
+    }
 
     if (props.autoBuild) {
       this.autoBuild(props.autoBuildOptions);
