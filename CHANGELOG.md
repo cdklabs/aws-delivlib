@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.6.0](https://github.com/awslabs/aws-delivlib/compare/v5.5.0...v5.6.0) (2020-02-09)
+
+
+### Features
+
+* add Chime notifications on failure ([#237](https://github.com/awslabs/aws-delivlib/issues/237)) ([8b95c62](https://github.com/awslabs/aws-delivlib/commit/8b95c625108e1897c667c6c8e511c1f296df104f))
+
 ## [5.5.0](https://github.com/awslabs/aws-delivlib/compare/v5.4.2...v5.5.0) (2020-02-08)
 
 
