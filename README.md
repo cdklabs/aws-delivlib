@@ -86,6 +86,10 @@ const pipeline = new delivlib.Pipeline(this, 'MyPipeline', {
 The following sections will describe the various options available in your
 pipeline.
 
+You can also take a look at the
+[pipeline definition releasing the delivlib library itself](pipeline/delivlib.ts)
+for a real-world, working example.
+
 ## Source
 
 The only required option when defining a pipeline is to specify a source
