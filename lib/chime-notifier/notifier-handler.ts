@@ -34,22 +34,36 @@ export async function handler(event: any) {
   if (!webhookUrlsVar) { throw new Error("Expect environment variable 'WEBHOOK_URLS'"); }
   const webhookUrls = webhookUrlsVar.split('|');
 
+  const messageTemplate = process.env.MESSAGE;
+  if (!messageTemplate) { throw new Error("Expect environment variable 'MESSAGE'"); }
+
   const details = event.detail || {};
   const pipelineName = details.pipeline;
   const pipelineExecutionId = details['execution-id'];
 
   if (!pipelineName || !pipelineExecutionId) {
-    process.stderr.write(`Malformed event!`);
+    process.stderr.write(`Malformed event!\n`);
     return;
   }
 
   // Describe the revision that caused the pipeline to fail
   const response = await codePipeline.getPipelineExecution({ pipelineName, pipelineExecutionId }).promise();
-  process.stdout.write(JSON.stringify(response));
+  process.stdout.write(`${JSON.stringify(response)}\n`);
   const firstArtifact: AWS.CodePipeline.ArtifactRevision | undefined = (response.pipelineExecution?.artifactRevisions ?? [])[0];
   const revisionSummary = firstArtifact?.revisionSummary ?? firstArtifact?.revisionId ?? `execution ${pipelineExecutionId}`;
 
-  const message = `Pipeline '${pipelineName}' failed on '${revisionSummary}'`;
+  // Find the action that caused the pipeline to fail (no pagination for now)
+  const actionResponse = await codePipeline.listActionExecutions({ pipelineName, filter: { pipelineExecutionId }}).promise();
+  process.stdout.write(`${JSON.stringify(actionResponse)}\n`);
+  const failingActionDetails = (actionResponse.actionExecutionDetails || []).find(d => d.status === 'Failed');
+  const failingAction = failingActionDetails?.actionName ?? 'UNKNOWN';
+  const failureUrl = failingActionDetails?.output?.executionResult?.externalExecutionUrl ?? '???';
+
+  const message = messageTemplate
+    .replace(/\$PIPELINE/g, pipelineName)
+    .replace(/\$REVISION/g, revisionSummary)
+    .replace(/\$ACTION/g, failingAction)
+    .replace(/\$URL/g, failureUrl);
 
   // Post the failure to all given Chime webhook URLs
   await Promise.all(webhookUrls.map(url => sendChimeNotification(url, message)));

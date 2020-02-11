@@ -16,6 +16,18 @@ export interface ChimeNotifierProps {
   readonly webhookUrls: string[];
 
   /**
+   * The message to send to the channels.
+   *
+   * Can use the following placeholders:
+   *
+   * - $PIPELINE: the name of the pipeline
+   * - $REVISION: description of the failing revision
+   *
+   * @default - A default message
+   */
+  readonly message?: string;
+
+  /**
    * Code Pipeline to listen to
    */
   readonly pipeline: cpipeline.IPipeline;
@@ -28,12 +40,15 @@ export class ChimeNotifier extends Construct {
   constructor(scope: Construct, id: string, props: ChimeNotifierProps) {
     super(scope, id);
 
+    const message = props.message ?? "@All Pipeline '$PIPELINE' failed on '$REVISION' in '$ACTION' (see $URL)";
+
     if (props.webhookUrls.length > 0) {
       const notifierLambda = new lambda.Function(this, 'Default', {
         handler: 'index.handler',
         code: lambda.Code.inline(fs.readFileSync(path.join(__dirname, 'notifier-handler.js')).toString('utf8')),
         runtime: lambda.Runtime.NODEJS_10_X,
         environment: {
+          MESSAGE: message,
           WEBHOOK_URLS: props.webhookUrls.join('|'),
         },
         timeout: Duration.minutes(5),

@@ -133,6 +133,13 @@ export interface PipelineProps {
    * Post a notification to the given Chime webhooks if the pipeline fails
    */
   chimeFailureWebhooks?: string[];
+
+  /**
+   * The Chime message to post
+   *
+   * @default - A default message
+   */
+  chimeMessage?: string;
 }
 
 /**
@@ -204,6 +211,7 @@ export class Pipeline extends cdk.Construct {
     if (props.chimeFailureWebhooks) {
       new ChimeNotifier(this, 'ChimeNotifier', {
         pipeline: this.pipeline,
+        message: props.chimeMessage,
         webhookUrls: props.chimeFailureWebhooks
       });
     }

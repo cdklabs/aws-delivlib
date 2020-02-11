@@ -21,6 +21,7 @@ import { codePipeline, handler } from '../lib/chime-notifier/notifier-handler';
 
 test('call codepipeline and then post to webhooks', async () => {
   process.env.WEBHOOK_URLS = 'https://my.url/';
+  process.env.MESSAGE = "Pipeline '$PIPELINE' failed on '$REVISION' in '$ACTION' (see $URL)";
 
   codePipeline.getPipelineExecution = jest.fn().mockReturnValue({
     promise: () => Promise.resolve({
@@ -41,6 +42,33 @@ test('call codepipeline and then post to webhooks', async () => {
     })
   });
 
+  codePipeline.listActionExecutions = jest.fn().mockReturnValue({
+    promise: () => Promise.resolve({
+      "actionExecutionDetails": [
+        {
+          "stageName": "Source",
+          "actionName": "Source",
+          "status": "Succeeded",
+          "output": {
+            "executionResult": {
+              "externalExecutionUrl": "https://SUCCEED"
+            },
+          }
+        },
+        {
+          "stageName": "Build",
+          "actionName": "Build",
+          "status": "Failed",
+          "output": {
+            "executionResult": {
+              "externalExecutionUrl": "https://FAIL"
+            },
+          }
+        },
+      ]
+    })
+  });
+
   await handler({
     "detail": {
         "pipeline": "myPipeline",
@@ -54,6 +82,9 @@ test('call codepipeline and then post to webhooks', async () => {
     method: 'POST'
   }), expect.any(Function));
   expect(mockHttpsWrite).toBeCalledWith(expect.stringContaining('"Content"')); // Contains JSON
+
   expect(mockHttpsWrite).toBeCalledWith(expect.stringContaining('myPipeline')); // Contains the pipeline name
   expect(mockHttpsWrite).toBeCalledWith(expect.stringContaining('A thing happened')); // Contains the revision summary
+  expect(mockHttpsWrite).toBeCalledWith(expect.stringContaining('Build')); // Contains the failing action name
+  expect(mockHttpsWrite).toBeCalledWith(expect.stringContaining('https://FAIL')); // Contains the failing URL
 });
