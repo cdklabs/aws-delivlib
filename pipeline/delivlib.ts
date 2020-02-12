@@ -8,6 +8,7 @@
 //
 import codebuild = require('@aws-cdk/aws-codebuild');
 import cdk = require('@aws-cdk/core');
+import * as ssm from '@aws-cdk/aws-ssm';
 import delivlib = require('../lib');
 
 export class DelivLibPipelineStack extends cdk.Stack {
@@ -49,7 +50,11 @@ export class DelivLibPipelineStack extends cdk.Stack {
         }
       }),
       autoBuild: true,
-      autoBuildOptions: { publicLogs: true }
+      autoBuildOptions: { publicLogs: true },
+
+      // We can't put the list of webhook URLs directly in here since this repository is open source and
+      // the list of URLs would be enough to spam us. Import from an SSM parameter.
+      chimeFailureWebhooks: [ssm.StringParameter.fromStringParameterName(this, 'WebhookList', 'BuildWebhook').stringValue],
     });
 
     pipeline.publishToNpm({
