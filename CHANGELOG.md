@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [5.7.1](https://github.com/awslabs/aws-delivlib/compare/v5.7.0...v5.7.1) (2020-02-12)
+
+
+### Bug Fixes
+
+* **chime:** make Chime notifier actually deploy ([#240](https://github.com/awslabs/aws-delivlib/issues/240)) ([15c8b41](https://github.com/awslabs/aws-delivlib/commit/15c8b41cea0ee42aa5d82cc700230e8062c40bbc))
+
 ## [5.7.0](https://github.com/awslabs/aws-delivlib/compare/v5.6.0...v5.7.0) (2020-02-12)
 
 
