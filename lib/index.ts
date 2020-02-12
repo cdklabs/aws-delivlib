@@ -11,3 +11,4 @@ export * from './shellable';
 export * from './signing-key';
 export * from './code-signing';
 export * from './bump';
+export * from './chime-notifier';

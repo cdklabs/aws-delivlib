@@ -1,4 +1,11 @@
 import * as https from 'https';
+import { codePipeline, handler } from '../lib/chime-notifier/notifier-handler';
+import { ChimeNotifier } from '../lib';
+import { Stack, Construct } from '@aws-cdk/core';
+import { Pipeline, IStage, ActionBindOptions, ActionConfig, ActionCategory, Artifact } from '@aws-cdk/aws-codepipeline';
+import '@aws-cdk/assert/jest';
+import { ManualApprovalAction, Action } from '@aws-cdk/aws-codepipeline-actions';
+
 jest.mock('https');
 
 const mockHttpsWrite = jest.fn();
@@ -17,12 +24,7 @@ const mockHttpsWrite = jest.fn();
   };
 });
 
-import { codePipeline, handler } from '../lib/chime-notifier/notifier-handler';
-
 test('call codepipeline and then post to webhooks', async () => {
-  process.env.WEBHOOK_URLS = 'https://my.url/';
-  process.env.MESSAGE = "Pipeline '$PIPELINE' failed on '$REVISION' in '$ACTION' (see $URL)";
-
   codePipeline.getPipelineExecution = jest.fn().mockReturnValue({
     promise: () => Promise.resolve({
       "pipelineExecution": {
@@ -70,6 +72,8 @@ test('call codepipeline and then post to webhooks', async () => {
   });
 
   await handler({
+    webhookUrls: ['https://my.url/'],
+    message:"Pipeline '$PIPELINE' failed on '$REVISION' in '$ACTION' (see $URL)",
     "detail": {
         "pipeline": "myPipeline",
         "version": "1",
@@ -88,3 +92,41 @@ test('call codepipeline and then post to webhooks', async () => {
   expect(mockHttpsWrite).toBeCalledWith(expect.stringContaining('Build')); // Contains the failing action name
   expect(mockHttpsWrite).toBeCalledWith(expect.stringContaining('https://FAIL')); // Contains the failing URL
 });
+
+test('can add to stack', () => {
+  const stack = new Stack();
+  const pipeline = new Pipeline(stack, 'Pipe');
+  pipeline.addStage({ stageName: 'Source', actions: [new FakeSourceAction()] });
+  pipeline.addStage({ stageName: 'Build', actions: [new ManualApprovalAction({ actionName: 'Dummy' })] });
+
+  new ChimeNotifier(stack, 'Chime', {
+    pipeline,
+    webhookUrls: ['https://go/']
+   });
+
+   // EXPECT: no error
+   expect(stack).toHaveResource('AWS::Lambda::Function');
+});
+
+export class FakeSourceAction extends Action {
+  constructor() {
+    super({
+      actionName: 'Fake',
+      category: ActionCategory.SOURCE,
+      provider: 'FAKE',
+      artifactBounds: {
+        minInputs: 0,
+        maxInputs: 0,
+        minOutputs: 1,
+        maxOutputs: 1,
+      },
+      outputs: [new Artifact('bla')],
+    });
+  }
+
+  protected bound(_scope: Construct, _stage: IStage, _options: ActionBindOptions): ActionConfig {
+    return {
+      configuration: { }
+    };
+  }
+}

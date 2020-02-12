@@ -30,12 +30,11 @@ export async function handler(event: any) {
   // Log the event so we can have a look in CloudWatch logs
   process.stdout.write(`${JSON.stringify(event)}\n`);
 
-  const webhookUrlsVar = process.env.WEBHOOK_URLS;
-  if (!webhookUrlsVar) { throw new Error("Expect environment variable 'WEBHOOK_URLS'"); }
-  const webhookUrls = webhookUrlsVar.split('|');
+  const webhookUrls: string[] = event.webhookUrls || [];
+  if (webhookUrls.length === 0) { throw new Error("Expected event field 'webhookUrls'"); }
 
-  const messageTemplate = process.env.MESSAGE;
-  if (!messageTemplate) { throw new Error("Expect environment variable 'MESSAGE'"); }
+  const messageTemplate = event.message;
+  if (!messageTemplate) { throw new Error("Expected event field 'message'"); }
 
   const details = event.detail || {};
   const pipelineName = details.pipeline;
