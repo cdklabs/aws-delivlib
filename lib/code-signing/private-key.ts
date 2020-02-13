@@ -1,11 +1,11 @@
-import cfn = require('@aws-cdk/aws-cloudformation');
-import iam = require('@aws-cdk/aws-iam');
-import kms = require('@aws-cdk/aws-kms');
-import lambda = require('@aws-cdk/aws-lambda');
-import cdk = require('@aws-cdk/core');
-import path = require('path');
-import { hashFileOrDirectory } from '../util';
-import { CertificateSigningRequest, DistinguishedName } from './certificate-signing-request';
+import { aws_cloudformation as cfn, aws_iam as iam, aws_kms as kms, aws_lambda as lambda, core as cdk } from "monocdk-experiment";
+import path = require("path");
+import { hashFileOrDirectory } from "../util";
+import { CertificateSigningRequest, DistinguishedName } from "./certificate-signing-request";
+
+
+
+
 
 export interface RsaPrivateKeySecretProps {
   /**

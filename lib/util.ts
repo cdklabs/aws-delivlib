@@ -1,7 +1,11 @@
-import cbuild = require('@aws-cdk/aws-codebuild');
-import crypto = require('crypto');
-import fs = require('fs');
-import path = require('path');
+import { aws_codebuild as cbuild } from "monocdk-experiment";
+import crypto = require("crypto");
+import fs = require("fs");
+import path = require("path");
+
+
+
+
 
 /**
  * Determines the "RunOrder" property for the next action to be added to a stage.

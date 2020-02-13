@@ -1,4 +1,6 @@
-import AWS = require('aws-sdk');
+import AWS = require("aws-sdk");
+
+
 
 // export for tests
 export const codePipeline = new AWS.CodePipeline();

@@ -1,16 +1,17 @@
-import cbuild = require('@aws-cdk/aws-codebuild');
-import ccommit = require('@aws-cdk/aws-codecommit');
-import cpipeline = require('@aws-cdk/aws-codepipeline');
-import cpipeline_actions = require('@aws-cdk/aws-codepipeline-actions');
-import cdk = require('@aws-cdk/core');
-import { ExternalSecret } from './permissions';
-import { SecretValue } from '@aws-cdk/core';
+import { core as core, aws_codebuild as cbuild, aws_codecommit as ccommit,
+  aws_codepipeline as cpipeline, aws_codepipeline_actions as cpipeline_actions,
+  core as cdk } from "monocdk-experiment";
+import { ExternalSecret } from "./permissions";
+
+
+
+
 
 export interface IRepo {
   repositoryUrlHttp: string;
   repositoryUrlSsh: string;
   readonly allowsBadge: boolean;
-  readonly token: SecretValue | undefined;
+  readonly token: core.SecretValue | undefined;
   createBuildSource(parent: cdk.Construct, webhook: boolean, branch?: string): cbuild.ISource;
   createSourceStage(pipeline: cpipeline.Pipeline, branch: string): cpipeline.Artifact;
   describe(): any;
@@ -18,7 +19,7 @@ export interface IRepo {
 
 export class CodeCommitRepo implements IRepo {
   public readonly allowsBadge = false;
-  public readonly token: SecretValue | undefined = undefined;
+  public readonly token: core.SecretValue | undefined = undefined;
 
   constructor(private readonly repository: ccommit.IRepository) {
 

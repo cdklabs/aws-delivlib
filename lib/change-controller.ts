@@ -1,13 +1,8 @@
-import cloudwatch = require('@aws-cdk/aws-cloudwatch');
-import cp = require('@aws-cdk/aws-codepipeline');
-import events = require('@aws-cdk/aws-events');
-import events_targets = require('@aws-cdk/aws-events-targets');
-import iam = require('@aws-cdk/aws-iam');
-import lambda = require('@aws-cdk/aws-lambda');
-import s3 = require('@aws-cdk/aws-s3');
-import s3_notifications = require('@aws-cdk/aws-s3-notifications');
-import cdk = require('@aws-cdk/core');
-import path = require('path');
+import { aws_cloudwatch as cloudwatch, aws_codepipeline as cp, aws_events as
+  events, aws_events_targets as events_targets, aws_iam as iam, aws_lambda as
+  lambda, aws_s3 as s3, aws_s3_notifications as s3_notifications, core as cdk }
+  from "monocdk-experiment";
+import path = require("path");
 
 export interface ChangeControllerProps {
   /**

@@ -1,9 +1,11 @@
-import cfn = require('@aws-cdk/aws-cloudformation');
-import lambda = require('@aws-cdk/aws-lambda');
-import cdk = require('@aws-cdk/core');
-import path = require('path');
-import { hashFileOrDirectory } from '../util';
-import { RsaPrivateKeySecret } from './private-key';
+import { aws_cloudformation as cfn, aws_lambda as lambda, core as cdk } from "monocdk-experiment";
+import path = require("path");
+import { hashFileOrDirectory } from "../util";
+import { RsaPrivateKeySecret } from "./private-key";
+
+
+
+
 
 export interface CertificateSigningRequestProps {
   /**

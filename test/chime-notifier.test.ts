@@ -1,10 +1,12 @@
-import * as https from 'https';
-import { codePipeline, handler } from '../lib/chime-notifier/notifier-handler';
-import { ChimeNotifier } from '../lib';
-import { Stack, Construct } from '@aws-cdk/core';
-import { Pipeline, IStage, ActionBindOptions, ActionConfig, ActionCategory, Artifact } from '@aws-cdk/aws-codepipeline';
-import '@aws-cdk/assert/jest';
-import { ManualApprovalAction, Action } from '@aws-cdk/aws-codepipeline-actions';
+import { core as core, aws_codepipeline as aws_codepipeline, aws_codepipeline_actions as aws_codepipeline_actions } from "monocdk-experiment";
+import * as https from "https";
+import { codePipeline, handler } from "../lib/chime-notifier/notifier-handler";
+import { ChimeNotifier } from "../lib";
+import "@aws-cdk/assert/jest";
+var { Stack, Construct } = core;
+var { Pipeline, IStage, ActionBindOptions, ActionConfig, ActionCategory, Artifact } = aws_codepipeline;
+var { ManualApprovalAction, Action } = aws_codepipeline_actions;
+
 
 jest.mock('https');
 

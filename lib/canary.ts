@@ -1,10 +1,8 @@
-import cloudwatch = require('@aws-cdk/aws-cloudwatch');
-import cbuild = require('@aws-cdk/aws-codebuild');
-import events = require('@aws-cdk/aws-events');
-import events_targets = require('@aws-cdk/aws-events-targets');
-import cdk = require('@aws-cdk/core');
+import { aws_cloudwatch as cloudwatch, aws_codebuild as cbuild, aws_events as events, aws_events_targets as events_targets, core as cdk } from "monocdk-experiment";
+import { Shellable, ShellableProps } from "./shellable";
 
-import { Shellable, ShellableProps } from './shellable';
+
+
 
 export interface CanaryProps extends ShellableProps {
   /**

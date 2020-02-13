@@ -1,14 +1,14 @@
-import cloudwatch = require('@aws-cdk/aws-cloudwatch');
-import cbuild = require('@aws-cdk/aws-codebuild');
-import cpipeline = require('@aws-cdk/aws-codepipeline');
-import cpipeline_actions = require('@aws-cdk/aws-codepipeline-actions');
-import iam = require('@aws-cdk/aws-iam');
-import assets = require('@aws-cdk/aws-s3-assets');
-import cdk = require('@aws-cdk/core');
-import fs = require('fs');
-import path = require('path');
-import { BuildSpec } from './build-spec';
-import { renderEnvironmentVariables } from './util';
+import { aws_cloudwatch as cloudwatch, aws_codebuild as cbuild,
+  aws_codepipeline as cpipeline, aws_codepipeline_actions as cpipeline_actions,
+  aws_iam as iam, aws_s3_assets as assets, core as cdk } from
+  "monocdk-experiment";
+import fs = require("fs");
+import path = require("path");
+import { BuildSpec } from "./build-spec";
+import { renderEnvironmentVariables } from "./util";
+
+
+
 
 const S3_BUCKET_ENV = 'SCRIPT_S3_BUCKET';
 const S3_KEY_ENV = 'SCRIPT_S3_KEY';

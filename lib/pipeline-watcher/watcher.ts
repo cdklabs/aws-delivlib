@@ -1,13 +1,10 @@
-import cloudwatch = require('@aws-cdk/aws-cloudwatch');
-import cpipeline = require('@aws-cdk/aws-codepipeline');
-import events = require('@aws-cdk/aws-events');
-import events_targets = require('@aws-cdk/aws-events-targets');
-import iam = require('@aws-cdk/aws-iam');
-import lambda = require('@aws-cdk/aws-lambda');
-import logs = require('@aws-cdk/aws-logs');
-import cdk = require('@aws-cdk/core');
-import fs = require('fs');
-import path = require('path');
+import { aws_cloudwatch as cloudwatch, aws_codepipeline as cpipeline, aws_events as events, aws_events_targets as events_targets, aws_iam as iam, aws_lambda as lambda, aws_logs as logs, core as cdk } from "monocdk-experiment";
+import fs = require("fs");
+import path = require("path");
+
+
+
+
 
 export interface PipelineWatcherProps {
   /**

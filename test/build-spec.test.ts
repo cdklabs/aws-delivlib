@@ -1,4 +1,5 @@
-import delivlib = require('../lib');
+import delivlib = require("../lib");
+
 
 test('buildspec single artifact goes to "artifacts"', () => {
   const bs = delivlib.BuildSpec.simple({

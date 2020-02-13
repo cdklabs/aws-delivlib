@@ -1,5 +1,7 @@
-import AWS = require('aws-sdk');
-import * as https from 'https';
+import AWS = require("aws-sdk");
+import * as https from "https";
+
+
 
 // export for tests
 export const codePipeline = new AWS.CodePipeline();

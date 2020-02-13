@@ -33,32 +33,21 @@
     "url": "https://github.com/awslabs/aws-delivlib.git"
   },
   "license": "Apache-2.0",
-  "dependencies": {
-    "@aws-cdk/assets": "1.19.0",
-    "@aws-cdk/aws-cloudformation": "1.19.0",
-    "@aws-cdk/aws-codebuild": "1.19.0",
-    "@aws-cdk/aws-codecommit": "1.19.0",
-    "@aws-cdk/aws-sam": "1.19.0",
-    "@aws-cdk/aws-codepipeline": "1.19.0",
-    "@aws-cdk/aws-codepipeline-actions": "1.19.0",
-    "@aws-cdk/aws-ecs": "1.19.0",
-    "@aws-cdk/aws-lambda": "1.19.0",
-    "@aws-cdk/aws-s3-notifications": "1.19.0",
-    "@aws-cdk/aws-secretsmanager": "1.19.0",
-    "@aws-cdk/aws-sns": "1.19.0",
-    "@aws-cdk/aws-ssm": "1.19.0",
-    "@aws-cdk/core": "1.19.0"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@aws-cdk/assert": "1.19.0",
     "@types/jest": "^25.1.2",
     "@types/node": "^10.17.13",
+    "monocdk-experiment": "^1.23.0",
     "aws-cdk": "1.23.0",
     "jest": "^25.1.0",
     "jest-create-mock-instance": "^1.1.0",
     "standard-version": "^7.1.0",
     "tslint": "^6.0.0",
     "typescript": "~3.7.5"
+  },
+  "peerDependencies": {
+    "monocdk-experiment": "^1.23.0"
   },
   "jest": {
     "collectCoverage": true,

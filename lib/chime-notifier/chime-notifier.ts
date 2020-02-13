@@ -1,10 +1,13 @@
-import { Construct, Duration } from "@aws-cdk/core";
-import * as cpipeline from '@aws-cdk/aws-codepipeline';
-import * as iam from '@aws-cdk/aws-iam';
-import * as lambda from '@aws-cdk/aws-lambda';
-import * as events from '@aws-cdk/aws-events';
-import * as events_targets from '@aws-cdk/aws-events-targets';
-import fs = require('fs');
+import { core as core, aws_codepipeline as cpipeline, aws_iam as iam,
+  aws_lambda as lambda, aws_events as events, aws_events_targets as
+  events_targets } from "monocdk-experiment";
+import fs = require("fs");
+
+
+
+
+const { Duration } = core;
+
 import path = require('path');
 
 /**
@@ -39,8 +42,8 @@ export interface ChimeNotifierProps {
 /**
  * Send a message to a Chime room when a pipeline fails
  */
-export class ChimeNotifier extends Construct {
-  constructor(scope: Construct, id: string, props: ChimeNotifierProps) {
+export class ChimeNotifier extends core.Construct {
+  constructor(scope: core.Construct, id: string, props: ChimeNotifierProps) {
     super(scope, id);
 
     const message = props.message ?? "/md @All Pipeline **$PIPELINE** failed in action **$ACTION**. Latest change:\n```\n$REVISION\n```\n([Failure details]($URL))";

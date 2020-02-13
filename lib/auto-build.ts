@@ -1,7 +1,10 @@
-import codebuild = require('@aws-cdk/aws-codebuild');
-import serverless = require('@aws-cdk/aws-sam');
-import { Construct, Token } from '@aws-cdk/core';
-import { BuildEnvironmentProps, createBuildEnvironment } from './build-env';
+import { aws_codebuild as codebuild, aws_sam as serverless, core as core } from "monocdk-experiment";
+import { BuildEnvironmentProps, createBuildEnvironment } from "./build-env";
+
+
+
+const { Token } = core;
+
 import { IRepo } from './repo';
 
 export interface AutoBuildOptions {
@@ -52,8 +55,8 @@ export interface AutoBuildProps extends AutoBuildOptions {
   readonly branch?: string;
 }
 
-export class AutoBuild extends Construct {
-  constructor(scope: Construct, id: string, props: AutoBuildProps) {
+export class AutoBuild extends core.Construct {
+  constructor(scope: core.Construct, id: string, props: AutoBuildProps) {
     super(scope, id);
 
     const project = new codebuild.Project(this, 'Project', {

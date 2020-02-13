@@ -1,5 +1,6 @@
-import cdk = require('@aws-cdk/core');
-import { TestStack } from './test-stack';
+import { core as cdk } from "monocdk-experiment";
+import { TestStack } from "./test-stack";
+
 
 const stackName = process.env.TEST_STACK_NAME;
 if (!stackName) {
