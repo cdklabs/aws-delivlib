@@ -4,11 +4,13 @@ import cpipeline = require('@aws-cdk/aws-codepipeline');
 import cpipeline_actions = require('@aws-cdk/aws-codepipeline-actions');
 import cdk = require('@aws-cdk/core');
 import { ExternalSecret } from './permissions';
+import { SecretValue } from '@aws-cdk/core';
 
 export interface IRepo {
   repositoryUrlHttp: string;
   repositoryUrlSsh: string;
   readonly allowsBadge: boolean;
+  readonly token: SecretValue | undefined;
   createBuildSource(parent: cdk.Construct, webhook: boolean, branch?: string): cbuild.ISource;
   createSourceStage(pipeline: cpipeline.Pipeline, branch: string): cpipeline.Artifact;
   describe(): any;
@@ -16,6 +18,7 @@ export interface IRepo {
 
 export class CodeCommitRepo implements IRepo {
   public readonly allowsBadge = false;
+  public readonly token: SecretValue | undefined = undefined;
 
   constructor(private readonly repository: ccommit.IRepository) {
 

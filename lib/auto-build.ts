@@ -1,6 +1,6 @@
 import codebuild = require('@aws-cdk/aws-codebuild');
 import serverless = require('@aws-cdk/aws-sam');
-import { Construct } from '@aws-cdk/core';
+import { Construct, Token } from '@aws-cdk/core';
 import { BuildEnvironmentProps, createBuildEnvironment } from './build-env';
 import { IRepo } from './repo';
 
@@ -27,6 +27,8 @@ export interface AutoBuildOptions {
 export interface AutoBuildProps extends AutoBuildOptions {
   /**
    * The repository to monitor.
+   *
+   * Must be a GitHub repository for `publicLogs` to have any effect.
    */
   readonly repo: IRepo;
 
@@ -67,10 +69,11 @@ export class AutoBuild extends Construct {
       new serverless.CfnApplication(this, 'GitHubCodeBuildLogsSAR', {
         location: {
           applicationId: 'arn:aws:serverlessrepo:us-east-1:277187709615:applications/github-codebuild-logs',
-          semanticVersion: '1.0.3'
+          semanticVersion: '1.3.0'
         },
         parameters: {
-          CodeBuildProjectName: project.projectName
+          CodeBuildProjectName: project.projectName,
+          ...props.repo.token ? { GitHubOAuthToken: Token.asString(props.repo.token)} : undefined,
         }
       });
     }
