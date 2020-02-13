@@ -3916,10 +3916,11 @@ Resources:
     Properties:
       Location:
         ApplicationId: arn:aws:serverlessrepo:us-east-1:277187709615:applications/github-codebuild-logs
-        SemanticVersion: 1.0.3
+        SemanticVersion: 1.3.0
       Parameters:
         CodeBuildProjectName:
           Ref: CodeCommitPipelineAutoBuildProject5D212EE9
+        GitHubOAuthToken: "{{resolve:secretsmanager:github-token:SecretString:::}}"
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/AutoBuild/GitHubCodeBuildLogsSAR
   CodeCommitPipelineChangeControllerCalendar94B1DEA8:
