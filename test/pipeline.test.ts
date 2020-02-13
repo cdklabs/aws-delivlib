@@ -207,7 +207,7 @@ test('autoBuild() can be used to add automatic builds to the pipeline', () => {
   cdk_expect(stack).notTo(haveResource('AWS::Serverless::Application', {
     Location: {
       ApplicationId: "arn:aws:serverlessrepo:us-east-1:277187709615:applications/github-codebuild-logs",
-      SemanticVersion: "1.0.3"
+      SemanticVersion: "1.3.0"
     }
   }));
 });
