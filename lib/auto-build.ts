@@ -58,7 +58,7 @@ export class AutoBuild extends Construct {
 
     const project = new codebuild.Project(this, 'Project', {
       projectName: props.projectName,
-      source: props.repo.createBuildSource(this, true, props.branch),
+      source: props.repo.createBuildSource(this, true, { branch: props.branch }),
       environment: createBuildEnvironment(props.environment),
       badge: props.repo.allowsBadge,
       buildSpec: props.buildSpec

@@ -10,9 +10,14 @@ export interface IRepo {
   repositoryUrlSsh: string;
   readonly allowsBadge: boolean;
   readonly tokenSecretArn?: string;
-  createBuildSource(parent: cdk.Construct, webhook: boolean, branch?: string): cbuild.ISource;
+  createBuildSource(parent: cdk.Construct, webhook: boolean, options?: BuildSourceOptions): cbuild.ISource;
   createSourceStage(pipeline: cpipeline.Pipeline, branch: string): cpipeline.Artifact;
   describe(): any;
+}
+
+export interface BuildSourceOptions {
+  branch?: string;
+  cloneDepth?: number;
 }
 
 export class CodeCommitRepo implements IRepo {
@@ -45,9 +50,10 @@ export class CodeCommitRepo implements IRepo {
     return this.repository.repositoryCloneUrlSsh;
   }
 
-  public createBuildSource(_: cdk.Construct, _webhook: boolean): cbuild.ISource {
+  public createBuildSource(_: cdk.Construct, _webhook: boolean, options: BuildSourceOptions = { }): cbuild.ISource {
     return cbuild.Source.codeCommit({
       repository: this.repository,
+      cloneDepth: options.cloneDepth,
     });
   }
 
@@ -106,17 +112,17 @@ export class GitHubRepo implements IRepo {
     return sourceOutput;
   }
 
-  public createBuildSource(_: cdk.Construct, webhook: boolean, branch?: string): cbuild.ISource {
+  public createBuildSource(_: cdk.Construct, webhook: boolean, options: BuildSourceOptions = { }): cbuild.ISource {
     return cbuild.Source.gitHub({
       owner: this.owner,
       repo: this.repo,
       webhook,
+      cloneDepth: options.cloneDepth,
       reportBuildStatus: webhook,
       webhookFilters: webhook
-          ? this.createWebhookFilters(branch)
+          ? this.createWebhookFilters(options.branch)
           : undefined,
     });
-
   }
 
   public describe() {

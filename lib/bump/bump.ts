@@ -94,6 +94,13 @@ export interface AutoBumpOptions {
    * @default - default options
    */
   pullRequestOptions?: PullRequestOptions;
+
+  /**
+   * Git clone depth
+   *
+   * @default 0 clones the entire repository
+   */
+  cloneDepth?: number;
 }
 
 export interface AutoBumpProps extends AutoBumpOptions {
@@ -184,8 +191,11 @@ export class AutoBump extends cdk.Construct {
       pushCommands.push(...createPullRequestCommands(props.repo, props.pullRequestOptions));
     }
 
+    // by default, clone the entire repo (cloneDepth: 0)
+    const cloneDepth = props.cloneDepth === undefined ? 0 : props.cloneDepth;
+
     const project = new cbuild.Project(this, 'Bump', {
-      source: props.repo.createBuildSource(this, false),
+      source: props.repo.createBuildSource(this, false, { cloneDepth }),
       environment: createBuildEnvironment(props),
       buildSpec: cbuild.BuildSpec.fromObject({
         version: '0.2',
