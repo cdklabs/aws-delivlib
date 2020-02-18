@@ -4,13 +4,12 @@ import cpipeline = require('@aws-cdk/aws-codepipeline');
 import cpipeline_actions = require('@aws-cdk/aws-codepipeline-actions');
 import cdk = require('@aws-cdk/core');
 import { ExternalSecret } from './permissions';
-import { SecretValue } from '@aws-cdk/core';
 
 export interface IRepo {
   repositoryUrlHttp: string;
   repositoryUrlSsh: string;
   readonly allowsBadge: boolean;
-  readonly token: SecretValue | undefined;
+  readonly tokenSecretArn?: string;
   createBuildSource(parent: cdk.Construct, webhook: boolean, branch?: string): cbuild.ISource;
   createSourceStage(pipeline: cpipeline.Pipeline, branch: string): cpipeline.Artifact;
   describe(): any;
@@ -18,7 +17,7 @@ export interface IRepo {
 
 export class CodeCommitRepo implements IRepo {
   public readonly allowsBadge = false;
-  public readonly token: SecretValue | undefined = undefined;
+  public readonly tokenSecretArn?: string;
 
   constructor(private readonly repository: ccommit.IRepository) {
 
@@ -61,7 +60,7 @@ interface GitHubRepoProps {
   /**
    * The OAuth token secret that allows access to your github repo.
    */
-  token: cdk.SecretValue;
+  tokenSecretArn: string;
 
   /**
    * In the form "account/repo".
@@ -73,7 +72,7 @@ export class GitHubRepo implements IRepo {
   public readonly allowsBadge = true;
   public readonly owner: string;
   public readonly repo: string;
-  public readonly token: cdk.SecretValue;
+  public readonly tokenSecretArn: string;
 
   constructor(props: GitHubRepoProps) {
     const repository = props.repository;
@@ -81,8 +80,7 @@ export class GitHubRepo implements IRepo {
 
     this.owner = owner;
     this.repo = repo;
-
-    this.token = props.token;
+    this.tokenSecretArn = props.tokenSecretArn;
   }
 
   public get repositoryUrlHttp() {
@@ -100,7 +98,7 @@ export class GitHubRepo implements IRepo {
     stage.addAction(new cpipeline_actions.GitHubSourceAction({
       actionName: 'Pull',
       branch,
-      oauthToken: this.token,
+      oauthToken: cdk.SecretValue.secretsManager(this.tokenSecretArn),
       owner: this.owner,
       repo: this.repo,
       output: sourceOutput,

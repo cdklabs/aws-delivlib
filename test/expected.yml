@@ -466,7 +466,7 @@ Resources:
                 Owner: awslabs
                 Repo: aws-delivlib-sample
                 Branch: master
-                OAuthToken: "{{resolve:secretsmanager:github-token:SecretString:::}}"
+                OAuthToken: "{{resolve:secretsmanager:arn:aws:secretsmanager:us-east-1:712950704752:secret:github-token-nnAqfW:SecretString:::}}"
                 PollForSourceChanges: false
               Name: Pull
               OutputArtifacts:
@@ -690,7 +690,7 @@ Resources:
     Properties:
       Authentication: GITHUB_HMAC
       AuthenticationConfiguration:
-        SecretToken: "{{resolve:secretsmanager:github-token:SecretString:::}}"
+        SecretToken: "{{resolve:secretsmanager:arn:aws:secretsmanager:us-east-1:712950704752:secret:github-token-nnAqfW:SecretString:::}}"
       Filters:
         - JsonPath: $.ref
           MatchEquals: refs/heads/{Branch}
@@ -3221,7 +3221,7 @@ Resources:
                 - SecretArn
           - Name: GITHUB_TOKEN
             Type: PLAINTEXT
-            Value: "{{resolve:secretsmanager:github-token:SecretString:::}}"
+            Value: "{{resolve:secretsmanager:arn:aws:secretsmanager:us-east-1:712950704752:secret:github-token-nnAqfW:SecretString:::}}"
           - Name: GITHUB_OWNER
             Type: PLAINTEXT
             Value: awslabs
@@ -3719,6 +3719,12 @@ Resources:
               - secretsmanager:GetSecretValue
             Effect: Allow
             Resource: arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/github-ssh-lwzfjW
+          - Action:
+              - secretsmanager:ListSecrets
+              - secretsmanager:DescribeSecret
+              - secretsmanager:GetSecretValue
+            Effect: Allow
+            Resource: arn:aws:secretsmanager:us-east-1:712950704752:secret:github-token-nnAqfW
         Version: "2012-10-17"
       PolicyName: CodeCommitPipelineAutoBumpRoleDefaultPolicyD6024577
       Roles:
@@ -3760,13 +3766,14 @@ Resources:
                   "$SKIP || chmod 0600 ~/.ssh/id_rsa",
                   "$SKIP || chmod 0600 ~/.ssh/config",
                   "$SKIP || ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts",
-                  "$SKIP || { BRANCH=bump/$(git describe) ; }",
+                  "$SKIP || { export TAG=$(git describe) ; }",
+                  "$SKIP || { export BRANCH=bump/$TAG ; }",
                   "$SKIP || { git branch -D $BRANCH || true ; }",
                   "$SKIP || { git checkout -b $BRANCH ; }",
-                  "$SKIP || { git checkout master ; }",
-                  "$SKIP || { git merge $BRANCH ; }",
                   "$SKIP || { git remote add origin_ssh git@github.com:awslabs/aws-delivlib-sample.git ; }",
-                  "$SKIP || { git push --follow-tags origin_ssh master ; }"
+                  "$SKIP || { git push --follow-tags origin_ssh $BRANCH ; }",
+                  "$SKIP || { GITHUB_TOKEN=$(aws secretsmanager get-secret-value --secret-id \"arn:aws:secretsmanager:us-east-1:712950704752:secret:github-token-nnAqfW\" --output=text --query=SecretString) ; }",
+                  "$SKIP || { curl -X POST --header \"Authorization: token $GITHUB_TOKEN\" --header \"Content-Type: application/json\" -d \"{\\\"title\\\":\\\"chore(release): $TAG\\\",\\\"body\\\":\\\"see CHANGELOG\\\",\\\"base\\\":\\\"master\\\",\\\"head\\\":\\\"$BRANCH\\\"}\" https://api.github.com/repos/awslabs/aws-delivlib-sample/pulls ; }"
                 ]
               }
             }
@@ -3778,53 +3785,6 @@ Resources:
         Webhook: false
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/AutoBump/Bump/Resource
-  CodeCommitPipelineAutoBumpEventsRole63A4AC28:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Statement:
-          - Action: sts:AssumeRole
-            Effect: Allow
-            Principal:
-              Service: events.amazonaws.com
-        Version: "2012-10-17"
-    Metadata:
-      aws:cdk:path: delivlib-test/CodeCommitPipeline/AutoBump/Bump/EventsRole/Resource
-  CodeCommitPipelineAutoBumpEventsRoleDefaultPolicy20B2B829:
-    Type: AWS::IAM::Policy
-    Properties:
-      PolicyDocument:
-        Statement:
-          - Action: codebuild:StartBuild
-            Effect: Allow
-            Resource:
-              Fn::GetAtt:
-                - CodeCommitPipelineAutoBumpA6619552
-                - Arn
-        Version: "2012-10-17"
-      PolicyName: CodeCommitPipelineAutoBumpEventsRoleDefaultPolicy20B2B829
-      Roles:
-        - Ref: CodeCommitPipelineAutoBumpEventsRole63A4AC28
-    Metadata:
-      aws:cdk:path: delivlib-test/CodeCommitPipeline/AutoBump/Bump/EventsRole/DefaultPolicy/Resource
-  CodeCommitPipelineAutoBumpSchedulerC4D05D9B:
-    Type: AWS::Events::Rule
-    Properties:
-      Description: Schedules an automatic bump for this repository
-      ScheduleExpression: cron(0 12 * * ? *)
-      State: ENABLED
-      Targets:
-        - Arn:
-            Fn::GetAtt:
-              - CodeCommitPipelineAutoBumpA6619552
-              - Arn
-          Id: Target0
-          RoleArn:
-            Fn::GetAtt:
-              - CodeCommitPipelineAutoBumpEventsRole63A4AC28
-              - Arn
-    Metadata:
-      aws:cdk:path: delivlib-test/CodeCommitPipeline/AutoBump/Scheduler/Resource
   CodeCommitPipelineAutoBumpBumpFailedAlarm47B5C467:
     Type: AWS::CloudWatch::Alarm
     Properties:
@@ -3920,7 +3880,7 @@ Resources:
       Parameters:
         CodeBuildProjectName:
           Ref: CodeCommitPipelineAutoBuildProject5D212EE9
-        GitHubOAuthToken: "{{resolve:secretsmanager:github-token:SecretString:::}}"
+        GitHubOAuthToken: "{{resolve:secretsmanager:arn:aws:secretsmanager:us-east-1:712950704752:secret:github-token-nnAqfW:SecretString:::}}"
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/AutoBuild/GitHubCodeBuildLogsSAR
   CodeCommitPipelineChangeControllerCalendar94B1DEA8:
