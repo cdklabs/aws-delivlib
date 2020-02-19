@@ -3766,18 +3766,19 @@ Resources:
                   "$SKIP || chmod 0600 ~/.ssh/id_rsa",
                   "$SKIP || chmod 0600 ~/.ssh/config",
                   "$SKIP || ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts",
-                  "$SKIP || { export TAG=$(git describe) ; }",
-                  "$SKIP || { export BRANCH=bump/$TAG ; }",
+                  "$SKIP || { export VERSION=$(git describe) ; }",
+                  "$SKIP || { export BRANCH=bump/$VERSION ; }",
                   "$SKIP || { git branch -D $BRANCH || true ; }",
                   "$SKIP || { git checkout -b $BRANCH ; }",
                   "$SKIP || { git remote add origin_ssh git@github.com:awslabs/aws-delivlib-sample.git ; }",
                   "$SKIP || { git push --follow-tags origin_ssh $BRANCH ; }",
                   "$SKIP || { GITHUB_TOKEN=$(aws secretsmanager get-secret-value --secret-id \"arn:aws:secretsmanager:us-east-1:712950704752:secret:github-token-nnAqfW\" --output=text --query=SecretString) ; }",
-                  "$SKIP || { curl -X POST --header \"Authorization: token $GITHUB_TOKEN\" --header \"Content-Type: application/json\" -d \"{\\\"title\\\":\\\"chore(release): $TAG\\\",\\\"body\\\":\\\"see CHANGELOG\\\",\\\"base\\\":\\\"master\\\",\\\"head\\\":\\\"$BRANCH\\\"}\" https://api.github.com/repos/awslabs/aws-delivlib-sample/pulls ; }"
+                  "$SKIP || { curl -X POST --header \"Authorization: token $GITHUB_TOKEN\" --header \"Content-Type: application/json\" -d \"{\\\"title\\\":\\\"chore(release): $VERSION\\\",\\\"body\\\":\\\"see CHANGELOG\\\",\\\"base\\\":\\\"master\\\",\\\"head\\\":\\\"$BRANCH\\\"}\" https://api.github.com/repos/awslabs/aws-delivlib-sample/pulls ; }"
                 ]
               }
             }
           }
+        GitCloneDepth: 0
         Location: https://github.com/awslabs/aws-delivlib-sample.git
         ReportBuildStatus: false
         Type: GITHUB
