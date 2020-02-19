@@ -1,6 +1,6 @@
 import codebuild = require('@aws-cdk/aws-codebuild');
 import serverless = require('@aws-cdk/aws-sam');
-import { Construct, Token } from '@aws-cdk/core';
+import { Construct, Token, SecretValue } from '@aws-cdk/core';
 import { BuildEnvironmentProps, createBuildEnvironment } from './build-env';
 import { IRepo } from './repo';
 
@@ -58,13 +58,15 @@ export class AutoBuild extends Construct {
 
     const project = new codebuild.Project(this, 'Project', {
       projectName: props.projectName,
-      source: props.repo.createBuildSource(this, true, props.branch),
+      source: props.repo.createBuildSource(this, true, { branch: props.branch }),
       environment: createBuildEnvironment(props.environment),
       badge: props.repo.allowsBadge,
       buildSpec: props.buildSpec
     });
 
     const publicLogs = props.publicLogs !== undefined ? props.publicLogs : false;
+    const githubToken = props.repo.tokenSecretArn ? SecretValue.secretsManager(props.repo.tokenSecretArn) : undefined;
+
     if (publicLogs) {
       new serverless.CfnApplication(this, 'GitHubCodeBuildLogsSAR', {
         location: {
@@ -73,7 +75,7 @@ export class AutoBuild extends Construct {
         },
         parameters: {
           CodeBuildProjectName: project.projectName,
-          ...props.repo.token ? { GitHubOAuthToken: Token.asString(props.repo.token)} : undefined,
+          ...githubToken ? { GitHubOAuthToken: Token.asString(githubToken)} : undefined,
         }
       });
     }

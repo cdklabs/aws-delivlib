@@ -21,6 +21,12 @@ export interface AutoBumpOptions {
   bumpCommand?: string;
 
   /**
+   * The command to determine the current version.
+   * @default "git describe" by default the latest git tag will be used to determine the current version
+   */
+  versionCommand?: string;
+
+  /**
    * The schedule to produce an automatic bump.
    *
    * The expression can be one of:
@@ -71,9 +77,30 @@ export interface AutoBumpOptions {
    * The name of the branch to push the bump commit (e.g. "master")
    * This branch has to exist.
    *
-   * @default the commit will be pushed to the branch `bump/$(git describe)`
+   * @default - the commit will be pushed to the branch `bump/$VERSION`
    */
   branch?: string;
+
+  /**
+   * Create a pull request after the branch is pushed.
+   *
+   * @default false
+   */
+  pullRequest?: boolean;
+
+  /**
+   * Options for pull request
+   *
+   * @default - default options
+   */
+  pullRequestOptions?: PullRequestOptions;
+
+  /**
+   * Git clone depth
+   *
+   * @default 0 clones the entire repository
+   */
+  cloneDepth?: number;
 }
 
 export interface AutoBumpProps extends AutoBumpOptions {
@@ -81,6 +108,29 @@ export interface AutoBumpProps extends AutoBumpOptions {
    * The repository to bump.
    */
   repo: WritableGitHubRepo;
+}
+
+export interface PullRequestOptions {
+  /**
+   * The title of the pull request.
+   *
+   * $VERSION will be substituted by the current version (obtained by executing `versionCommand`).
+   *
+   * @default "chore(release): $VERSION"
+   */
+  title?: string;
+
+  /**
+   * The PR body.
+   * @default "see CHANGELOG"
+   */
+  body?: string;
+
+  /**
+   * Base branch
+   * @default "master"
+   */
+  base?: string;
 }
 
 export class AutoBump extends cdk.Construct {
@@ -112,8 +162,11 @@ export class AutoBump extends cdk.Construct {
 
     const pushCommands = new Array<string>();
 
+    const versionCommand = props.versionCommand ?? "git describe";
+
     pushCommands.push(...[
-      `BRANCH=bump/$(git describe)`,
+      `export VERSION=$(${versionCommand})`,
+      `export BRANCH=bump/$VERSION`,
       `git branch -D $BRANCH || true`,                    // force delete the branch if it already exists
       `git checkout -b $BRANCH`,                          // create a new branch from HEAD
     ]);
@@ -133,8 +186,25 @@ export class AutoBump extends cdk.Construct {
     const targetBranch = props.branch || '$BRANCH';
     pushCommands.push(`git push --follow-tags origin_ssh ${targetBranch }`);
 
+    const pullRequestEnabled = props.pullRequest || props.pullRequestOptions;
+    if (pullRequestEnabled) {
+
+      // we can't create a pull request if base=head
+      if (props.branch) {
+        const base = props.pullRequestOptions?.base ?? 'master';
+        if (props.branch === base) {
+          throw new Error(`cannot enable pull requests since the head branch ("${props.branch}") is the same as the base branch ("${base}")`);
+        }
+      }
+
+      pushCommands.push(...createPullRequestCommands(props.repo, props.pullRequestOptions));
+    }
+
+    // by default, clone the entire repo (cloneDepth: 0)
+    const cloneDepth = props.cloneDepth === undefined ? 0 : props.cloneDepth;
+
     const project = new cbuild.Project(this, 'Bump', {
-      source: props.repo.createBuildSource(this, false),
+      source: props.repo.createBuildSource(this, false, { cloneDepth }),
       environment: createBuildEnvironment(props),
       buildSpec: cbuild.BuildSpec.fromObject({
         version: '0.2',
@@ -166,6 +236,11 @@ export class AutoBump extends cdk.Construct {
 
     if (project.role) {
       permissions.grantSecretRead(sshKeySecret, project.role);
+
+      // if pull request is enabled, we also need access to the github token
+      if (pullRequestEnabled) {
+        permissions.grantSecretRead({ secretArn: props.repo.tokenSecretArn }, project.role);
+      }
     }
 
     if (props.scheduleExpression !== 'disable') {
@@ -186,4 +261,27 @@ export class AutoBump extends cdk.Construct {
       treatMissingData: cloudwatch.TreatMissingData.IGNORE,
     });
   }
+}
+
+function createPullRequestCommands(repo: WritableGitHubRepo, options: PullRequestOptions = { }): string[] {
+  const request = {
+    title: options.title ?? `chore(release): $VERSION`,
+    body: options.body ?? `see CHANGELOG`,
+    base: options.base ?? `master`,
+    head: `$BRANCH`
+  };
+
+  const curl = [
+    `curl`,
+    `-X POST`,
+    `--header "Authorization: token $GITHUB_TOKEN"`,
+    `--header "Content-Type: application/json"`,
+    `-d ${JSON.stringify(JSON.stringify(request))}`, // to escape quotes
+    `https://api.github.com/repos/${repo.owner}/${repo.repo}/pulls`
+  ];
+
+  return [
+    `GITHUB_TOKEN=$(aws secretsmanager get-secret-value --secret-id "${repo.tokenSecretArn}" --output=text --query=SecretString)`,
+    curl.join(' ')
+  ];
 }
