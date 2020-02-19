@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [6.0.0](https://github.com/awslabs/aws-delivlib/compare/v5.7.3...v6.0.0) (2020-02-19)
+
+
+### ⚠ BREAKING CHANGES
+
+* **bump:** `repo.token` is now `tokenSecretArn` to enforce that the token is kept in AWS SecretsManager. Also, the API for `IRepo.createBuildSource` was modified.
+
+### Features
+
+* **bump:** create pull request for bumps ([#247](https://github.com/awslabs/aws-delivlib/issues/247)) ([4b00fa3](https://github.com/awslabs/aws-delivlib/commit/4b00fa34229db30e2a2f601f308a27f101ade69b))
+
 ### [5.7.3](https://github.com/awslabs/aws-delivlib/compare/v5.7.2...v5.7.3) (2020-02-14)
 
 ### [5.7.2](https://github.com/awslabs/aws-delivlib/compare/v5.7.1...v5.7.2) (2020-02-13)
