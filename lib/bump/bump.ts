@@ -77,7 +77,7 @@ export interface AutoBumpOptions {
    * The name of the branch to push the bump commit (e.g. "master")
    * This branch has to exist.
    *
-   * @default the commit will be pushed to the branch `bump/$VERSION`
+   * @default - the commit will be pushed to the branch `bump/$VERSION`
    */
   branch?: string;
 
@@ -188,6 +188,15 @@ export class AutoBump extends cdk.Construct {
 
     const pullRequestEnabled = props.pullRequest || props.pullRequestOptions;
     if (pullRequestEnabled) {
+
+      // we can't create a pull request if base=head
+      if (props.branch) {
+        const base = props.pullRequestOptions?.base ?? 'master';
+        if (props.branch === base) {
+          throw new Error(`cannot enable pull requests since the head branch ("${props.branch}") is the same as the base branch ("${base}")`);
+        }
+      }
+
       pushCommands.push(...createPullRequestCommands(props.repo, props.pullRequestOptions));
     }
 
