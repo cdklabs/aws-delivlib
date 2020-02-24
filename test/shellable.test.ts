@@ -118,3 +118,59 @@ test('privileged mode', () => {
     }
   }, ResourcePart.Properties, true));
 });
+
+test('environment variables', () => {
+  const stack = new Stack();
+
+  new Shellable(stack, 'EnvironmentVariables', {
+    scriptDirectory: path.join(__dirname, 'delivlib-tests/linux'),
+    entrypoint: 'test.sh',
+    environment: {
+      ENV_VAR: 'env-var-value',
+    },
+    environmentSecrets: {
+      ENV_VAR_SECRET: 'env-var-secret-name',
+    },
+    environmentParameters: {
+      ENV_VAR_PARAMETER: 'env-var-parameter-name'
+    },
+  });
+
+  assert(stack).to(haveResource('AWS::CodeBuild::Project', {
+    Environment: {
+      EnvironmentVariables: [
+        {
+          Name: "SCRIPT_S3_BUCKET",
+          Type: "PLAINTEXT",
+          Value: {
+            Ref: "AssetParameters3d34b07ba871989d030649c646b3096ba7c78ca531897bcdb0670774d2f9d3e4S3BucketDA91EFBC"
+          }
+        },
+        {
+          Name: "SCRIPT_S3_KEY",
+          Type: "PLAINTEXT",
+          Value: { "Fn::Join": [ "", [{ "Fn::Select": [ 0, { "Fn::Split": [ "||", {
+            Ref: "AssetParameters3d34b07ba871989d030649c646b3096ba7c78ca531897bcdb0670774d2f9d3e4S3VersionKeyF3F83F76"
+          }]}]}, { "Fn::Select": [ 1, { "Fn::Split": [ "||", {
+            Ref: "AssetParameters3d34b07ba871989d030649c646b3096ba7c78ca531897bcdb0670774d2f9d3e4S3VersionKeyF3F83F76"
+          }]}]}]]}
+        },
+        {
+          Name: 'ENV_VAR',
+          Type: 'PLAINTEXT',
+          Value: 'env-var-value'
+        },
+        {
+          Name: 'ENV_VAR_SECRET',
+          Type: 'SECRETS_MANAGER',
+          Value: 'env-var-secret-name'
+        },
+        {
+          Name: 'ENV_VAR_PARAMETER',
+          Type: 'PARAMETER_STORE',
+          Value: 'env-var-parameter-name'
+        },
+      ]
+    }
+  }, ResourcePart.Properties, true));
+});

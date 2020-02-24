@@ -39,14 +39,14 @@ export function hashFileOrDirectory(fileOrDir: string): string {
   return hash.digest('base64');
 }
 
-export function renderEnvironmentVariables(env?: { [key: string]: string }) {
+export function renderEnvironmentVariables(env?: { [key: string]: string }, type?: cbuild.BuildEnvironmentVariableType) {
   if (!env) {
     return undefined;
   }
 
   const out: { [key: string]: cbuild.BuildEnvironmentVariable } = { };
   for (const [key, value] of Object.entries(env)) {
-    out[key] = { value };
+    out[key] = { value, type };
   }
   return out;
 }
