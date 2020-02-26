@@ -19,6 +19,8 @@ Resources:
               - kms:ScheduleKeyDeletion
               - kms:CancelKeyDeletion
               - kms:GenerateDataKey
+              - kms:TagResource
+              - kms:UntagResource
             Effect: Allow
             Principal:
               AWS:
@@ -314,6 +316,11 @@ Resources:
                   - CodeCommitPipelineBuildPipelineArtifactsBucketEncryptionKey05A62A83
                   - Arn
               SSEAlgorithm: aws:kms
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
     UpdateReplacePolicy: Retain
     DeletionPolicy: Retain
     Metadata:
@@ -4371,6 +4378,8 @@ Resources:
               - kms:ScheduleKeyDeletion
               - kms:CancelKeyDeletion
               - kms:GenerateDataKey
+              - kms:TagResource
+              - kms:UntagResource
             Effect: Allow
             Principal:
               AWS:
@@ -4593,8 +4602,11 @@ Resources:
       Code:
         ZipFile: >-
           exports.handler = (event, context) => {
+              // eslint-disable-next-line @typescript-eslint/no-require-imports, import/no-extraneous-dependencies
               const s3 = new (require('aws-sdk').S3)();
+              // eslint-disable-next-line @typescript-eslint/no-require-imports
               const https = require("https");
+              // eslint-disable-next-line @typescript-eslint/no-require-imports
               const url = require("url");
               log(JSON.stringify(event, undefined, 2));
               const props = event.ResourceProperties;
