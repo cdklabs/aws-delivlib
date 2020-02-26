@@ -20,7 +20,7 @@ export class DelivLibPipelineStack extends cdk.Stack {
       tokenSecretArn: 'arn:aws:secretsmanager:us-east-1:712950704752:secret:github-token-nnAqfW',
       commitEmail: 'aws-cdk-dev+delivlib@amazon.com',
       commitUsername: 'aws-cdk-dev',
-      sshKeySecret: { secretArn: 'arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/github-ssh-lwzfjW' }
+      sshKeySecret: { secretArn: 'arn:aws:secretsmanager:us-east-1:712950704752:secret:awslabs/delivlib/github-ssh-UBHEyF' }
     });
 
     const pipeline = new delivlib.Pipeline(this, 'GitHubPipeline', {
