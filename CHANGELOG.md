@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [6.1.1](https://github.com/awslabs/aws-delivlib/compare/v6.1.0...v6.1.1) (2020-02-27)
+
+
+### Bug Fixes
+
+* Grant env var access in shellable when needed ([#253](https://github.com/awslabs/aws-delivlib/issues/253)) ([99b7288](https://github.com/awslabs/aws-delivlib/commit/99b7288b648409b3631db917689b2af4ea0e611b))
+
 ## [6.1.0](https://github.com/awslabs/aws-delivlib/compare/v6.0.2...v6.1.0) (2020-02-27)
 
 
