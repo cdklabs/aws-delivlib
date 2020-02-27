@@ -4,6 +4,8 @@ import cpipeline = require('@aws-cdk/aws-codepipeline');
 import cpipeline_actions = require('@aws-cdk/aws-codepipeline-actions');
 import iam = require('@aws-cdk/aws-iam');
 import assets = require('@aws-cdk/aws-s3-assets');
+import { Secret } from '@aws-cdk/aws-secretsmanager';
+import { StringParameter } from '@aws-cdk/aws-ssm';
 import cdk = require('@aws-cdk/core');
 import fs = require('fs');
 import path = require('path');
@@ -246,6 +248,18 @@ export class Shellable extends cdk.Construct {
 
     this.role = this.project.role!; // not undefined, as it's a new Project
     asset.grantRead(this.role);
+
+    // Grant read access to secrets
+    Object.entries(props.environmentSecrets ?? {}).forEach(([name, secretArn]) => {
+      const secret = Secret.fromSecretArn(this, `${name}Secret`, secretArn);
+      secret.grantRead(this.role);
+    });
+
+    // Grant read access to parameters
+    Object.entries(props.environmentParameters ?? {}).forEach(([name, parameterName]) => {
+      const parameter = StringParameter.fromStringParameterName(this, `${name}Parameter`, parameterName);
+      parameter.grantRead(this.role);
+    });
 
     if (props.assumeRole) {
       this.role.addToPolicy(new iam.PolicyStatement({
