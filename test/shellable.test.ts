@@ -173,4 +173,85 @@ test('environment variables', () => {
       ]
     }
   }, ResourcePart.Properties, true));
+
+  assert(stack).to(haveResource('AWS::IAM::Policy', {
+    PolicyDocument: {
+      Statement: [
+        {
+          Action: [
+            "logs:CreateLogGroup",
+            "logs:CreateLogStream",
+            "logs:PutLogEvents"
+          ],
+          Effect: "Allow",
+          Resource: [{ "Fn::Join": [ "", [
+            "arn:",
+            { Ref: "AWS::Partition" },
+            ":logs:",
+            { Ref: "AWS::Region"},
+            ":",
+            { Ref: "AWS::AccountId" },
+            ":log-group:/aws/codebuild/",
+            { Ref: "EnvironmentVariablesD266B682" }
+          ]]}, { "Fn::Join":[ "", [
+            "arn:",
+            { Ref: "AWS::Partition" },
+            ":logs:",
+            { Ref: "AWS::Region" },
+            ":",
+            { Ref: "AWS::AccountId" },
+            ":log-group:/aws/codebuild/",
+            { Ref: "EnvironmentVariablesD266B682" },
+            ":*"
+          ]]}]
+        },
+        {
+          Action:[
+            "s3:GetObject*",
+            "s3:GetBucket*",
+            "s3:List*"
+          ],
+          Effect: "Allow",
+          Resource: [{ "Fn::Join": [ "", [
+            "arn:",
+            { Ref: "AWS::Partition" },
+            ":s3:::",
+            { Ref: "AssetParameters3d34b07ba871989d030649c646b3096ba7c78ca531897bcdb0670774d2f9d3e4S3BucketDA91EFBC" }
+          ]]}, { "Fn::Join": [ "", [
+            "arn:",
+            { Ref: "AWS::Partition" },
+            ":s3:::",
+            { Ref: "AssetParameters3d34b07ba871989d030649c646b3096ba7c78ca531897bcdb0670774d2f9d3e4S3BucketDA91EFBC" },
+            "/*"
+          ]]}]
+        },
+        {
+          Action: "secretsmanager:GetSecretValue",
+          Effect: "Allow",
+          Resource: "env-var-secret-name"
+        },
+        {
+          Action: [
+            "ssm:DescribeParameters",
+            "ssm:GetParameters",
+            "ssm:GetParameter",
+            "ssm:GetParameterHistory"
+          ],
+          Effect: "Allow",
+          Resource: { "Fn::Join": [ "", [
+            "arn:",
+            { Ref: "AWS::Partition" },
+            ":ssm:",
+            { Ref: "AWS::Region" },
+            ":",
+            { Ref: "AWS::AccountId" },
+            ":parameter/env-var-parameter-name"
+          ]]}
+        }
+      ],
+      Version: "2012-10-17"
+    },
+    PolicyName: "EnvironmentVariablesRoleDefaultPolicy1BCDD5D0",
+    Roles: [{ Ref: "EnvironmentVariablesRole93B5CD9F" }]
+  }));
 });
