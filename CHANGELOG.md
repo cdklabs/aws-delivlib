@@ -2,6 +2,37 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [6.1.1](https://github.com/awslabs/aws-delivlib/compare/v6.1.0...v6.1.1) (2020-02-27)
+
+
+### Bug Fixes
+
+* Grant env var access in shellable when needed ([#253](https://github.com/awslabs/aws-delivlib/issues/253)) ([99b7288](https://github.com/awslabs/aws-delivlib/commit/99b7288b648409b3631db917689b2af4ea0e611b))
+
+## [6.1.0](https://github.com/awslabs/aws-delivlib/compare/v6.0.2...v6.1.0) (2020-02-27)
+
+
+### Features
+
+* Support Env Var Types in Shellable ([#251](https://github.com/awslabs/aws-delivlib/issues/251)) ([329abd5](https://github.com/awslabs/aws-delivlib/commit/329abd583dd14a29acaba9be858c3d6be6cfc94a))
+
+### [6.0.2](https://github.com/awslabs/aws-delivlib/compare/v6.0.1...v6.0.2) (2020-02-26)
+
+### [6.0.1](https://github.com/awslabs/aws-delivlib/compare/v6.0.0...v6.0.1) (2020-02-20)
+
+## [6.0.0](https://github.com/awslabs/aws-delivlib/compare/v5.7.3...v6.0.0) (2020-02-19)
+
+
+### ⚠ BREAKING CHANGES
+
+* **bump:** `repo.token` is now `tokenSecretArn` to enforce that the token is kept in AWS SecretsManager. Also, the API for `IRepo.createBuildSource` was modified.
+
+### Features
+
+* **bump:** create pull request for bumps ([#247](https://github.com/awslabs/aws-delivlib/issues/247)) ([4b00fa3](https://github.com/awslabs/aws-delivlib/commit/4b00fa34229db30e2a2f601f308a27f101ade69b))
+
+### [5.7.3](https://github.com/awslabs/aws-delivlib/compare/v5.7.2...v5.7.3) (2020-02-14)
+
 ### [5.7.2](https://github.com/awslabs/aws-delivlib/compare/v5.7.1...v5.7.2) (2020-02-13)
 
 

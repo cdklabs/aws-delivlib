@@ -119,3 +119,140 @@ test('privileged mode', () => {
     }
   }, ResourcePart.Properties, true));
 });
+
+test('environment variables', () => {
+  const stack = new Stack();
+
+  new Shellable(stack, 'EnvironmentVariables', {
+    scriptDirectory: path.join(__dirname, 'delivlib-tests/linux'),
+    entrypoint: 'test.sh',
+    environment: {
+      ENV_VAR: 'env-var-value',
+    },
+    environmentSecrets: {
+      ENV_VAR_SECRET: 'env-var-secret-name',
+    },
+    environmentParameters: {
+      ENV_VAR_PARAMETER: 'env-var-parameter-name'
+    },
+  });
+
+  assert(stack).to(haveResource('AWS::CodeBuild::Project', {
+    Environment: {
+      EnvironmentVariables: [
+        {
+          Name: "SCRIPT_S3_BUCKET",
+          Type: "PLAINTEXT",
+          Value: {
+            Ref: "AssetParameters3d34b07ba871989d030649c646b3096ba7c78ca531897bcdb0670774d2f9d3e4S3BucketDA91EFBC"
+          }
+        },
+        {
+          Name: "SCRIPT_S3_KEY",
+          Type: "PLAINTEXT",
+          Value: { "Fn::Join": [ "", [{ "Fn::Select": [ 0, { "Fn::Split": [ "||", {
+            Ref: "AssetParameters3d34b07ba871989d030649c646b3096ba7c78ca531897bcdb0670774d2f9d3e4S3VersionKeyF3F83F76"
+          }]}]}, { "Fn::Select": [ 1, { "Fn::Split": [ "||", {
+            Ref: "AssetParameters3d34b07ba871989d030649c646b3096ba7c78ca531897bcdb0670774d2f9d3e4S3VersionKeyF3F83F76"
+          }]}]}]]}
+        },
+        {
+          Name: 'ENV_VAR',
+          Type: 'PLAINTEXT',
+          Value: 'env-var-value'
+        },
+        {
+          Name: 'ENV_VAR_SECRET',
+          Type: 'SECRETS_MANAGER',
+          Value: 'env-var-secret-name'
+        },
+        {
+          Name: 'ENV_VAR_PARAMETER',
+          Type: 'PARAMETER_STORE',
+          Value: 'env-var-parameter-name'
+        },
+      ]
+    }
+  }, ResourcePart.Properties, true));
+
+  assert(stack).to(haveResource('AWS::IAM::Policy', {
+    PolicyDocument: {
+      Statement: [
+        {
+          Action: [
+            "logs:CreateLogGroup",
+            "logs:CreateLogStream",
+            "logs:PutLogEvents"
+          ],
+          Effect: "Allow",
+          Resource: [{ "Fn::Join": [ "", [
+            "arn:",
+            { Ref: "AWS::Partition" },
+            ":logs:",
+            { Ref: "AWS::Region"},
+            ":",
+            { Ref: "AWS::AccountId" },
+            ":log-group:/aws/codebuild/",
+            { Ref: "EnvironmentVariablesD266B682" }
+          ]]}, { "Fn::Join":[ "", [
+            "arn:",
+            { Ref: "AWS::Partition" },
+            ":logs:",
+            { Ref: "AWS::Region" },
+            ":",
+            { Ref: "AWS::AccountId" },
+            ":log-group:/aws/codebuild/",
+            { Ref: "EnvironmentVariablesD266B682" },
+            ":*"
+          ]]}]
+        },
+        {
+          Action:[
+            "s3:GetObject*",
+            "s3:GetBucket*",
+            "s3:List*"
+          ],
+          Effect: "Allow",
+          Resource: [{ "Fn::Join": [ "", [
+            "arn:",
+            { Ref: "AWS::Partition" },
+            ":s3:::",
+            { Ref: "AssetParameters3d34b07ba871989d030649c646b3096ba7c78ca531897bcdb0670774d2f9d3e4S3BucketDA91EFBC" }
+          ]]}, { "Fn::Join": [ "", [
+            "arn:",
+            { Ref: "AWS::Partition" },
+            ":s3:::",
+            { Ref: "AssetParameters3d34b07ba871989d030649c646b3096ba7c78ca531897bcdb0670774d2f9d3e4S3BucketDA91EFBC" },
+            "/*"
+          ]]}]
+        },
+        {
+          Action: "secretsmanager:GetSecretValue",
+          Effect: "Allow",
+          Resource: "env-var-secret-name"
+        },
+        {
+          Action: [
+            "ssm:DescribeParameters",
+            "ssm:GetParameters",
+            "ssm:GetParameter",
+            "ssm:GetParameterHistory"
+          ],
+          Effect: "Allow",
+          Resource: { "Fn::Join": [ "", [
+            "arn:",
+            { Ref: "AWS::Partition" },
+            ":ssm:",
+            { Ref: "AWS::Region" },
+            ":",
+            { Ref: "AWS::AccountId" },
+            ":parameter/env-var-parameter-name"
+          ]]}
+        }
+      ],
+      Version: "2012-10-17"
+    },
+    PolicyName: "EnvironmentVariablesRoleDefaultPolicy1BCDD5D0",
+    Roles: [{ Ref: "EnvironmentVariablesRole93B5CD9F" }]
+  }));
+});

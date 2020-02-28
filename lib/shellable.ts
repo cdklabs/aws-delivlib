@@ -7,9 +7,6 @@ import path = require("path");
 import { BuildSpec } from "./build-spec";
 import { renderEnvironmentVariables } from "./util";
 
-
-
-
 const S3_BUCKET_ENV = 'SCRIPT_S3_BUCKET';
 const S3_KEY_ENV = 'SCRIPT_S3_KEY';
 
@@ -35,6 +32,20 @@ export interface ShellableOptions {
    * @default No additional environment variables
    */
   environment?: { [key: string]: string };
+
+  /**
+   * Environment variables with secrets manager values.
+   *
+   * @default no additional environment variables
+   */
+  environmentSecrets?: { [key: string]: string };
+
+  /**
+   * Environment variables with SSM parameter values.
+   *
+   * @default no additional environment variables
+   */
+  environmentParameters?: { [key: string]: string };
 
   /**
    * The compute type to use for the build container.
@@ -223,13 +234,27 @@ export class Shellable extends cdk.Construct {
       environmentVariables: {
         [S3_BUCKET_ENV]: { value: asset.s3BucketName },
         [S3_KEY_ENV]: { value: asset.s3ObjectKey },
-        ...renderEnvironmentVariables(props.environment)
+        ...renderEnvironmentVariables(props.environment),
+        ...renderEnvironmentVariables(props.environmentSecrets, cbuild.BuildEnvironmentVariableType.SECRETS_MANAGER),
+        ...renderEnvironmentVariables(props.environmentParameters, cbuild.BuildEnvironmentVariableType.PARAMETER_STORE),
       },
       buildSpec: cbuild.BuildSpec.fromObject(this.buildSpec.render({ primaryArtifactName: this.outputArtifactName })),
     });
 
     this.role = this.project.role!; // not undefined, as it's a new Project
     asset.grantRead(this.role);
+
+    // Grant read access to secrets
+    Object.entries(props.environmentSecrets ?? {}).forEach(([name, secretArn]) => {
+      const secret = Secret.fromSecretArn(this, `${name}Secret`, secretArn);
+      secret.grantRead(this.role);
+    });
+
+    // Grant read access to parameters
+    Object.entries(props.environmentParameters ?? {}).forEach(([name, parameterName]) => {
+      const parameter = StringParameter.fromStringParameterName(this, `${name}Parameter`, parameterName);
+      parameter.grantRead(this.role);
+    });
 
     if (props.assumeRole) {
       this.role.addToPolicy(new iam.PolicyStatement({

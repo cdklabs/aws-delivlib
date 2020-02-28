@@ -15,7 +15,7 @@ export class TestStack extends cdk.Stack {
 
     const githubRepo = new delivlib.WritableGitHubRepo({
       repository: 'awslabs/aws-delivlib-sample',
-      token: cdk.SecretValue.secretsManager('github-token'),
+      tokenSecretArn: 'arn:aws:secretsmanager:us-east-1:712950704752:secret:github-token-nnAqfW',
       sshKeySecret: { secretArn: 'arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/github-ssh-lwzfjW' },
       commitEmail: 'foo@bar.com',
       commitUsername: 'foobar',
@@ -163,8 +163,9 @@ export class TestStack extends cdk.Stack {
     // BUMP
 
     pipeline.autoBump({
+      scheduleExpression: 'disable',
       bumpCommand: 'npm i && npm run bump',
-      branch: 'master'
+      pullRequest: true
     });
 
     //

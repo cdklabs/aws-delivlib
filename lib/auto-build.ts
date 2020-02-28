@@ -1,11 +1,9 @@
 import { aws_codebuild as codebuild, aws_sam as serverless, core as core } from "monocdk-experiment";
 import { BuildEnvironmentProps, createBuildEnvironment } from "./build-env";
-
-
+import { IRepo } from './repo';
 
 const { Token } = core;
 
-import { IRepo } from './repo';
 
 export interface AutoBuildOptions {
   /**
@@ -61,13 +59,15 @@ export class AutoBuild extends core.Construct {
 
     const project = new codebuild.Project(this, 'Project', {
       projectName: props.projectName,
-      source: props.repo.createBuildSource(this, true, props.branch),
+      source: props.repo.createBuildSource(this, true, { branch: props.branch }),
       environment: createBuildEnvironment(props.environment),
       badge: props.repo.allowsBadge,
       buildSpec: props.buildSpec
     });
 
     const publicLogs = props.publicLogs !== undefined ? props.publicLogs : false;
+    const githubToken = props.repo.tokenSecretArn ? SecretValue.secretsManager(props.repo.tokenSecretArn) : undefined;
+
     if (publicLogs) {
       new serverless.CfnApplication(this, 'GitHubCodeBuildLogsSAR', {
         location: {
@@ -76,7 +76,7 @@ export class AutoBuild extends core.Construct {
         },
         parameters: {
           CodeBuildProjectName: project.projectName,
-          ...props.repo.token ? { GitHubOAuthToken: Token.asString(props.repo.token)} : undefined,
+          ...githubToken ? { GitHubOAuthToken: Token.asString(githubToken)} : undefined,
         }
       });
     }
