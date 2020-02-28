@@ -66,7 +66,7 @@ export class AutoBuild extends core.Construct {
     });
 
     const publicLogs = props.publicLogs !== undefined ? props.publicLogs : false;
-    const githubToken = props.repo.tokenSecretArn ? SecretValue.secretsManager(props.repo.tokenSecretArn) : undefined;
+    const githubToken = props.repo.tokenSecretArn ? core.SecretValue.secretsManager(props.repo.tokenSecretArn) : undefined;
 
     if (publicLogs) {
       new serverless.CfnApplication(this, 'GitHubCodeBuildLogsSAR', {

@@ -1,6 +1,6 @@
 import { aws_cloudwatch as cloudwatch, aws_codebuild as cbuild,
   aws_codepipeline as cpipeline, aws_codepipeline_actions as cpipeline_actions,
-  aws_iam as iam, aws_s3_assets as assets, core as cdk } from
+  aws_iam as iam, aws_s3_assets as assets, core as cdk, aws_secretsmanager, aws_ssm } from
   "monocdk-experiment";
 import fs = require("fs");
 import path = require("path");
@@ -246,13 +246,13 @@ export class Shellable extends cdk.Construct {
 
     // Grant read access to secrets
     Object.entries(props.environmentSecrets ?? {}).forEach(([name, secretArn]) => {
-      const secret = Secret.fromSecretArn(this, `${name}Secret`, secretArn);
+      const secret = aws_secretsmanager.Secret.fromSecretArn(this, `${name}Secret`, secretArn);
       secret.grantRead(this.role);
     });
 
     // Grant read access to parameters
     Object.entries(props.environmentParameters ?? {}).forEach(([name, parameterName]) => {
-      const parameter = StringParameter.fromStringParameterName(this, `${name}Parameter`, parameterName);
+      const parameter = aws_ssm.StringParameter.fromStringParameterName(this, `${name}Parameter`, parameterName);
       parameter.grantRead(this.role);
     });
 

@@ -2,11 +2,9 @@ import { core as core, aws_codepipeline as aws_codepipeline, aws_codepipeline_ac
 import * as https from "https";
 import { codePipeline, handler } from "../lib/chime-notifier/notifier-handler";
 import { ChimeNotifier } from "../lib";
-import "@aws-cdk/assert/jest";
-var { Stack, Construct } = core;
-var { Pipeline, IStage, ActionBindOptions, ActionConfig, ActionCategory, Artifact } = aws_codepipeline;
-var { ManualApprovalAction, Action } = aws_codepipeline_actions;
-
+import "@monocdk-experiment/assert/jest";
+const { Stack } = core;
+const { Pipeline, ActionCategory, Artifact } = aws_codepipeline;
 
 jest.mock('https');
 
@@ -99,7 +97,7 @@ test('can add to stack', () => {
   const stack = new Stack();
   const pipeline = new Pipeline(stack, 'Pipe');
   pipeline.addStage({ stageName: 'Source', actions: [new FakeSourceAction()] });
-  pipeline.addStage({ stageName: 'Build', actions: [new ManualApprovalAction({ actionName: 'Dummy' })] });
+  pipeline.addStage({ stageName: 'Build', actions: [new aws_codepipeline_actions.ManualApprovalAction({ actionName: 'Dummy' })] });
 
   new ChimeNotifier(stack, 'Chime', {
     pipeline,
@@ -110,7 +108,7 @@ test('can add to stack', () => {
    expect(stack).toHaveResource('AWS::Lambda::Function');
 });
 
-export class FakeSourceAction extends Action {
+export class FakeSourceAction extends aws_codepipeline_actions.Action {
   constructor() {
     super({
       actionName: 'Fake',
@@ -126,7 +124,8 @@ export class FakeSourceAction extends Action {
     });
   }
 
-  protected bound(_scope: Construct, _stage: IStage, _options: ActionBindOptions): ActionConfig {
+  // tslint:disable-next-line: max-line-length
+  protected bound(_scope: core.Construct, _stage: aws_codepipeline.IStage, _options: aws_codepipeline.ActionBindOptions): aws_codepipeline.ActionConfig {
     return {
       configuration: { }
     };

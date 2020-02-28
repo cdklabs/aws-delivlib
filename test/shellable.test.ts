@@ -1,8 +1,8 @@
 import { core as cdk, core as core } from "monocdk-experiment";
-import { expect as assert, haveResource, ResourcePart, SynthUtils } from "@aws-cdk/assert";
+import { expect as assert, haveResource, ResourcePart, SynthUtils } from "@monocdk-experiment/assert";
 import path = require("path");
 import { Shellable, ShellPlatform } from "../lib";
-var { Stack } = core;
+const { Stack } = core;
 
 
 // tslint:disable:max-line-length

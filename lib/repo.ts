@@ -1,4 +1,4 @@
-import { core as core, aws_codebuild as cbuild, aws_codecommit as ccommit,
+import { aws_codebuild as cbuild, aws_codecommit as ccommit,
   aws_codepipeline as cpipeline, aws_codepipeline_actions as cpipeline_actions,
   core as cdk } from "monocdk-experiment";
 import { ExternalSecret } from "./permissions";

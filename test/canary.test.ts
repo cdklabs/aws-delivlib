@@ -1,5 +1,5 @@
 import { aws_events as events, core as cdk } from "monocdk-experiment";
-import assert = require("@aws-cdk/assert");
+import assert = require("@monocdk-experiment/assert");
 import path = require("path");
 import { Canary } from "../lib";
 

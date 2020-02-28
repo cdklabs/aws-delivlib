@@ -1,7 +1,9 @@
 // tslint:disable: max-line-length
-import { Stack } from "@aws-cdk/core";
+import { core } from "monocdk-experiment";
 import { AutoBump, WritableGitHubRepo } from "../lib";
-import '@aws-cdk/assert/jest';
+import '@monocdk-experiment/assert/jest';
+
+const Stack = core.Stack;
 
 const MOCK_REPO = new WritableGitHubRepo({
   sshKeySecret: { secretArn: 'ssh-key-secret-arn' },
