@@ -6,8 +6,8 @@
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "scripts": {
-    "build": "npm run build:assets && tsc && tslint --fix --project .",
-    "build:assets": "npm run build:assets:custom-resource-handlers && npm run build:assets:lambda-handlers",
+    "build": "yarn build:assets && tsc && tslint --fix --project .",
+    "build:assets": "yarn build:assets:custom-resource-handlers && yarn build:assets:lambda-handlers",
     "build:assets:custom-resource-handlers": "/bin/bash ./build-custom-resource-handlers.sh",
     "build:assets:lambda-handlers": "/bin/bash ./build-lambda-handlers.sh",
     "package": "/bin/bash ./package.sh",
@@ -15,8 +15,8 @@
     "test": "/bin/bash ./test.sh",
     "cdk": "cdk",
     "bump": "standard-version",
-    "pipeline-update": "npm run build && cdk -a pipeline/delivlib.js deploy",
-    "pipeline-diff": "npm run build && cdk -a pipeline/delivlib.js diff"
+    "pipeline-update": "yarn build && cdk -a pipeline/delivlib.js deploy",
+    "pipeline-diff": "yarn build && cdk -a pipeline/delivlib.js diff"
   },
   "keywords": [
     "aws-cdk",

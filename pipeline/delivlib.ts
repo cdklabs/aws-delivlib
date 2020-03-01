@@ -31,12 +31,12 @@ export class DelivLibPipelineStack extends cdk.Stack {
         version: '0.2',
         phases: {
           install: {
-            commands: [ 'npm ci' ]
+            commands: [ 'yarn install --frozen-lockfile' ]
           },
           build: {
             commands: [
-              'npm run build',
-              'npm test'
+              'yarn build',
+              'yarn test'
             ]
           },
           post_build: {
@@ -61,7 +61,7 @@ export class DelivLibPipelineStack extends cdk.Stack {
     });
 
     pipeline.autoBump({
-      bumpCommand: 'npm i && npm run bump',
+      bumpCommand: 'yarn install --frozen-lockfile && yarn bump',
       branch: 'master'
     });
   }
