@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [7.0.0](https://github.com/awslabs/aws-delivlib/compare/v6.1.1...v7.0.0) (2020-03-01)
+
+
+### ⚠ BREAKING CHANGES
+
+* to use this version, your application must depend on
+monocdk-experiment.
+
+### Features
+
+* switch to MonoCDK (-experiment) ([#245](https://github.com/awslabs/aws-delivlib/issues/245)) ([f0863de](https://github.com/awslabs/aws-delivlib/commit/f0863de0029a50d4c1d9bb35254e44eb14a766fe))
+
 ### [6.1.1](https://github.com/awslabs/aws-delivlib/compare/v6.1.0...v6.1.1) (2020-02-27)
 
 
