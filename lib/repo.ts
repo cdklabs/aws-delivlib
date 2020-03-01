@@ -1,9 +1,7 @@
-import cbuild = require('@aws-cdk/aws-codebuild');
-import ccommit = require('@aws-cdk/aws-codecommit');
-import cpipeline = require('@aws-cdk/aws-codepipeline');
-import cpipeline_actions = require('@aws-cdk/aws-codepipeline-actions');
-import cdk = require('@aws-cdk/core');
-import { ExternalSecret } from './permissions';
+import { aws_codebuild as cbuild, aws_codecommit as ccommit,
+  aws_codepipeline as cpipeline, aws_codepipeline_actions as cpipeline_actions,
+  core as cdk } from "monocdk-experiment";
+import { ExternalSecret } from "./permissions";
 
 export interface IRepo {
   repositoryUrlHttp: string;

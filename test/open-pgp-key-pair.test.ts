@@ -1,7 +1,7 @@
-import assert = require('@aws-cdk/assert');
-import kms = require('@aws-cdk/aws-kms');
-import cdk = require('@aws-cdk/core');
-import { OpenPGPKeyPair } from '../lib/open-pgp-key-pair';
+import { aws_kms as kms, core as cdk } from "monocdk-experiment";
+import assert = require("@monocdk-experiment/assert");
+import { OpenPGPKeyPair } from "../lib/open-pgp-key-pair";
+
 
 test('correctly creates', () => {
   // GIVEN

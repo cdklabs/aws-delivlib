@@ -1,8 +1,8 @@
-import assert = require('@aws-cdk/assert');
-import events = require('@aws-cdk/aws-events');
-import cdk = require('@aws-cdk/core');
-import path = require('path');
-import { Canary } from '../lib';
+import { aws_events as events, core as cdk } from "monocdk-experiment";
+import assert = require("@monocdk-experiment/assert");
+import path = require("path");
+import { Canary } from "../lib";
+
 
 const testDir = path.join(__dirname, 'delivlib-tests', 'linux');
 

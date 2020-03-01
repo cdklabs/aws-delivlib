@@ -1,11 +1,11 @@
-import cloudwatch = require('@aws-cdk/aws-cloudwatch');
-import cbuild = require('@aws-cdk/aws-codebuild');
-import events = require('@aws-cdk/aws-events');
-import events_targets = require('@aws-cdk/aws-events-targets');
-import cdk = require('@aws-cdk/core');
-import { createBuildEnvironment } from '../build-env';
-import permissions = require('../permissions');
-import { WritableGitHubRepo } from '../repo';
+import { aws_cloudwatch as cloudwatch, aws_codebuild as cbuild, aws_events as events, aws_events_targets as events_targets, core as cdk, } from "monocdk-experiment";
+import { createBuildEnvironment } from "../build-env";
+import permissions = require("../permissions");
+import { WritableGitHubRepo } from "../repo";
+
+
+
+
 
 // tslint:disable:max-line-length
 

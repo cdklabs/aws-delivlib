@@ -1,13 +1,8 @@
-import cfn = require('@aws-cdk/aws-cloudformation');
-import iam = require('@aws-cdk/aws-iam');
-import kms = require('@aws-cdk/aws-kms');
-import lambda = require('@aws-cdk/aws-lambda');
-import secretsManager = require('@aws-cdk/aws-secretsmanager');
-import ssm = require('@aws-cdk/aws-ssm');
-import cdk = require('@aws-cdk/core');
-import path = require('path');
-import { ICredentialPair } from './credential-pair';
-import { hashFileOrDirectory } from './util';
+// tslint:disable-next-line: max-line-length
+import { aws_cloudformation as cfn, aws_iam as iam, aws_kms as kms, aws_lambda as lambda, aws_secretsmanager as secretsManager, aws_ssm as ssm, core as cdk } from "monocdk-experiment";
+import path = require("path");
+import { ICredentialPair } from "./credential-pair";
+import { hashFileOrDirectory } from "./util";
 
 /**
  * The type of the {@link OpenPGPKeyPairProps.removalPolicy} property.

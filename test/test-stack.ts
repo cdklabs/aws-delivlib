@@ -1,9 +1,7 @@
-import events = require('@aws-cdk/aws-events');
-import iam = require('@aws-cdk/aws-iam');
-import kms = require('@aws-cdk/aws-kms');
-import cdk = require('@aws-cdk/core');
-import path = require('path');
-import delivlib = require('../lib');
+import { aws_events as events, aws_iam as iam, aws_kms as kms, core as cdk } from "monocdk-experiment";
+import path = require("path");
+import delivlib = require("../lib");
+
 
 const testDir = path.join(__dirname, 'delivlib-tests');
 

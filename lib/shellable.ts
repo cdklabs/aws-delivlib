@@ -1,16 +1,11 @@
-import cloudwatch = require('@aws-cdk/aws-cloudwatch');
-import cbuild = require('@aws-cdk/aws-codebuild');
-import cpipeline = require('@aws-cdk/aws-codepipeline');
-import cpipeline_actions = require('@aws-cdk/aws-codepipeline-actions');
-import iam = require('@aws-cdk/aws-iam');
-import assets = require('@aws-cdk/aws-s3-assets');
-import { Secret } from '@aws-cdk/aws-secretsmanager';
-import { StringParameter } from '@aws-cdk/aws-ssm';
-import cdk = require('@aws-cdk/core');
-import fs = require('fs');
-import path = require('path');
-import { BuildSpec } from './build-spec';
-import { renderEnvironmentVariables } from './util';
+import { aws_cloudwatch as cloudwatch, aws_codebuild as cbuild,
+  aws_codepipeline as cpipeline, aws_codepipeline_actions as cpipeline_actions,
+  aws_iam as iam, aws_s3_assets as assets, core as cdk, aws_secretsmanager, aws_ssm } from
+  "monocdk-experiment";
+import fs = require("fs");
+import path = require("path");
+import { BuildSpec } from "./build-spec";
+import { renderEnvironmentVariables } from "./util";
 
 const S3_BUCKET_ENV = 'SCRIPT_S3_BUCKET';
 const S3_KEY_ENV = 'SCRIPT_S3_KEY';
@@ -251,13 +246,13 @@ export class Shellable extends cdk.Construct {
 
     // Grant read access to secrets
     Object.entries(props.environmentSecrets ?? {}).forEach(([name, secretArn]) => {
-      const secret = Secret.fromSecretArn(this, `${name}Secret`, secretArn);
+      const secret = aws_secretsmanager.Secret.fromSecretArn(this, `${name}Secret`, secretArn);
       secret.grantRead(this.role);
     });
 
     // Grant read access to parameters
     Object.entries(props.environmentParameters ?? {}).forEach(([name, parameterName]) => {
-      const parameter = StringParameter.fromStringParameterName(this, `${name}Parameter`, parameterName);
+      const parameter = aws_ssm.StringParameter.fromStringParameterName(this, `${name}Parameter`, parameterName);
       parameter.grantRead(this.role);
     });
 

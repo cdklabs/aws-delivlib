@@ -1,26 +1,22 @@
-import cloudwatch = require('@aws-cdk/aws-cloudwatch');
-import cbuild = require('@aws-cdk/aws-codebuild');
-import { BuildEnvironment } from '@aws-cdk/aws-codebuild';
-import cpipeline = require('@aws-cdk/aws-codepipeline');
-import cpipeline_actions = require('@aws-cdk/aws-codepipeline-actions');
-import events = require('@aws-cdk/aws-events');
-import events_targets = require('@aws-cdk/aws-events-targets');
-import iam = require('@aws-cdk/aws-iam');
-import s3 = require('@aws-cdk/aws-s3');
-import sns = require('@aws-cdk/aws-sns');
-import sns_subs = require('@aws-cdk/aws-sns-subscriptions');
-import cdk = require('@aws-cdk/core');
-import { AutoBuild, AutoBuildOptions } from './auto-build';
-import { createBuildEnvironment } from './build-env';
-import { AutoBump, AutoBumpOptions } from './bump';
-import { Canary, CanaryProps } from './canary';
-import { ChangeController } from './change-controller';
-import { PipelineWatcher } from './pipeline-watcher';
-import publishing = require('./publishing');
-import { IRepo, WritableGitHubRepo } from './repo';
-import { Shellable, ShellableProps } from './shellable';
-import { determineRunOrder } from './util';
-import { ChimeNotifier } from './chime-notifier';
+import { aws_cloudwatch as cloudwatch, aws_codebuild as cbuild,
+  aws_codepipeline as cpipeline, aws_codepipeline_actions as cpipeline_actions,
+  aws_events as events, aws_events_targets as events_targets, aws_iam as iam,
+  aws_s3 as s3, aws_sns as sns, aws_sns_subscriptions as sns_subs, core as cdk
+  } from "monocdk-experiment";
+import { AutoBuild, AutoBuildOptions } from "./auto-build";
+import { createBuildEnvironment } from "./build-env";
+import { AutoBump, AutoBumpOptions } from "./bump";
+import { Canary, CanaryProps } from "./canary";
+import { ChangeController } from "./change-controller";
+import { PipelineWatcher } from "./pipeline-watcher";
+import publishing = require("./publishing");
+import { IRepo, WritableGitHubRepo } from "./repo";
+import { Shellable, ShellableProps } from "./shellable";
+import { determineRunOrder } from "./util";
+import { ChimeNotifier } from "./chime-notifier";
+
+
+
 
 const PUBLISH_STAGE_NAME = 'Publish';
 const TEST_STAGE_NAME = 'Test';
@@ -158,7 +154,7 @@ export class Pipeline extends cdk.Construct {
   private readonly concurrency?: number;
   private readonly repo: IRepo;
   private readonly dryRun: boolean;
-  private readonly buildEnvironment: BuildEnvironment;
+  private readonly buildEnvironment: cbuild.BuildEnvironment;
   private readonly buildSpec?: cbuild.BuildSpec;
 
   constructor(parent: cdk.Construct, name: string, props: PipelineProps) {

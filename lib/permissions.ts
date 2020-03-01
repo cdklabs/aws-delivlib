@@ -1,4 +1,8 @@
-import iam = require('@aws-cdk/aws-iam');
+import { aws_iam as iam } from "monocdk-experiment";
+
+
+
+
 
 /**
  * Describe a Secrets Manager secret external to the CDK app

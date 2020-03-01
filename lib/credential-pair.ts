@@ -1,5 +1,9 @@
-import secretsManager = require('@aws-cdk/aws-secretsmanager');
-import ssm = require('@aws-cdk/aws-ssm');
+import { aws_ssm as ssm } from "monocdk-experiment";
+import { aws_secretsmanager as secretsManager } from "monocdk-experiment";
+
+
+
+
 
 /**
  * A Credential Pair combines a secret element (the credential) and a public

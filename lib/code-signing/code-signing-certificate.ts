@@ -1,12 +1,12 @@
-import iam = require('@aws-cdk/aws-iam');
-import kms = require('@aws-cdk/aws-kms');
-import secretsManager = require('@aws-cdk/aws-secretsmanager');
-import ssm = require('@aws-cdk/aws-ssm');
-import cdk = require('@aws-cdk/core');
-import { ICredentialPair } from '../credential-pair';
-import permissions = require('../permissions');
-import { DistinguishedName } from './certificate-signing-request';
-import { RsaPrivateKeySecret } from './private-key';
+import { aws_iam as iam, aws_kms as kms, aws_secretsmanager as secretsManager, aws_ssm as ssm, core as cdk } from "monocdk-experiment";
+import { ICredentialPair } from "../credential-pair";
+import permissions = require("../permissions");
+import { DistinguishedName } from "./certificate-signing-request";
+import { RsaPrivateKeySecret } from "./private-key";
+
+
+
+
 
 export { DistinguishedName } from './certificate-signing-request';
 

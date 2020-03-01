@@ -1,7 +1,8 @@
-import iam = require('@aws-cdk/aws-iam');
-import kms = require('@aws-cdk/aws-kms');
-import cdk = require('@aws-cdk/core');
-import { OpenPGPKeyPair } from './open-pgp-key-pair';
+import { aws_iam as iam, aws_kms as kms, core as cdk } from "monocdk-experiment";
+import { OpenPGPKeyPair } from "./open-pgp-key-pair";
+
+
+
 
 /**
  * Construction properties for a SigningKey

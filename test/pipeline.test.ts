@@ -1,13 +1,11 @@
-import { expect as cdk_expect, haveResource, haveResourceLike, SynthUtils } from '@aws-cdk/assert';
-import codebuild = require('@aws-cdk/aws-codebuild');
-import codecommit = require('@aws-cdk/aws-codecommit');
-import cpipeline = require('@aws-cdk/aws-codepipeline');
-import cpipeline_actions = require('@aws-cdk/aws-codepipeline-actions');
-import cdk = require('@aws-cdk/core');
-import path = require('path');
-import delivlib = require('../lib');
-import { AddToPipelineOptions, IPublisher } from '../lib';
-import { determineRunOrder } from '../lib/util';
+// tslint:disable-next-line: max-line-length
+import { aws_codebuild as codebuild, aws_codecommit as codecommit, aws_codepipeline as cpipeline, aws_codepipeline_actions as cpipeline_actions, core as cdk } from "monocdk-experiment";
+import { expect as cdk_expect, haveResource, haveResourceLike, SynthUtils } from "@monocdk-experiment/assert";
+import path = require("path");
+import delivlib = require("../lib");
+import { AddToPipelineOptions, IPublisher } from "../lib";
+import { determineRunOrder } from "../lib/util";
+
 
 test('pipelineName can be used to set a physical name for the pipeline', async () => {
   const stack = new cdk.Stack();

@@ -1,17 +1,17 @@
-import cbuild = require('@aws-cdk/aws-codebuild');
-import cpipeline = require('@aws-cdk/aws-codepipeline');
-import cpipeline_actions = require('@aws-cdk/aws-codepipeline-actions');
-import iam = require('@aws-cdk/aws-iam');
-import s3 = require('@aws-cdk/aws-s3');
-import cdk = require('@aws-cdk/core');
-import path = require('path');
-import { ICodeSigningCertificate } from './code-signing';
-import { OpenPGPKeyPair } from './open-pgp-key-pair';
-import permissions = require('./permissions');
-import { AddToPipelineOptions, IPublisher } from './pipeline';
-import { WritableGitHubRepo } from './repo';
-import { LinuxPlatform, Shellable } from './shellable';
-import { noUndefined } from './util';
+import { aws_codebuild as cbuild, aws_codepipeline as cpipeline,
+  aws_codepipeline_actions as cpipeline_actions, aws_iam as iam, aws_s3 as s3,
+  core as cdk } from "monocdk-experiment";
+import path = require("path");
+import { ICodeSigningCertificate } from "./code-signing";
+import { OpenPGPKeyPair } from "./open-pgp-key-pair";
+import permissions = require("./permissions");
+import { AddToPipelineOptions, IPublisher } from "./pipeline";
+import { WritableGitHubRepo } from "./repo";
+import { LinuxPlatform, Shellable } from "./shellable";
+import { noUndefined } from "./util";
+
+
+
 
 export interface PublishToMavenProjectProps {
   /**
