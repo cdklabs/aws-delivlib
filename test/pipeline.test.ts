@@ -1,5 +1,10 @@
-// tslint:disable-next-line: max-line-length
-import { aws_codebuild as codebuild, aws_codecommit as codecommit, aws_codepipeline as cpipeline, aws_codepipeline_actions as cpipeline_actions, core as cdk } from "monocdk-experiment";
+import {
+  aws_codebuild as codebuild,
+  aws_codecommit as codecommit,
+  aws_codepipeline as cpipeline,
+  aws_codepipeline_actions as cpipeline_actions,
+  core as cdk
+} from "monocdk-experiment";
 import { expect as cdk_expect, haveResource, haveResourceLike, SynthUtils } from "@monocdk-experiment/assert";
 import path = require("path");
 import delivlib = require("../lib");
