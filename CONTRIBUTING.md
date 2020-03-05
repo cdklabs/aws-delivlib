@@ -19,6 +19,7 @@ reported the issue. Please try to include as much information as you can. Detail
 * Anything unusual about your environment or deployment
 
 ## Contributing via Pull Requests
+
 Contributions via pull requests are much appreciated. Before sending us a pull request, please ensure that:
 
 1. You are working against the latest source on the *master* branch.
@@ -37,18 +38,18 @@ To send us a pull request, please:
 GitHub provides additional document on [forking a repository](https://help.github.com/articles/fork-a-repo/) and
 [creating a pull request](https://help.github.com/articles/creating-a-pull-request/).
 
-
 ## Finding contributions to work on
+
 Looking at the existing issues is a great way to find something to contribute on. As our projects, by default, use the default GitHub issue labels (enhancement/bug/duplicate/help wanted/invalid/question/wontfix), looking at any ['help wanted'](https://github.com/awslabs/aws-delivlib/labels/help%20wanted) issues is a great place to start.
 
-
 ## Code of Conduct
+
 This project has adopted the [Amazon Open Source Code of Conduct](https://aws.github.io/code-of-conduct). 
 For more information see the [Code of Conduct FAQ](https://aws.github.io/code-of-conduct-faq) or contact 
 opensource-codeofconduct@amazon.com with any additional questions or comments.
 
-
 ## Security issue notifications
+
 If you discover a potential security issue in this project we ask that you notify AWS/Amazon Security via our [vulnerability reporting page](http://aws.amazon.com/security/vulnerability-reporting/). Please do **not** create a public github issue.
 
 ## Development Environment
@@ -56,9 +57,9 @@ If you discover a potential security issue in this project we ask that you notif
 To setup a development environment:
 
 1. Clone the repo
-2. Run `npm install`
-3. Run `npm run build` (or `npm run watch`) to compile typescript
-4. Run `npm run test`
+2. Run `yarn install`
+3. Run `yarn build` (or `yarn watch`) to compile typescript
+4. Run `yarn test`
 
 ## Build & Release Pipeline
 
@@ -66,32 +67,32 @@ The build & release pipeline is defined in [`pipeline/delivlib.ts`](./pipeline/d
 
 You can use the following npm scripts to manage the pipeline:
 
-* Make sure to `npm run build` (or `npm run watch`) to compile the pipeline code
-* `npm run pipeline-diff` - runs `cdk diff` against the deployed pipeline
-* `npm run pipeline-update` - runs `cdk deploy` to update the pipeline
+* Make sure to `yarn build` (or `yarn watch`) to compile the pipeline code
+* `yarn pipeline-diff` - runs `cdk diff` against the deployed pipeline
+* `yarn pipeline-update` - runs `cdk deploy` to update the pipeline
+
+## Testing
+
+We have good coverage of unit tests that should be testing the bulk of the logic in delivlib. For every contribution and change,
+we expect them to be covered by unit tests, where appropriate.
+
+Besides this, there is a delivlib instance deployed to an AWS account (712950704752) that configures a delivlib pipeline for
+the package [aws-delivlib-sample](https://github.com/awslabs/aws-delivlib-sample). This instance can be used to test and
+validate your local changes. To do this,
+
+1. Build the package - `yarn build`
+2. Setup credentials to our AWS account: 712950704752
+3. Execute `yarn test update`. This will update the delivlib instance and the command will halt at a user prompt.
+
+At this point, you will find the resources created by delivlib in the stack whose ARN is printed to the console. Wait for the
+deployment to complete, and are then free to test and verify that your changes had the intended effect.
+
+Once complete, continue following the instructions and prompts until the end.q
 
 ## Releasing a New Version
 
-Before releasing a new version, you first run an integration test to ensure that the various features are working.
-
-Here is how to execute an integration test:
-
-1. Setup credentials to our test AWS account: 712950704752
-2. Execute `npm test update`. This will update the integration test infrastructure.
-  Wait until deployment has finished, and follow the prompts.
-
 Every commit pushed to master will be picked up by the build & release pipeline automatically,
 so there's nothing manual you need to do to release a new version.
-
-### Cleanup
-
-Updating the integration tests leaves a lot of junk resources behind them.
-Make sure to go into the AWS console for account 712950704752 and delete them afterwards
-(you can use the create date to figure out if it has been used for this test run):
-
-* S3 buckets
-* KMS keys
-* CloudWatch log groups
 
 ## Licensing
 

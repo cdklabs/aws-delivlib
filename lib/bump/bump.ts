@@ -3,12 +3,6 @@ import { createBuildEnvironment } from "../build-env";
 import permissions = require("../permissions");
 import { WritableGitHubRepo } from "../repo";
 
-
-
-
-
-// tslint:disable:max-line-length
-
 export interface AutoBumpOptions {
   /**
    * The command to execute in order to bump the repo.
@@ -83,8 +77,10 @@ export interface AutoBumpOptions {
 
   /**
    * Create a pull request after the branch is pushed.
+   * However, if there are no code changes after the bump is complete,
+   * no pull request will be created.
    *
-   * @default false
+   * @default - true if `pullRequestOptions` is specified, `false` otherwise.
    */
   pullRequest?: boolean;
 
@@ -184,7 +180,7 @@ export class AutoBump extends cdk.Construct {
 
     // now push either to our bump branch or the destination branch
     const targetBranch = props.branch || '$BRANCH';
-    pushCommands.push(`git push --follow-tags origin_ssh ${targetBranch }`);
+    pushCommands.push(`git push --follow-tags origin_ssh ${targetBranch}`);
 
     const pullRequestEnabled = props.pullRequest || props.pullRequestOptions;
     if (pullRequestEnabled) {
@@ -220,6 +216,7 @@ export class AutoBump extends cdk.Construct {
               // We would like to do the equivalent of "if (!changes) { return success; }" here, but we can't because
               // there's no way to stop a BuildSpec execution halfway through without throwing an error. Believe me, I
               // checked the code. Instead we define a variable that we will switch all other lines on.
+              // tslint:disable-next-line:max-line-length
               `git describe --exact-match HEAD && { echo "No new commits."; export SKIP=true; } || { echo "Changes to release."; export SKIP=false; }`,
               `$SKIP || { ${bumpCommand}; }`,
               `$SKIP || aws secretsmanager get-secret-value --secret-id "${sshKeySecret.secretArn}" --output=text --query=SecretString > ~/.ssh/id_rsa`,
@@ -271,6 +268,10 @@ function createPullRequestCommands(repo: WritableGitHubRepo, options: PullReques
     head: `$BRANCH`
   };
 
+  const condition = `git diff --exit-code --no-patch ${request.head} ${request.base} && ` +
+    '{ echo "No changes after bump. Skipping pull request..."; export SKIP=true; } || ' +
+    '{ echo "Creating pull request..."; export SKIP=false; }';
+
   const curl = [
     `curl`,
     `-X POST`,
@@ -281,6 +282,7 @@ function createPullRequestCommands(repo: WritableGitHubRepo, options: PullReques
   ];
 
   return [
+    condition,
     `GITHUB_TOKEN=$(aws secretsmanager get-secret-value --secret-id "${repo.tokenSecretArn}" --output=text --query=SecretString)`,
     curl.join(' ')
   ];
