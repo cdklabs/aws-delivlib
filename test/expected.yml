@@ -1217,6 +1217,11 @@ Resources:
         Fn::GetAtt:
           - CodeCommitPipelineBuildPipelineArtifactsBucketEncryptionKey05A62A83
           - Arn
+      Name:
+        Fn::Join:
+          - ""
+          - - Ref: CodeCommitPipelineBuildPipeline656B8CCB
+            - -Build
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/BuildProject/Resource
   CodeCommitPipelineBuildProjectOnBuildFailed2A08058D:

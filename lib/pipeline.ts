@@ -1,8 +1,16 @@
-import { aws_cloudwatch as cloudwatch, aws_codebuild as cbuild,
-  aws_codepipeline as cpipeline, aws_codepipeline_actions as cpipeline_actions,
-  aws_events as events, aws_events_targets as events_targets, aws_iam as iam,
-  aws_s3 as s3, aws_sns as sns, aws_sns_subscriptions as sns_subs, core as cdk
-  } from "monocdk-experiment";
+import {
+  aws_cloudwatch as cloudwatch,
+  aws_codebuild as cbuild,
+  aws_codepipeline as cpipeline,
+  aws_codepipeline_actions as cpipeline_actions,
+  aws_events as events,
+  aws_events_targets as events_targets,
+  aws_iam as iam,
+  aws_s3 as s3,
+  aws_sns as sns,
+  aws_sns_subscriptions as sns_subs,
+  core as cdk
+} from "monocdk-experiment";
 import { AutoBuild, AutoBuildOptions } from "./auto-build";
 import { createBuildEnvironment } from "./build-env";
 import { AutoBump, AutoBumpOptions } from "./bump";
@@ -14,9 +22,6 @@ import { IRepo, WritableGitHubRepo } from "./repo";
 import { Shellable, ShellableProps } from "./shellable";
 import { determineRunOrder } from "./util";
 import { ChimeNotifier } from "./chime-notifier";
-
-
-
 
 const PUBLISH_STAGE_NAME = 'Publish';
 const TEST_STAGE_NAME = 'Test';
@@ -34,7 +39,7 @@ export interface PipelineProps {
 
   /**
    * A physical name for this pipeline.
-   * @default a new name will be generated.
+   * @default - a new name will be generated.
    */
   pipelineName?: string;
 
@@ -46,7 +51,7 @@ export interface PipelineProps {
 
   /**
    * Email to send failure notifications.
-   * @default No email notifications
+   * @default - No email notifications
    */
   notificationEmail?: string;
 
@@ -56,6 +61,12 @@ export interface PipelineProps {
    * @default jsii/superchain (see docs)
    */
   buildImage?: cbuild.IBuildImage;
+
+  /**
+   * The name of the CodeBuild project that will be part of this pipeline.
+   * @default `${pipelineName}-Build`
+   */
+  buildProjectName?: string;
 
   /**
    * The type of compute to use for this build.
@@ -99,7 +110,7 @@ export interface PipelineProps {
    * For example, if this value is 2, then only two actions will execute concurrently.
    * If this value is 1, the pipeline will not have any concurrent execution.
    *
-   * @default no limit
+   * @default - no limit
    */
   concurrency?: number;
 
@@ -114,6 +125,8 @@ export interface PipelineProps {
 
   /**
    * Automatically build commits that are pushed to this repository, including PR builds on github.
+   *
+   * @default false
    */
   autoBuild?: boolean;
 
@@ -127,6 +140,8 @@ export interface PipelineProps {
 
   /**
    * Post a notification to the given Chime webhooks if the pipeline fails
+   *
+   * @default - no Chime notifications on pipeline failure
    */
   chimeFailureWebhooks?: string[];
 
@@ -145,6 +160,11 @@ export class Pipeline extends cdk.Construct {
   public buildRole?: iam.IRole;
   public readonly failureAlarm: cloudwatch.Alarm;
   public readonly buildOutput: cpipeline.Artifact;
+
+  /**
+   * The primary CodeBuild project of this pipeline.
+   */
+  public readonly buildProject: cbuild.IProject;
 
   private readonly pipeline: cpipeline.Pipeline;
   private readonly branch: string;
@@ -175,18 +195,20 @@ export class Pipeline extends cdk.Construct {
     this.buildEnvironment = createBuildEnvironment(props);
     this.buildSpec = props.buildSpec;
 
-    const buildProject = new cbuild.PipelineProject(this, 'BuildProject', {
+    const buildProjectName = props.buildProjectName ?? `${this.pipeline.pipelineName}-Build`;
+    this.buildProject = new cbuild.PipelineProject(this, 'BuildProject', {
+      projectName: buildProjectName,
       environment: this.buildEnvironment,
       buildSpec: this.buildSpec,
     });
 
-    this.buildRole = buildProject.role;
+    this.buildRole = this.buildProject.role;
 
     const buildStage = this.getOrCreateStage('Build');
     const buildOutput = new cpipeline.Artifact();
     buildStage.addAction(new cpipeline_actions.CodeBuildAction({
       actionName: 'Build',
-      project: buildProject,
+      project: this.buildProject,
       input: sourceArtifact,
       outputs: [buildOutput],
     }));
@@ -201,7 +223,7 @@ export class Pipeline extends cdk.Construct {
     this.failureAlarm = this.addFailureAlarm(props.title);
 
     // emit an SNS notification every time build fails.
-    this.addBuildFailureNotification(buildProject, `${props.title} build failed`);
+    this.addBuildFailureNotification(this.buildProject, `${props.title} build failed`);
 
     // Also emit to Chime webhooks if configured
     if (props.chimeFailureWebhooks) {
@@ -363,7 +385,7 @@ export class Pipeline extends cdk.Construct {
     }).alarm;
   }
 
-  private addBuildFailureNotification(buildProject: cbuild.Project, message: string) {
+  private addBuildFailureNotification(buildProject: cbuild.IProject, message: string) {
     if (!this.notify) {
       return;
     }
