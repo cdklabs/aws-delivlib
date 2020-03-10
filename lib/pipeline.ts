@@ -64,7 +64,7 @@ export interface PipelineProps {
 
   /**
    * The name of the CodeBuild project that will be part of this pipeline.
-   * @default `${pipelineName}-Build`
+   * @default - `${pipelineName}-Build`, if `pipelineName` property is specified; automatically generated, otherwise.
    */
   buildProjectName?: string;
 
@@ -195,7 +195,10 @@ export class Pipeline extends cdk.Construct {
     this.buildEnvironment = createBuildEnvironment(props);
     this.buildSpec = props.buildSpec;
 
-    const buildProjectName = props.buildProjectName ?? `${this.pipeline.pipelineName}-Build`;
+    let buildProjectName = props.buildProjectName;
+    if (buildProjectName === undefined && props.pipelineName !== undefined) {
+      buildProjectName = `${props.pipelineName}-Build`;
+    }
     this.buildProject = new cbuild.PipelineProject(this, 'BuildProject', {
       projectName: buildProjectName,
       environment: this.buildEnvironment,
