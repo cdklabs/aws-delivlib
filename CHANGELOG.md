@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [7.0.3](https://github.com/awslabs/aws-delivlib/compare/v7.0.2...v7.0.3) (2020-03-10)
+
+
+### Bug Fixes
+
+* **pipeline:** cyclic dependency between CodePipeline::Pipeline and CodeBuild::Project ([#261](https://github.com/awslabs/aws-delivlib/issues/261)) ([6b42d0f](https://github.com/awslabs/aws-delivlib/commit/6b42d0f6a21082dfe100f0ccc5b34023173ff1cf))
+
 ### [7.0.2](https://github.com/awslabs/aws-delivlib/compare/v7.0.1...v7.0.2) (2020-03-07)
 
 ### [7.0.1](https://github.com/awslabs/aws-delivlib/compare/v7.0.0...v7.0.1) (2020-03-05)
