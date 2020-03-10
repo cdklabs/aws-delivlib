@@ -5,7 +5,7 @@ import {
   aws_codepipeline_actions as cpipeline_actions,
   core as cdk
 } from "monocdk-experiment";
-import { expect as cdk_expect, haveResource, haveResourceLike, SynthUtils } from "@monocdk-experiment/assert";
+import { expect as cdk_expect, haveResource, haveResourceLike, SynthUtils, ABSENT } from "@monocdk-experiment/assert";
 import path = require("path");
 import delivlib = require("../lib");
 import { AddToPipelineOptions, IPublisher } from "../lib";
@@ -263,6 +263,54 @@ test('autoBuild() can be configured with a different buildspec', () => {
       },
       Type: "CODECOMMIT",
     }
+  }));
+});
+
+test('CodeBuild Project name matches buildProjectName property', () => {
+  // GIVEN
+  const stack = new cdk.Stack();
+
+  // WHEN
+  new delivlib.Pipeline(stack, 'Pipeline', {
+    repo: createTestRepo(stack),
+    pipelineName: 'HelloPipeline',
+    buildProjectName: 'HelloBuild',
+  });
+
+  // THEN
+  cdk_expect(stack).to(haveResourceLike('AWS::CodeBuild::Project', {
+    Name: 'HelloBuild'
+  }));
+});
+
+test('CodeBuild Project name is extended from pipelineName property', () => {
+  // GIVEN
+  const stack = new cdk.Stack();
+
+  // WHEN
+  new delivlib.Pipeline(stack, 'Pipeline', {
+    repo: createTestRepo(stack),
+    pipelineName: 'HelloPipeline',
+  });
+
+  // THEN
+  cdk_expect(stack).to(haveResourceLike('AWS::CodeBuild::Project', {
+    Name: 'HelloPipeline-Build'
+  }));
+});
+
+test('CodeBuild Project name is left undefined when neither buildProjectName nor pipelineName are specified', () => {
+  // GIVEN
+  const stack = new cdk.Stack();
+
+  // WHEN
+  new delivlib.Pipeline(stack, 'Pipeline', {
+    repo: createTestRepo(stack),
+  });
+
+  // THEN
+  cdk_expect(stack).to(haveResourceLike('AWS::CodeBuild::Project', {
+    Name: ABSENT,
   }));
 });
 
