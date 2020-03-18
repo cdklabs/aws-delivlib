@@ -9,12 +9,31 @@
   dependencies:
     md5 "^2.2.1"
 
+"@aws-cdk/cfnspec@1.29.0":
+  version "1.29.0"
+  resolved "https://registry.yarnpkg.com/@aws-cdk/cfnspec/-/cfnspec-1.29.0.tgz#66535bb55621342d31fe6f471f4fc9ff500b69b8"
+  integrity sha512-Lb640OUCiNXLVg3fQFttNi2mcX72ujE52KPchG4+RY/sz6I6JyAVV5wwzDioTKOlKpZPpPtepHVtCEw8Z22Piw==
+  dependencies:
+    md5 "^2.2.1"
+
 "@aws-cdk/cloudformation-diff@1.28.0":
   version "1.28.0"
   resolved "https://registry.yarnpkg.com/@aws-cdk/cloudformation-diff/-/cloudformation-diff-1.28.0.tgz#d11ba0a3a89bdcc1bbd293d98d345cf8ce0a223a"
   integrity sha512-qrz2K9kvWEsxkKdsHn2gFPc1g2gbj3J7MB8avdx3hFE9Kt723Eg3u807I3oZyqyNKO+7Je6iPdJa1//G5fT0yg==
   dependencies:
     "@aws-cdk/cfnspec" "1.28.0"
+    colors "^1.4.0"
+    diff "^4.0.2"
+    fast-deep-equal "^3.1.1"
+    string-width "^4.2.0"
+    table "^5.4.6"
+
+"@aws-cdk/cloudformation-diff@1.29.0":
+  version "1.29.0"
+  resolved "https://registry.yarnpkg.com/@aws-cdk/cloudformation-diff/-/cloudformation-diff-1.29.0.tgz#840b3237b04986671e6ab6bc26fe4fb840f9863a"
+  integrity sha512-08djiphefY3IHZIbLbo9d56ZIX/nEvrdJc51HDn3W9H1HDonBStTbIWW/Z3abB+ecQJdk8rMPYOzu4NsIkaNIA==
+  dependencies:
+    "@aws-cdk/cfnspec" "1.29.0"
     colors "^1.4.0"
     diff "^4.0.2"
     fast-deep-equal "^3.1.1"
@@ -363,12 +382,12 @@
     "@types/yargs" "^15.0.0"
     chalk "^3.0.0"
 
-"@monocdk-experiment/assert@1.28.0":
-  version "1.28.0"
-  resolved "https://registry.yarnpkg.com/@monocdk-experiment/assert/-/assert-1.28.0.tgz#6b4e272782e8e311db6e5b13d03c3ad4505dd0dc"
-  integrity sha512-UWcmTeFHLSSXA92xSXDM12R8W2a5mZwlK161Ztj+R+msUFlNBjwkBWvjSU9sVAN+qfYhAUjtGqlEkuP8jc/jAQ==
+"@monocdk-experiment/assert@1.29.0":
+  version "1.29.0"
+  resolved "https://registry.yarnpkg.com/@monocdk-experiment/assert/-/assert-1.29.0.tgz#9d81987292c6c076fe396871f51f668772b1baea"
+  integrity sha512-Srk0DO9+cgEXHlTahUL31l0gT/uw+wRXJD09arRt5Z0QLMlrPxfn4r0y+Xh7TFO262iEDB5/3KHWACxk92/d7A==
   dependencies:
-    "@aws-cdk/cloudformation-diff" "1.28.0"
+    "@aws-cdk/cloudformation-diff" "1.29.0"
 
 "@sinonjs/commons@^1.7.0":
   version "1.7.1"
