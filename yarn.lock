@@ -16,12 +16,31 @@
   dependencies:
     md5 "^2.2.1"
 
+"@aws-cdk/cfnspec@1.30.0":
+  version "1.30.0"
+  resolved "https://registry.yarnpkg.com/@aws-cdk/cfnspec/-/cfnspec-1.30.0.tgz#a5fd197780f980fecb8798c1734e363401569fd5"
+  integrity sha512-qrUVFBPkWEYMCUcwrb0YPQ5gCBPbmPw0QAMx6qF3hMV8qHs/0EJWegqRQZSSgb/8O3sBradc/Kdz+d3gRjJZUA==
+  dependencies:
+    md5 "^2.2.1"
+
 "@aws-cdk/cloudformation-diff@1.29.0":
   version "1.29.0"
   resolved "https://registry.yarnpkg.com/@aws-cdk/cloudformation-diff/-/cloudformation-diff-1.29.0.tgz#840b3237b04986671e6ab6bc26fe4fb840f9863a"
   integrity sha512-08djiphefY3IHZIbLbo9d56ZIX/nEvrdJc51HDn3W9H1HDonBStTbIWW/Z3abB+ecQJdk8rMPYOzu4NsIkaNIA==
   dependencies:
     "@aws-cdk/cfnspec" "1.29.0"
+    colors "^1.4.0"
+    diff "^4.0.2"
+    fast-deep-equal "^3.1.1"
+    string-width "^4.2.0"
+    table "^5.4.6"
+
+"@aws-cdk/cloudformation-diff@1.30.0":
+  version "1.30.0"
+  resolved "https://registry.yarnpkg.com/@aws-cdk/cloudformation-diff/-/cloudformation-diff-1.30.0.tgz#f9f04d06440809a3fd714eb1d7d507f900aee71b"
+  integrity sha512-65PukqAb0SPnXPJ25AwlbVGn3X1s9+7sN1rpGwb41sGoR2ALJPssPYGm0SIXwFC1IJ+iGup0rC2tstY1Y6ZqGQ==
+  dependencies:
+    "@aws-cdk/cfnspec" "1.30.0"
     colors "^1.4.0"
     diff "^4.0.2"
     fast-deep-equal "^3.1.1"
@@ -370,12 +389,12 @@
     "@types/yargs" "^15.0.0"
     chalk "^3.0.0"
 
-"@monocdk-experiment/assert@1.29.0":
-  version "1.29.0"
-  resolved "https://registry.yarnpkg.com/@monocdk-experiment/assert/-/assert-1.29.0.tgz#9d81987292c6c076fe396871f51f668772b1baea"
-  integrity sha512-Srk0DO9+cgEXHlTahUL31l0gT/uw+wRXJD09arRt5Z0QLMlrPxfn4r0y+Xh7TFO262iEDB5/3KHWACxk92/d7A==
+"@monocdk-experiment/assert@1.30.0":
+  version "1.30.0"
+  resolved "https://registry.yarnpkg.com/@monocdk-experiment/assert/-/assert-1.30.0.tgz#be8236f807af037c527a93770ddf92b321d61c10"
+  integrity sha512-rTW7K+tOqWk3J8ApYuK8nqfuZliT/N31kAUJhQVEDbu6jH+dnNcMSydBZT6+6xh42icYli2BGdLvY/IuVu6P5A==
   dependencies:
-    "@aws-cdk/cloudformation-diff" "1.29.0"
+    "@aws-cdk/cloudformation-diff" "1.30.0"
 
 "@sinonjs/commons@^1.7.0":
   version "1.7.1"
