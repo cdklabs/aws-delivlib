@@ -1,9 +1,5 @@
 import { aws_codebuild as cbuild } from "monocdk-experiment";
 
-
-
-
-
 export interface BuildEnvironmentProps {
   computeType?: cbuild.ComputeType;
   privileged?: boolean;
