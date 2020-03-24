@@ -7,8 +7,9 @@ const { Token } = core;
 export interface AutoBuildOptions {
   /**
    * Build environment.
+   * @default - see defaults in `BuildEnvironmentProps`
    */
-  readonly environment: BuildEnvironmentProps;
+  readonly environment?: BuildEnvironmentProps;
 
   /**
    * The name of the CodeBuild project.
@@ -59,7 +60,7 @@ export class AutoBuild extends core.Construct {
     const project = new codebuild.Project(this, 'Project', {
       projectName: props.projectName,
       source: props.repo.createBuildSource(this, true, { branch: props.branch }),
-      environment: createBuildEnvironment(props.environment),
+      environment: createBuildEnvironment(props.environment ?? {}),
       badge: props.repo.allowsBadge,
       buildSpec: props.buildSpec
     });
