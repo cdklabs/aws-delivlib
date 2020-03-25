@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [7.1.0](https://github.com/awslabs/aws-delivlib/compare/v7.0.7...v7.1.0) (2020-03-25)
+
+
+### Features
+
+* **pipeline:** configure projectName and environment for AutoBuild ([#274](https://github.com/awslabs/aws-delivlib/issues/274)) ([f857464](https://github.com/awslabs/aws-delivlib/commit/f85746407992c27bf275426a0219a87408b6294c))
+
 ### [7.0.7](https://github.com/awslabs/aws-delivlib/compare/v7.0.6...v7.0.7) (2020-03-19)
 
 ### [7.0.6](https://github.com/awslabs/aws-delivlib/compare/v7.0.5...v7.0.6) (2020-03-17)
