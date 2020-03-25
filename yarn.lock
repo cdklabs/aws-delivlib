@@ -9,31 +9,12 @@
   dependencies:
     semver "^7.1.3"
 
-"@aws-cdk/cfnspec@1.30.0":
-  version "1.30.0"
-  resolved "https://registry.yarnpkg.com/@aws-cdk/cfnspec/-/cfnspec-1.30.0.tgz#a5fd197780f980fecb8798c1734e363401569fd5"
-  integrity sha512-qrUVFBPkWEYMCUcwrb0YPQ5gCBPbmPw0QAMx6qF3hMV8qHs/0EJWegqRQZSSgb/8O3sBradc/Kdz+d3gRjJZUA==
-  dependencies:
-    md5 "^2.2.1"
-
 "@aws-cdk/cfnspec@1.31.0":
   version "1.31.0"
   resolved "https://registry.yarnpkg.com/@aws-cdk/cfnspec/-/cfnspec-1.31.0.tgz#4494e2bafafa7cc76166e1a5e469d11c3714949a"
   integrity sha512-a+jVUuQyQHbxIZqFwM/3jmW3lD1IFtVPV2fx66Ds8EOsEFs87tENBaeSZJAQjCk4V6U/8tD7yllbUfWO4jvB1w==
   dependencies:
     md5 "^2.2.1"
-
-"@aws-cdk/cloudformation-diff@1.30.0":
-  version "1.30.0"
-  resolved "https://registry.yarnpkg.com/@aws-cdk/cloudformation-diff/-/cloudformation-diff-1.30.0.tgz#f9f04d06440809a3fd714eb1d7d507f900aee71b"
-  integrity sha512-65PukqAb0SPnXPJ25AwlbVGn3X1s9+7sN1rpGwb41sGoR2ALJPssPYGm0SIXwFC1IJ+iGup0rC2tstY1Y6ZqGQ==
-  dependencies:
-    "@aws-cdk/cfnspec" "1.30.0"
-    colors "^1.4.0"
-    diff "^4.0.2"
-    fast-deep-equal "^3.1.1"
-    string-width "^4.2.0"
-    table "^5.4.6"
 
 "@aws-cdk/cloudformation-diff@1.31.0":
   version "1.31.0"
@@ -389,12 +370,12 @@
     "@types/yargs" "^15.0.0"
     chalk "^3.0.0"
 
-"@monocdk-experiment/assert@1.30.0":
-  version "1.30.0"
-  resolved "https://registry.yarnpkg.com/@monocdk-experiment/assert/-/assert-1.30.0.tgz#be8236f807af037c527a93770ddf92b321d61c10"
-  integrity sha512-rTW7K+tOqWk3J8ApYuK8nqfuZliT/N31kAUJhQVEDbu6jH+dnNcMSydBZT6+6xh42icYli2BGdLvY/IuVu6P5A==
+"@monocdk-experiment/assert@1.31.0":
+  version "1.31.0"
+  resolved "https://registry.yarnpkg.com/@monocdk-experiment/assert/-/assert-1.31.0.tgz#fcf31664d0978623de6a17b69b1d0c13d575b8ee"
+  integrity sha512-1B2jqB+U9Q3e5UtzJf3+Ba1AIYQw8bx1tXU2tWGSc7ij9A1ilzJcaJVrHqNypXsaaIZUwOQ+ADtUZBP7r1cw5A==
   dependencies:
-    "@aws-cdk/cloudformation-diff" "1.30.0"
+    "@aws-cdk/cloudformation-diff" "1.31.0"
 
 "@sinonjs/commons@^1.7.0":
   version "1.7.1"
