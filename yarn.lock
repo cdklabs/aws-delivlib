@@ -2,17 +2,24 @@
 # yarn lockfile v1
 
 
-"@aws-cdk/cdk-assets-schema@1.31.0":
-  version "1.31.0"
-  resolved "https://registry.yarnpkg.com/@aws-cdk/cdk-assets-schema/-/cdk-assets-schema-1.31.0.tgz#49e6e5879d99cf7075a0708c3bf48e7a05ed2d49"
-  integrity sha512-p/XxgydhfTf4vuj2yfQh2wZG+tlXncsPYyRkwCLWKenazdCL5edYOBPvK8PuWEqoCjG0KwkaXvB+Vswbj/VbQg==
+"@aws-cdk/cdk-assets-schema@1.32.0":
+  version "1.32.0"
+  resolved "https://registry.yarnpkg.com/@aws-cdk/cdk-assets-schema/-/cdk-assets-schema-1.32.0.tgz#449b4fe9326293125d5de40106be5582b6377a7f"
+  integrity sha512-DDdnYEKLfC5qqTXgSzMUTrQXWUWA+a/MT4/C4Yh7DWr5Avui4WBEJUh9bjhY/595IsUAH4bKFoYL0me2sdaXyQ==
   dependencies:
-    semver "^7.1.3"
+    semver "^7.2.1"
 
 "@aws-cdk/cfnspec@1.31.0":
   version "1.31.0"
   resolved "https://registry.yarnpkg.com/@aws-cdk/cfnspec/-/cfnspec-1.31.0.tgz#4494e2bafafa7cc76166e1a5e469d11c3714949a"
   integrity sha512-a+jVUuQyQHbxIZqFwM/3jmW3lD1IFtVPV2fx66Ds8EOsEFs87tENBaeSZJAQjCk4V6U/8tD7yllbUfWO4jvB1w==
+  dependencies:
+    md5 "^2.2.1"
+
+"@aws-cdk/cfnspec@1.32.0":
+  version "1.32.0"
+  resolved "https://registry.yarnpkg.com/@aws-cdk/cfnspec/-/cfnspec-1.32.0.tgz#3a1fb5c86628aae916105019d1ae977845c6bfa9"
+  integrity sha512-YtA+QyPEjySB4IMHOliz0mCmrqV41WkzbdMZKPUEbyVRKp02go3dWnWLuoI2dfq7oCRtx17D6118kHxBiqO2vw==
   dependencies:
     md5 "^2.2.1"
 
@@ -28,17 +35,29 @@
     string-width "^4.2.0"
     table "^5.4.6"
 
-"@aws-cdk/cx-api@1.31.0":
-  version "1.31.0"
-  resolved "https://registry.yarnpkg.com/@aws-cdk/cx-api/-/cx-api-1.31.0.tgz#f1c5f500237dea8c41ce499d9b9999c63d054d59"
-  integrity sha512-BV93+UJsboS5x96uVv1L2sfNzyPS93V8MDjd/DJZKYzdX/KgDfK8H8Zg+ZZM0HcBismfZka2Hy7idl2iPs/IQg==
+"@aws-cdk/cloudformation-diff@1.32.0":
+  version "1.32.0"
+  resolved "https://registry.yarnpkg.com/@aws-cdk/cloudformation-diff/-/cloudformation-diff-1.32.0.tgz#6c82da94cf967d32d0ea1ce88a72008e7cfd3f40"
+  integrity sha512-eg9n+/G/b4YSPYs1UGDa1x0hF7HyojugNZMqEi26XdqFhVoa/Aba6ExRHVHqjEhbJsrsFvj9mKwotA2HPWSMPg==
   dependencies:
-    semver "^7.1.3"
+    "@aws-cdk/cfnspec" "1.32.0"
+    colors "^1.4.0"
+    diff "^4.0.2"
+    fast-deep-equal "^3.1.1"
+    string-width "^4.2.0"
+    table "^5.4.6"
 
-"@aws-cdk/region-info@1.31.0":
-  version "1.31.0"
-  resolved "https://registry.yarnpkg.com/@aws-cdk/region-info/-/region-info-1.31.0.tgz#66ca3c9b9b22af2c57d5d5dc87860d0be5b3cb34"
-  integrity sha512-9l/VDmfW51AOTgCNxPw0zYfxXrsAOGNiAx1OJifPDjdn1YcXCo56W1+0l/qLqIOKnbR8wHDEeIsf+4v3IJp4qw==
+"@aws-cdk/cx-api@1.32.0":
+  version "1.32.0"
+  resolved "https://registry.yarnpkg.com/@aws-cdk/cx-api/-/cx-api-1.32.0.tgz#d8066b74269f4b6f3e4fbd6ce10e4dbfb7db0a62"
+  integrity sha512-cmqAQm+FpMpXz6Y6tQnTOVHi73uhwv00lqjeDYIl91zTmuXib8EU1ggjO00/BKrx7VOl2odczOVLLAkOIWZjHw==
+  dependencies:
+    semver "^7.2.1"
+
+"@aws-cdk/region-info@1.32.0":
+  version "1.32.0"
+  resolved "https://registry.yarnpkg.com/@aws-cdk/region-info/-/region-info-1.32.0.tgz#b13cd054d98f704d60c31fa5c6a5b715bed31dc6"
+  integrity sha512-HpFMSdtkklTwoxwCjc17jjGSw+xSRws0ftEXeUvjVA/cOmgKOlqdrkZDsKePKJDWAwqGcRoq7yxlN/3SyB/GPA==
 
 "@babel/code-frame@^7.0.0", "@babel/code-frame@^7.8.3":
   version "7.8.3"
@@ -707,19 +726,19 @@ atob@^2.1.2:
   resolved "https://registry.yarnpkg.com/atob/-/atob-2.1.2.tgz#6d9517eb9e030d2436666651e86bd9f6f13533c9"
   integrity sha512-Wm6ukoaOGJi/73p/cl2GvLjTI5JM1k/O14isD73YML8StrH/7/lRFgmg8nICZgD3bZZvjwCGxtMOD3wWNAu8cg==
 
-aws-cdk@1.31.0:
-  version "1.31.0"
-  resolved "https://registry.yarnpkg.com/aws-cdk/-/aws-cdk-1.31.0.tgz#e65dea885fb1e2a0fbcaee4bc6f85c443f7d58f5"
-  integrity sha512-T4ausYpkCWy2oxTJVtgvZ24Y5sr76XmLMNy5a+fj5WgJPEKRT3VtyiWqjZlarT7Kc7IQSMOgmDc0ap3m96Jdzg==
+aws-cdk@1.32.0:
+  version "1.32.0"
+  resolved "https://registry.yarnpkg.com/aws-cdk/-/aws-cdk-1.32.0.tgz#659e2079deb684e39c1c504f9adddeb07cf6b7ef"
+  integrity sha512-u+3yWG/TCpVkSgRztbHQZIfDZeEmAognl3b1H8HPE4lVj7LeLvt90YH7HVf0N00ZiJFUAkiKre8cu5RCG1QYeA==
   dependencies:
-    "@aws-cdk/cdk-assets-schema" "1.31.0"
-    "@aws-cdk/cloudformation-diff" "1.31.0"
-    "@aws-cdk/cx-api" "1.31.0"
-    "@aws-cdk/region-info" "1.31.0"
+    "@aws-cdk/cdk-assets-schema" "1.32.0"
+    "@aws-cdk/cloudformation-diff" "1.32.0"
+    "@aws-cdk/cx-api" "1.32.0"
+    "@aws-cdk/region-info" "1.32.0"
     archiver "^3.1.1"
-    aws-sdk "^2.644.0"
-    camelcase "^5.3.1"
-    cdk-assets "1.31.0"
+    aws-sdk "^2.654.0"
+    camelcase "^6.0.0"
+    cdk-assets "1.32.0"
     colors "^1.4.0"
     decamelize "^4.0.0"
     fs-extra "^8.1.0"
@@ -728,17 +747,17 @@ aws-cdk@1.31.0:
     minimatch ">=3.0"
     promptly "^3.0.3"
     proxy-agent "^3.1.1"
-    semver "^7.1.3"
+    semver "^7.2.1"
     source-map-support "^0.5.16"
     table "^5.4.6"
-    uuid "^7.0.2"
+    uuid "^7.0.3"
     yaml "^1.8.3"
     yargs "^15.3.1"
 
-aws-sdk@^2.644.0:
-  version "2.645.0"
-  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.645.0.tgz#20865d693a5150fb6d5770ba3ce1efd558d4bd0a"
-  integrity sha512-zElxkYl5lRxf1wiByd6C3kBKBNtA04ltC++DhcL3OypNBAn/LjnHLR1r7TOn6XyM9xgM7wPwm7MS43n0AS2qYg==
+aws-sdk@^2.654.0:
+  version "2.654.0"
+  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.654.0.tgz#71fd99a2699d802f92e924bd40fde22a8a401e25"
+  integrity sha512-RAx/SJ74zAqBW1wyRxiHNflmrv50i35pu8kPxfMIJ418TJzIMt+LKgn55rTJgyUdUzKi+MC9XMY4n7IDtwj3HA==
   dependencies:
     buffer "4.9.1"
     events "1.1.1"
@@ -976,6 +995,11 @@ camelcase@^5.0.0, camelcase@^5.3.1:
   resolved "https://registry.yarnpkg.com/camelcase/-/camelcase-5.3.1.tgz#e3c9b31569e106811df242f715725a1f4c494320"
   integrity sha512-L28STB170nwWS63UjtlEOE3dldQApaJXZkOI1uMFfzf3rRuPegHaHesyee+YxQ+W6SvRDQV6UrdOdRiR153wJg==
 
+camelcase@^6.0.0:
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/camelcase/-/camelcase-6.0.0.tgz#5259f7c30e35e278f1bdc2a4d91230b37cad981e"
+  integrity sha512-8KMDF1Vz2gzOq54ONPJS65IvTUaB1cHJ2DMM7MbPmLZljDH1qpzzLsWdiN9pHh6qvkRVDTi/07+eNGch/oLU4w==
+
 capture-exit@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/capture-exit/-/capture-exit-2.0.0.tgz#fb953bfaebeb781f62898239dabb426d08a509a4"
@@ -993,14 +1017,14 @@ caseless@~0.12.0:
   resolved "https://registry.yarnpkg.com/caseless/-/caseless-0.12.0.tgz#1b681c21ff84033c826543090689420d187151dc"
   integrity sha1-G2gcIf+EAzyCZUMJBolCDRhxUdw=
 
-cdk-assets@1.31.0:
-  version "1.31.0"
-  resolved "https://registry.yarnpkg.com/cdk-assets/-/cdk-assets-1.31.0.tgz#a78c5a06605838f6466ae3f2c4d8f91065b46d38"
-  integrity sha512-XN7vuzlPDwMj3uMwd9WbbdzkuUVZgs0eRTiOWRoyDhCmI1rrjd8XCpBw80ukM7rPF98OazelE+DZFApLEMZw7Q==
+cdk-assets@1.32.0:
+  version "1.32.0"
+  resolved "https://registry.yarnpkg.com/cdk-assets/-/cdk-assets-1.32.0.tgz#93188eb71c0e268e9ea02e46919703766d8b882a"
+  integrity sha512-rwFbTycy91bIWD4LGEZI9I8dROjVcnSkh6MN82XCw29Uxy9ov6yfBi2h1ifYtzMbzqDLJBWmTw4GgINNlcaH3Q==
   dependencies:
-    "@aws-cdk/cdk-assets-schema" "1.31.0"
+    "@aws-cdk/cdk-assets-schema" "1.32.0"
     archiver "^3.1.1"
-    aws-sdk "^2.644.0"
+    aws-sdk "^2.654.0"
     glob "^7.1.6"
     yargs "^15.3.1"
 
@@ -4159,10 +4183,10 @@ semver@6.3.0, semver@^6.0.0, semver@^6.3.0:
   resolved "https://registry.yarnpkg.com/semver/-/semver-6.3.0.tgz#ee0a64c8af5e8ceea67687b133761e1becbd1d3d"
   integrity sha512-b39TBaTSfV6yBrapU89p5fKekE2m/NwnDocOVruQFS1/veMgdzuPcnOM34M6CwxW8jH/lxEa5rBoDeUwu5HHTw==
 
-semver@^7.1.3:
-  version "7.1.3"
-  resolved "https://registry.yarnpkg.com/semver/-/semver-7.1.3.tgz#e4345ce73071c53f336445cfc19efb1c311df2a6"
-  integrity sha512-ekM0zfiA9SCBlsKa2X1hxyxiI4L3B6EbVJkkdgQXnSEEaHlGdvyodMruTiulSRWMMB4NeIuYNMC9rTKTz97GxA==
+semver@^7.1.3, semver@^7.2.1:
+  version "7.2.1"
+  resolved "https://registry.yarnpkg.com/semver/-/semver-7.2.1.tgz#d997aa36bdbb00b501ae4ac4c7d17e9f7a587ae5"
+  integrity sha512-aHhm1pD02jXXkyIpq25qBZjr3CQgg8KST8uX0OWXch3xE6jw+1bfbWnCjzMwojsTquroUmKFHNzU6x26mEiRxw==
 
 set-blocking@^2.0.0:
   version "2.0.0"
@@ -4880,10 +4904,10 @@ uuid@^3.3.2:
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-3.4.0.tgz#b23e4358afa8a202fe7a100af1f5f883f02007ee"
   integrity sha512-HjSDRw6gZE5JMggctHBcjVak08+KEVhSIiDzFnT9S9aegmp85S/bReBVTb4QTFaRNptJ9kuYaNhnbNEOkbKb/A==
 
-uuid@^7.0.2:
-  version "7.0.2"
-  resolved "https://registry.yarnpkg.com/uuid/-/uuid-7.0.2.tgz#7ff5c203467e91f5e0d85cfcbaaf7d2ebbca9be6"
-  integrity sha512-vy9V/+pKG+5ZTYKf+VcphF5Oc6EFiu3W8Nv3P3zIh0EqVI80ZxOzuPfe9EHjkFNvf8+xuTHVeei4Drydlx4zjw==
+uuid@^7.0.3:
+  version "7.0.3"
+  resolved "https://registry.yarnpkg.com/uuid/-/uuid-7.0.3.tgz#c5c9f2c8cf25dc0a372c4df1441c41f5bd0c680b"
+  integrity sha512-DPSke0pXhTZgoF/d+WSt2QaKMCFSfx7QegxEWT+JOuHF5aWrKEn0G+ztjuJg/gG8/ItK+rbPCD/yNv8yyih6Cg==
 
 v8-to-istanbul@^4.0.1:
   version "4.1.2"
