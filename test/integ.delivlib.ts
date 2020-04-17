@@ -1,4 +1,4 @@
-import { core as cdk } from "monocdk-experiment";
+import { App } from "monocdk-experiment";
 import { TestStack } from "./test-stack";
 
 
@@ -7,7 +7,7 @@ if (!stackName) {
   throw new Error(`TEST_STACK_NAME must be defined`);
 }
 
-const app = new cdk.App();
+const app = new App();
 new TestStack(app, stackName, {
   env: { region: 'us-east-1', account: '712950704752' }
 });

@@ -1,9 +1,8 @@
-import { core as core, aws_codepipeline as aws_codepipeline, aws_codepipeline_actions as aws_codepipeline_actions } from "monocdk-experiment";
+import { Construct, Stack, aws_codepipeline as aws_codepipeline, aws_codepipeline_actions as aws_codepipeline_actions } from "monocdk-experiment";
 import * as https from "https";
 import { codePipeline, handler } from "../lib/chime-notifier/notifier-handler";
 import { ChimeNotifier } from "../lib";
 import "@monocdk-experiment/assert/jest";
-const { Stack } = core;
 const { Pipeline, ActionCategory, Artifact } = aws_codepipeline;
 
 jest.mock('https');
@@ -125,7 +124,7 @@ export class FakeSourceAction extends aws_codepipeline_actions.Action {
   }
 
   // tslint:disable-next-line: max-line-length
-  protected bound(_scope: core.Construct, _stage: aws_codepipeline.IStage, _options: aws_codepipeline.ActionBindOptions): aws_codepipeline.ActionConfig {
+  protected bound(_scope: Construct, _stage: aws_codepipeline.IStage, _options: aws_codepipeline.ActionBindOptions): aws_codepipeline.ActionConfig {
     return {
       configuration: { }
     };

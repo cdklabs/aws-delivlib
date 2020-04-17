@@ -1,4 +1,4 @@
-import { aws_cloudwatch as cloudwatch, aws_codebuild as cbuild, aws_events as events, aws_events_targets as events_targets, core as cdk } from "monocdk-experiment";
+import { Construct, aws_cloudwatch as cloudwatch, aws_codebuild as cbuild, aws_events as events, aws_events_targets as events_targets } from "monocdk-experiment";
 import { Shellable, ShellableProps } from "./shellable";
 
 
@@ -19,11 +19,11 @@ export interface CanaryProps extends ShellableProps {
  *
  * If not explicitly defined in `environmentVariables`, IS_CANARY is set to "true".
  */
-export class Canary extends cdk.Construct {
+export class Canary extends Construct {
   public readonly alarm: cloudwatch.IAlarm;
   public readonly project: cbuild.IProject;
 
-  constructor(scope: cdk.Construct, id: string, props: CanaryProps) {
+  constructor(scope: Construct, id: string, props: CanaryProps) {
     super(scope, id);
 
     const env = props.environment || { };

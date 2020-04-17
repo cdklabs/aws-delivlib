@@ -1,5 +1,14 @@
-// tslint:disable-next-line: max-line-length
-import { aws_cloudwatch as cloudwatch, aws_codepipeline as cpipeline, aws_events as events, aws_events_targets as events_targets, aws_iam as iam, aws_lambda as lambda, aws_logs as logs, core as cdk } from "monocdk-experiment";
+import {
+  Construct,
+  Resource,
+  aws_cloudwatch as cloudwatch,
+  aws_codepipeline as cpipeline,
+  aws_events as events,
+  aws_events_targets as events_targets,
+  aws_iam as iam,
+  aws_lambda as lambda,
+  aws_logs as logs,
+} from "monocdk-experiment";
 import fs = require("fs");
 import path = require("path");
 
@@ -29,10 +38,10 @@ export interface PipelineWatcherProps {
  * a corresponding alarm is set to fire when the maximim value of a single 5-minute interval
  * is >= 1.
  */
-export class PipelineWatcher extends cdk.Construct {
+export class PipelineWatcher extends Construct {
   public readonly alarm: cloudwatch.Alarm;
 
-  constructor(parent: cdk.Construct, name: string, props: PipelineWatcherProps) {
+  constructor(parent: Construct, name: string, props: PipelineWatcherProps) {
     super(parent, name);
 
     const pipelineWatcher = new lambda.Function(this, 'Poller', {
@@ -60,8 +69,8 @@ export class PipelineWatcher extends cdk.Construct {
       targets: [new events_targets.LambdaFunction(pipelineWatcher)],
     });
 
-    const logGroupResource = logGroup.node.findChild('Resource') as cdk.Resource;
-    const triggerResource = trigger.node.findChild('Resource') as cdk.Resource;
+    const logGroupResource = logGroup.node.findChild('Resource') as Resource;
+    const triggerResource = trigger.node.findChild('Resource') as Resource;
     triggerResource.node.addDependency(logGroupResource);
 
     const metricNamespace =  `CDK/Delivlib`;

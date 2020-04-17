@@ -1,7 +1,15 @@
-import { aws_cloudwatch as cloudwatch, aws_codebuild as cbuild,
-  aws_codepipeline as cpipeline, aws_codepipeline_actions as cpipeline_actions,
-  aws_iam as iam, aws_s3_assets as assets, core as cdk, aws_secretsmanager, aws_ssm } from
-  "monocdk-experiment";
+import {
+  Construct,
+  Duration,
+  aws_cloudwatch as cloudwatch,
+  aws_codebuild as cbuild,
+  aws_codepipeline as cpipeline,
+  aws_codepipeline_actions as cpipeline_actions,
+  aws_iam as iam,
+  aws_s3_assets as assets,
+  aws_secretsmanager,
+  aws_ssm
+} from "monocdk-experiment";
 import fs = require("fs");
 import path = require("path");
 import { BuildSpec } from "./build-spec";
@@ -95,7 +103,7 @@ export interface ShellableOptions {
    *
    * @default 300 seconds (5 minutes)
    */
-  alarmPeriod?: cdk.Duration;
+  alarmPeriod?: Duration;
 
   /**
    * Alarm threshold.
@@ -185,7 +193,7 @@ export interface AssumeRole {
  *
  * Supports both Windows and Linux computes.
  */
-export class Shellable extends cdk.Construct {
+export class Shellable extends Construct {
   public readonly project: cbuild.Project;
   public readonly role: iam.IRole;
 
@@ -199,7 +207,7 @@ export class Shellable extends cdk.Construct {
 
   private readonly outputArtifactName: string;
 
-  constructor(parent: cdk.Construct, id: string, props: ShellableProps) {
+  constructor(parent: Construct, id: string, props: ShellableProps) {
     super(parent, id);
 
     this.platform = props.platform || ShellPlatform.LinuxUbuntu;
@@ -264,7 +272,7 @@ export class Shellable extends cdk.Construct {
     }
 
     this.alarm = new cloudwatch.Alarm(this, `Alarm`, {
-      metric: this.project.metricFailedBuilds({ period: props.alarmPeriod || cdk.Duration.seconds(300) }),
+      metric: this.project.metricFailedBuilds({ period: props.alarmPeriod || Duration.seconds(300) }),
       threshold: props.alarmThreshold || 1,
       comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
       evaluationPeriods: props.alarmEvaluationPeriods || 1,
@@ -313,6 +321,10 @@ export abstract class ShellPlatform {
   public static get Windows(): ShellPlatform {
     // Cannot be static member because of initialization order
     return new WindowsPlatform(cbuild.WindowsBuildImage.WIN_SERVER_CORE_2016_BASE);
+  }
+
+  public static get WindowsV2(): ShellPlatform {
+    return new WindowsPlatform(cbuild.WindowsBuildImage.WINDOWS_BASE_2_0);
   }
 
   constructor(public readonly buildImage: cbuild.IBuildImage) {

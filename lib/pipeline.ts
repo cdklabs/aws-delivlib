@@ -1,4 +1,6 @@
 import {
+  Construct,
+  IConstruct,
   aws_cloudwatch as cloudwatch,
   aws_codebuild as cbuild,
   aws_codepipeline as cpipeline,
@@ -9,7 +11,6 @@ import {
   aws_s3 as s3,
   aws_sns as sns,
   aws_sns_subscriptions as sns_subs,
-  core as cdk
 } from "monocdk-experiment";
 import { AutoBuild, AutoBuildOptions } from "./auto-build";
 import { createBuildEnvironment } from "./build-env";
@@ -156,7 +157,7 @@ export interface PipelineProps {
 /**
  * Defines a delivlib CI/CD pipeline.
  */
-export class Pipeline extends cdk.Construct {
+export class Pipeline extends Construct {
   public buildRole?: iam.IRole;
   public readonly failureAlarm: cloudwatch.Alarm;
   public readonly buildOutput: cpipeline.Artifact;
@@ -177,7 +178,7 @@ export class Pipeline extends cdk.Construct {
   private readonly buildEnvironment: cbuild.BuildEnvironment;
   private readonly buildSpec?: cbuild.BuildSpec;
 
-  constructor(parent: cdk.Construct, name: string, props: PipelineProps) {
+  constructor(parent: Construct, name: string, props: PipelineProps) {
     super(parent, name);
 
     this.concurrency = props.concurrency;
@@ -423,7 +424,7 @@ export class Pipeline extends cdk.Construct {
   }
 }
 
-export interface IPublisher extends cdk.IConstruct {
+export interface IPublisher extends IConstruct {
   addToPipeline(stage: cpipeline.IStage, id: string, options: AddToPipelineOptions): void;
 }
 

@@ -1,14 +1,13 @@
-import { core as cdk, core as core } from "monocdk-experiment";
+import { Duration, Stack } from "monocdk-experiment";
 import { expect as assert, haveResource, ResourcePart, SynthUtils } from "@monocdk-experiment/assert";
 import path = require("path");
 import { Shellable, ShellPlatform } from "../lib";
-const { Stack } = core;
 
 
 // tslint:disable:max-line-length
 
 test('minimal configuration', () => {
-  const stack = new cdk.Stack();
+  const stack = new Stack();
 
   new Shellable(stack, 'MyShellable', {
     scriptDirectory: path.join(__dirname, 'delivlib-tests/linux'),
@@ -19,7 +18,7 @@ test('minimal configuration', () => {
 });
 
 test('assume role', () => {
-  const stack = new cdk.Stack();
+  const stack = new Stack();
 
   new Shellable(stack, 'MyShellable', {
     scriptDirectory: path.join(__dirname, 'delivlib-tests/linux'),
@@ -38,7 +37,7 @@ test('assume role', () => {
 });
 
 test('assume role with external-id', () => {
-  const stack = new cdk.Stack();
+  const stack = new Stack();
 
   new Shellable(stack, 'MyShellable', {
     scriptDirectory: path.join(__dirname, 'delivlib-tests/linux'),
@@ -94,7 +93,7 @@ test('alarm options - custom', () => {
     entrypoint: 'test.sh',
     alarmEvaluationPeriods: 2,
     alarmThreshold: 5,
-    alarmPeriod: cdk.Duration.minutes(60),
+    alarmPeriod: Duration.minutes(60),
   });
 
   assert(stack).to(haveResource('AWS::CloudWatch::Alarm', {

@@ -1,4 +1,14 @@
-import { aws_iam as iam, aws_kms as kms, aws_secretsmanager as secretsManager, aws_ssm as ssm, core as cdk } from "monocdk-experiment";
+import {
+  CfnOutput,
+  Construct,
+  IConstruct,
+  RemovalPolicy,
+  Stack,
+  aws_iam as iam,
+  aws_kms as kms,
+  aws_secretsmanager as secretsManager,
+  aws_ssm as ssm,
+} from "monocdk-experiment";
 import { ICredentialPair } from "../credential-pair";
 import permissions = require("../permissions");
 import { DistinguishedName } from "./certificate-signing-request";
@@ -57,7 +67,7 @@ interface CodeSigningCertificateProps {
   distinguishedName: DistinguishedName;
 }
 
-export interface ICodeSigningCertificate extends cdk.IConstruct, ICredentialPair {
+export interface ICodeSigningCertificate extends IConstruct, ICredentialPair {
   /**
    * Grant the IAM principal permissions to read the private key and
    * certificate.
@@ -80,7 +90,7 @@ export interface ICodeSigningCertificate extends cdk.IConstruct, ICredentialPair
  * you wish to retain the private key, you can set ``forceCertificateSigningRequest`` to ``true`` in order to obtain a
  * new CSR document.
  */
-export class CodeSigningCertificate extends cdk.Construct implements ICodeSigningCertificate {
+export class CodeSigningCertificate extends Construct implements ICodeSigningCertificate {
   /**
    * The AWS Secrets Manager secret that holds the private key for this CSC
    */
@@ -91,14 +101,14 @@ export class CodeSigningCertificate extends cdk.Construct implements ICodeSignin
    */
   public readonly principal: ssm.IStringParameter;
 
-  constructor(parent: cdk.Construct, id: string, props: CodeSigningCertificateProps) {
+  constructor(parent: Construct, id: string, props: CodeSigningCertificateProps) {
     super(parent, id);
 
     // The construct path of this construct, without any leading /
     const baseName = this.node.path.replace(/^\/+/, '');
 
     const privateKey = new RsaPrivateKeySecret(this, 'RSAPrivateKey', {
-      removalPolicy: props.retainPrivateKey === false ? cdk.RemovalPolicy.DESTROY : cdk.RemovalPolicy.RETAIN,
+      removalPolicy: props.retainPrivateKey === false ? RemovalPolicy.DESTROY : RemovalPolicy.RETAIN,
       description: `The PEM-encoded private key of the x509 Code-Signing Certificate`,
       keySize: props.rsaKeySize || 2048,
       secretEncryptionKey: props.secretEncryptionKey,
@@ -118,7 +128,7 @@ export class CodeSigningCertificate extends cdk.Construct implements ICodeSignin
                                                           'critical,digitalSignature',
                                                           'critical,codeSigning');
 
-      new cdk.CfnOutput(this, 'CSR', {
+      new CfnOutput(this, 'CSR', {
         description: 'A PEM-encoded Certificate Signing Request for a Code-Signing Certificate',
         value: csr.pemRequest,
       });
@@ -149,7 +159,7 @@ export class CodeSigningCertificate extends cdk.Construct implements ICodeSignin
 
     principal.addToPolicy(new iam.PolicyStatement({
       actions: ['ssm:GetParameter'],
-      resources: [cdk.Stack.of(this).formatArn({
+      resources: [Stack.of(this).formatArn({
         // TODO: This is a workaround until https://github.com/awslabs/aws-cdk/pull/1726 is released
         service: 'ssm',
         resource: `parameter${this.principal.parameterName}`

@@ -1,4 +1,4 @@
-import { aws_cloudformation as cfn, aws_lambda as lambda, core as cdk } from "monocdk-experiment";
+import { Construct, Duration, aws_cloudformation as cfn, aws_lambda as lambda } from "monocdk-experiment";
 import path = require("path");
 import { hashFileOrDirectory } from "../util";
 import { RsaPrivateKeySecret } from "./private-key";
@@ -38,7 +38,7 @@ export interface CertificateSigningRequestProps {
  *
  * @see https://www.openssl.org/docs/manmaster/man1/req.html
  */
-export class CertificateSigningRequest extends cdk.Construct {
+export class CertificateSigningRequest extends Construct {
   /**
    * The PEM-encoded CSR document.
    */
@@ -46,7 +46,7 @@ export class CertificateSigningRequest extends cdk.Construct {
 
   public readonly selfSignedPemCertificate: string;
 
-  constructor(parent: cdk.Construct, id: string, props: CertificateSigningRequestProps) {
+  constructor(parent: Construct, id: string, props: CertificateSigningRequestProps) {
     super(parent, id);
 
     const codeLocation = path.resolve(__dirname, '..', '..', 'custom-resource-handlers', 'bin', 'certificate-signing-request');
@@ -57,7 +57,7 @@ export class CertificateSigningRequest extends cdk.Construct {
       runtime: lambda.Runtime.NODEJS_10_X,
       handler: 'index.handler',
       code: new lambda.AssetCode(codeLocation),
-      timeout: cdk.Duration.seconds(300),
+      timeout: Duration.seconds(300),
       // add the layer that contains the OpenSSL CLI binary
       layers: [new lambda.LayerVersion(this, 'OpenSslCliLayer', {
         code: lambda.Code.fromAsset(path.join(__dirname, '..', '..', 'custom-resource-handlers', 'layers', 'openssl-cli-layer.zip')),

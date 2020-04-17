@@ -1,4 +1,11 @@
-import { aws_cloudwatch as cloudwatch, aws_codebuild as cbuild, aws_events as events, aws_events_targets as events_targets, core as cdk, } from "monocdk-experiment";
+import {
+  Construct,
+  Duration,
+  aws_cloudwatch as cloudwatch,
+  aws_codebuild as cbuild,
+  aws_events as events,
+  aws_events_targets as events_targets
+} from "monocdk-experiment";
 import { createBuildEnvironment } from "../build-env";
 import permissions = require("../permissions");
 import { WritableGitHubRepo } from "../repo";
@@ -129,14 +136,14 @@ export interface PullRequestOptions {
   base?: string;
 }
 
-export class AutoBump extends cdk.Construct {
+export class AutoBump extends Construct {
 
   /**
    * CloudWatch alarm that will be triggered if bump fails.
    */
   public readonly alarm: cloudwatch.Alarm;
 
-  constructor(parent: cdk.Construct, id: string, props: AutoBumpProps) {
+  constructor(parent: Construct, id: string, props: AutoBumpProps) {
     super(parent, id);
 
     const bumpCommand = props.bumpCommand || '/bin/sh ./bump.sh';
@@ -252,7 +259,7 @@ export class AutoBump extends cdk.Construct {
       });
     }
 
-    this.alarm = project.metricFailedBuilds({ period: cdk.Duration.seconds(300) }).createAlarm(this, 'BumpFailedAlarm', {
+    this.alarm = project.metricFailedBuilds({ period: Duration.seconds(300) }).createAlarm(this, 'BumpFailedAlarm', {
       threshold: 1,
       evaluationPeriods: 1,
       treatMissingData: cloudwatch.TreatMissingData.IGNORE,

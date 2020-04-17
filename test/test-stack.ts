@@ -1,12 +1,12 @@
-import { aws_events as events, aws_iam as iam, aws_kms as kms, core as cdk } from "monocdk-experiment";
+import { App, Stack, StackProps, aws_events as events, aws_iam as iam, aws_kms as kms } from "monocdk-experiment";
 import path = require("path");
 import delivlib = require("../lib");
 
 
 const testDir = path.join(__dirname, 'delivlib-tests');
 
-export class TestStack extends cdk.Stack {
-  constructor(parent: cdk.App, id: string, props: cdk.StackProps = { }) {
+export class TestStack extends Stack {
+  constructor(parent: App, id: string, props: StackProps = { }) {
     super(parent, id, props);
 
     //
@@ -55,7 +55,7 @@ export class TestStack extends cdk.Stack {
     const externalId = 'require-me-please';
 
     const role = new iam.Role(this, 'AssumeMe', {
-      assumedBy: new iam.AccountPrincipal(cdk.Stack.of(this).account),
+      assumedBy: new iam.AccountPrincipal(Stack.of(this).account),
       externalId
     });
 
