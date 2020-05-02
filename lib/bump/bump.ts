@@ -14,6 +14,8 @@ export interface AutoBumpOptions {
    */
   bumpCommand?: string;
 
+  projectName?: string
+
   /**
    * The command to determine the current version.
    * @default "git describe" by default the latest git tag will be used to determine the current version
@@ -97,6 +99,10 @@ export interface AutoBumpOptions {
    * @default 0 clones the entire repository
    */
   cloneDepth?: number;
+
+  defaultBranchPrefix?: string
+
+  baseBranch?: string
 }
 
 export interface AutoBumpProps extends AutoBumpOptions {
@@ -127,6 +133,8 @@ export interface PullRequestOptions {
    * @default "master"
    */
   base?: string;
+
+  labels?: string[]
 }
 
 export class AutoBump extends cdk.Construct {
@@ -160,11 +168,14 @@ export class AutoBump extends cdk.Construct {
 
     const versionCommand = props.versionCommand ?? "git describe";
 
+    const defaultBranchPrefix = props.defaultBranchPrefix ?? 'bump';
+    const baseBranch = props.baseBranch ?? 'master';
+
     pushCommands.push(...[
       `export VERSION=$(${versionCommand})`,
-      `export BRANCH=bump/$VERSION`,
+      `export BRANCH=${defaultBranchPrefix}/$VERSION`,
       `git branch -D $BRANCH || true`,                    // force delete the branch if it already exists
-      `git checkout -b $BRANCH`,                          // create a new branch from HEAD
+      `git checkout ${baseBranch} && git checkout -b $BRANCH`,     // create a new branch from baseBranch
     ]);
 
     // if we want to merge this to a branch automatically, then check out the branch and merge
@@ -199,9 +210,25 @@ export class AutoBump extends cdk.Construct {
     // by default, clone the entire repo (cloneDepth: 0)
     const cloneDepth = props.cloneDepth === undefined ? 0 : props.cloneDepth;
 
+
+    const commitCommands = [
+        // We would like to do the equivalent of "if (!changes) { return success; }" here, but we can't because
+        // there's no way to stop a BuildSpec execution halfway through without throwing an error. Believe me, I
+        // checked the code. Instead we define a variable that we will switch all other lines on.
+        // tslint:disable-next-line:max-line-length
+        `git describe --exact-match HEAD && { echo "No new commits."; export SKIP=true; } || { echo "Changes to release."; export SKIP=false; }`,
+    ];
+
+    if (bumpCommand !== 'disable') {
+      commitCommands.push(...[
+        `$SKIP || { ${bumpCommand}; }`
+      ]);
+    }
+
     const project = new cbuild.Project(this, 'Bump', {
       source: props.repo.createBuildSource(this, false, { cloneDepth }),
       environment: createBuildEnvironment(props),
+      projectName: props.projectName,
       buildSpec: cbuild.BuildSpec.fromObject({
         version: '0.2',
         phases: {
@@ -213,12 +240,8 @@ export class AutoBump extends cdk.Construct {
           },
           build: {
             commands: [
-              // We would like to do the equivalent of "if (!changes) { return success; }" here, but we can't because
-              // there's no way to stop a BuildSpec execution halfway through without throwing an error. Believe me, I
-              // checked the code. Instead we define a variable that we will switch all other lines on.
-              // tslint:disable-next-line:max-line-length
-              `git describe --exact-match HEAD && { echo "No new commits."; export SKIP=true; } || { echo "Changes to release."; export SKIP=false; }`,
-              `$SKIP || { ${bumpCommand}; }`,
+              'echo starting execution...',
+              ...commitCommands,
               `$SKIP || aws secretsmanager get-secret-value --secret-id "${sshKeySecret.secretArn}" --output=text --query=SecretString > ~/.ssh/id_rsa`,
               `$SKIP || mkdir -p ~/.ssh`,
               `$SKIP || chmod 0600 ~/.ssh/id_rsa`,
@@ -261,29 +284,65 @@ export class AutoBump extends cdk.Construct {
 }
 
 function createPullRequestCommands(repo: WritableGitHubRepo, options: PullRequestOptions = { }): string[] {
-  const request = {
+  const createRequest = {
     title: options.title ?? `chore(release): $VERSION`,
-    body: options.body ?? `see CHANGELOG`,
     base: options.base ?? `master`,
     head: `$BRANCH`
   };
 
-  const condition = `git diff --exit-code --no-patch ${request.head} ${request.base} && ` +
+  const body = options.body ?? 'See CHANGELOG';
+  const labels = options.labels ?? [];
+
+  const condition = `git diff --exit-code --no-patch ${createRequest.head} ${createRequest.base} && ` +
     '{ echo "No changes after bump. Skipping pull request..."; export SKIP=true; } || ' +
     '{ echo "Creating pull request..."; export SKIP=false; }';
 
-  const curl = [
-    `curl`,
+  const createPR = [
+    `curl --fail`,
+    `-X POST`,
+    `-o pr.json`,
+    `--header "Authorization: token $GITHUB_TOKEN"`,
+    `--header "Content-Type: application/json"`,
+    `-d ${JSON.stringify(JSON.stringify(createRequest))}`, // to escape quotes
+    `https://api.github.com/repos/${repo.owner}/${repo.repo}/pulls`
+  ];
+
+  const exportPrNumber = [
+    `export PR_NUMBER=$(node -p 'require("./pr.json").number')`
+  ];
+
+  const updateBodyRequest = {
+    'body': body
+  };
+
+  const updateBody = [
+    `curl --fail`,
+    `-X PATCH`,
+    `--header "Authorization: token $GITHUB_TOKEN"`,
+    `--header "Content-Type: application/json"`,
+   `-d ${JSON.stringify(JSON.stringify(updateBodyRequest))}`,
+   `https://api.github.com/repos/${repo.owner}/${repo.repo}/pulls/$PR_NUMBER`
+  ];
+
+  const applyLabelsRequest = {
+    'labels': labels
+  };
+
+  const applyLabels = [
+    `curl --fail`,
     `-X POST`,
     `--header "Authorization: token $GITHUB_TOKEN"`,
     `--header "Content-Type: application/json"`,
-    `-d ${JSON.stringify(JSON.stringify(request))}`, // to escape quotes
-    `https://api.github.com/repos/${repo.owner}/${repo.repo}/pulls`
+    `-d ${JSON.stringify(JSON.stringify(applyLabelsRequest))}`,
+    `https://api.github.com/repos/${repo.owner}/${repo.repo}/issues/$PR_NUMBER/labels`
   ];
 
   return [
     condition,
     `GITHUB_TOKEN=$(aws secretsmanager get-secret-value --secret-id "${repo.tokenSecretArn}" --output=text --query=SecretString)`,
-    curl.join(' ')
+    createPR.join(' '),
+    exportPrNumber.join(' '),
+    updateBody.join(' '),
+    applyLabels.join(' ')
   ];
 }
