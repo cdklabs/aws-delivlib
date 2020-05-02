@@ -1,7 +1,6 @@
-import { aws_cloudwatch as cloudwatch, aws_codebuild as cbuild, aws_events as events, aws_events_targets as events_targets, core as cdk, } from "monocdk-experiment";
-import { createBuildEnvironment } from "../build-env";
-import permissions = require("../permissions");
+import { aws_cloudwatch as cloudwatch, aws_codebuild as cbuild, core as cdk, } from "monocdk-experiment";
 import { WritableGitHubRepo } from "../repo";
+import { AutoCodeReviewProps, AutoCodeReview, Branch } from './cr';
 
 export interface AutoBumpOptions {
   /**
@@ -13,8 +12,6 @@ export interface AutoBumpOptions {
    * @default "/bin/bash ./bump.sh"
    */
   bumpCommand?: string;
-
-  projectName?: string
 
   /**
    * The command to determine the current version.
@@ -100,9 +97,6 @@ export interface AutoBumpOptions {
    */
   cloneDepth?: number;
 
-  defaultBranchPrefix?: string
-
-  baseBranch?: string
 }
 
 export interface AutoBumpProps extends AutoBumpOptions {
@@ -134,7 +128,6 @@ export interface PullRequestOptions {
    */
   base?: string;
 
-  labels?: string[]
 }
 
 export class AutoBump extends cdk.Construct {
@@ -148,201 +141,39 @@ export class AutoBump extends cdk.Construct {
     super(parent, id);
 
     const bumpCommand = props.bumpCommand || '/bin/sh ./bump.sh';
-    const sshKeySecret = props.repo.sshKeySecret;
-
-    if (!sshKeySecret) {
-      throw new Error(`Cannot install auto-bump on a repo without an SSH key secret`);
-    }
-
-    const commitEmail = props.repo.commitEmail;
-    if (!commitEmail) {
-      throw new Error(`Cannot install auto-bump on a repo without "commitEmail"`);
-    }
-
-    const commitUsername = props.repo.commitUsername;
-    if (!commitUsername) {
-      throw new Error(`Cannot install auto-bump on a repo without "commitUsername"`);
-    }
-
-    const pushCommands = new Array<string>();
-
     const versionCommand = props.versionCommand ?? "git describe";
-
-    const defaultBranchPrefix = props.defaultBranchPrefix ?? 'bump';
-    const baseBranch = props.baseBranch ?? 'master';
-
-    pushCommands.push(...[
-      `export VERSION=$(${versionCommand})`,
-      `export BRANCH=${defaultBranchPrefix}/$VERSION`,
-      `git branch -D $BRANCH || true`,                    // force delete the branch if it already exists
-      `git checkout ${baseBranch} && git checkout -b $BRANCH`,     // create a new branch from baseBranch
-    ]);
-
-    // if we want to merge this to a branch automatically, then check out the branch and merge
-    if (props.branch) {
-      pushCommands.push(...[
-        `git checkout ${props.branch}`,
-        `git merge $BRANCH`
-      ]);
-    }
-
-    // add "origin" remote
-    pushCommands.push(`git remote add origin_ssh ${props.repo.repositoryUrlSsh}`);
-
-    // now push either to our bump branch or the destination branch
-    const targetBranch = props.branch || '$BRANCH';
-    pushCommands.push(`git push --follow-tags origin_ssh ${targetBranch}`);
-
     const pullRequestEnabled = props.pullRequest || props.pullRequestOptions;
-    if (pullRequestEnabled) {
-
-      // we can't create a pull request if base=head
-      if (props.branch) {
-        const base = props.pullRequestOptions?.base ?? 'master';
-        if (props.branch === base) {
-          throw new Error(`cannot enable pull requests since the head branch ("${props.branch}") is the same as the base branch ("${base}")`);
-        }
-      }
-
-      pushCommands.push(...createPullRequestCommands(props.repo, props.pullRequestOptions));
-    }
-
-    // by default, clone the entire repo (cloneDepth: 0)
     const cloneDepth = props.cloneDepth === undefined ? 0 : props.cloneDepth;
 
-
-    const commitCommands = [
-        // We would like to do the equivalent of "if (!changes) { return success; }" here, but we can't because
-        // there's no way to stop a BuildSpec execution halfway through without throwing an error. Believe me, I
-        // checked the code. Instead we define a variable that we will switch all other lines on.
-        // tslint:disable-next-line:max-line-length
-        `git describe --exact-match HEAD && { echo "No new commits."; export SKIP=true; } || { echo "Changes to release."; export SKIP=false; }`,
-    ];
-
-    if (bumpCommand !== 'disable') {
-      commitCommands.push(...[
-        `$SKIP || { ${bumpCommand}; }`
-      ]);
-    }
-
-    const project = new cbuild.Project(this, 'Bump', {
-      source: props.repo.createBuildSource(this, false, { cloneDepth }),
-      environment: createBuildEnvironment(props),
-      projectName: props.projectName,
-      buildSpec: cbuild.BuildSpec.fromObject({
-        version: '0.2',
-        phases: {
-          pre_build: {
-            commands: [
-              `git config --global user.email "${commitEmail}"`,
-              `git config --global user.name "${commitUsername}"`,
-            ]
-          },
-          build: {
-            commands: [
-              'echo starting execution...',
-              ...commitCommands,
-              `$SKIP || aws secretsmanager get-secret-value --secret-id "${sshKeySecret.secretArn}" --output=text --query=SecretString > ~/.ssh/id_rsa`,
-              `$SKIP || mkdir -p ~/.ssh`,
-              `$SKIP || chmod 0600 ~/.ssh/id_rsa`,
-              `$SKIP || chmod 0600 ~/.ssh/config`,
-              `$SKIP || ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts`,
-              ...pushCommands.map(c => `$SKIP || { ${c} ; }`)
-            ]
-          },
-        }
+    const codeReviewProps: AutoCodeReviewProps = {
+      repo: props.repo,
+      pr: pullRequestEnabled ? {
+        allowEmpty: false,
+        body: props.pullRequestOptions?.body,
+        title: props.pullRequestOptions?.title
+      } : {},
+      scheduleExpression: props.scheduleExpression,
+      commit: [bumpCommand],
+      cloneDepth,
+      exports: {
+        'VERSION': versionCommand
+      },
+      build: {
+        buildImage: props.buildImage,
+        computeType: props.computeType,
+        env: props.env,
+        privileged: props.privileged
+      },
+      source: props.branch? Branch.existing(props.branch) : Branch.new({
+        name: 'bump/$VERSION',
+        hash: 'master'
       }),
-    });
+      target: Branch.existing('release'),
+      skipCommand: 'git describe --exact-match HEAD'
+    };
 
-    if (project.role) {
-      permissions.grantSecretRead(sshKeySecret, project.role);
+    const cr = new AutoCodeReview(this, 'AutoBump', codeReviewProps);
 
-      // if pull request is enabled, we also need access to the github token
-      if (pullRequestEnabled) {
-        permissions.grantSecretRead({ secretArn: props.repo.tokenSecretArn }, project.role);
-      }
-    }
-
-    if (props.scheduleExpression !== 'disable') {
-      // set up the schedule
-      const schedule = events.Schedule.expression(props.scheduleExpression === undefined
-          ? 'cron(0 12 * * ? *)'
-          : props.scheduleExpression);
-      new events.Rule(this, 'Scheduler', {
-        description: 'Schedules an automatic bump for this repository',
-        schedule,
-        targets: [new events_targets.CodeBuildProject(project)],
-      });
-    }
-
-    this.alarm = project.metricFailedBuilds({ period: cdk.Duration.seconds(300) }).createAlarm(this, 'BumpFailedAlarm', {
-      threshold: 1,
-      evaluationPeriods: 1,
-      treatMissingData: cloudwatch.TreatMissingData.IGNORE,
-    });
+    this.alarm = cr.alarm;
   }
-}
-
-function createPullRequestCommands(repo: WritableGitHubRepo, options: PullRequestOptions = { }): string[] {
-  const createRequest = {
-    title: options.title ?? `chore(release): $VERSION`,
-    base: options.base ?? `master`,
-    head: `$BRANCH`
-  };
-
-  const body = options.body ?? 'See CHANGELOG';
-  const labels = options.labels ?? [];
-
-  const condition = `git diff --exit-code --no-patch ${createRequest.head} ${createRequest.base} && ` +
-    '{ echo "No changes after bump. Skipping pull request..."; export SKIP=true; } || ' +
-    '{ echo "Creating pull request..."; export SKIP=false; }';
-
-  const createPR = [
-    `curl --fail`,
-    `-X POST`,
-    `-o pr.json`,
-    `--header "Authorization: token $GITHUB_TOKEN"`,
-    `--header "Content-Type: application/json"`,
-    `-d ${JSON.stringify(JSON.stringify(createRequest))}`, // to escape quotes
-    `https://api.github.com/repos/${repo.owner}/${repo.repo}/pulls`
-  ];
-
-  const exportPrNumber = [
-    `export PR_NUMBER=$(node -p 'require("./pr.json").number')`
-  ];
-
-  const updateBodyRequest = {
-    'body': body
-  };
-
-  const updateBody = [
-    `curl --fail`,
-    `-X PATCH`,
-    `--header "Authorization: token $GITHUB_TOKEN"`,
-    `--header "Content-Type: application/json"`,
-   `-d ${JSON.stringify(JSON.stringify(updateBodyRequest))}`,
-   `https://api.github.com/repos/${repo.owner}/${repo.repo}/pulls/$PR_NUMBER`
-  ];
-
-  const applyLabelsRequest = {
-    'labels': labels
-  };
-
-  const applyLabels = [
-    `curl --fail`,
-    `-X POST`,
-    `--header "Authorization: token $GITHUB_TOKEN"`,
-    `--header "Content-Type: application/json"`,
-    `-d ${JSON.stringify(JSON.stringify(applyLabelsRequest))}`,
-    `https://api.github.com/repos/${repo.owner}/${repo.repo}/issues/$PR_NUMBER/labels`
-  ];
-
-  return [
-    condition,
-    `GITHUB_TOKEN=$(aws secretsmanager get-secret-value --secret-id "${repo.tokenSecretArn}" --output=text --query=SecretString)`,
-    createPR.join(' '),
-    exportPrNumber.join(' '),
-    updateBody.join(' '),
-    applyLabels.join(' ')
-  ];
 }

@@ -1,2 +1,2 @@
 export * from './bump';
-export * from './pr';
+export * from './cr';
