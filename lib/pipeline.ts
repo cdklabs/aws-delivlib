@@ -1,27 +1,26 @@
-import {
-  aws_cloudwatch as cloudwatch,
+import { aws_cloudwatch as cloudwatch,
   aws_codebuild as cbuild,
   aws_codepipeline as cpipeline,
-  aws_codepipeline_actions as cpipeline_actions,
+  aws_codepipeline_actions as
+  cpipeline_actions,
   aws_events as events,
   aws_events_targets as events_targets,
-  aws_iam as iam,
-  aws_s3 as s3,
+  aws_iam as iam, aws_s3 as s3,
   aws_sns as sns,
   aws_sns_subscriptions as sns_subs,
-  core as cdk
-} from "monocdk-experiment";
+  core as cdk }
+  from "monocdk-experiment";
 import { AutoBuild, AutoBuildOptions } from "./auto-build";
 import { createBuildEnvironment } from "./build-env";
-import { AutoBump, AutoBumpOptions } from "./bump";
+import { AutoBump, AutoBumpOptions, AutoMergeBackOptions, AutoMergeBack } from "./bump";
 import { Canary, CanaryProps } from "./canary";
 import { ChangeController } from "./change-controller";
+import { ChimeNotifier } from "./chime-notifier";
 import { PipelineWatcher } from "./pipeline-watcher";
-import publishing = require("./publishing");
 import { IRepo, WritableGitHubRepo } from "./repo";
 import { Shellable, ShellableProps } from "./shellable";
 import { determineRunOrder } from "./util";
-import { ChimeNotifier } from "./chime-notifier";
+import publishing = require("./publishing");
 
 const PUBLISH_STAGE_NAME = 'Publish';
 const TEST_STAGE_NAME = 'Test';
@@ -153,6 +152,12 @@ export interface PipelineProps {
   chimeMessage?: string;
 }
 
+export interface ActionProps {
+  readonly stage: string,
+  readonly name: string,
+  readonly project: cbuild.IProject
+}
+
 /**
  * Defines a delivlib CI/CD pipeline.
  */
@@ -160,6 +165,7 @@ export class Pipeline extends cdk.Construct {
   public buildRole?: iam.IRole;
   public readonly failureAlarm: cloudwatch.Alarm;
   public readonly buildOutput: cpipeline.Artifact;
+  public readonly sourceArtifact: cpipeline.Artifact;
 
   /**
    * The primary CodeBuild project of this pipeline.
@@ -190,7 +196,7 @@ export class Pipeline extends cdk.Construct {
     });
 
     this.branch = props.branch || 'master';
-    const sourceArtifact = props.repo.createSourceStage(this.pipeline, this.branch);
+    this.sourceArtifact = props.repo.createSourceStage(this.pipeline, this.branch);
 
     this.buildEnvironment = createBuildEnvironment(props);
     this.buildSpec = props.buildSpec;
@@ -212,7 +218,7 @@ export class Pipeline extends cdk.Construct {
     buildStage.addAction(new cpipeline_actions.CodeBuildAction({
       actionName: 'Build',
       project: this.buildProject,
-      input: sourceArtifact,
+      input: this.sourceArtifact,
       outputs: [buildOutput],
     }));
     this.buildOutput = buildOutput;
@@ -366,6 +372,33 @@ export class Pipeline extends cdk.Construct {
       repo: this.repo,
       ...options
     });
+  }
+
+  public autoMergeBack(options?: AutoMergeBackOptions) {
+
+    if (!WritableGitHubRepo.isWritableGitHubRepo(this.repo)) {
+      throw new Error(`"repo" must be a WritableGitHubRepo in order to enable auto-bump`);
+    }
+
+    this.addCodeBuildAction({
+      name: 'MergeBack',
+      stage: 'MergeBack',
+      project: new AutoMergeBack(this, 'MergeBack', {
+        repo: this.repo,
+        ...options
+      }).project
+    });
+  }
+
+  public addCodeBuildAction(options: ActionProps) {
+    const stage = this.getOrCreateStage(options.stage);
+
+    stage.addAction(new cpipeline_actions.CodeBuildAction({
+      actionName: options.name,
+      project: options.project,
+      input: this.sourceArtifact
+    }));
+
   }
 
   /**

@@ -1,4 +1,5 @@
 import { core as cdk } from "monocdk-experiment";
+import { IProject } from "monocdk-experiment/src/aws-codebuild";
 import { BuildEnvironmentProps } from "../build-env";
 import { WritableGitHubRepo } from "../repo";
 import * as pr from './pr';
@@ -32,6 +33,8 @@ export interface AutoMergeBackProps extends AutoMergeBackOptions {
 
 export class AutoMergeBack extends cdk.Construct {
 
+  private readonly pr: pr.AutoPullRequest;
+
   constructor(parent: cdk.Construct, id: string, props: AutoMergeBackProps) {
     super(parent, id);
 
@@ -47,7 +50,7 @@ See [CHANGELOG](https://github.com/${props.repo.owner}/${props.repo.repo}/blob/$
 
 ## End Commit Message`;
 
-    new pr.AutoPullRequest(this, 'AutoMergeBack', {
+    this.pr = new pr.AutoPullRequest(this, 'AutoMergeBack', {
       repo: props.repo,
       pr: {
         body,
@@ -64,5 +67,9 @@ See [CHANGELOG](https://github.com/${props.repo.owner}/${props.repo.repo}/blob/$
       },
       build: props.build
     });
+  }
+
+  public get project(): IProject {
+    return this.pr.project;
   }
 }

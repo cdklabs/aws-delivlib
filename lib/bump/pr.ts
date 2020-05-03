@@ -3,92 +3,6 @@ import { BuildEnvironmentProps, createBuildEnvironment } from "../build-env";
 import { WritableGitHubRepo } from "../repo";
 import permissions = require("../permissions");
 
-/**
- * Properties for defining a non-existing branch.
- */
-export interface NewBranch {
-
-  /**
-   * The desired name of the branch.
-   */
-  readonly name: string
-
-  /**
-   * The base hash of the branch.
-   * (used in 'git checkout {hash}' prior to creating the new branch)
-   */
-  readonly hash: string
-}
-
-/**
- * Represents a branch in the repo.
- */
-export class Branch {
-
-  private constructor(
-    public readonly name: string,
-    public readonly exists: boolean,
-    public readonly hash?: string ) {}
-
-  /**
-   * Configure a new branch to be created.
-   *
-   * @param branch the new branch properties.
-   */
-  public static create(branch: NewBranch): Branch {
-    return new Branch(branch.name, false, branch.hash);
-  }
-
-  /**
-   * Configure an existing branch.
-   *
-   * @param name the name of the existing branch.
-   */
-  public static use(name: string): Branch {
-    return new Branch(name, true, undefined);
-  }
-
-}
-
-/**
- * Properties for defining a Pull Request.
- */
-export interface PullRequest {
-
-  /**
-   * The head branch of the PR.
-   */
-  head: Branch;
-
-  /**
-   * The base branch of the PR.
-   */
-  base: Branch;
-
-  /**
-   * Title of the PR.
-   *
-   * @default `Merge ${head} to ${base}`
-   */
-  title?: string;
-
-  /**
-   * Body the PR. Note that the body is updated post PR creation,
-   * this means you can use the $PR_NUMBER variable to refer to the PR itself.
-   *
-   * @default - no body.
-   */
-  body?: string;
-
-  /**
-   * Labels applied to the PR.
-   *
-   * @default - no labels.
-   */
-  labels?: string[];
-
-}
-
 export interface AutoPullRequestOptions {
 
   /**
@@ -177,6 +91,92 @@ export interface AutoPullRequestProps extends AutoPullRequestOptions {
 }
 
 /**
+ * Properties for defining a Pull Request.
+ */
+export interface PullRequest {
+
+  /**
+   * The head branch of the PR.
+   */
+  head: Branch;
+
+  /**
+   * The base branch of the PR.
+   */
+  base: Branch;
+
+  /**
+   * Title of the PR.
+   *
+   * @default `Merge ${head} to ${base}`
+   */
+  title?: string;
+
+  /**
+   * Body the PR. Note that the body is updated post PR creation,
+   * this means you can use the $PR_NUMBER variable to refer to the PR itself.
+   *
+   * @default - no body.
+   */
+  body?: string;
+
+  /**
+   * Labels applied to the PR.
+   *
+   * @default - no labels.
+   */
+  labels?: string[];
+
+}
+
+/**
+ * Options for creating a new branch in the repo.
+ */
+export interface CreateBranchOptions {
+
+  /**
+   * The desired name of the branch.
+   */
+  readonly name: string
+
+  /**
+   * The base hash of the branch.
+   * (used in 'git checkout {hash}' prior to creating the new branch)
+   */
+  readonly hash: string
+}
+
+/**
+ * Represents a branch in the repo.
+ */
+export class Branch {
+
+  private constructor(
+    public readonly name: string,
+    public readonly exists: boolean,
+    public readonly hash?: string ) {}
+
+  /**
+   * Configure a new branch to be created.
+   *
+   * @param branch the new branch properties.
+   */
+  public static create(branch: CreateBranchOptions): Branch {
+    return new Branch(branch.name, false, branch.hash);
+  }
+
+  /**
+   * Configure an existing branch.
+   *
+   * @param name the name of the existing branch.
+   */
+  public static use(name: string): Branch {
+    return new Branch(name, true, undefined);
+  }
+
+}
+
+/**
  * Creates a CodeBuild job that, when triggered, opens a GitHub Pull Request.
  */
 export class AutoPullRequest extends cdk.Construct {
@@ -186,11 +186,15 @@ export class AutoPullRequest extends cdk.Construct {
    */
   public readonly alarm: cloudwatch.Alarm;
 
-  private readonly props: AutoPullRequestProps;
+  /**
+   * The CodeBuild project this construct creates.
+   */
+  public readonly project: cbuild.IProject;
 
-  private body: string;
-  private labels: string[];
-  private condition: string;
+  private readonly props: AutoPullRequestProps;
+  private readonly body: string;
+  private readonly labels: string[];
+  private readonly condition: string;
 
   constructor(parent: cdk.Construct, id: string, props: AutoPullRequestProps) {
     super(parent, id);
@@ -229,7 +233,7 @@ export class AutoPullRequest extends cdk.Construct {
     // toggle all commands according to the SKIP variable.
     commands = commands.map((command: string) => `$SKIP || { ${command} ; }`);
 
-    const project = new cbuild.Project(this, 'PullRequest', {
+    this.project = new cbuild.Project(this, 'PullRequest', {
       source: props.repo.createBuildSource(this, false, { cloneDepth }),
       environment: createBuildEnvironment(props.build ?? {}),
       buildSpec: cbuild.BuildSpec.fromObject({
@@ -251,12 +255,12 @@ export class AutoPullRequest extends cdk.Construct {
       }),
     });
 
-    if (project.role) {
-      permissions.grantSecretRead(sshKeySecret, project.role);
+    if (this.project.role) {
+      permissions.grantSecretRead(sshKeySecret, this.project.role);
 
       if (!pushOnly) {
         // we will be using the token to create a PR.
-        permissions.grantSecretRead({ secretArn: props.repo.tokenSecretArn }, project.role);
+        permissions.grantSecretRead({ secretArn: props.repo.tokenSecretArn }, this.project.role);
       }
 
     }
@@ -266,11 +270,11 @@ export class AutoPullRequest extends cdk.Construct {
       new events.Rule(this, 'Scheduler', {
         description: 'Schedules an automatic Pull Request for this repository',
         schedule,
-        targets: [new events_targets.CodeBuildProject(project)],
+        targets: [new events_targets.CodeBuildProject(this.project)],
       });
     }
 
-    this.alarm = project.metricFailedBuilds({ period: cdk.Duration.seconds(300) }).createAlarm(this, 'BumpFailedAlarm', {
+    this.alarm = this.project.metricFailedBuilds({ period: cdk.Duration.seconds(300) }).createAlarm(this, 'BumpFailedAlarm', {
       threshold: 1,
       evaluationPeriods: 1,
       treatMissingData: cloudwatch.TreatMissingData.IGNORE,

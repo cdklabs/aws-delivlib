@@ -138,13 +138,17 @@ export class AutoBump extends cdk.Construct {
   constructor(parent: cdk.Construct, id: string, props: AutoBumpProps) {
     super(parent, id);
 
+    const head = props.branch? Branch.use(props.branch) : Branch.create({
+      name: 'bump/$VERSION',
+      hash: 'master'
+    });
     const bumpCommand = props.bumpCommand || '/bin/sh ./bump.sh';
     const versionCommand = props.versionCommand ?? 'git describe';
     const title = props.pullRequestOptions?.title ?? 'chore(release): $VERSION';
     const body = props.pullRequestOptions?.body ?? `## Commit Message
 ${title} (#$PR_NUMBER)
 
-See [CHANGELOG](https://github.com/${props.repo.owner}/${props.repo.repo}/blob/${headName}/CHANGELOG.md)
+See [CHANGELOG](https://github.com/${props.repo.owner}/${props.repo.repo}/blob/${head.name}/CHANGELOG.md)
 
 ## End Commit Message`;
     const base = props.pullRequestOptions?.base ?? 'master';
@@ -156,10 +160,7 @@ See [CHANGELOG](https://github.com/${props.repo.owner}/${props.repo.repo}/blob/$
       pr: {
         body,
         title,
-        head: props.branch? Branch.use(props.branch) : Branch.create({
-          name: 'bump/$VERSION',
-          hash: 'master'
-        }),
+        head,
         base: Branch.use(base),
       },
       commits: [bumpCommand],
