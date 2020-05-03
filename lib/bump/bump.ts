@@ -140,24 +140,31 @@ export class AutoBump extends cdk.Construct {
 
     const bumpCommand = props.bumpCommand || '/bin/sh ./bump.sh';
     const versionCommand = props.versionCommand ?? 'git describe';
+    const title = props.pullRequestOptions?.title ?? 'chore(release): $VERSION';
+    const body = props.pullRequestOptions?.body ?? `## Commit Message
+${title} (#$PR_NUMBER)
+
+See [CHANGELOG](https://github.com/${props.repo.owner}/${props.repo.repo}/blob/${headName}/CHANGELOG.md)
+
+## End Commit Message`;
+    const base = props.pullRequestOptions?.base ?? 'master';
     const pullRequestEnabled = props.pullRequest || props.pullRequestOptions !== undefined;
     const cloneDepth = props.cloneDepth === undefined ? 0 : props.cloneDepth;
 
     const autoBump = new AutoPullRequest(this, 'AutoBump', {
       repo: props.repo,
       pr: {
-        body: props.pullRequestOptions?.body,
-        title: props.pullRequestOptions?.title,
+        body,
+        title,
         head: props.branch? Branch.use(props.branch) : Branch.create({
           name: 'bump/$VERSION',
           hash: 'master'
         }),
-        base: Branch.use('release'),
+        base: Branch.use(base),
       },
-      allowEmpty: false,
       commits: [bumpCommand],
       pushOnly: !pullRequestEnabled,
-      scheduleExpression: props.scheduleExpression,
+      scheduleExpression: props.scheduleExpression === 'disable' ? undefined : 'cron(0 12 * * ? *)',
       cloneDepth,
       exports: {
         'VERSION': versionCommand

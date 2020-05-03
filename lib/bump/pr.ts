@@ -210,7 +210,9 @@ export class AutoPullRequest extends cdk.Construct {
     let commands: string[] = [];
 
     if (this.condition) {
-      commands.push(this.maybeSkip());
+      // there's no way to stop a BuildSpec execution halfway through without throwing an error. Believe me, I
+      // checked the code. Instead we define a variable that we will switch all other lines on.
+      commands.push(`${this.condition} && { export SKIP=true; } || { export SKIP=false; }`);
     }
 
     commands.push(
@@ -218,17 +220,14 @@ export class AutoPullRequest extends cdk.Construct {
       ...this.pushHead()
     );
 
-
     // support for only creating a branch, without the actual PR.
     // (TBD - do we really need this?)
     if (!pushOnly) {
-      commands.push(
-        ...this.createPullRequest(),
-        ...this.updateBody(),
-        ...this.applyLabels());
+      commands.push(...this.createPullRequest());
     }
 
-    commands = commands.map(this.skipOr);
+    // toggle all commands according to the SKIP variable.
+    commands = commands.map((command: string) => `$SKIP || { ${command} ; }`);
 
     const project = new cbuild.Project(this, 'PullRequest', {
       source: props.repo.createBuildSource(this, false, { cloneDepth }),
@@ -254,7 +253,12 @@ export class AutoPullRequest extends cdk.Construct {
 
     if (project.role) {
       permissions.grantSecretRead(sshKeySecret, project.role);
-      permissions.grantSecretRead({ secretArn: props.repo.tokenSecretArn }, project.role);
+
+      if (!pushOnly) {
+        // we will be using the token to create a PR.
+        permissions.grantSecretRead({ secretArn: props.repo.tokenSecretArn }, project.role);
+      }
+
     }
 
     if (props.scheduleExpression) {
@@ -273,15 +277,9 @@ export class AutoPullRequest extends cdk.Construct {
     });
   }
 
-  private skipOr(command: string) {
-    return `$SKIP || { ${command} ; }`;
-  }
-
   private export(): string[] {
 
     const ex = this.props.exports ?? {};
-
-    ex.GITHUB_TOKEN = `aws secretsmanager get-secret-value --secret-id "${this.props.repo.tokenSecretArn}" --output=text --query=SecretString`;
     ex.SKIP = 'echo false';
 
     return Object.keys(ex).map((key: string) => `export ${key}=$(${ex[key]})`);
@@ -357,21 +355,20 @@ export class AutoPullRequest extends cdk.Construct {
     '{ echo "Skipping pull request..."; export SKIP=true; } || ' +
     '{ echo "Creating pull request..."; export SKIP=false; }');
 
+    // read the token
+    commands.push(`export GITHUB_TOKEN=$(aws secretsmanager get-secret-value --secret-id "${this.props.repo.tokenSecretArn}" --output=text --query=SecretString)`);
+
+    // create the PR
     commands.push(`${this.curl('/pulls', '-X POST -o pr.json', createRequest)} && export PR_NUMBER=$(node -p 'require("./pr.json").number')`);
+
+    // update the body
+    commands.push(this.curl(`/pulls/$PR_NUMBER`, '-X PATCH', {'body': this.body}));
+
+    // apply labels
+    commands.push(this.curl(`/issues/$PR_NUMBER/labels`, '-X POST', {'labels': this.labels}));
+
     return commands;
 
-  }
-
-  private maybeSkip() {
-    return `${this.condition} && { export SKIP=true; } || { export SKIP=false; }`;
-  }
-
-  private updateBody(): string[] {
-    return [this.curl(`/pulls/$PR_NUMBER`, '-X PATCH', {'body': this.body})];
-  }
-
-  private applyLabels(): string[] {
-    return [this.curl(`/issues/$PR_NUMBER/labels`, '-X POST', {'labels': this.labels})];
   }
 
   private curl(uri: string, command: string, request: any): string {
