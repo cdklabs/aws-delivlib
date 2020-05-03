@@ -1,6 +1,6 @@
-import { aws_cloudwatch as cloudwatch, aws_codebuild as cbuild, core as cdk, } from "monocdk-experiment";
+import { aws_cloudwatch as cloudwatch, aws_codebuild as cbuild, core as cdk } from "monocdk-experiment";
 import { WritableGitHubRepo } from "../repo";
-import { AutoCodeReviewProps, AutoCodeReview, Branch } from './cr';
+import { AutoPullRequest, Branch } from './pr';
 
 export interface AutoBumpOptions {
   /**
@@ -96,7 +96,6 @@ export interface AutoBumpOptions {
    * @default 0 clones the entire repository
    */
   cloneDepth?: number;
-
 }
 
 export interface AutoBumpProps extends AutoBumpOptions {
@@ -127,7 +126,6 @@ export interface PullRequestOptions {
    * @default "master"
    */
   base?: string;
-
 }
 
 export class AutoBump extends cdk.Construct {
@@ -141,19 +139,25 @@ export class AutoBump extends cdk.Construct {
     super(parent, id);
 
     const bumpCommand = props.bumpCommand || '/bin/sh ./bump.sh';
-    const versionCommand = props.versionCommand ?? "git describe";
-    const pullRequestEnabled = props.pullRequest || props.pullRequestOptions;
+    const versionCommand = props.versionCommand ?? 'git describe';
+    const pullRequestEnabled = props.pullRequest || props.pullRequestOptions !== undefined;
     const cloneDepth = props.cloneDepth === undefined ? 0 : props.cloneDepth;
 
-    const codeReviewProps: AutoCodeReviewProps = {
+    const autoBump = new AutoPullRequest(this, 'AutoBump', {
       repo: props.repo,
-      pr: pullRequestEnabled ? {
-        allowEmpty: false,
+      pr: {
         body: props.pullRequestOptions?.body,
-        title: props.pullRequestOptions?.title
-      } : {},
+        title: props.pullRequestOptions?.title,
+        head: props.branch? Branch.use(props.branch) : Branch.create({
+          name: 'bump/$VERSION',
+          hash: 'master'
+        }),
+        base: Branch.use('release'),
+      },
+      allowEmpty: false,
+      commits: [bumpCommand],
+      pushOnly: !pullRequestEnabled,
       scheduleExpression: props.scheduleExpression,
-      commit: [bumpCommand],
       cloneDepth,
       exports: {
         'VERSION': versionCommand
@@ -164,16 +168,9 @@ export class AutoBump extends cdk.Construct {
         env: props.env,
         privileged: props.privileged
       },
-      source: props.branch? Branch.existing(props.branch) : Branch.new({
-        name: 'bump/$VERSION',
-        hash: 'master'
-      }),
-      target: Branch.existing('release'),
-      skipCommand: 'git describe --exact-match HEAD'
-    };
+      condition: 'git describe --exact-match HEAD'
+    });
 
-    const cr = new AutoCodeReview(this, 'AutoBump', codeReviewProps);
-
-    this.alarm = cr.alarm;
+    this.alarm = autoBump.alarm;
   }
 }

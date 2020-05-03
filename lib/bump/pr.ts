@@ -1,140 +1,216 @@
-import { aws_cloudwatch as cloudwatch, aws_codebuild as cbuild, aws_events as events, aws_events_targets as events_targets, core as cdk, } from "monocdk-experiment";
-import { createBuildEnvironment, BuildEnvironmentProps } from "../build-env";
-import permissions = require("../permissions");
+import { aws_cloudwatch as cloudwatch, aws_codebuild as cbuild, aws_events as events, aws_events_targets as events_targets, core as cdk } from "monocdk-experiment";
+import { BuildEnvironmentProps, createBuildEnvironment } from "../build-env";
 import { WritableGitHubRepo } from "../repo";
+import permissions = require("../permissions");
 
+/**
+ * Properties for defining a non-existing branch.
+ */
 export interface NewBranch {
+
+  /**
+   * The desired name of the branch.
+   */
   readonly name: string
+
+  /**
+   * The base hash of the branch.
+   * (used in 'git checkout {hash}' prior to creating the new branch)
+   */
   readonly hash: string
 }
 
+/**
+ * Represents a branch in the repo.
+ */
 export class Branch {
 
   private constructor(
     public readonly name: string,
-    public readonly existing: boolean,
+    public readonly exists: boolean,
     public readonly hash?: string ) {}
 
-  public static new(branch: NewBranch): Branch {
+  /**
+   * Configure a new branch to be created.
+   *
+   * @param branch the new branch properties.
+   */
+  public static create(branch: NewBranch): Branch {
     return new Branch(branch.name, false, branch.hash);
   }
 
-  public static existing(name: string): Branch {
+  /**
+   * Configure an existing branch.
+   *
+   * @param name the name of the existing branch.
+   */
+  public static use(name: string): Branch {
     return new Branch(name, true, undefined);
   }
 
 }
 
+/**
+ * Properties for defining a Pull Request.
+ */
 export interface PullRequest {
 
+  /**
+   * The head branch of the PR.
+   */
+  head: Branch;
+
+  /**
+   * The base branch of the PR.
+   */
+  base: Branch;
+
+  /**
+   * Title of the PR.
+   *
+   * @default `Merge ${head} to ${base}`
+   */
   title?: string;
 
-  body?: string
+  /**
+   * Body the PR. Note that the body is updated post PR creation,
+   * this means you can use the $PR_NUMBER variable to refer to the PR itself.
+   *
+   * @default - no body.
+   */
+  body?: string;
 
-  labels?: string[]
-
-  allowEmpty?: boolean
+  /**
+   * Labels applied to the PR.
+   *
+   * @default - no labels.
+   */
+  labels?: string[];
 
 }
 
-export interface AutoCodeReviewOptions {
-
-  build?: BuildEnvironmentProps
-
-  source: Branch;
-
-  target: Branch;
-
-  commit?: string[]
-
-  pr?: PullRequest
-
-  skipCommand?: string
+export interface AutoPullRequestOptions {
 
   /**
-   * Git clone depth
-   *
-   * @default 0 clones the entire repository
+   * Spec for the PR.
    */
-  cloneDepth?: number
-
-  exports?: { [key: string]: string }
+  pr: PullRequest;
 
   /**
-   * The schedule to produce an automatic bump.
+   * Build environment for the CodeBuild job.
+   *
+   * @default - default configuration.
+   */
+  build?: BuildEnvironmentProps;
+
+  /**
+   * A set of commands to commit new code onto the head branch.
+   * Useful for things like version bumps or any auto-generated commits.
+   *
+   * @default - no commands.
+   */
+  commits?: string[];
+
+  /**
+   * Only push the head branch to the repo, without opening the PR.
+   */
+  pushOnly?: boolean;
+
+  /**
+   * The exit code of this command determines whether or not to proceed with the
+   * PR creation. If configured, this command is the first one to run, and if it fails, all
+   * other commands will be skipped.
+   *
+   * @default - no condition
+   */
+  condition?: string;
+
+  /**
+   * Git clone depth.
+   *
+   * @default 0 (clones the entire repository revisions)
+   */
+  cloneDepth?: number;
+
+  /**
+   * Key value pairs of variables to export. These variables will be available for dynamic evaluation in any
+   * subsequent command.
+   *
+   * Key - Variable name (e.g VERSION)
+   * Value - Command that evaluates to the value of the variable (e.g 'git describe')
+   *
+   * Example:
+   *
+   * Configure an export in the form of:
+   *
+   * { 'VERSION': 'git describe' }
+   *
+   * Use the $VERSION variable in the PR title: 'chore(release): $VERSION'
+   *
+   * @default - no exports
+   */
+  exports?: { [key: string]: string };
+
+  /**
+   * The schedule to produce an automatic PR.
    *
    * The expression can be one of:
    *
    *  - cron expression, such as "cron(0 12 * * ? *)" will trigger every day at 12pm UTC
    *  - rate expression, such as "rate(1 day)" will trigger every 24 hours from the time of deployment
    *
-   * To disable, use the string `disable`.
-   *
    * @see https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/ScheduledEvents.html
-   * @default "cron(0 12 * * ? *)" (12pm UTC daily)
+   *
+   * @default - no schedule, should be triggered manually.
    */
   scheduleExpression?: string;
 
 }
 
-export interface AutoCodeReviewProps extends AutoCodeReviewOptions {
+export interface AutoPullRequestProps extends AutoPullRequestOptions {
 
   /**
-   * The repository to bump.
+   * The repository to create a PR in.
    */
   repo: WritableGitHubRepo;
 
 }
 
-export class AutoCodeReview extends cdk.Construct {
+/**
+ * Creates a CodeBuild job that, when triggered, opens a GitHub Pull Request.
+ */
+export class AutoPullRequest extends cdk.Construct {
 
   /**
    * CloudWatch alarm that will be triggered if bump fails.
    */
   public readonly alarm: cloudwatch.Alarm;
 
-  private readonly props: AutoCodeReviewProps;
+  private readonly props: AutoPullRequestProps;
 
   private body: string;
   private labels: string[];
-  private skipCommand: string | undefined;
+  private condition: string;
 
-  constructor(parent: cdk.Construct, id: string, props: AutoCodeReviewProps) {
+  constructor(parent: cdk.Construct, id: string, props: AutoPullRequestProps) {
     super(parent, id);
-
-    const sshKeySecret = props.repo.sshKeySecret;
-    if (!sshKeySecret) {
-      throw new Error(`Cannot install pull request on a repo without an SSH key secret`);
-    }
-
-    const commitEmail = props.repo.commitEmail;
-    if (!commitEmail) {
-      throw new Error(`Cannot install pull request on a repo without "commitEmail"`);
-    }
-
-    const commitUsername = props.repo.commitUsername;
-    if (!commitUsername) {
-      throw new Error(`Cannot install pull request on a repo without "commitUsername"`);
-    }
-
-    const token = props.repo.tokenSecretArn;
-    if (!token) {
-      throw new Error(`Cannot install pull request on a repo without "tokenSecretArn"`);
-    }
 
     this.props = props;
 
+    const sshKeySecret = props.repo.sshKeySecret;
+    const commitEmail = props.repo.commitEmail;
+    const commitUsername = props.repo.commitUsername;
+    const cloneDepth = props.cloneDepth === undefined ? 0 : props.cloneDepth;
+    const pushOnly = this.props.pushOnly ?? false;
+
     this.body = this.props.pr?.body ?? '';
     this.labels = this.props.pr?.labels ?? [];
-    this.skipCommand = this.props.skipCommand;
-
-    // by default, clne the entire repo (cloneDepth: 0)
-    const cloneDepth = props.cloneDepth === undefined ? 0 : props.cloneDepth;
+    this.condition = this.props.condition ?? '';
 
     let commands: string[] = [];
 
-    if (this.skipCommand) {
-      commands.push(this.skipIf());
+    if (this.condition) {
+      commands.push(this.maybeSkip());
     }
 
     commands.push(
@@ -142,9 +218,10 @@ export class AutoCodeReview extends cdk.Construct {
       ...this.pushHead()
     );
 
+
     // support for only creating a branch, without the actual PR.
-    // doesn't feel natural - think of a better way.
-    if (this.props.pr) {
+    // (TBD - do we really need this?)
+    if (!pushOnly) {
       commands.push(
         ...this.createPullRequest(),
         ...this.updateBody(),
@@ -212,17 +289,17 @@ export class AutoCodeReview extends cdk.Construct {
 
   private createHead(): string[] {
 
-    const head = this.props.source;
-    const hash = this.props.source.hash ?? 'master';
-    const base = this.props.target.name;
+    const head = this.props.pr.head;
+    const hash = this.props.pr.head.hash ?? 'master';
+    const base = this.props.pr.base.name;
 
     const commands = [];
 
-    if (head.existing) {
+    if (head.exists) {
       // if the head branch exists we automatically merge
       // the base onto it. note that this can fail with conflicts.
       commands.push(
-        `git checkout ${head}`,
+        `git checkout ${head.name}`,
         `git merge ${base}`,
       );
     } else {
@@ -230,19 +307,19 @@ export class AutoCodeReview extends cdk.Construct {
       // the specified hash
       commands.push(
         `git checkout ${hash}`,
-        `git checkout -b ${head}`,
+        `git checkout -b ${head.name}`,
       );
     }
 
     // now we perform the commits
-    commands.push(...(this.props.commit ?? []));
+    commands.push(...(this.props.commits ?? []));
 
     return commands;
   }
 
   private pushHead(): string[] {
 
-    const head = this.props.source.name;
+    const head = this.props.pr.head.name;
 
     const sshKeyArn = this.props.repo.sshKeySecret.secretArn;
     return [
@@ -258,38 +335,35 @@ export class AutoCodeReview extends cdk.Construct {
 
   private createPullRequest(): string[] {
 
-    const head = this.props.source.name;
-    const base = this.props.target.name;
+    const head = this.props.pr.head.name;
+    const base = this.props.pr.base.name;
 
     if (head === base) {
-      throw new Error(`cannot enable pull requests since the head branch ("${base}") is the same as the base branch ("${head}")`);
+      throw new Error(`Head branch ("${base}") is the same as the base branch ("${head}")`);
     }
 
     const props = this.props;
-    const allowEmpty = props.pr!.allowEmpty ?? true;
 
     const createRequest = {
-      title: props.pr!.title ?? `Merge ${head} to ${base}`,
+      title: props.pr.title ?? `Merge ${head} to ${base}`,
       base,
       head
     };
 
     const commands = [];
 
-    if (!allowEmpty) {
-      // don't create if head.hash == base.hash
-      commands.push(`git diff --exit-code --no-patch ${head} ${base} && ` +
-      '{ echo "Skipping pull request..."; export SKIP=true; } || ' +
-      '{ echo "Creating pull request..."; export SKIP=false; }');
-    }
+    // don't create if head.hash == base.hash
+    commands.push(`git diff --exit-code --no-patch ${head} ${base} && ` +
+    '{ echo "Skipping pull request..."; export SKIP=true; } || ' +
+    '{ echo "Creating pull request..."; export SKIP=false; }');
 
     commands.push(`${this.curl('/pulls', '-X POST -o pr.json', createRequest)} && export PR_NUMBER=$(node -p 'require("./pr.json").number')`);
     return commands;
 
   }
 
-  private skipIf() {
-    return `${this.skipCommand} && { export SKIP=true; } || { export SKIP=false; }`;
+  private maybeSkip() {
+    return `${this.condition} && { export SKIP=true; } || { export SKIP=false; }`;
   }
 
   private updateBody(): string[] {
