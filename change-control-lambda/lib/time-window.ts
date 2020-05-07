@@ -19,6 +19,8 @@ export interface CalendarEvent {
   params?: any[];
   /** The type of the boundaries for the event */
   datetype: 'date-time';
+  /** A recurrence rule for the event. */
+  rrule?: any;
 }
 type Events = { [uuid: string]: CalendarEvent };
 
@@ -40,10 +42,66 @@ export function shouldBlockPipeline(icalData: string | Buffer, now = new Date(),
   return blocks.length > 0 ? blocks[0] : undefined;
 }
 
+/**
+ * Returns the previous and next events for a recurring event surrounding the
+ * provided date. If the date provided is equal to the start of an event, 
+ * the event for that date and the following event will be returend
+ * 
+ * If the provided event is not recurring, no events are returned.
+ *
+ * @param event a recurring calendar event.
+ * @param date the date for which the previous and next event should be returned.
+ */
+function getRecurringEvents(event: CalendarEvent, date: Date): CalendarEvent[] {
+  const recurrences: CalendarEvent[] = [];
+  if (event.rrule == null) return recurrences;
+  const duration = (new Date(event.end).getTime() - new Date(event.start).getTime())
+
+  const after = event.rrule.after(date, false);
+  if (after != null) {
+    recurrences.push(buildEventForDuration(new Date(after), duration, event.summary));
+  }
+
+  const before = event.rrule.before(date, true);
+  if (before != null) {
+    recurrences.push(buildEventForDuration(new Date(before), duration, event.summary));
+  }
+  return recurrences;
+}
+
+/**
+ * A function to build a CalendarEvent given a start date and a duration.
+ *
+ * @param start a start date for the event
+ * @param duration a duration for the event in milliseconds
+ * @param summary a summary to apply to the event
+ */
+function buildEventForDuration(start: Date, duration: number, summary: string): CalendarEvent {
+  const end = new Date(start.getTime() + duration);
+  return {
+    summary: `${summary} ${start.toISOString()} - ${end.toISOString()}`,
+    start: start,
+    end: end,
+    datetype: 'date-time',
+    type: 'VEVENT'
+  };
+}
+
 function containingEventsWithMargin(events: Events, date: Date, advanceMarginSec: number): CalendarEvent[] {
   const bufferedDate = new Date(date.getTime() + advanceMarginSec * 1_000);
+
   return Object.values(events)
     .filter(e => e.type === 'VEVENT')
+    .reduce((arr, e) => {
+      if (e.rrule != null) {
+        // Turn a recurrence rule into the events starting on or before
+        // the date, and the next event starting after the date.
+        arr.push(...getRecurringEvents(e, date));
+      } else {
+        arr.push(e);
+      }
+      return arr;
+    }, [] as CalendarEvent[])
     .filter(e => overlaps(e, { start: date, end: bufferedDate }));
 }
 
