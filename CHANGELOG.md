@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [7.1.23](https://github.com/awslabs/aws-delivlib/compare/v7.1.22...v7.1.23) (2020-05-08)
+
+### [7.1.22](https://github.com/awslabs/aws-delivlib/compare/v7.1.21...v7.1.22) (2020-05-07)
+
+### [7.1.21](https://github.com/awslabs/aws-delivlib/compare/v7.1.20...v7.1.21) (2020-05-06)
+
+### [7.1.20](https://github.com/awslabs/aws-delivlib/compare/v7.1.19...v7.1.20) (2020-05-05)
+
+### [7.1.19](https://github.com/awslabs/aws-delivlib/compare/v7.1.18...v7.1.19) (2020-05-02)
+
+### [7.1.18](https://github.com/awslabs/aws-delivlib/compare/v7.1.17...v7.1.18) (2020-05-01)
+
+### [7.1.17](https://github.com/awslabs/aws-delivlib/compare/v7.1.16...v7.1.17) (2020-04-30)
+
 ### [7.1.16](https://github.com/awslabs/aws-delivlib/compare/v7.1.15...v7.1.16) (2020-04-29)
 
 ### [7.1.15](https://github.com/awslabs/aws-delivlib/compare/v7.1.14...v7.1.15) (2020-04-27)
