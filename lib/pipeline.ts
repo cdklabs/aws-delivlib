@@ -163,12 +163,6 @@ export interface AutoMergeBackOptions extends Omit<AutoMergeBackProps, 'repo'> {
   readonly stage?: string
 }
 
-export interface ActionProps {
-  readonly stage: string,
-  readonly name: string,
-  readonly project: cbuild.IProject
-}
-
 /**
  * Defines a delivlib CI/CD pipeline.
  */
@@ -397,9 +391,7 @@ export class Pipeline extends cdk.Construct {
     });
 
     if (options?.stage) {
-
       const stage = this.getOrCreateStage(options.stage);
-
       stage.addAction(new cpipeline_actions.CodeBuildAction({
         actionName: 'CreateMergeBackPullRequest',
         project: mergeBack.pr.project,
