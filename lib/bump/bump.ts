@@ -309,12 +309,17 @@ function createPullRequestCommands(repo: WritableGitHubRepo, options: PullReques
     '{ echo "No changes after bump. Skipping pull request..."; export SKIP=true; } || ' +
     '{ echo "Creating pull request..."; export SKIP=false; }';
 
-  return [
-    condition,
+  const commands = [
+     condition,
     `GITHUB_TOKEN=$(aws secretsmanager get-secret-value --secret-id "${repo.tokenSecretArn}" --output=text --query=SecretString)`,
-    `${curl('/pulls', '-X POST -o pr.json', request, repo)} && export PR_NUMBER=$(node -p 'require("./pr.json").number')`,
-    `${curl(`/issues/$PR_NUMBER/labels`, '-X POST', {'labels': options.labels ?? []}, repo)}`
+    `${curl('/pulls', '-X POST -o pr.json', request, repo)} && export PR_NUMBER=$(node -p 'require("./pr.json").number')`
   ];
+
+  if ((options.labels ?? []).length !== 0) {
+    commands.push(`${curl(`/issues/$PR_NUMBER/labels`, '-X POST', {'labels': options.labels}, repo)}`);
+  }
+
+  return commands;
 }
 
 function curl(uri: string, command: string, request: any, repo: WritableGitHubRepo): string {
