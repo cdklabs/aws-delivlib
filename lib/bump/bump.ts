@@ -2,7 +2,6 @@ import { aws_cloudwatch as cloudwatch, aws_codebuild as cbuild, aws_events as ev
 import { createBuildEnvironment } from "../build-env";
 import permissions = require("../permissions");
 import { WritableGitHubRepo } from "../repo";
-import { IProject } from "monocdk-experiment/src/aws-codebuild";
 
 export interface AutoBumpOptions {
   /**
@@ -162,11 +161,6 @@ export class AutoBump extends cdk.Construct {
    * CloudWatch alarm that will be triggered if bump fails.
    */
   public readonly alarm: cloudwatch.Alarm;
-
-  /**
-   * The undelying CodeBuild project that is created.
-   */
-  public readonly project: IProject;
 
   constructor(parent: cdk.Construct, id: string, props: AutoBumpProps) {
     super(parent, id);
