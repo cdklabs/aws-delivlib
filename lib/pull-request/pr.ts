@@ -260,7 +260,10 @@ export class AutoPullRequest extends cdk.Construct {
 
     if (this.project.role) {
       permissions.grantSecretRead(sshKeySecret, this.project.role);
-      permissions.grantSecretRead({ secretArn: props.repo.tokenSecretArn }, this.project.role);
+
+      if (!this.props.pushOnly) {
+        permissions.grantSecretRead({ secretArn: props.repo.tokenSecretArn }, this.project.role);
+      }
     }
 
     if (props.scheduleExpression) {
@@ -293,10 +296,10 @@ export class AutoPullRequest extends cdk.Construct {
       // check if head branch exists
       `git rev-parse --verify ${this.props.head.name} ` +
 
-      // checkout and merge if does (this might fail due to merge conflicts)
+      // checkout and merge if it does (this might fail due to merge conflicts)
       `&& { git checkout ${this.props.head.name} && git merge ${this.headHash}; } ` +
 
-      // create if doesnt
+      // create if it doesnt
       `|| { git checkout ${this.headHash} && git checkout -b ${this.props.head.name}; }`
     );
 

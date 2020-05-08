@@ -66,7 +66,7 @@ export interface AutoMergeBackProps extends Omitted {
 
   /**
    * Head branch of the PR.
-   * 
+   *
    * $VERSION will be substituted by the current version (obtained by executing `versionCommand`).
    *
    * @default - Will be created from master and named 'merge-back/$VERSION'
