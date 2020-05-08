@@ -38,7 +38,7 @@
     "@monocdk-experiment/assert": "1.31.0",
     "@types/jest": "^25.2.1",
     "@types/node": "^13.7.6",
-    "aws-cdk": "1.37.0",
+    "aws-cdk": "1.38.0",
     "jest": "^26.0.1",
     "jest-create-mock-instance": "^1.1.0",
     "monocdk-experiment": "1.28.0",
