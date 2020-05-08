@@ -22,7 +22,6 @@ import { IRepo, WritableGitHubRepo } from "./repo";
 import { Shellable, ShellableProps } from "./shellable";
 import { determineRunOrder } from "./util";
 import { ChimeNotifier } from "./chime-notifier";
-import { IProject } from "monocdk-experiment/src/aws-codebuild";
 
 const PUBLISH_STAGE_NAME = 'Publish';
 const TEST_STAGE_NAME = 'Test';
@@ -152,12 +151,6 @@ export interface PipelineProps {
    * @default - A default message
    */
   chimeMessage?: string;
-}
-
-export interface CodeBuildActionOptions {
-  readonly stage: string
-  readonly project: IProject
-  readonly name: string
 }
 
 /**
