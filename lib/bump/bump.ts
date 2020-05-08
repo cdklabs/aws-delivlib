@@ -286,8 +286,6 @@ export class AutoBump extends cdk.Construct {
       evaluationPeriods: 1,
       treatMissingData: cloudwatch.TreatMissingData.IGNORE,
     });
-
-    this.project = project;
   }
 }
 
