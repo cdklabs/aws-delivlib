@@ -55,6 +55,7 @@ test('autoBump', () => {
               "$SKIP || { export VERSION=$(git describe) ; }",
               "$SKIP || { export BRANCH=bump/$VERSION ; }",
               "$SKIP || { git branch -D $BRANCH || true ; }",
+              "$SKIP || { git checkout master ; }",
               "$SKIP || { git checkout -b $BRANCH ; }",
               "$SKIP || { git remote add origin_ssh git@github.com:owner/repo.git ; }",
               "$SKIP || { git push --follow-tags origin_ssh $BRANCH ; }"
@@ -114,6 +115,7 @@ test('autoBump with custom cloneDepth', () => {
               "$SKIP || { export VERSION=$(git describe) ; }",
               "$SKIP || { export BRANCH=bump/$VERSION ; }",
               "$SKIP || { git branch -D $BRANCH || true ; }",
+              "$SKIP || { git checkout master ; }",
               "$SKIP || { git checkout -b $BRANCH ; }",
               "$SKIP || { git remote add origin_ssh git@github.com:owner/repo.git ; }",
               "$SKIP || { git push --follow-tags origin_ssh $BRANCH ; }"
@@ -191,12 +193,13 @@ test('autoBump with pull request', () => {
               "$SKIP || { export VERSION=$(git describe) ; }",
               "$SKIP || { export BRANCH=bump/$VERSION ; }",
               "$SKIP || { git branch -D $BRANCH || true ; }",
+              "$SKIP || { git checkout master ; }",
               "$SKIP || { git checkout -b $BRANCH ; }",
               "$SKIP || { git remote add origin_ssh git@github.com:owner/repo.git ; }",
               "$SKIP || { git push --follow-tags origin_ssh $BRANCH ; }",
               "$SKIP || { git diff --exit-code --no-patch $BRANCH master && { echo \"No changes after bump. Skipping pull request...\"; export SKIP=true; } || { echo \"Creating pull request...\"; export SKIP=false; } ; }",
               "$SKIP || { GITHUB_TOKEN=$(aws secretsmanager get-secret-value --secret-id \"token-secret-arn\" --output=text --query=SecretString) ; }",
-              "$SKIP || { curl -X POST --header \"Authorization: token $GITHUB_TOKEN\" --header \"Content-Type: application/json\" -d \"{\\\"title\\\":\\\"chore(release): $VERSION\\\",\\\"body\\\":\\\"see CHANGELOG\\\",\\\"base\\\":\\\"master\\\",\\\"head\\\":\\\"$BRANCH\\\"}\" https://api.github.com/repos/owner/repo/pulls ; }"
+              "$SKIP || { curl --fail -X POST -o pr.json --header \"Authorization: token $GITHUB_TOKEN\" --header \"Content-Type: application/json\" -d \"{\\\"title\\\":\\\"chore(release): $VERSION\\\",\\\"body\\\":\\\"See [CHANGELOG](https://github.com/owner/repo/blob/$BRANCH/CHANGELOG.md)\\\",\\\"base\\\":\\\"master\\\",\\\"head\\\":\\\"$BRANCH\\\"}\" https://api.github.com/repos/owner/repo/pulls && export PR_NUMBER=$(node -p 'require(\"./pr.json\").number') ; }"
             ]
           }
         }
@@ -254,12 +257,13 @@ test('autoBump with pull request with custom options', () => {
               "$SKIP || { export VERSION=$(git describe) ; }",
               "$SKIP || { export BRANCH=bump/$VERSION ; }",
               "$SKIP || { git branch -D $BRANCH || true ; }",
+              "$SKIP || { git checkout master ; }",
               "$SKIP || { git checkout -b $BRANCH ; }",
               "$SKIP || { git remote add origin_ssh git@github.com:owner/repo.git ; }",
               "$SKIP || { git push --follow-tags origin_ssh $BRANCH ; }",
               "$SKIP || { git diff --exit-code --no-patch $BRANCH release && { echo \"No changes after bump. Skipping pull request...\"; export SKIP=true; } || { echo \"Creating pull request...\"; export SKIP=false; } ; }",
               "$SKIP || { GITHUB_TOKEN=$(aws secretsmanager get-secret-value --secret-id \"token-secret-arn\" --output=text --query=SecretString) ; }",
-              "$SKIP || { curl -X POST --header \"Authorization: token $GITHUB_TOKEN\" --header \"Content-Type: application/json\" -d \"{\\\"title\\\":\\\"custom title\\\",\\\"body\\\":\\\"custom body\\\",\\\"base\\\":\\\"release\\\",\\\"head\\\":\\\"$BRANCH\\\"}\" https://api.github.com/repos/owner/repo/pulls ; }"
+              "$SKIP || { curl --fail -X POST -o pr.json --header \"Authorization: token $GITHUB_TOKEN\" --header \"Content-Type: application/json\" -d \"{\\\"title\\\":\\\"custom title\\\",\\\"body\\\":\\\"custom body\\\",\\\"base\\\":\\\"release\\\",\\\"head\\\":\\\"$BRANCH\\\"}\" https://api.github.com/repos/owner/repo/pulls && export PR_NUMBER=$(node -p 'require(\"./pr.json\").number') ; }"
             ]
           }
         }
