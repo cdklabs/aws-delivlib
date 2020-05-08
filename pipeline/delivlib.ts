@@ -62,7 +62,10 @@ export class DelivLibPipelineStack extends cdk.Stack {
 
     pipeline.autoBump({
       bumpCommand: 'yarn install --frozen-lockfile && yarn bump',
-      branch: 'master'
+      head: {
+        name: 'master'
+      },
+      pushOnly: true
     });
   }
 }

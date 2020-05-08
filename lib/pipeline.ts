@@ -12,7 +12,7 @@ import { aws_cloudwatch as cloudwatch,
   from "monocdk-experiment";
 import { AutoBuild, AutoBuildOptions } from "./auto-build";
 import { createBuildEnvironment } from "./build-env";
-import { AutoBump, AutoBumpOptions, AutoMergeBackOptions, AutoMergeBack } from "./bump";
+import { AutoBump, AutoMergeBack, AutoMergeBackProps, AutoBumpProps} from "./pull-request";
 import { Canary, CanaryProps } from "./canary";
 import { ChangeController } from "./change-controller";
 import { ChimeNotifier } from "./chime-notifier";
@@ -150,6 +150,17 @@ export interface PipelineProps {
    * @default - A default message
    */
   chimeMessage?: string;
+}
+
+export interface AutoMergeBackOptions extends Omit<AutoMergeBackProps, 'repo'> {
+
+  /**
+   * Which stage should the merge back be part of.
+   * If the specified stage doesn't exist, it will be created and added after the current last stage of the pipeline.
+   *
+   * @default - The CodeBuild project will be created indepdent of any stage.
+   */
+  readonly stage?: string
 }
 
 export interface ActionProps {
@@ -363,7 +374,7 @@ export class Pipeline extends cdk.Construct {
    * Enables automatic bumps for the source repo.
    * @param options Options for auto bump (see AutoBumpOptions for description of defaults)
    */
-  public autoBump(options?: AutoBumpOptions): AutoBump {
+  public autoBump(options?: Omit<AutoBumpProps, 'repo'>): AutoBump {
     if (!WritableGitHubRepo.isWritableGitHubRepo(this.repo)) {
       throw new Error(`"repo" must be a WritableGitHubRepo in order to enable auto-bump`);
     }
@@ -380,25 +391,22 @@ export class Pipeline extends cdk.Construct {
       throw new Error(`"repo" must be a WritableGitHubRepo in order to enable auto-bump`);
     }
 
-    this.addCodeBuildAction({
-      name: 'MergeBack',
-      stage: 'MergeBack',
-      project: new AutoMergeBack(this, 'MergeBack', {
-        repo: this.repo,
-        ...options
-      }).project
+    const mergeBack = new AutoMergeBack(this, 'MergeBack', {
+      repo: this.repo,
+      ...options
     });
-  }
 
-  public addCodeBuildAction(options: ActionProps) {
-    const stage = this.getOrCreateStage(options.stage);
+    if (options?.stage) {
 
-    stage.addAction(new cpipeline_actions.CodeBuildAction({
-      actionName: options.name,
-      project: options.project,
-      input: this.sourceArtifact
-    }));
+      const stage = this.getOrCreateStage(options.stage);
 
+      stage.addAction(new cpipeline_actions.CodeBuildAction({
+        actionName: 'CreateMergeBackPullRequest',
+        project: mergeBack.pr.project,
+        input: this.sourceArtifact
+      }));
+
+    }
   }
 
   /**

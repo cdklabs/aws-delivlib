@@ -163,9 +163,7 @@ export class TestStack extends cdk.Stack {
     // BUMP
 
     pipeline.autoBump({
-      scheduleExpression: 'disable',
-      bumpCommand: 'npm i && npm run bump',
-      pullRequest: true
+      bumpCommand: 'npm i && npm run bump'
     });
 
     //

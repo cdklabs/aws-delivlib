@@ -154,8 +154,7 @@ test('autoBump with pull request', () => {
 
   // WHEN
   new AutoBump(stack, 'MyAutoBump', {
-    repo,
-    pullRequest: true
+    repo
   });
 
   // THEN
@@ -214,10 +213,10 @@ test('autoBump with pull request with custom options', () => {
     repo: MOCK_REPO,
 
     // no need to specify pullRequest:true if we specify options
-    pullRequestOptions: {
-      title: 'custom title',
-      body: 'custom body',
-      base: 'release'
+    title: 'custom title',
+    body: 'custom body',
+    base: {
+      name: 'release'
     }
   });
 
@@ -275,9 +274,11 @@ test('autoBump with pull request fails when head=base', () => {
   // WHEN
   expect(() => new AutoBump(stack, 'MyAutoBump', {
     repo: MOCK_REPO,
-    branch: 'master',
-    pullRequestOptions: {
-      base: 'master'
+    head: {
+      name: 'master'
+    },
+    base: {
+      name: 'master'
     }
   })).toThrow();
 });
