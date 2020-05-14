@@ -55,8 +55,7 @@ test('autoBump', () => {
               "$SKIP || { export VERSION=$(git describe) ; }",
               "$SKIP || { export BRANCH=bump/$VERSION ; }",
               "$SKIP || { git branch -D $BRANCH || true ; }",
-              "$SKIP || { git checkout master ; }",
-              "$SKIP || { git checkout -b $BRANCH ; }",
+              "$SKIP || { git checkout -b $BRANCH master ; }",
               "$SKIP || { git remote add origin_ssh git@github.com:owner/repo.git ; }",
               "$SKIP || { git push --follow-tags origin_ssh $BRANCH ; }"
             ]
@@ -115,8 +114,7 @@ test('autoBump with custom cloneDepth', () => {
               "$SKIP || { export VERSION=$(git describe) ; }",
               "$SKIP || { export BRANCH=bump/$VERSION ; }",
               "$SKIP || { git branch -D $BRANCH || true ; }",
-              "$SKIP || { git checkout master ; }",
-              "$SKIP || { git checkout -b $BRANCH ; }",
+              "$SKIP || { git checkout -b $BRANCH master ; }",
               "$SKIP || { git remote add origin_ssh git@github.com:owner/repo.git ; }",
               "$SKIP || { git push --follow-tags origin_ssh $BRANCH ; }"
             ]
@@ -193,8 +191,7 @@ test('autoBump with pull request', () => {
               "$SKIP || { export VERSION=$(git describe) ; }",
               "$SKIP || { export BRANCH=bump/$VERSION ; }",
               "$SKIP || { git branch -D $BRANCH || true ; }",
-              "$SKIP || { git checkout master ; }",
-              "$SKIP || { git checkout -b $BRANCH ; }",
+              "$SKIP || { git checkout -b $BRANCH master ; }",
               "$SKIP || { git remote add origin_ssh git@github.com:owner/repo.git ; }",
               "$SKIP || { git push --follow-tags origin_ssh $BRANCH ; }",
               "$SKIP || { git diff --exit-code --no-patch $BRANCH master && { echo \"No changes after bump. Skipping pull request...\"; export SKIP=true; } || { echo \"Creating pull request...\"; export SKIP=false; } ; }",
@@ -257,8 +254,7 @@ test('autoBump with pull request with custom options', () => {
               "$SKIP || { export VERSION=$(git describe) ; }",
               "$SKIP || { export BRANCH=bump/$VERSION ; }",
               "$SKIP || { git branch -D $BRANCH || true ; }",
-              "$SKIP || { git checkout master ; }",
-              "$SKIP || { git checkout -b $BRANCH ; }",
+              "$SKIP || { git checkout -b $BRANCH master ; }",
               "$SKIP || { git remote add origin_ssh git@github.com:owner/repo.git ; }",
               "$SKIP || { git push --follow-tags origin_ssh $BRANCH ; }",
               "$SKIP || { git diff --exit-code --no-patch $BRANCH release && { echo \"No changes after bump. Skipping pull request...\"; export SKIP=true; } || { echo \"Creating pull request...\"; export SKIP=false; } ; }",
