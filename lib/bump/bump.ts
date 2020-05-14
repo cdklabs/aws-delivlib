@@ -109,13 +109,18 @@ export interface AutoBumpOptions {
   branchPrefix?: string;
 
   /**
-   * The sha that the branch will be created from.
+   * The branch from which the head branch will be created from.
    *
-   * If 'branch' is specified, this property is effectively ignored.
+   * That is, when creating the head branch, we will run:
+   *
+   * `git checkout -b {branchPrefix}/$VERSION {sourceBranch}`
+   *
+   * Note that if 'branch' is specified, this newly created branch is
+   * merged onto 'branch'.
    *
    * @default 'master'
    */
-  branchSha?: string
+  sourceBranch?: string
 
 }
 
@@ -186,14 +191,13 @@ export class AutoBump extends cdk.Construct {
 
     const versionCommand = props.versionCommand ?? "git describe";
     const branchPrefix = props.branchPrefix ?? 'bump';
-    const branchSha = props.branchSha ?? 'master';
+    const sourceBranch = props.sourceBranch ?? 'master';
 
     pushCommands.push(...[
       `export VERSION=$(${versionCommand})`,
       `export BRANCH=${branchPrefix}/$VERSION`,
       `git branch -D $BRANCH || true`,                    // force delete the branch if it already exists
-      `git checkout ${branchSha}`,                        // checkout to the sha we want to create the branch from.
-      `git checkout -b $BRANCH`,                          // create a new branch
+      `git checkout -b $BRANCH ${sourceBranch}`,          // create a new branch from the source branch
     ]);
 
     // if we want to merge this to a branch automatically, then check out the branch and merge
@@ -304,17 +308,17 @@ function createPullRequestCommands(repo: WritableGitHubRepo, options: PullReques
   const commands = [
      condition,
     `GITHUB_TOKEN=$(aws secretsmanager get-secret-value --secret-id "${repo.tokenSecretArn}" --output=text --query=SecretString)`,
-    `${curl('/pulls', '-X POST -o pr.json', request, repo)} && export PR_NUMBER=$(node -p 'require("./pr.json").number')`
+    `${githubCurl('/pulls', '-X POST -o pr.json', request, repo)} && export PR_NUMBER=$(node -p 'require("./pr.json").number')`
   ];
 
   if ((options.labels ?? []).length !== 0) {
-    commands.push(`${curl(`/issues/$PR_NUMBER/labels`, '-X POST', {'labels': options.labels}, repo)}`);
+    commands.push(`${githubCurl(`/issues/$PR_NUMBER/labels`, '-X POST', {'labels': options.labels}, repo)}`);
   }
 
   return commands;
 }
 
-function curl(uri: string, command: string, request: any, repo: WritableGitHubRepo): string {
+function githubCurl(uri: string, command: string, request: any, repo: WritableGitHubRepo): string {
   return [
     `curl --fail`,
     command,
