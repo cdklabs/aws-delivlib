@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [7.2.0](https://github.com/awslabs/aws-delivlib/compare/v7.1.26...v7.2.0) (2020-05-22)
+
+
+### Features
+
+* **autobump:** expose more config options ([#337](https://github.com/awslabs/aws-delivlib/issues/337)) ([6587579](https://github.com/awslabs/aws-delivlib/commit/6587579a0e53b5d0e0913191941874f2317086aa))
+
 ### [7.1.26](https://github.com/awslabs/aws-delivlib/compare/v7.1.25...v7.1.26) (2020-05-21)
 
 ### [7.1.25](https://github.com/awslabs/aws-delivlib/compare/v7.1.24...v7.1.25) (2020-05-19)
