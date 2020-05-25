@@ -71,7 +71,7 @@ export interface AutoBumpOptions {
    * The name of the branch to push the bump commit (e.g. "master")
    * This branch has to exist.
    *
-   * @default - the commit will be pushed to the branch `bump/$VERSION`
+   * @default - the commit will be pushed to the branch `{branchPrefix}/$VERSION`
    */
   branch?: string;
 
@@ -97,6 +97,31 @@ export interface AutoBumpOptions {
    * @default 0 clones the entire repository
    */
   cloneDepth?: number;
+
+  /**
+   * Prefix for the head branch the bump will be pushed to.
+   * The resulting branch name will be `{branchPrefix}/$VERSION`
+   *
+   * If 'branch' is specified, this property is effectively ignored.
+   *
+   * @default 'bump'
+   */
+  branchPrefix?: string;
+
+  /**
+   * The branch from which the head branch will be created from.
+   *
+   * That is, when creating the head branch, we will run:
+   *
+   * `git checkout -b {branchPrefix}/$VERSION {sourceBranch}`
+   *
+   * Note that if 'branch' is specified, this newly created branch is
+   * merged onto 'branch'.
+   *
+   * @default 'master'
+   */
+  sourceBranch?: string
+
 }
 
 export interface AutoBumpProps extends AutoBumpOptions {
@@ -118,7 +143,7 @@ export interface PullRequestOptions {
 
   /**
    * The PR body.
-   * @default "see CHANGELOG"
+   * @default "See [CHANGELOG](<link-to-changelog-file-of-the-branch>)"
    */
   body?: string;
 
@@ -127,6 +152,12 @@ export interface PullRequestOptions {
    * @default "master"
    */
   base?: string;
+
+  /**
+   * Set of labels to apply to the PR.
+   */
+  labels?: string[]
+
 }
 
 export class AutoBump extends cdk.Construct {
@@ -159,12 +190,14 @@ export class AutoBump extends cdk.Construct {
     const pushCommands = new Array<string>();
 
     const versionCommand = props.versionCommand ?? "git describe";
+    const branchPrefix = props.branchPrefix ?? 'bump';
+    const sourceBranch = props.sourceBranch ?? 'master';
 
     pushCommands.push(...[
       `export VERSION=$(${versionCommand})`,
-      `export BRANCH=bump/$VERSION`,
+      `export BRANCH=${branchPrefix}/$VERSION`,
       `git branch -D $BRANCH || true`,                    // force delete the branch if it already exists
-      `git checkout -b $BRANCH`,                          // create a new branch from HEAD
+      `git checkout -b $BRANCH ${sourceBranch}`,          // create a new branch from the source branch
     ]);
 
     // if we want to merge this to a branch automatically, then check out the branch and merge
@@ -218,7 +251,7 @@ export class AutoBump extends cdk.Construct {
               // checked the code. Instead we define a variable that we will switch all other lines on.
               // tslint:disable-next-line:max-line-length
               `git describe --exact-match HEAD && { echo "No new commits."; export SKIP=true; } || { echo "Changes to release."; export SKIP=false; }`,
-              `$SKIP || { ${bumpCommand}; }`,
+              `$SKIP || { ${bumpCommand !== 'disable' ? bumpCommand : 'echo Bump is disabled'}; }`,
               `$SKIP || aws secretsmanager get-secret-value --secret-id "${sshKeySecret.secretArn}" --output=text --query=SecretString > ~/.ssh/id_rsa`,
               `$SKIP || mkdir -p ~/.ssh`,
               `$SKIP || chmod 0600 ~/.ssh/id_rsa`,
@@ -263,7 +296,7 @@ export class AutoBump extends cdk.Construct {
 function createPullRequestCommands(repo: WritableGitHubRepo, options: PullRequestOptions = { }): string[] {
   const request = {
     title: options.title ?? `chore(release): $VERSION`,
-    body: options.body ?? `see CHANGELOG`,
+    body: options.body ?? `See [CHANGELOG](https://github.com/${repo.owner}/${repo.repo}/blob/$BRANCH/CHANGELOG.md)`,
     base: options.base ?? `master`,
     head: `$BRANCH`
   };
@@ -272,18 +305,26 @@ function createPullRequestCommands(repo: WritableGitHubRepo, options: PullReques
     '{ echo "No changes after bump. Skipping pull request..."; export SKIP=true; } || ' +
     '{ echo "Creating pull request..."; export SKIP=false; }';
 
-  const curl = [
-    `curl`,
-    `-X POST`,
-    `--header "Authorization: token $GITHUB_TOKEN"`,
-    `--header "Content-Type: application/json"`,
-    `-d ${JSON.stringify(JSON.stringify(request))}`, // to escape quotes
-    `https://api.github.com/repos/${repo.owner}/${repo.repo}/pulls`
+  const commands = [
+     condition,
+    `GITHUB_TOKEN=$(aws secretsmanager get-secret-value --secret-id "${repo.tokenSecretArn}" --output=text --query=SecretString)`,
+    `${githubCurl('/pulls', '-X POST -o pr.json', request, repo)} && export PR_NUMBER=$(node -p 'require("./pr.json").number')`
   ];
 
+  if ((options.labels ?? []).length !== 0) {
+    commands.push(`${githubCurl(`/issues/$PR_NUMBER/labels`, '-X POST', {'labels': options.labels}, repo)}`);
+  }
+
+  return commands;
+}
+
+function githubCurl(uri: string, command: string, request: any, repo: WritableGitHubRepo): string {
   return [
-    condition,
-    `GITHUB_TOKEN=$(aws secretsmanager get-secret-value --secret-id "${repo.tokenSecretArn}" --output=text --query=SecretString)`,
-    curl.join(' ')
-  ];
+    `curl --fail`,
+    command,
+    `--header "Authorization: token $GITHUB_TOKEN"`,
+    `--header "Content-Type: application/json"`,
+      `-d ${JSON.stringify(JSON.stringify(request))}`,
+    `https://api.github.com/repos/${repo.owner}/${repo.repo}${uri}`
+  ].join(' ');
 }
