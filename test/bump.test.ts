@@ -13,14 +13,13 @@ const MOCK_REPO = new WritableGitHubRepo({
   tokenSecretArn: 'token-secret-arn'
 });
 
-test('autoBump without pull request', () => {
+test('autoBump', () => {
   // GIVEN
   const stack = new Stack();
 
   // WHEN
   new AutoBump(stack, 'MyAutoBump', {
-    repo: MOCK_REPO,
-    pushOnly: true
+    repo: MOCK_REPO
   });
 
   // THEN
@@ -46,18 +45,19 @@ test('autoBump without pull request', () => {
           },
           "build": {
             "commands": [
-              "export VERSION=$(git describe)",
-              "$SKIP || { export SKIP=false ; }",
-              "$SKIP || { git describe --exact-match HEAD && { export SKIP=true; } || { export SKIP=false; } ; }",
-              "$SKIP || { git rev-parse --verify bump/$VERSION && { git checkout bump/$VERSION && git merge master; } || { git checkout master && git checkout -b bump/$VERSION; } ; }",
-              "$SKIP || { /bin/sh ./bump.sh ; }",
+              "git describe --exact-match HEAD && { echo \"No new commits.\"; export SKIP=true; } || { echo \"Changes to release.\"; export SKIP=false; }",
+              "$SKIP || { /bin/sh ./bump.sh; }",
+              "$SKIP || aws secretsmanager get-secret-value --secret-id \"ssh-key-secret-arn\" --output=text --query=SecretString > ~/.ssh/id_rsa",
+              "$SKIP || mkdir -p ~/.ssh",
+              "$SKIP || chmod 0600 ~/.ssh/id_rsa",
+              "$SKIP || chmod 0600 ~/.ssh/config",
+              "$SKIP || ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts",
+              "$SKIP || { export VERSION=$(git describe) ; }",
+              "$SKIP || { export BRANCH=bump/$VERSION ; }",
+              "$SKIP || { git branch -D $BRANCH || true ; }",
+              "$SKIP || { git checkout -b $BRANCH master ; }",
               "$SKIP || { git remote add origin_ssh git@github.com:owner/repo.git ; }",
-              "$SKIP || { aws secretsmanager get-secret-value --secret-id \"ssh-key-secret-arn\" --output=text --query=SecretString > ~/.ssh/id_rsa ; }",
-              "$SKIP || { mkdir -p ~/.ssh ; }",
-              "$SKIP || { chmod 0600 ~/.ssh/id_rsa ; }",
-              "$SKIP || { chmod 0600 ~/.ssh/config ; }",
-              "$SKIP || { ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts ; }",
-              "$SKIP || { git push --follow-tags origin_ssh bump/$VERSION ; }",
+              "$SKIP || { git push --follow-tags origin_ssh $BRANCH ; }"
             ]
           }
         }
@@ -65,23 +65,10 @@ test('autoBump without pull request', () => {
     }
   });
 
-});
-
-test('autoBump with schedule', () => {
-
-  const stack = new Stack();
-
-  // WHEN
-  new AutoBump(stack, 'MyAutoBump', {
-    repo: MOCK_REPO,
-    scheduleExpression: 'cron(0 12 * * ? *)'
-  });
-
   // default schedule
   expect(stack).toHaveResource('AWS::Events::Rule', {
     ScheduleExpression: "cron(0 12 * * ? *)"
   });
-
 });
 
 test('autoBump with custom cloneDepth', () => {
@@ -97,18 +84,64 @@ test('autoBump with custom cloneDepth', () => {
   // THEN
 
   // build project
-  expect(stack).toHaveResourceLike('AWS::CodeBuild::Project', {
+  expect(stack).toHaveResource('AWS::CodeBuild::Project', {
     Triggers: {
       Webhook: false
     },
     Source: {
       Type: 'GITHUB',
       GitCloneDepth: 10,
+      Location: "https://github.com/owner/repo.git",
+      ReportBuildStatus: false,
+      BuildSpec: JSON.stringify({
+        "version": "0.2",
+        "phases": {
+          "pre_build": {
+            "commands": [
+              "git config --global user.email \"email@email\"",
+              "git config --global user.name \"user\""
+            ]
+          },
+          "build": {
+            "commands": [
+              "git describe --exact-match HEAD && { echo \"No new commits.\"; export SKIP=true; } || { echo \"Changes to release.\"; export SKIP=false; }",
+              "$SKIP || { /bin/sh ./bump.sh; }",
+              "$SKIP || aws secretsmanager get-secret-value --secret-id \"ssh-key-secret-arn\" --output=text --query=SecretString > ~/.ssh/id_rsa",
+              "$SKIP || mkdir -p ~/.ssh",
+              "$SKIP || chmod 0600 ~/.ssh/id_rsa",
+              "$SKIP || chmod 0600 ~/.ssh/config",
+              "$SKIP || ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts",
+              "$SKIP || { export VERSION=$(git describe) ; }",
+              "$SKIP || { export BRANCH=bump/$VERSION ; }",
+              "$SKIP || { git branch -D $BRANCH || true ; }",
+              "$SKIP || { git checkout -b $BRANCH master ; }",
+              "$SKIP || { git remote add origin_ssh git@github.com:owner/repo.git ; }",
+              "$SKIP || { git push --follow-tags origin_ssh $BRANCH ; }"
+            ]
+          }
+        }
+      }, undefined, 2)
     }
   });
 });
 
-test('autoBump', () => {
+test('autoBump with schedule disabled', () => {
+  // GIVEN
+  const stack = new Stack();
+
+  // WHEN
+  new AutoBump(stack, 'MyAutoBump', {
+    repo: MOCK_REPO,
+    scheduleExpression: 'disable'
+  });
+
+  // THEN
+  expect(stack).not.toHaveResource('AWS::Events::Rule', {
+    ScheduleExpression: "cron(0 12 * * ? *)"
+  });
+});
+
+test('autoBump with pull request', () => {
   // GIVEN
   const stack = new Stack();
   const repo = new WritableGitHubRepo({
@@ -121,7 +154,8 @@ test('autoBump', () => {
 
   // WHEN
   new AutoBump(stack, 'MyAutoBump', {
-    repo
+    repo,
+    pullRequest: true
   });
 
   // THEN
@@ -147,23 +181,22 @@ test('autoBump', () => {
           },
           "build": {
             "commands": [
-              "export VERSION=$(git describe)",
-              "$SKIP || { export SKIP=false ; }",
-              "$SKIP || { git describe --exact-match HEAD && { export SKIP=true; } || { export SKIP=false; } ; }",
-              "$SKIP || { git rev-parse --verify bump/$VERSION && { git checkout bump/$VERSION && git merge master; } || { git checkout master && git checkout -b bump/$VERSION; } ; }",
-              "$SKIP || { /bin/sh ./bump.sh ; }",
+              "git describe --exact-match HEAD && { echo \"No new commits.\"; export SKIP=true; } || { echo \"Changes to release.\"; export SKIP=false; }",
+              "$SKIP || { /bin/sh ./bump.sh; }",
+              "$SKIP || aws secretsmanager get-secret-value --secret-id \"ssh-key-secret-arn\" --output=text --query=SecretString > ~/.ssh/id_rsa",
+              "$SKIP || mkdir -p ~/.ssh",
+              "$SKIP || chmod 0600 ~/.ssh/id_rsa",
+              "$SKIP || chmod 0600 ~/.ssh/config",
+              "$SKIP || ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts",
+              "$SKIP || { export VERSION=$(git describe) ; }",
+              "$SKIP || { export BRANCH=bump/$VERSION ; }",
+              "$SKIP || { git branch -D $BRANCH || true ; }",
+              "$SKIP || { git checkout -b $BRANCH master ; }",
               "$SKIP || { git remote add origin_ssh git@github.com:owner/repo.git ; }",
-              "$SKIP || { aws secretsmanager get-secret-value --secret-id \"ssh-key-secret-arn\" --output=text --query=SecretString > ~/.ssh/id_rsa ; }",
-              "$SKIP || { mkdir -p ~/.ssh ; }",
-              "$SKIP || { chmod 0600 ~/.ssh/id_rsa ; }",
-              "$SKIP || { chmod 0600 ~/.ssh/config ; }",
-              "$SKIP || { ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts ; }",
-              "$SKIP || { git push --follow-tags origin_ssh bump/$VERSION ; }",
-              "$SKIP || { git diff --exit-code --no-patch bump/$VERSION master && { echo \"Skipping pull request...\"; export SKIP=true; } || { echo \"Creating pull request...\"; export SKIP=false; } ; }",
-              "$SKIP || { export GITHUB_TOKEN=$(aws secretsmanager get-secret-value --secret-id \"token-secret-arn\" --output=text --query=SecretString) ; }",
-              "$SKIP || { curl --fail -X POST -o pr.json --header \"Authorization: token $GITHUB_TOKEN\" --header \"Content-Type: application/json\" -d \"{\\\"title\\\":\\\"chore(release): $VERSION\\\",\\\"base\\\":\\\"master\\\",\\\"head\\\":\\\"bump/$VERSION\\\"}\" https://api.github.com/repos/owner/repo/pulls && export PR_NUMBER=$(node -p 'require(\"./pr.json\").number') ; }",
-              "$SKIP || { curl --fail -X PATCH --header \"Authorization: token $GITHUB_TOKEN\" --header \"Content-Type: application/json\" -d \"{\\\"body\\\":\\\"See [CHANGELOG](https://github.com/owner/repo/blob/bump/$VERSION/CHANGELOG.md)\\\"}\" https://api.github.com/repos/owner/repo/pulls/$PR_NUMBER ; }",
-              "$SKIP || { curl --fail -X POST --header \"Authorization: token $GITHUB_TOKEN\" --header \"Content-Type: application/json\" -d \"{\\\"labels\\\":[]}\" https://api.github.com/repos/owner/repo/issues/$PR_NUMBER/labels ; }"
+              "$SKIP || { git push --follow-tags origin_ssh $BRANCH ; }",
+              "$SKIP || { git diff --exit-code --no-patch $BRANCH master && { echo \"No changes after bump. Skipping pull request...\"; export SKIP=true; } || { echo \"Creating pull request...\"; export SKIP=false; } ; }",
+              "$SKIP || { GITHUB_TOKEN=$(aws secretsmanager get-secret-value --secret-id \"token-secret-arn\" --output=text --query=SecretString) ; }",
+              "$SKIP || { curl --fail -X POST -o pr.json --header \"Authorization: token $GITHUB_TOKEN\" --header \"Content-Type: application/json\" -d \"{\\\"title\\\":\\\"chore(release): $VERSION\\\",\\\"body\\\":\\\"See [CHANGELOG](https://github.com/owner/repo/blob/$BRANCH/CHANGELOG.md)\\\",\\\"base\\\":\\\"master\\\",\\\"head\\\":\\\"$BRANCH\\\"}\" https://api.github.com/repos/owner/repo/pulls && export PR_NUMBER=$(node -p 'require(\"./pr.json\").number') ; }"
             ]
           }
         }
@@ -172,7 +205,7 @@ test('autoBump', () => {
   });
 });
 
-test('autoBump with custom pr options', () => {
+test('autoBump with pull request with custom options', () => {
   // GIVEN
   const stack = new Stack();
 
@@ -181,10 +214,10 @@ test('autoBump with custom pr options', () => {
     repo: MOCK_REPO,
 
     // no need to specify pullRequest:true if we specify options
-    title: 'custom title',
-    body: 'custom body',
-    base: {
-      name: 'release'
+    pullRequestOptions: {
+      title: 'custom title',
+      body: 'custom body',
+      base: 'release'
     }
   });
 
@@ -211,23 +244,22 @@ test('autoBump with custom pr options', () => {
           },
           "build": {
             "commands": [
-              "export VERSION=$(git describe)",
-              "$SKIP || { export SKIP=false ; }",
-              "$SKIP || { git describe --exact-match HEAD && { export SKIP=true; } || { export SKIP=false; } ; }",
-              "$SKIP || { git rev-parse --verify bump/$VERSION && { git checkout bump/$VERSION && git merge release; } || { git checkout release && git checkout -b bump/$VERSION; } ; }",
-              "$SKIP || { /bin/sh ./bump.sh ; }",
+              "git describe --exact-match HEAD && { echo \"No new commits.\"; export SKIP=true; } || { echo \"Changes to release.\"; export SKIP=false; }",
+              "$SKIP || { /bin/sh ./bump.sh; }",
+              "$SKIP || aws secretsmanager get-secret-value --secret-id \"ssh-key-secret-arn\" --output=text --query=SecretString > ~/.ssh/id_rsa",
+              "$SKIP || mkdir -p ~/.ssh",
+              "$SKIP || chmod 0600 ~/.ssh/id_rsa",
+              "$SKIP || chmod 0600 ~/.ssh/config",
+              "$SKIP || ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts",
+              "$SKIP || { export VERSION=$(git describe) ; }",
+              "$SKIP || { export BRANCH=bump/$VERSION ; }",
+              "$SKIP || { git branch -D $BRANCH || true ; }",
+              "$SKIP || { git checkout -b $BRANCH master ; }",
               "$SKIP || { git remote add origin_ssh git@github.com:owner/repo.git ; }",
-              "$SKIP || { aws secretsmanager get-secret-value --secret-id \"ssh-key-secret-arn\" --output=text --query=SecretString > ~/.ssh/id_rsa ; }",
-              "$SKIP || { mkdir -p ~/.ssh ; }",
-              "$SKIP || { chmod 0600 ~/.ssh/id_rsa ; }",
-              "$SKIP || { chmod 0600 ~/.ssh/config ; }",
-              "$SKIP || { ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts ; }",
-              "$SKIP || { git push --follow-tags origin_ssh bump/$VERSION ; }",
-              "$SKIP || { git diff --exit-code --no-patch bump/$VERSION release && { echo \"Skipping pull request...\"; export SKIP=true; } || { echo \"Creating pull request...\"; export SKIP=false; } ; }",
-              "$SKIP || { export GITHUB_TOKEN=$(aws secretsmanager get-secret-value --secret-id \"token-secret-arn\" --output=text --query=SecretString) ; }",
-              "$SKIP || { curl --fail -X POST -o pr.json --header \"Authorization: token $GITHUB_TOKEN\" --header \"Content-Type: application/json\" -d \"{\\\"title\\\":\\\"custom title\\\",\\\"base\\\":\\\"release\\\",\\\"head\\\":\\\"bump/$VERSION\\\"}\" https://api.github.com/repos/owner/repo/pulls && export PR_NUMBER=$(node -p 'require(\"./pr.json\").number') ; }",
-              "$SKIP || { curl --fail -X PATCH --header \"Authorization: token $GITHUB_TOKEN\" --header \"Content-Type: application/json\" -d \"{\\\"body\\\":\\\"custom body\\\"}\" https://api.github.com/repos/owner/repo/pulls/$PR_NUMBER ; }",
-              "$SKIP || { curl --fail -X POST --header \"Authorization: token $GITHUB_TOKEN\" --header \"Content-Type: application/json\" -d \"{\\\"labels\\\":[]}\" https://api.github.com/repos/owner/repo/issues/$PR_NUMBER/labels ; }"
+              "$SKIP || { git push --follow-tags origin_ssh $BRANCH ; }",
+              "$SKIP || { git diff --exit-code --no-patch $BRANCH release && { echo \"No changes after bump. Skipping pull request...\"; export SKIP=true; } || { echo \"Creating pull request...\"; export SKIP=false; } ; }",
+              "$SKIP || { GITHUB_TOKEN=$(aws secretsmanager get-secret-value --secret-id \"token-secret-arn\" --output=text --query=SecretString) ; }",
+              "$SKIP || { curl --fail -X POST -o pr.json --header \"Authorization: token $GITHUB_TOKEN\" --header \"Content-Type: application/json\" -d \"{\\\"title\\\":\\\"custom title\\\",\\\"body\\\":\\\"custom body\\\",\\\"base\\\":\\\"release\\\",\\\"head\\\":\\\"$BRANCH\\\"}\" https://api.github.com/repos/owner/repo/pulls && export PR_NUMBER=$(node -p 'require(\"./pr.json\").number') ; }"
             ]
           }
         }
@@ -243,11 +275,9 @@ test('autoBump with pull request fails when head=base', () => {
   // WHEN
   expect(() => new AutoBump(stack, 'MyAutoBump', {
     repo: MOCK_REPO,
-    head: {
-      name: 'master'
-    },
-    base: {
-      name: 'master'
+    branch: 'master',
+    pullRequestOptions: {
+      base: 'master'
     }
   })).toThrow();
 });
