@@ -1,3 +1,4 @@
+import { RRule } from 'rrule';
 // tslint:disable-next-line:no-var-requires
 const ical = require('node-ical');
 
@@ -20,7 +21,7 @@ export interface CalendarEvent {
   /** The type of the boundaries for the event */
   datetype: 'date-time';
   /** A recurrence rule for the event. */
-  rrule?: any;
+  rrule?: RRule;
 }
 type Events = { [uuid: string]: CalendarEvent };
 
@@ -43,33 +44,6 @@ export function shouldBlockPipeline(icalData: string | Buffer, now = new Date(),
 }
 
 /**
- * Returns the previous and next events for a recurring event surrounding the
- * provided date. If the date provided is equal to the start of an event, 
- * the event for that date and the following event will be returend
- * 
- * If the provided event is not recurring, no events are returned.
- *
- * @param event a recurring calendar event.
- * @param date the date for which the previous and next event should be returned.
- */
-function getRecurringEvents(event: CalendarEvent, date: Date): CalendarEvent[] {
-  const recurrences: CalendarEvent[] = [];
-  if (event.rrule == null) return recurrences;
-  const duration = (new Date(event.end).getTime() - new Date(event.start).getTime())
-
-  const after = event.rrule.after(date, false);
-  if (after != null) {
-    recurrences.push(buildEventForDuration(new Date(after), duration, event.summary));
-  }
-
-  const before = event.rrule.before(date, true);
-  if (before != null) {
-    recurrences.push(buildEventForDuration(new Date(before), duration, event.summary));
-  }
-  return recurrences;
-}
-
-/**
  * A function to build a CalendarEvent given a start date and a duration.
  *
  * @param start a start date for the event
@@ -79,12 +53,51 @@ function getRecurringEvents(event: CalendarEvent, date: Date): CalendarEvent[] {
 function buildEventForDuration(start: Date, duration: number, summary: string): CalendarEvent {
   const end = new Date(start.getTime() + duration);
   return {
-    summary: `${summary} ${start.toISOString()} - ${end.toISOString()}`,
-    start: start,
-    end: end,
+    summary,
+    start,
+    end,
     datetype: 'date-time',
     type: 'VEVENT'
   };
+}
+
+/**
+ * If the event is not recurring (i.e. event.rrule is null or undefined), then
+ * the event will be returned.
+ *  
+ * If the event is recurring, this method calculates the recurring events surrounding
+ * the provided date. If the date provided is equal to the start of an event, 
+ * the event for that date and the following event will be returend. If 
+ * CalendarEvent.rrule is not null, then the event is considered recurring.
+ * 
+ * @param event a calendar event.
+ * @param date the date for which the previous and next event should be returned.
+ */
+function flattenEvent(event: CalendarEvent, date: Date): CalendarEvent[] {
+  if (event.rrule) {
+    const events: CalendarEvent[] = [];
+
+    // Calculate the duration of initial event in the recurring series.
+    const duration = new Date(event.end).getTime() - new Date(event.start).getTime();
+
+    // Obtain the start date of the most recent event in the series, inclusive of
+    // 'date' and calculate a new event based on the duration of the initial.
+    const previousEventStart = event.rrule.before(date, true);
+    if (previousEventStart) {
+      events.push(buildEventForDuration(previousEventStart, duration, event.summary));
+    }
+
+    // Obtain the start date of the next event in the series, exclusive of
+    // 'date' and calculate a new event based on the duration of the initial.
+    const nextEventStart = event.rrule.after(date, false);
+    if (nextEventStart) {
+      events.push(buildEventForDuration(nextEventStart, duration, event.summary));
+    }
+
+    return events;
+  } else {
+    return [event];
+  }
 }
 
 function containingEventsWithMargin(events: Events, date: Date, advanceMarginSec: number): CalendarEvent[] {
@@ -93,13 +106,7 @@ function containingEventsWithMargin(events: Events, date: Date, advanceMarginSec
   return Object.values(events)
     .filter(e => e.type === 'VEVENT')
     .reduce((arr, e) => {
-      if (e.rrule != null) {
-        // Turn a recurrence rule into the events starting on or before
-        // the date, and the next event starting after the date.
-        arr.push(...getRecurringEvents(e, date));
-      } else {
-        arr.push(e);
-      }
+      arr.push(...flattenEvent(e, date));
       return arr;
     }, [] as CalendarEvent[])
     .filter(e => overlaps(e, { start: date, end: bufferedDate }));
