@@ -1,8 +1,8 @@
-import { core as cdk, core as core } from "monocdk-experiment";
+import * as cdk from "monocdk-experiment";
 import { expect as assert, haveResource, ResourcePart, SynthUtils } from "@monocdk-experiment/assert";
 import path = require("path");
 import { Shellable, ShellPlatform } from "../lib";
-const { Stack } = core;
+const { Stack } = cdk;
 
 
 // tslint:disable:max-line-length

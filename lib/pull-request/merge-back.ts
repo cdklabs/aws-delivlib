@@ -1,4 +1,4 @@
-import { core as cdk } from "monocdk-experiment";
+import * as cdk from "monocdk-experiment";
 import { WritableGitHubRepo } from "../repo";
 import * as pr from './pr';
 import { AutoPullRequestProps } from "./pr";
@@ -7,10 +7,10 @@ import { AutoPullRequestProps } from "./pr";
  *
  * We want to expose most of the AutoPullRequestOptions, but not all:
  *
- *  - commits: We don't allow any commits on the head branch. The point is to merge back existing commits.
+ *  - commands: We don't allow any commands on the head branch. The point is to merge back existing commits.
  *  - head: We want to provide a default value for the head branch name.
  */
-type Omitted = Omit<AutoPullRequestProps, 'commits' | 'head'>;
+type Omitted = Omit<AutoPullRequestProps, 'commands' | 'head'>;
 
 /**
  * Properties for configuring the head branch of the bump PR.
@@ -19,8 +19,7 @@ type Omitted = Omit<AutoPullRequestProps, 'commits' | 'head'>;
 export interface AutoMergeBackHead {
 
   /**
-   * The name of branch.
-   *   * This branch will be created if it doesn't exist.
+   * The name of branch. Will be created if it doesn't exist.
    * $VERSION will be substituted by the current version (obtained by executing `versionCommand`).
    *
    * @default 'merge-back/$VERSION'
@@ -52,7 +51,7 @@ export interface AutoMergeBackProps extends Omitted {
    *
    * $VERSION will be substituted by the current version (obtained by executing `versionCommand`).
    *
-   * @default 'chore(merge-back): $VERSION'
+   * @default 'chore(release): merge back $VERSION'
    */
   title?: string;
 
@@ -69,7 +68,7 @@ export interface AutoMergeBackProps extends Omitted {
    *
    * $VERSION will be substituted by the current version (obtained by executing `versionCommand`).
    *
-   * @default - Will be created from master and named 'merge-back/$VERSION'
+   * @default - Will be created from release and named 'merge-back/$VERSION'
    */
   head?: AutoMergeBackHead
 
@@ -96,7 +95,7 @@ export class AutoMergeBack extends cdk.Construct {
       title,
       head: {
         name: headName,
-        hash: props.head?.hash
+        sha: props.head?.hash
       },
       exports: {
         ...props.exports,

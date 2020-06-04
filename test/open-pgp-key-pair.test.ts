@@ -1,4 +1,5 @@
-import { aws_kms as kms, core as cdk } from "monocdk-experiment";
+import { aws_kms as kms } from "monocdk-experiment";
+import * as cdk from 'monocdk-experiment';
 import assert = require("@monocdk-experiment/assert");
 import { OpenPGPKeyPair } from "../lib/open-pgp-key-pair";
 

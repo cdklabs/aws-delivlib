@@ -1,25 +1,24 @@
-import { core as cdk } from "monocdk-experiment";
+import * as cdk from "monocdk-experiment";
 import { AutoPullRequest, AutoPullRequestProps } from './pr';
 
 /**
  *
  * We want to expose most of the AutoPullRequestOptions, but not all:
  *
- *  - commits: In this context is it provided by the 'bumpCommand' property, which is clearer to reason about and provide a sane default.
+ *  - commands: In this context, it is provided by the 'bumpCommand' property, which is clearer to reason about and provide a sane default.
  *  - condition: We choose not to expose at the moment and use a hardcoded one.
  *  - head: We want to provide a default value for the head branch name.
  */
-type Omitted = Omit<AutoPullRequestProps, 'commits' | 'condition' | 'head'>;
+type Omitted = Omit<AutoPullRequestProps, 'commands' | 'condition' | 'head'>;
 
 /**
  * Properties for configuring the head branch of the bump PR.
- * (The branch the PR will be merged from)
  */
 export interface AutoBumpHead {
 
   /**
-   * The name of branch.
-   *   * This branch will be created if it doesn't exist.
+   * The name of branch. Will be created if it doesn't exist.
+   *
    * $VERSION will be substituted by the current version (obtained by executing `versionCommand`).
    *
    * @default 'bump/$VERSION'
@@ -27,9 +26,9 @@ export interface AutoBumpHead {
   readonly name?: string
 
   /**
-   * @see 'hash' property in AutoPullRequest
+   * @see 'sha' property in AutoPullRequest
    */
-  readonly hash?: string
+  readonly sha?: string
 }
 
 /**
@@ -104,16 +103,17 @@ export class AutoBump extends cdk.Construct {
       ...props,
       head: {
         name: branchName,
-        hash: props.head?.hash
+        sha: props.head?.sha
       },
       title,
       body,
-      commits: [bumpCommand],
+      commands: [bumpCommand],
       exports: {
         ...props.exports,
         'VERSION': versionCommand
       },
-      condition: 'git describe --exact-match HEAD'
+      // check if master is already released
+      condition: 'git describe --exact-match master'
     });
 
   }

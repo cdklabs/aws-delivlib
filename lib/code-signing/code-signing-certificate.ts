@@ -1,4 +1,5 @@
-import { aws_iam as iam, aws_kms as kms, aws_secretsmanager as secretsManager, aws_ssm as ssm, core as cdk } from "monocdk-experiment";
+import { aws_iam as iam, aws_kms as kms, aws_secretsmanager as secretsManager, aws_ssm as ssm} from "monocdk-experiment";
+import * as cdk from 'monocdk-experiment';
 import { ICredentialPair } from "../credential-pair";
 import permissions = require("../permissions");
 import { DistinguishedName } from "./certificate-signing-request";

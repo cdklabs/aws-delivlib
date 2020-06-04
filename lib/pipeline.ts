@@ -7,9 +7,11 @@ import { aws_cloudwatch as cloudwatch,
   aws_events_targets as events_targets,
   aws_iam as iam, aws_s3 as s3,
   aws_sns as sns,
-  aws_sns_subscriptions as sns_subs,
-  core as cdk }
+  aws_sns_subscriptions as sns_subs}
   from "monocdk-experiment";
+
+  import * as cdk from 'monocdk-experiment';
+
 import { AutoBuild, AutoBuildOptions } from "./auto-build";
 import { createBuildEnvironment } from "./build-env";
 import { AutoBump, AutoMergeBack, AutoMergeBackProps, AutoBumpProps} from "./pull-request";
@@ -152,15 +154,36 @@ export interface PipelineProps {
   chimeMessage?: string;
 }
 
+export interface Stage {
+
+  /**
+   * Which stage should the merge back be part of. (Created if missing)
+   */
+  readonly name: string
+
+  /**
+   * The stage placement.
+   */
+  readonly placement: cpipeline.StagePlacement
+}
+
+/**
+ * Options for configuring an auto merge-back for this pipeline.
+ */
 export interface AutoMergeBackOptions extends Omit<AutoMergeBackProps, 'repo'> {
 
   /**
-   * Which stage should the merge back be part of.
-   * If the specified stage doesn't exist, it will be created and added after the current last stage of the pipeline.
+   * Specify stage options to create the merge back inside a stage of the pipeline.
    *
    * @default - The CodeBuild project will be created indepdent of any stage.
    */
-  readonly stage?: string
+  readonly stage?: Stage
+}
+
+/**
+ * Options for configuring an auto bump for this pipeline.
+ */
+export interface AutoBumpOptions extends Omit<AutoBumpProps, 'repo'> {
 }
 
 /**
@@ -368,21 +391,22 @@ export class Pipeline extends cdk.Construct {
    * Enables automatic bumps for the source repo.
    * @param options Options for auto bump (see AutoBumpOptions for description of defaults)
    */
-  public autoBump(options?: Omit<AutoBumpProps, 'repo'>): AutoBump {
+  public autoBump(options?: AutoBumpOptions): AutoBump {
     if (!WritableGitHubRepo.isWritableGitHubRepo(this.repo)) {
       throw new Error(`"repo" must be a WritableGitHubRepo in order to enable auto-bump`);
     }
 
-    return new AutoBump(this, 'AutoBump', {
+    const autoBump = new AutoBump(this, 'AutoBump', {
       repo: this.repo,
       ...options
     });
+
+    return autoBump;
   }
 
   public autoMergeBack(options?: AutoMergeBackOptions) {
-
     if (!WritableGitHubRepo.isWritableGitHubRepo(this.repo)) {
-      throw new Error(`"repo" must be a WritableGitHubRepo in order to enable auto-bump`);
+      throw new Error(`"repo" must be a WritableGitHubRepo in order to enable auto-merge-back`);
     }
 
     const mergeBack = new AutoMergeBack(this, 'MergeBack', {
@@ -391,7 +415,7 @@ export class Pipeline extends cdk.Construct {
     });
 
     if (options?.stage) {
-      const stage = this.getOrCreateStage(options.stage);
+      const stage = this.getOrCreateStage(options.stage.name, options.stage.placement);
       stage.addAction(new cpipeline_actions.CodeBuildAction({
         actionName: 'CreateMergeBackPullRequest',
         project: mergeBack.pr.project,

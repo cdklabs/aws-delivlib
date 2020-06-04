@@ -1,5 +1,5 @@
 // tslint:disable: max-line-length
-import { core } from "monocdk-experiment";
+import * as core from "monocdk-experiment";
 import { AutoBump, WritableGitHubRepo } from "../lib";
 import '@monocdk-experiment/assert/jest';
 
@@ -155,7 +155,6 @@ test('autoBump with pull request', () => {
   // WHEN
   new AutoBump(stack, 'MyAutoBump', {
     repo,
-    pullRequest: true
   });
 
   // THEN
@@ -213,12 +212,12 @@ test('autoBump with pull request with custom options', () => {
   new AutoBump(stack, 'MyAutoBump', {
     repo: MOCK_REPO,
 
-    // no need to specify pullRequest:true if we specify options
-    pullRequestOptions: {
-      title: 'custom title',
-      body: 'custom body',
-      base: 'release'
+    title: 'custom title',
+    body: 'custom body',
+    base: {
+      name: 'release'
     }
+
   });
 
   // THEN
@@ -275,9 +274,11 @@ test('autoBump with pull request fails when head=base', () => {
   // WHEN
   expect(() => new AutoBump(stack, 'MyAutoBump', {
     repo: MOCK_REPO,
-    branch: 'master',
-    pullRequestOptions: {
-      base: 'master'
+    base: {
+      name: 'master'
+    },
+    head: {
+      name: 'master'
     }
   })).toThrow();
 });

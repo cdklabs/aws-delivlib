@@ -1,4 +1,8 @@
-import { aws_cloudwatch as cloudwatch, aws_codebuild as cbuild, aws_events as events, aws_events_targets as events_targets, core as cdk } from "monocdk-experiment";
+import { aws_cloudwatch as cloudwatch,
+  aws_codebuild as cbuild,
+  aws_events as events,
+  aws_events_targets as events_targets } from "monocdk-experiment";
+import * as cdk from 'monocdk-experiment';
 import { BuildEnvironmentProps, createBuildEnvironment } from "../build-env";
 import { WritableGitHubRepo } from "../repo";
 import permissions = require("../permissions");
@@ -29,7 +33,7 @@ export interface AutoPullRequestProps {
    * True if you only want to push the head branch without creating a PR.
    * Useful when used along with 'commits' to execute a commit-and-push automatically.
    *
-   * TODO: Consider moving this functionality to a separate construct.
+   * // TODO: Consider moving this functionality to a separate construct.
    *
    * @default false
    */
@@ -44,26 +48,11 @@ export interface AutoPullRequestProps {
 
   /**
    * Body the PR. Note that the body is updated post PR creation,
-   * this means you can use the $PR_NUMBER variable to refer to the PR itself.
+   * this means you can use the $PR_NUMBER env variable to refer to the PR itself.
    *
    * @default - no body.
    */
   body?: string;
-
-  /**
-   * If true, wraps the PR body with a mergify header compatible with squash merges.
-   * The resulting PR body will look like:
-   *
-   * ## Commit Message
-   * {title}: (#$PR_NUMBER)
-   *
-   * {body}
-   *
-   * ## End Commit Message
-   *
-   * @default false
-   */
-  mergify?: boolean;
 
   /**
    * Labels applied to the PR.
@@ -80,17 +69,21 @@ export interface AutoPullRequestProps {
   build?: BuildEnvironmentProps;
 
   /**
-   * A set of commands to commit new code onto the head branch.
+   * A set of commands to run against the head branch.
    * Useful for things like version bumps or any auto-generated commits.
+   *
+   * Note that you cannot use export keys in these commands (See `exports` property)
    *
    * @default - no commands.
    */
-  commits?: string[];
+  commands?: string[];
 
   /**
    * The exit code of this command determines whether or not to proceed with the
    * PR creation. If configured, this command is the first one to run, and if it fails, all
    * other commands will be skipped.
+   *
+   * This command is the first to execute, and should not assume any pre-existing state.
    *
    * @default - no condition
    */
@@ -118,6 +111,9 @@ export interface AutoPullRequestProps {
    *
    * Use the $VERSION variable in the PR title: 'chore(release): $VERSION'
    *
+   * Note that these exports are executed after the `commands` execution,
+   * so they have access to the artifacts said commands produce (e.g version bump).
+   *
    * @default - no exports
    */
   exports?: { [key: string]: string };
@@ -140,7 +136,6 @@ export interface AutoPullRequestProps {
 
 /**
  * Properties for configuring the base branch of the PR.
- * (The branch the PR will be merged to)
  */
 export interface Base {
 
@@ -156,7 +151,6 @@ export interface Base {
 
 /**
  * Properties for configuring the head branch of the PR.
- * (The branch the PR will be merged from)
  */
 export interface Head {
 
@@ -168,16 +162,16 @@ export interface Head {
   readonly name: string
 
   /**
-   * The base hash of the branch.
+   * The base sha of the branch.
    *
-   * If the given branch already exists, this hash will be auto-merged onto it. Note that in such a case,
+   * If the given branch already exists, this sha will be auto-merged onto it. Note that in such a case,
    * the PR creation might fail in case there are merge conflicts.
    *
    * If the given branch doesn't exist, the newly created branch will be based of this hash.
    *
    * @default - the base branch of the pr.
    */
-  readonly hash?: string
+  readonly sha?: string
 }
 
 /**
@@ -186,7 +180,7 @@ export interface Head {
 export class AutoPullRequest extends cdk.Construct {
 
   /**
-   * CloudWatch alarm that will be triggered if bump fails.
+   * CloudWatch alarm that will be triggered if the job fails.
    */
   public readonly alarm: cloudwatch.Alarm;
 
@@ -206,22 +200,21 @@ export class AutoPullRequest extends cdk.Construct {
     this.props = props;
 
     this.baseBranch = props.base?.name ?? 'master';
-    this.headHash = props.head.hash ?? this.baseBranch;
+    this.headHash = props.head.sha ?? this.baseBranch;
 
     const sshKeySecret = props.repo.sshKeySecret;
     const commitEmail = props.repo.commitEmail;
     const commitUsername = props.repo.commitUsername;
     const cloneDepth = props.cloneDepth === undefined ? 0 : props.cloneDepth;
 
-    let commands: string[] = [
-      // by default all commands are enabled.
-      'export SKIP=false'
-    ];
+    let commands: string[] = [];
 
     if (this.props.condition) {
       // there's no way to stop a BuildSpec execution halfway through without throwing an error. Believe me, I
       // checked the code. Instead we define a variable that we will switch all other lines on/off.
-      commands.push(`${this.props.condition} && { export SKIP=true; } || { export SKIP=false; }`);
+      commands.push(`${this.props.condition} ` +
+      `&& { echo 'Skip condition is met, skipping...' && export SKIP=true; } ` +
+      `|| { echo 'Skip condition is not met, continuing...' && export SKIP=false; }`);
     }
 
     commands.push(
@@ -236,6 +229,9 @@ export class AutoPullRequest extends cdk.Construct {
     // toggle all commands according to the SKIP variable.
     commands = commands.map((command: string) => `$SKIP || { ${command} ; }`);
 
+    // intially all commands are enabled.
+    commands.unshift('export SKIP=false',);
+
     this.project = new cbuild.Project(this, 'PullRequest', {
       source: props.repo.createBuildSource(this, false, { cloneDepth }),
       environment: createBuildEnvironment(props.build ?? {}),
@@ -248,12 +244,7 @@ export class AutoPullRequest extends cdk.Construct {
               `git config --global user.name "${commitUsername}"`,
             ]
           },
-          build: {
-            commands: [
-              ...this.export(),
-              ...commands
-            ]
-          },
+          build: { commands },
         }
       }),
     });
@@ -282,46 +273,52 @@ export class AutoPullRequest extends cdk.Construct {
     });
   }
 
-  private export(): string[] {
-
-    const ex = this.props.exports ?? {};
-    return Object.keys(ex).map((key: string) => `export ${key}=$(${ex[key]})`);
-  }
-
   private createHead(): string[] {
 
-    const commands = [];
-
-    commands.push(
+    return [
       // check if head branch exists
       `git rev-parse --verify ${this.props.head.name} ` +
 
       // checkout and merge if it does (this might fail due to merge conflicts)
-      `&& { git checkout ${this.props.head.name} && git merge ${this.headHash}; } ` +
+      `&& { git checkout ${this.props.head.name} && git merge ${this.headHash} && ${this.runCommands()};  } ` +
 
       // create if it doesnt
-      `|| { git checkout ${this.headHash} && git checkout -b ${this.props.head.name}; }`
-    );
+      `|| { git checkout ${this.headHash} && git checkout -b temp && ${this.runCommands()} && git branch -m ${this.props.head.name}; }`,
 
-    // perform the commits
-    commands.push(...(this.props.commits ?? []));
+    ];
 
-    return commands;
+  }
+
+  private runCommands(): string {
+
+    const userCommands = this.props.commands ?? [];
+    const exports = Object.entries(this.props.exports ?? {}).map(entry => `export ${entry[0]}=$(${entry[1]})`);
+
+    return [
+
+      ...userCommands,
+
+      // exports should be executed immediately after the user commands (not before)
+      // because they might need access to artifacts produced by them.
+      ...exports,
+
+      'echo Finished running user commands'
+    ].join('&&');
+
   }
 
   private pushHead(): string[] {
 
-    const head = this.props.head.name;
-
-    const sshKeyArn = this.props.repo.sshKeySecret.secretArn;
     return [
       `git remote add origin_ssh ${this.props.repo.repositoryUrlSsh}`,
-      `aws secretsmanager get-secret-value --secret-id "${sshKeyArn}" --output=text --query=SecretString > ~/.ssh/id_rsa`,
+      `aws secretsmanager get-secret-value `
+        + `--secret-id "${this.props.repo.sshKeySecret.secretArn}" `
+        + `--output=text --query=SecretString > ~/.ssh/id_rsa`,
       `mkdir -p ~/.ssh`,
       `chmod 0600 ~/.ssh/id_rsa`,
       `chmod 0600 ~/.ssh/config`,
       `ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts`,
-      `git push --follow-tags origin_ssh ${head}`
+      `git push --follow-tags origin_ssh ${this.props.head.name}`
     ];
   }
 
@@ -338,11 +335,7 @@ export class AutoPullRequest extends cdk.Construct {
     const title = props.title ?? `Merge ${head} to ${base}`;
     const body = this.props.body ?? '';
 
-    const createRequest = {
-      title,
-      base,
-      head
-    };
+    const createRequest = { title, base, head };
 
     const commands = [];
 
@@ -355,19 +348,19 @@ export class AutoPullRequest extends cdk.Construct {
     commands.push(`export GITHUB_TOKEN=$(aws secretsmanager get-secret-value --secret-id "${this.props.repo.tokenSecretArn}" --output=text --query=SecretString)`);
 
     // create the PR
-    commands.push(`${this.curl('/pulls', '-X POST -o pr.json', createRequest)} && export PR_NUMBER=$(node -p 'require("./pr.json").number')`);
+    commands.push(`${this.githubCurl('/pulls', '-X POST -o pr.json', createRequest)} && export PR_NUMBER=$(node -p 'require("./pr.json").number')`);
 
     // update the body
-    commands.push(this.curl(`/pulls/$PR_NUMBER`, '-X PATCH', {'body': body}));
+    commands.push(this.githubCurl(`/pulls/$PR_NUMBER`, '-X PATCH', {'body': body}));
 
     // apply labels
-    commands.push(this.curl(`/issues/$PR_NUMBER/labels`, '-X POST', {'labels': this.props.labels ?? []}));
+    commands.push(this.githubCurl(`/issues/$PR_NUMBER/labels`, '-X POST', {'labels': this.props.labels ?? []}));
 
     return commands;
 
   }
 
-  private curl(uri: string, command: string, request: any): string {
+  private githubCurl(uri: string, command: string, request: any): string {
     return [
       `curl --fail`,
       command,

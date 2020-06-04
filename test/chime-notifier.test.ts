@@ -1,4 +1,5 @@
-import { core as core, aws_codepipeline as aws_codepipeline, aws_codepipeline_actions as aws_codepipeline_actions } from "monocdk-experiment";
+import { aws_codepipeline as aws_codepipeline, aws_codepipeline_actions as aws_codepipeline_actions } from "monocdk-experiment";
+import * as core from 'monocdk-experiment';
 import * as https from "https";
 import { codePipeline, handler } from "../lib/chime-notifier/notifier-handler";
 import { ChimeNotifier } from "../lib";

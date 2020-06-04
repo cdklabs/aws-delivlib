@@ -9,13 +9,6 @@
   dependencies:
     semver "^7.2.2"
 
-"@aws-cdk/cfnspec@1.31.0":
-  version "1.31.0"
-  resolved "https://registry.yarnpkg.com/@aws-cdk/cfnspec/-/cfnspec-1.31.0.tgz#4494e2bafafa7cc76166e1a5e469d11c3714949a"
-  integrity sha512-a+jVUuQyQHbxIZqFwM/3jmW3lD1IFtVPV2fx66Ds8EOsEFs87tENBaeSZJAQjCk4V6U/8tD7yllbUfWO4jvB1w==
-  dependencies:
-    md5 "^2.2.1"
-
 "@aws-cdk/cfnspec@1.42.0":
   version "1.42.0"
   resolved "https://registry.yarnpkg.com/@aws-cdk/cfnspec/-/cfnspec-1.42.0.tgz#4bbcc2f018284c736a9da963fb538b122f477c88"
@@ -30,18 +23,6 @@
   dependencies:
     jsonschema "^1.2.5"
     semver "^7.2.2"
-
-"@aws-cdk/cloudformation-diff@1.31.0":
-  version "1.31.0"
-  resolved "https://registry.yarnpkg.com/@aws-cdk/cloudformation-diff/-/cloudformation-diff-1.31.0.tgz#f9ecbd6e5005d61ab81fe07fe11afcb30cd2dda4"
-  integrity sha512-HWYALXHyJEzQo19Uq98S1zRXzaZh4SeBWTXnzQj0qXbjYRHncAVeArtBy19iGIig8oDX/+AWc7N7r0Wq5au1Kw==
-  dependencies:
-    "@aws-cdk/cfnspec" "1.31.0"
-    colors "^1.4.0"
-    diff "^4.0.2"
-    fast-deep-equal "^3.1.1"
-    string-width "^4.2.0"
-    table "^5.4.6"
 
 "@aws-cdk/cloudformation-diff@1.42.0":
   version "1.42.0"
@@ -522,12 +503,12 @@
     "@types/yargs" "^15.0.0"
     chalk "^4.0.0"
 
-"@monocdk-experiment/assert@1.31.0":
-  version "1.31.0"
-  resolved "https://registry.yarnpkg.com/@monocdk-experiment/assert/-/assert-1.31.0.tgz#fcf31664d0978623de6a17b69b1d0c13d575b8ee"
-  integrity sha512-1B2jqB+U9Q3e5UtzJf3+Ba1AIYQw8bx1tXU2tWGSc7ij9A1ilzJcaJVrHqNypXsaaIZUwOQ+ADtUZBP7r1cw5A==
+"@monocdk-experiment/assert@1.42.0":
+  version "1.42.0"
+  resolved "https://registry.yarnpkg.com/@monocdk-experiment/assert/-/assert-1.42.0.tgz#ced458d390b0c158d18390d1198e2744941ab9e2"
+  integrity sha512-v4pooa3Y34J7IWwy5a+mLMcnreIPcOy/AC4Y8XeZMWVWQtjdvwd+oBb+pL6VC0yVwUNfXmlNrQ3qE1OnhMqdhg==
   dependencies:
-    "@aws-cdk/cloudformation-diff" "1.31.0"
+    "@aws-cdk/cloudformation-diff" "1.42.0"
 
 "@sinonjs/commons@^1.7.0":
   version "1.7.2"
@@ -1190,10 +1171,10 @@ capture-exit@^2.0.0:
   dependencies:
     rsvp "^4.8.4"
 
-case@1.6.2:
-  version "1.6.2"
-  resolved "https://registry.yarnpkg.com/case/-/case-1.6.2.tgz#2ea68af6956752cd69c349c8b3e6bc860d1cba95"
-  integrity sha512-ll380ZRoraT7mUK2G92UbH+FJVD5AwdVIAYk9xhV1tauh0carDgYByUD1HhjCWsWgxrfQvCeHvtfj7IYR6TKeg==
+case@1.6.3:
+  version "1.6.3"
+  resolved "https://registry.yarnpkg.com/case/-/case-1.6.3.tgz#0a4386e3e9825351ca2e6216c60467ff5f1ea1c9"
+  integrity sha512-mzDSXIPaFwVDvZAHqZ9VlbyF4yyXRuX6IvB06WvPYkqJVO24kX1PPhv9bfpKNFZyxYFmmgo03HUiD8iklmJYRQ==
 
 caseless@~0.12.0:
   version "0.12.0"
@@ -3662,14 +3643,16 @@ modify-values@^1.0.0:
   resolved "https://registry.yarnpkg.com/modify-values/-/modify-values-1.0.1.tgz#b3939fa605546474e3e3e3c63d64bd43b4ee6022"
   integrity sha512-xV2bxeN6F7oYjZWTe/YPAy6MN2M+sL4u/Rlm2AHCIVGfo2p1yGmBHQ6vHehl4bRTZBdHu3TSkWdYgkwpYzAGSw==
 
-monocdk-experiment@1.28.0:
-  version "1.28.0"
-  resolved "https://registry.yarnpkg.com/monocdk-experiment/-/monocdk-experiment-1.28.0.tgz#b33452204c455807135f903fead66c135a072e08"
-  integrity sha512-csYAX8JcKH7ye3t9xBvpAahO4GG8xhuBDtskhfKmExComgz7VHU3zLHRPLvxJGopUWuzawtFeuvXlp7QlNQsuw==
+monocdk-experiment@1.42.0:
+  version "1.42.0"
+  resolved "https://registry.yarnpkg.com/monocdk-experiment/-/monocdk-experiment-1.42.0.tgz#42ebad5945fab6f08312599208155f629ba82447"
+  integrity sha512-s2xlG5uIxpcoWL/wegVtqG2JcWgblMk0Qxp52+xUFIq0T4mgXJlh2CyY/VWMnLUJecYh8rRNV64UE5tCeY1fkQ==
   dependencies:
-    case "1.6.2"
+    case "1.6.3"
+    jsonschema "^1.2.5"
     minimatch "^3.0.4"
-    semver "^7.1.3"
+    semver "^7.2.2"
+    yaml "1.10.0"
 
 ms@2.0.0:
   version "2.0.0"
@@ -4522,7 +4505,7 @@ semver@^6.0.0, semver@^6.3.0:
   resolved "https://registry.yarnpkg.com/semver/-/semver-6.3.0.tgz#ee0a64c8af5e8ceea67687b133761e1becbd1d3d"
   integrity sha512-b39TBaTSfV6yBrapU89p5fKekE2m/NwnDocOVruQFS1/veMgdzuPcnOM34M6CwxW8jH/lxEa5rBoDeUwu5HHTw==
 
-semver@^7.1.3, semver@^7.2.1, semver@^7.2.2, semver@^7.3.2:
+semver@^7.2.1, semver@^7.2.2, semver@^7.3.2:
   version "7.3.2"
   resolved "https://registry.yarnpkg.com/semver/-/semver-7.3.2.tgz#604962b052b81ed0786aae84389ffba70ffd3938"
   integrity sha512-OrOb32TeeambH6UrhtShmF7CRDqhL6/5XpPNp2DuRH6+9QLw/orhp72j87v8Qa1ScDkvrrBNpZcDejAirJmfXQ==
@@ -5469,7 +5452,7 @@ yallist@^3.0.2:
   resolved "https://registry.yarnpkg.com/yallist/-/yallist-3.1.1.tgz#dbb7daf9bfd8bac9ab45ebf602b8cbad0d5d08fd"
   integrity sha512-a4UGQaWPH59mOXUYnAG2ewncQS4i4F43Tv3JoAM+s2VDAmS9NsK8GpDMLrCHPksFT7h3K6TOoUNn2pb7RoXx4g==
 
-yaml@^1.10.0:
+yaml@1.10.0, yaml@^1.10.0:
   version "1.10.0"
   resolved "https://registry.yarnpkg.com/yaml/-/yaml-1.10.0.tgz#3b593add944876077d4d683fee01081bd9fff31e"
   integrity sha512-yr2icI4glYaNG+KWONODapy2/jDdMSDnrONSjblABjD9B4Z5LgiircSt8m8sRZFNi08kG9Sm0uSHtEmP3zaEGg==

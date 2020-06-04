@@ -1,6 +1,7 @@
-import { core as core, aws_codepipeline as cpipeline, aws_iam as iam,
+import { aws_codepipeline as cpipeline, aws_iam as iam,
   aws_lambda as lambda, aws_events as events, aws_events_targets as
   events_targets } from "monocdk-experiment";
+  import * as core from 'monocdk-experiment';
 import fs = require("fs");
 
 

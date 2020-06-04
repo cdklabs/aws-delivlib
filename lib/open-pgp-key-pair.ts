@@ -1,5 +1,6 @@
 // tslint:disable-next-line: max-line-length
-import { aws_cloudformation as cfn, aws_iam as iam, aws_kms as kms, aws_lambda as lambda, aws_secretsmanager as secretsManager, aws_ssm as ssm, core as cdk } from "monocdk-experiment";
+import { aws_cloudformation as cfn, aws_iam as iam, aws_kms as kms, aws_lambda as lambda, aws_secretsmanager as secretsManager, aws_ssm as ssm } from "monocdk-experiment";
+import * as cdk from 'monocdk-experiment';
 import path = require("path");
 import { ICredentialPair } from "./credential-pair";
 import { hashFileOrDirectory } from "./util";

@@ -2,9 +2,9 @@ import {
   aws_codebuild as codebuild,
   aws_codecommit as codecommit,
   aws_codepipeline as cpipeline,
-  aws_codepipeline_actions as cpipeline_actions,
-  core as cdk
+  aws_codepipeline_actions as cpipeline_actions
 } from "monocdk-experiment";
+import * as cdk from 'monocdk-experiment';
 import { expect as cdk_expect, haveResource, haveResourceLike, SynthUtils, ABSENT } from "@monocdk-experiment/assert";
 import path = require("path");
 import delivlib = require("../lib");

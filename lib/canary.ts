@@ -1,4 +1,6 @@
-import { aws_cloudwatch as cloudwatch, aws_codebuild as cbuild, aws_events as events, aws_events_targets as events_targets, core as cdk } from "monocdk-experiment";
+import { aws_cloudwatch as cloudwatch, aws_codebuild as cbuild, aws_events as events,
+  aws_events_targets as events_targets } from "monocdk-experiment";
+import * as cdk from 'monocdk-experiment';
 import { Shellable, ShellableProps } from "./shellable";
 
 
