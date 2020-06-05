@@ -154,17 +154,19 @@ export interface PipelineProps {
   chimeMessage?: string;
 }
 
-export interface Stage {
+export interface MergeBackStage {
 
   /**
    * Which stage should the merge back be part of. (Created if missing)
+   *
+   * @default 'MergeBack'
    */
-  readonly name: string
+  readonly name?: string
 
   /**
-   * The stage placement.
+   * The name of the stage that the merge back stage should go after of. (Must exist)
    */
-  readonly placement: cpipeline.StagePlacement
+  readonly after: string;
 }
 
 /**
@@ -177,7 +179,7 @@ export interface AutoMergeBackOptions extends Omit<AutoMergeBackProps, 'repo'> {
    *
    * @default - The CodeBuild project will be created indepdent of any stage.
    */
-  readonly stage?: Stage
+  readonly stage?: MergeBackStage
 }
 
 /**
@@ -415,13 +417,19 @@ export class Pipeline extends cdk.Construct {
     });
 
     if (options?.stage) {
-      const stage = this.getOrCreateStage(options.stage.name, options.stage.placement);
+
+      const afterStage = this.getStage(options.stage.after);
+
+      if (!afterStage) {
+        throw new Error(`'options.stage.after' must be configured to an existing stage: ${options.stage.after}`);
+      }
+
+      const stage = this.getOrCreateStage(options.stage.name ?? 'MergeBack', { justAfter: afterStage });
       stage.addAction(new cpipeline_actions.CodeBuildAction({
         actionName: 'CreateMergeBackPullRequest',
         project: mergeBack.pr.project,
         input: this.sourceArtifact
       }));
-
     }
   }
 

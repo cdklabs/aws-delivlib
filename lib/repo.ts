@@ -105,7 +105,7 @@ export class GitHubRepo implements IRepo {
       oauthToken: cdk.SecretValue.secretsManager(this.tokenSecretArn),
       owner: this.owner,
       repo: this.repo,
-      output: sourceOutput,
+      output: sourceOutput
     }));
     return sourceOutput;
   }

@@ -103,7 +103,7 @@ export class AutoBump extends cdk.Construct {
       ...props,
       head: {
         name: branchName,
-        sha: props.head?.sha
+        source: props.head?.sha
       },
       title,
       body,

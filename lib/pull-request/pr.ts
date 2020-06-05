@@ -162,16 +162,18 @@ export interface Head {
   readonly name: string
 
   /**
-   * The base sha of the branch.
+   * The source sha of the branch.
    *
    * If the given branch already exists, this sha will be auto-merged onto it. Note that in such a case,
    * the PR creation might fail in case there are merge conflicts.
    *
    * If the given branch doesn't exist, the newly created branch will be based of this hash.
    *
+   * Note that dynamic exports are not allowed for this property.
+   *
    * @default - the base branch of the pr.
    */
-  readonly sha?: string
+  readonly source?: string
 }
 
 /**
@@ -192,7 +194,8 @@ export class AutoPullRequest extends cdk.Construct {
   private readonly props: AutoPullRequestProps;
 
   private readonly baseBranch: string;
-  private readonly headHash: string;
+  private readonly headSource: string;
+  private readonly exports: { [key: string]: string };
 
   constructor(parent: cdk.Construct, id: string, props: AutoPullRequestProps) {
     super(parent, id);
@@ -200,7 +203,14 @@ export class AutoPullRequest extends cdk.Construct {
     this.props = props;
 
     this.baseBranch = props.base?.name ?? 'master';
-    this.headHash = props.head.sha ?? this.baseBranch;
+    this.headSource = props.head.source ?? this.baseBranch;
+    this.exports = props.exports ?? {};
+
+    for (const ex of Object.keys(this.exports)) {
+      if (this.headSource.includes(`\${${ex}}`) || this.headSource.includes(`\$${ex}`)) {
+        throw new Error(`head source (${this.headSource}) cannot contain dynamic exports: ${ex}`);
+      }
+    }
 
     const sshKeySecret = props.repo.sshKeySecret;
     const commitEmail = props.repo.commitEmail;
@@ -280,10 +290,10 @@ export class AutoPullRequest extends cdk.Construct {
       `git rev-parse --verify ${this.props.head.name} ` +
 
       // checkout and merge if it does (this might fail due to merge conflicts)
-      `&& { git checkout ${this.props.head.name} && git merge ${this.headHash} && ${this.runCommands()};  } ` +
+      `&& { git checkout ${this.props.head.name} && git merge ${this.headSource} && ${this.runCommands()};  } ` +
 
-      // create if it doesnt
-      `|| { git checkout ${this.headHash} && git checkout -b temp && ${this.runCommands()} && git branch -m ${this.props.head.name}; }`,
+      // create if it doesnt. we initially use 'temp' to allow using exports in the head branch name. (e.g bump/$VERSION)
+      `|| { git checkout ${this.headSource} && git checkout -b temp && ${this.runCommands()} && git branch -m ${this.props.head.name}; }`,
 
     ];
 
@@ -292,18 +302,18 @@ export class AutoPullRequest extends cdk.Construct {
   private runCommands(): string {
 
     const userCommands = this.props.commands ?? [];
-    const exports = Object.entries(this.props.exports ?? {}).map(entry => `export ${entry[0]}=$(${entry[1]})`);
+    const exports = Object.entries(this.exports).map(entry => `export ${entry[0]}=$(${entry[1]})`);
 
     return [
 
       ...userCommands,
 
       // exports should be executed immediately after the user commands (not before)
-      // because they might need access to artifacts produced by them.
+      // because they might need access to artifacts produced by them (e.g version file).
       ...exports,
 
       'echo Finished running user commands'
-    ].join('&&');
+    ].join(' && ');
 
   }
 

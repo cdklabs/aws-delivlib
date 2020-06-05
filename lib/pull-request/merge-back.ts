@@ -27,9 +27,9 @@ export interface AutoMergeBackHead {
   readonly name?: string
 
   /**
-   * @see 'hash' property in AutoPullRequest
+   * @see 'source' property in AutoPullRequest.Head
    */
-  readonly hash?: string
+  readonly source?: string
 }
 
 export interface AutoMergeBackProps extends Omitted {
@@ -95,7 +95,7 @@ export class AutoMergeBack extends cdk.Construct {
       title,
       head: {
         name: headName,
-        sha: props.head?.hash
+        source: props.head?.source
       },
       exports: {
         ...props.exports,
