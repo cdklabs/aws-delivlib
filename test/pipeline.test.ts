@@ -139,7 +139,7 @@ test('can add arbitrary shellables with different artifacts', () => {
     pipelineName: 'HelloPipeline'
   });
 
-  const action = pipeline.addShellable('Build', 'SecondStep', {
+  const action = pipeline.addShellable('Test', 'SecondStep', {
     scriptDirectory: __dirname,
     entrypoint: 'run-test.sh',
   });
