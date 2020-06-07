@@ -27,6 +27,16 @@ export interface AutoBuildOptions {
    */
   readonly publicLogs?: boolean;
 
+  /**
+   * Whether to delete previously published links to build logs
+   * before posting a new one.
+   *
+   * @see https://github.com/jlhood/github-codebuild-logs#app-parameters
+   *
+   * @default true
+   */
+  readonly deletePreviousPublicLogsLinks?: boolean;
+
   /* tslint:disable:max-line-length */
   /**
    * Build spec file to use for AutoBuild
@@ -76,6 +86,7 @@ export class AutoBuild extends core.Construct {
         },
         parameters: {
           CodeBuildProjectName: project.projectName,
+          DeletePreviousComments: (props.deletePreviousPublicLogsLinks ?? true).toString(),
           ...githubToken ? { GitHubOAuthToken: Token.asString(githubToken)} : undefined,
         }
       });
