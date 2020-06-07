@@ -171,7 +171,12 @@ test('can add arbitrary shellables with different artifacts', () => {
             InputArtifacts: [ { Name: "Source" } ],
             OutputArtifacts: [ { Name: "Artifact_Build_Build" } ],
             RunOrder: 1
-          },
+          }
+        ],
+      },
+      {
+        Name: "Test",
+        Actions: [
           {
             ActionTypeId: { Category: "Build", Owner: "AWS", Provider: "CodeBuild", },
             InputArtifacts: [ { Name: "Artifact_Build_Build" } ],
