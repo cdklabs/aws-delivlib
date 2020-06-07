@@ -9,13 +9,6 @@
   dependencies:
     semver "^7.2.2"
 
-"@aws-cdk/cfnspec@1.42.0":
-  version "1.42.0"
-  resolved "https://registry.yarnpkg.com/@aws-cdk/cfnspec/-/cfnspec-1.42.0.tgz#4bbcc2f018284c736a9da963fb538b122f477c88"
-  integrity sha512-HS8Crs0/bvT6d2STd5P6hTCjmr0b7eCse5XIHS6fqUozlD2OxG+TwxpinS+j+9qhz5QHVnSQ/q7N/D0SP3VTzg==
-  dependencies:
-    md5 "^2.2.1"
-
 "@aws-cdk/cfnspec@1.44.0":
   version "1.44.0"
   resolved "https://registry.yarnpkg.com/@aws-cdk/cfnspec/-/cfnspec-1.44.0.tgz#35ee19ecc5c2a3f95e7e6250b0989e2fa9676a34"
@@ -30,18 +23,6 @@
   dependencies:
     jsonschema "^1.2.5"
     semver "^7.2.2"
-
-"@aws-cdk/cloudformation-diff@1.42.0":
-  version "1.42.0"
-  resolved "https://registry.yarnpkg.com/@aws-cdk/cloudformation-diff/-/cloudformation-diff-1.42.0.tgz#3bd67ea26051259f7a7a2f143529dc7266de04d5"
-  integrity sha512-F/IUxzD2tFxQy0QERR9kPurnWqELMrVEJZE1i0CDN3O9RqKqv/2K1p9IPd8sTESB6dWem2Tqvnj9jHoCR0L30A==
-  dependencies:
-    "@aws-cdk/cfnspec" "1.42.0"
-    colors "^1.4.0"
-    diff "^4.0.2"
-    fast-deep-equal "^3.1.1"
-    string-width "^4.2.0"
-    table "^5.4.6"
 
 "@aws-cdk/cloudformation-diff@1.44.0":
   version "1.44.0"
@@ -523,12 +504,12 @@
     "@types/yargs" "^15.0.0"
     chalk "^4.0.0"
 
-"@monocdk-experiment/assert@1.42.0":
-  version "1.42.0"
-  resolved "https://registry.yarnpkg.com/@monocdk-experiment/assert/-/assert-1.42.0.tgz#ced458d390b0c158d18390d1198e2744941ab9e2"
-  integrity sha512-v4pooa3Y34J7IWwy5a+mLMcnreIPcOy/AC4Y8XeZMWVWQtjdvwd+oBb+pL6VC0yVwUNfXmlNrQ3qE1OnhMqdhg==
+"@monocdk-experiment/assert@1.44.0":
+  version "1.44.0"
+  resolved "https://registry.yarnpkg.com/@monocdk-experiment/assert/-/assert-1.44.0.tgz#0b654c704c908e0974e4753dc8bf4a9c01624147"
+  integrity sha512-PPETJNBmffpVpFijyKb9mVW1e7h7ckrpO/csUCgj59nX05OxpdnzGToubAHC91DDwSfWlbdUH3Z27xIENbdEyQ==
   dependencies:
-    "@aws-cdk/cloudformation-diff" "1.42.0"
+    "@aws-cdk/cloudformation-diff" "1.44.0"
 
 "@sinonjs/commons@^1.7.0":
   version "1.8.0"
@@ -1380,6 +1361,11 @@ concat-stream@^2.0.0:
     inherits "^2.0.3"
     readable-stream "^3.0.2"
     typedarray "^0.0.6"
+
+constructs@^3.0.2, constructs@^3.0.3:
+  version "3.0.3"
+  resolved "https://registry.yarnpkg.com/constructs/-/constructs-3.0.3.tgz#76687d6e3783b0b6864d72aaae5b0bacd824d52e"
+  integrity sha512-JrYLpTlz92Un1jxkwoGiOiGoDjzIWtxo64sLC5FD4mQN1H9mAqZNvgxWYWaJIiWUXNkl5L5sO3GFf6peTj7UMQ==
 
 conventional-changelog-angular@^5.0.6:
   version "5.0.10"
@@ -3677,12 +3663,13 @@ modify-values@^1.0.0:
   resolved "https://registry.yarnpkg.com/modify-values/-/modify-values-1.0.1.tgz#b3939fa605546474e3e3e3c63d64bd43b4ee6022"
   integrity sha512-xV2bxeN6F7oYjZWTe/YPAy6MN2M+sL4u/Rlm2AHCIVGfo2p1yGmBHQ6vHehl4bRTZBdHu3TSkWdYgkwpYzAGSw==
 
-monocdk-experiment@1.42.0:
-  version "1.42.0"
-  resolved "https://registry.yarnpkg.com/monocdk-experiment/-/monocdk-experiment-1.42.0.tgz#42ebad5945fab6f08312599208155f629ba82447"
-  integrity sha512-s2xlG5uIxpcoWL/wegVtqG2JcWgblMk0Qxp52+xUFIq0T4mgXJlh2CyY/VWMnLUJecYh8rRNV64UE5tCeY1fkQ==
+monocdk-experiment@1.44.0:
+  version "1.44.0"
+  resolved "https://registry.yarnpkg.com/monocdk-experiment/-/monocdk-experiment-1.44.0.tgz#ddbe6b6b8ce6e56fc47758b75301c1b3c34eda25"
+  integrity sha512-UpwCEx4Bs0NX5Jl8YWtw5Kaue6VGEpAMwoDlpOQ5Z+Na+YesMxPpOTVBx0/aWukN29EK7qnlUU2u/Sn+TVj5kg==
   dependencies:
     case "1.6.3"
+    constructs "^3.0.2"
     jsonschema "^1.2.5"
     minimatch "^3.0.4"
     semver "^7.2.2"
