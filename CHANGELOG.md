@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [7.4.0](https://github.com/awslabs/aws-delivlib/compare/v7.3.2...v7.4.0) (2020-06-07)
+
+
+### Features
+
+* **auto-build:** delete previous links to build logs ([#301](https://github.com/awslabs/aws-delivlib/issues/301)) ([6607d6a](https://github.com/awslabs/aws-delivlib/commit/6607d6a09a5d1b550208c0c00f82bc748e3b920f))
+
 ### [7.3.2](https://github.com/awslabs/aws-delivlib/compare/v7.3.1...v7.3.2) (2020-06-05)
 
 ### [7.3.1](https://github.com/awslabs/aws-delivlib/compare/v7.3.0...v7.3.1) (2020-06-02)
