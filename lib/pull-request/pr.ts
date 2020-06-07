@@ -217,7 +217,16 @@ export class AutoPullRequest extends cdk.Construct {
     const commitUsername = props.repo.commitUsername;
     const cloneDepth = props.cloneDepth === undefined ? 0 : props.cloneDepth;
 
-    let commands: string[] = [];
+    let commands: string[] = [
+
+      ...this.configureSshAccess(),
+
+      // when the job is triggered as a CodePipeline action, the working directory
+      // is populated with the output artifact of the CodeCommitSourceAction, which doesn't include
+      // the .git directory in the zipped s3 archive. (Yeah, fun stuff).
+      // see https://itnext.io/how-to-access-git-metadata-in-codebuild-when-using-codepipeline-codecommit-ceacf2c5c1dc
+      ...this.cloneIfNeeded()
+    ];
 
     if (this.props.condition) {
       // there's no way to stop a BuildSpec execution halfway through without throwing an error. Believe me, I
@@ -299,6 +308,22 @@ export class AutoPullRequest extends cdk.Construct {
 
   }
 
+  private cloneIfNeeded(): string[] {
+
+    return [
+      // check if .git exist
+      `ls .git ` +
+
+      // all good
+      `&& { echo ".git directory exists";  } ` +
+
+      // clone if it doesn't
+      `|| { echo ".git directory doesnot exist - cloning..." && git clone git@github.com:${this.props.repo.owner}/${this.props.repo.repo}.git /tmp/repo && mv /tmp/repo/.git . && git reset --hard master; }`,
+
+    ];
+
+  }
+
   private runCommands(): string {
 
     const userCommands = this.props.commands ?? [];
@@ -317,17 +342,24 @@ export class AutoPullRequest extends cdk.Construct {
 
   }
 
-  private pushHead(): string[] {
+  private configureSshAccess(): string[] {
 
     return [
-      `git remote add origin_ssh ${this.props.repo.repositoryUrlSsh}`,
       `aws secretsmanager get-secret-value `
         + `--secret-id "${this.props.repo.sshKeySecret.secretArn}" `
         + `--output=text --query=SecretString > ~/.ssh/id_rsa`,
       `mkdir -p ~/.ssh`,
       `chmod 0600 ~/.ssh/id_rsa`,
       `chmod 0600 ~/.ssh/config`,
-      `ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts`,
+      `ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts`
+    ];
+
+  }
+
+  private pushHead(): string[] {
+
+    return [
+      `git remote add origin_ssh ${this.props.repo.repositoryUrlSsh}`,
       `git push --follow-tags origin_ssh ${this.props.head.name}`
     ];
   }
@@ -350,7 +382,9 @@ export class AutoPullRequest extends cdk.Construct {
     const commands = [];
 
     // don't create if head.hash == base.hash
-    commands.push(`git diff --exit-code --no-patch ${head} ${base} && ` +
+    // 'origin/' is needed because a freshly cloned repo won't necessarily
+    // have a ref without it.
+    commands.push(`git diff --exit-code --no-patch ${head} origin/${base} && ` +
     '{ echo "Skipping pull request..."; export SKIP=true; } || ' +
     '{ echo "Creating pull request..."; export SKIP=false; }');
 
