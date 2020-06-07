@@ -1,3 +1,4 @@
+import { RRule } from 'rrule';
 // tslint:disable-next-line:no-var-requires
 const ical = require('node-ical');
 
@@ -19,6 +20,8 @@ export interface CalendarEvent {
   params?: any[];
   /** The type of the boundaries for the event */
   datetype: 'date-time';
+  /** A recurrence rule for the event. */
+  rrule?: RRule;
 }
 type Events = { [uuid: string]: CalendarEvent };
 
@@ -40,10 +43,72 @@ export function shouldBlockPipeline(icalData: string | Buffer, now = new Date(),
   return blocks.length > 0 ? blocks[0] : undefined;
 }
 
+/**
+ * A function to build a CalendarEvent given a start date and a duration.
+ *
+ * @param start a start date for the event
+ * @param duration a duration for the event in milliseconds
+ * @param summary a summary to apply to the event
+ */
+function buildEventForDuration(start: Date, duration: number, summary: string): CalendarEvent {
+  const end = new Date(start.getTime() + duration);
+  return {
+    summary,
+    start,
+    end,
+    datetype: 'date-time',
+    type: 'VEVENT'
+  };
+}
+
+/**
+ * If the event is not recurring (i.e. event.rrule is null or undefined), then
+ * the event will be returned.
+ *  
+ * If the event is recurring, this method calculates the recurring events surrounding
+ * the provided date. If the date provided is equal to the start of an event, 
+ * the event for that date and the following event will be returend. If 
+ * CalendarEvent.rrule is not null, then the event is considered recurring.
+ * 
+ * @param event a calendar event.
+ * @param date the date for which the previous and next event should be returned.
+ */
+function flattenEvent(event: CalendarEvent, date: Date): CalendarEvent[] {
+  if (event.rrule) {
+    const events: CalendarEvent[] = [];
+
+    // Calculate the duration of initial event in the recurring series.
+    const duration = new Date(event.end).getTime() - new Date(event.start).getTime();
+
+    // Obtain the start date of the most recent event in the series, inclusive of
+    // 'date' and calculate a new event based on the duration of the initial.
+    const previousEventStart = event.rrule.before(date, true);
+    if (previousEventStart) {
+      events.push(buildEventForDuration(previousEventStart, duration, event.summary));
+    }
+
+    // Obtain the start date of the next event in the series, exclusive of
+    // 'date' and calculate a new event based on the duration of the initial.
+    const nextEventStart = event.rrule.after(date, false);
+    if (nextEventStart) {
+      events.push(buildEventForDuration(nextEventStart, duration, event.summary));
+    }
+
+    return events;
+  } else {
+    return [event];
+  }
+}
+
 function containingEventsWithMargin(events: Events, date: Date, advanceMarginSec: number): CalendarEvent[] {
   const bufferedDate = new Date(date.getTime() + advanceMarginSec * 1_000);
+
   return Object.values(events)
     .filter(e => e.type === 'VEVENT')
+    .reduce((arr, e) => {
+      arr.push(...flattenEvent(e, date));
+      return arr;
+    }, [] as CalendarEvent[])
     .filter(e => overlaps(e, { start: date, end: bufferedDate }));
 }
 

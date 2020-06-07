@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [7.3.2](https://github.com/awslabs/aws-delivlib/compare/v7.3.1...v7.3.2) (2020-06-05)
+
+### [7.3.1](https://github.com/awslabs/aws-delivlib/compare/v7.3.0...v7.3.1) (2020-06-02)
+
+## [7.3.0](https://github.com/awslabs/aws-delivlib/compare/v7.2.2...v7.3.0) (2020-05-29)
+
+
+### Features
+
+* recurring event support for change controller ([#333](https://github.com/awslabs/aws-delivlib/issues/333)) ([8bc157a](https://github.com/awslabs/aws-delivlib/commit/8bc157afe63bbb32394162103beb94f400867264)), closes [#331](https://github.com/awslabs/aws-delivlib/issues/331)
+
+### [7.2.2](https://github.com/awslabs/aws-delivlib/compare/v7.2.1...v7.2.2) (2020-05-28)
+
 ### [7.2.1](https://github.com/awslabs/aws-delivlib/compare/v7.2.0...v7.2.1) (2020-05-23)
 
 ## [7.2.0](https://github.com/awslabs/aws-delivlib/compare/v7.1.26...v7.2.0) (2020-05-22)
