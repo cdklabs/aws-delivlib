@@ -207,6 +207,39 @@ test('environment variables', () => {
           ]]}]
         },
         {
+          "Action": [
+            "codebuild:CreateReportGroup",
+            "codebuild:CreateReport",
+            "codebuild:UpdateReport",
+            "codebuild:BatchPutTestCases"
+          ],
+          "Effect": "Allow",
+          "Resource": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":codebuild:",
+                {
+                  "Ref": "AWS::Region"
+                },
+                ":",
+                {
+                  "Ref": "AWS::AccountId"
+                },
+                ":report-group/",
+                {
+                  "Ref": "EnvironmentVariablesD266B682"
+                },
+                "-*"
+              ]
+            ]
+          }
+        },
+        {
           Action:[
             "s3:GetObject*",
             "s3:GetBucket*",
