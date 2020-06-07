@@ -296,7 +296,7 @@ export class AutoPullRequest extends cdk.Construct {
 
     return [
       // check if head branch exists
-      `git rev-parse --verify ${this.props.head.name} ` +
+      `git rev-parse --verify origin/${this.props.head.name} ` +
 
       // checkout and merge if it does (this might fail due to merge conflicts)
       `&& { git checkout ${this.props.head.name} && git merge ${this.headSource} && ${this.runCommands()};  } ` +
@@ -382,8 +382,6 @@ export class AutoPullRequest extends cdk.Construct {
     const commands = [];
 
     // don't create if head.hash == base.hash
-    // 'origin/' is needed because a freshly cloned repo won't necessarily
-    // have a ref without it.
     commands.push(`git diff --exit-code --no-patch ${head} origin/${base} && ` +
     '{ echo "Skipping pull request..."; export SKIP=true; } || ' +
     '{ echo "Creating pull request..."; export SKIP=false; }');

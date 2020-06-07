@@ -26,9 +26,9 @@ export interface AutoBumpHead {
   readonly name?: string
 
   /**
-   * @see 'sha' property in AutoPullRequest
+   * @see 'source' property in AutoPullRequest.Head
    */
-  readonly sha?: string
+  readonly source?: string
 }
 
 /**
@@ -94,6 +94,7 @@ export class AutoBump extends cdk.Construct {
     super(parent, id);
 
     const branchName = props.head?.name ?? 'bump/$VERSION';
+    const baseBranch = props.base?.name ?? 'master';
     const bumpCommand = props.bumpCommand ?? '/bin/sh ./bump.sh';
     const versionCommand = props.versionCommand ?? 'git describe';
     const title = props.title ?? 'chore(release): $VERSION';
@@ -103,7 +104,7 @@ export class AutoBump extends cdk.Construct {
       ...props,
       head: {
         name: branchName,
-        source: props.head?.sha
+        source: props.head?.source
       },
       title,
       body,
@@ -112,8 +113,8 @@ export class AutoBump extends cdk.Construct {
         ...props.exports,
         'VERSION': versionCommand
       },
-      // check if master is already released
-      condition: 'git describe --exact-match master'
+      // check if base is already released
+      condition: `git describe --exact-match ${baseBranch}`
     });
 
   }

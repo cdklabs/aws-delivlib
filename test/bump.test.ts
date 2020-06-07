@@ -45,19 +45,22 @@ test('autoBump', () => {
           },
           "build": {
             "commands": [
-              "git describe --exact-match HEAD && { echo \"No new commits.\"; export SKIP=true; } || { echo \"Changes to release.\"; export SKIP=false; }",
-              "$SKIP || { /bin/sh ./bump.sh; }",
-              "$SKIP || aws secretsmanager get-secret-value --secret-id \"ssh-key-secret-arn\" --output=text --query=SecretString > ~/.ssh/id_rsa",
-              "$SKIP || mkdir -p ~/.ssh",
-              "$SKIP || chmod 0600 ~/.ssh/id_rsa",
-              "$SKIP || chmod 0600 ~/.ssh/config",
-              "$SKIP || ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts",
-              "$SKIP || { export VERSION=$(git describe) ; }",
-              "$SKIP || { export BRANCH=bump/$VERSION ; }",
-              "$SKIP || { git branch -D $BRANCH || true ; }",
-              "$SKIP || { git checkout -b $BRANCH master ; }",
+              "export SKIP=false",
+              "$SKIP || { aws secretsmanager get-secret-value --secret-id \"ssh-key-secret-arn\" --output=text --query=SecretString > ~/.ssh/id_rsa ; }",
+              "$SKIP || { mkdir -p ~/.ssh ; }",
+              "$SKIP || { chmod 0600 ~/.ssh/id_rsa ; }",
+              "$SKIP || { chmod 0600 ~/.ssh/config ; }",
+              "$SKIP || { ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts ; }",
+              "$SKIP || { ls .git && { echo \".git directory exists\";  } || { echo \".git directory doesnot exist - cloning...\" && git clone git@github.com:owner/repo.git /tmp/repo && mv /tmp/repo/.git . && git reset --hard master; } ; }",
+              "$SKIP || { git describe --exact-match master && { echo 'Skip condition is met, skipping...' && export SKIP=true; } || { echo 'Skip condition is not met, continuing...' && export SKIP=false; } ; }",
+              "$SKIP || { git rev-parse --verify origin/bump/$VERSION && { git checkout bump/$VERSION && git merge master && /bin/sh ./bump.sh && export VERSION=$(git describe) && echo Finished running user commands;  } || { git checkout master && git checkout -b temp && /bin/sh ./bump.sh && export VERSION=$(git describe) && echo Finished running user commands && git branch -m bump/$VERSION; } ; }",
               "$SKIP || { git remote add origin_ssh git@github.com:owner/repo.git ; }",
-              "$SKIP || { git push --follow-tags origin_ssh $BRANCH ; }"
+              "$SKIP || { git push --follow-tags origin_ssh bump/$VERSION ; }",
+              "$SKIP || { git diff --exit-code --no-patch bump/$VERSION origin/master && { echo \"Skipping pull request...\"; export SKIP=true; } || { echo \"Creating pull request...\"; export SKIP=false; } ; }",
+              "$SKIP || { export GITHUB_TOKEN=$(aws secretsmanager get-secret-value --secret-id \"token-secret-arn\" --output=text --query=SecretString) ; }",
+              "$SKIP || { curl --fail -X POST -o pr.json --header \"Authorization: token $GITHUB_TOKEN\" --header \"Content-Type: application/json\" -d \"{\\\"title\\\":\\\"chore(release): $VERSION\\\",\\\"base\\\":\\\"master\\\",\\\"head\\\":\\\"bump/$VERSION\\\"}\" https://api.github.com/repos/owner/repo/pulls && export PR_NUMBER=$(node -p 'require(\"./pr.json\").number') ; }",
+              "$SKIP || { curl --fail -X PATCH --header \"Authorization: token $GITHUB_TOKEN\" --header \"Content-Type: application/json\" -d \"{\\\"body\\\":\\\"See [CHANGELOG](https://github.com/owner/repo/blob/bump/$VERSION/CHANGELOG.md)\\\"}\" https://api.github.com/repos/owner/repo/pulls/$PR_NUMBER ; }",
+              "$SKIP || { curl --fail -X POST --header \"Authorization: token $GITHUB_TOKEN\" --header \"Content-Type: application/json\" -d \"{\\\"labels\\\":[]}\" https://api.github.com/repos/owner/repo/issues/$PR_NUMBER/labels ; }"
             ]
           }
         }
@@ -65,10 +68,23 @@ test('autoBump', () => {
     }
   });
 
+});
+
+test('autoBump with schedule', () => {
+
+  const stack = new Stack();
+
+  // WHEN
+  new AutoBump(stack, 'MyAutoBump', {
+    repo: MOCK_REPO,
+    scheduleExpression: "cron(0 12 * * ? *)"
+  });
+
   // default schedule
   expect(stack).toHaveResource('AWS::Events::Rule', {
     ScheduleExpression: "cron(0 12 * * ? *)"
   });
+
 });
 
 test('autoBump with custom cloneDepth', () => {
@@ -104,19 +120,22 @@ test('autoBump with custom cloneDepth', () => {
           },
           "build": {
             "commands": [
-              "git describe --exact-match HEAD && { echo \"No new commits.\"; export SKIP=true; } || { echo \"Changes to release.\"; export SKIP=false; }",
-              "$SKIP || { /bin/sh ./bump.sh; }",
-              "$SKIP || aws secretsmanager get-secret-value --secret-id \"ssh-key-secret-arn\" --output=text --query=SecretString > ~/.ssh/id_rsa",
-              "$SKIP || mkdir -p ~/.ssh",
-              "$SKIP || chmod 0600 ~/.ssh/id_rsa",
-              "$SKIP || chmod 0600 ~/.ssh/config",
-              "$SKIP || ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts",
-              "$SKIP || { export VERSION=$(git describe) ; }",
-              "$SKIP || { export BRANCH=bump/$VERSION ; }",
-              "$SKIP || { git branch -D $BRANCH || true ; }",
-              "$SKIP || { git checkout -b $BRANCH master ; }",
+              "export SKIP=false",
+              "$SKIP || { aws secretsmanager get-secret-value --secret-id \"ssh-key-secret-arn\" --output=text --query=SecretString > ~/.ssh/id_rsa ; }",
+              "$SKIP || { mkdir -p ~/.ssh ; }",
+              "$SKIP || { chmod 0600 ~/.ssh/id_rsa ; }",
+              "$SKIP || { chmod 0600 ~/.ssh/config ; }",
+              "$SKIP || { ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts ; }",
+              "$SKIP || { ls .git && { echo \".git directory exists\";  } || { echo \".git directory doesnot exist - cloning...\" && git clone git@github.com:owner/repo.git /tmp/repo && mv /tmp/repo/.git . && git reset --hard master; } ; }",
+              "$SKIP || { git describe --exact-match master && { echo 'Skip condition is met, skipping...' && export SKIP=true; } || { echo 'Skip condition is not met, continuing...' && export SKIP=false; } ; }",
+              "$SKIP || { git rev-parse --verify origin/bump/$VERSION && { git checkout bump/$VERSION && git merge master && /bin/sh ./bump.sh && export VERSION=$(git describe) && echo Finished running user commands;  } || { git checkout master && git checkout -b temp && /bin/sh ./bump.sh && export VERSION=$(git describe) && echo Finished running user commands && git branch -m bump/$VERSION; } ; }",
               "$SKIP || { git remote add origin_ssh git@github.com:owner/repo.git ; }",
-              "$SKIP || { git push --follow-tags origin_ssh $BRANCH ; }"
+              "$SKIP || { git push --follow-tags origin_ssh bump/$VERSION ; }",
+              "$SKIP || { git diff --exit-code --no-patch bump/$VERSION origin/master && { echo \"Skipping pull request...\"; export SKIP=true; } || { echo \"Creating pull request...\"; export SKIP=false; } ; }",
+              "$SKIP || { export GITHUB_TOKEN=$(aws secretsmanager get-secret-value --secret-id \"token-secret-arn\" --output=text --query=SecretString) ; }",
+              "$SKIP || { curl --fail -X POST -o pr.json --header \"Authorization: token $GITHUB_TOKEN\" --header \"Content-Type: application/json\" -d \"{\\\"title\\\":\\\"chore(release): $VERSION\\\",\\\"base\\\":\\\"master\\\",\\\"head\\\":\\\"bump/$VERSION\\\"}\" https://api.github.com/repos/owner/repo/pulls && export PR_NUMBER=$(node -p 'require(\"./pr.json\").number') ; }",
+              "$SKIP || { curl --fail -X PATCH --header \"Authorization: token $GITHUB_TOKEN\" --header \"Content-Type: application/json\" -d \"{\\\"body\\\":\\\"See [CHANGELOG](https://github.com/owner/repo/blob/bump/$VERSION/CHANGELOG.md)\\\"}\" https://api.github.com/repos/owner/repo/pulls/$PR_NUMBER ; }",
+              "$SKIP || { curl --fail -X POST --header \"Authorization: token $GITHUB_TOKEN\" --header \"Content-Type: application/json\" -d \"{\\\"labels\\\":[]}\" https://api.github.com/repos/owner/repo/issues/$PR_NUMBER/labels ; }"
             ]
           }
         }
@@ -141,7 +160,7 @@ test('autoBump with schedule disabled', () => {
   });
 });
 
-test('autoBump with pull request', () => {
+test('autoBump with push only', () => {
   // GIVEN
   const stack = new Stack();
   const repo = new WritableGitHubRepo({
@@ -155,6 +174,7 @@ test('autoBump with pull request', () => {
   // WHEN
   new AutoBump(stack, 'MyAutoBump', {
     repo,
+    pushOnly: true
   });
 
   // THEN
@@ -180,22 +200,17 @@ test('autoBump with pull request', () => {
           },
           "build": {
             "commands": [
-              "git describe --exact-match HEAD && { echo \"No new commits.\"; export SKIP=true; } || { echo \"Changes to release.\"; export SKIP=false; }",
-              "$SKIP || { /bin/sh ./bump.sh; }",
-              "$SKIP || aws secretsmanager get-secret-value --secret-id \"ssh-key-secret-arn\" --output=text --query=SecretString > ~/.ssh/id_rsa",
-              "$SKIP || mkdir -p ~/.ssh",
-              "$SKIP || chmod 0600 ~/.ssh/id_rsa",
-              "$SKIP || chmod 0600 ~/.ssh/config",
-              "$SKIP || ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts",
-              "$SKIP || { export VERSION=$(git describe) ; }",
-              "$SKIP || { export BRANCH=bump/$VERSION ; }",
-              "$SKIP || { git branch -D $BRANCH || true ; }",
-              "$SKIP || { git checkout -b $BRANCH master ; }",
+              "export SKIP=false",
+              "$SKIP || { aws secretsmanager get-secret-value --secret-id \"ssh-key-secret-arn\" --output=text --query=SecretString > ~/.ssh/id_rsa ; }",
+              "$SKIP || { mkdir -p ~/.ssh ; }",
+              "$SKIP || { chmod 0600 ~/.ssh/id_rsa ; }",
+              "$SKIP || { chmod 0600 ~/.ssh/config ; }",
+              "$SKIP || { ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts ; }",
+              "$SKIP || { ls .git && { echo \".git directory exists\";  } || { echo \".git directory doesnot exist - cloning...\" && git clone git@github.com:owner/repo.git /tmp/repo && mv /tmp/repo/.git . && git reset --hard master; } ; }",
+              "$SKIP || { git describe --exact-match master && { echo 'Skip condition is met, skipping...' && export SKIP=true; } || { echo 'Skip condition is not met, continuing...' && export SKIP=false; } ; }",
+              "$SKIP || { git rev-parse --verify origin/bump/$VERSION && { git checkout bump/$VERSION && git merge master && /bin/sh ./bump.sh && export VERSION=$(git describe) && echo Finished running user commands;  } || { git checkout master && git checkout -b temp && /bin/sh ./bump.sh && export VERSION=$(git describe) && echo Finished running user commands && git branch -m bump/$VERSION; } ; }",
               "$SKIP || { git remote add origin_ssh git@github.com:owner/repo.git ; }",
-              "$SKIP || { git push --follow-tags origin_ssh $BRANCH ; }",
-              "$SKIP || { git diff --exit-code --no-patch $BRANCH master && { echo \"No changes after bump. Skipping pull request...\"; export SKIP=true; } || { echo \"Creating pull request...\"; export SKIP=false; } ; }",
-              "$SKIP || { GITHUB_TOKEN=$(aws secretsmanager get-secret-value --secret-id \"token-secret-arn\" --output=text --query=SecretString) ; }",
-              "$SKIP || { curl --fail -X POST -o pr.json --header \"Authorization: token $GITHUB_TOKEN\" --header \"Content-Type: application/json\" -d \"{\\\"title\\\":\\\"chore(release): $VERSION\\\",\\\"body\\\":\\\"See [CHANGELOG](https://github.com/owner/repo/blob/$BRANCH/CHANGELOG.md)\\\",\\\"base\\\":\\\"master\\\",\\\"head\\\":\\\"$BRANCH\\\"}\" https://api.github.com/repos/owner/repo/pulls && export PR_NUMBER=$(node -p 'require(\"./pr.json\").number') ; }"
+              "$SKIP || { git push --follow-tags origin_ssh bump/$VERSION ; }"
             ]
           }
         }
@@ -243,22 +258,22 @@ test('autoBump with pull request with custom options', () => {
           },
           "build": {
             "commands": [
-              "git describe --exact-match HEAD && { echo \"No new commits.\"; export SKIP=true; } || { echo \"Changes to release.\"; export SKIP=false; }",
-              "$SKIP || { /bin/sh ./bump.sh; }",
-              "$SKIP || aws secretsmanager get-secret-value --secret-id \"ssh-key-secret-arn\" --output=text --query=SecretString > ~/.ssh/id_rsa",
-              "$SKIP || mkdir -p ~/.ssh",
-              "$SKIP || chmod 0600 ~/.ssh/id_rsa",
-              "$SKIP || chmod 0600 ~/.ssh/config",
-              "$SKIP || ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts",
-              "$SKIP || { export VERSION=$(git describe) ; }",
-              "$SKIP || { export BRANCH=bump/$VERSION ; }",
-              "$SKIP || { git branch -D $BRANCH || true ; }",
-              "$SKIP || { git checkout -b $BRANCH master ; }",
+              "export SKIP=false",
+              "$SKIP || { aws secretsmanager get-secret-value --secret-id \"ssh-key-secret-arn\" --output=text --query=SecretString > ~/.ssh/id_rsa ; }",
+              "$SKIP || { mkdir -p ~/.ssh ; }",
+              "$SKIP || { chmod 0600 ~/.ssh/id_rsa ; }",
+              "$SKIP || { chmod 0600 ~/.ssh/config ; }",
+              "$SKIP || { ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts ; }",
+              "$SKIP || { ls .git && { echo \".git directory exists\";  } || { echo \".git directory doesnot exist - cloning...\" && git clone git@github.com:owner/repo.git /tmp/repo && mv /tmp/repo/.git . && git reset --hard master; } ; }",
+              "$SKIP || { git describe --exact-match release && { echo 'Skip condition is met, skipping...' && export SKIP=true; } || { echo 'Skip condition is not met, continuing...' && export SKIP=false; } ; }",
+              "$SKIP || { git rev-parse --verify origin/bump/$VERSION && { git checkout bump/$VERSION && git merge release && /bin/sh ./bump.sh && export VERSION=$(git describe) && echo Finished running user commands;  } || { git checkout release && git checkout -b temp && /bin/sh ./bump.sh && export VERSION=$(git describe) && echo Finished running user commands && git branch -m bump/$VERSION; } ; }",
               "$SKIP || { git remote add origin_ssh git@github.com:owner/repo.git ; }",
-              "$SKIP || { git push --follow-tags origin_ssh $BRANCH ; }",
-              "$SKIP || { git diff --exit-code --no-patch $BRANCH release && { echo \"No changes after bump. Skipping pull request...\"; export SKIP=true; } || { echo \"Creating pull request...\"; export SKIP=false; } ; }",
-              "$SKIP || { GITHUB_TOKEN=$(aws secretsmanager get-secret-value --secret-id \"token-secret-arn\" --output=text --query=SecretString) ; }",
-              "$SKIP || { curl --fail -X POST -o pr.json --header \"Authorization: token $GITHUB_TOKEN\" --header \"Content-Type: application/json\" -d \"{\\\"title\\\":\\\"custom title\\\",\\\"body\\\":\\\"custom body\\\",\\\"base\\\":\\\"release\\\",\\\"head\\\":\\\"$BRANCH\\\"}\" https://api.github.com/repos/owner/repo/pulls && export PR_NUMBER=$(node -p 'require(\"./pr.json\").number') ; }"
+              "$SKIP || { git push --follow-tags origin_ssh bump/$VERSION ; }",
+              "$SKIP || { git diff --exit-code --no-patch bump/$VERSION origin/release && { echo \"Skipping pull request...\"; export SKIP=true; } || { echo \"Creating pull request...\"; export SKIP=false; } ; }",
+              "$SKIP || { export GITHUB_TOKEN=$(aws secretsmanager get-secret-value --secret-id \"token-secret-arn\" --output=text --query=SecretString) ; }",
+              "$SKIP || { curl --fail -X POST -o pr.json --header \"Authorization: token $GITHUB_TOKEN\" --header \"Content-Type: application/json\" -d \"{\\\"title\\\":\\\"custom title\\\",\\\"base\\\":\\\"release\\\",\\\"head\\\":\\\"bump/$VERSION\\\"}\" https://api.github.com/repos/owner/repo/pulls && export PR_NUMBER=$(node -p 'require(\"./pr.json\").number') ; }",
+              "$SKIP || { curl --fail -X PATCH --header \"Authorization: token $GITHUB_TOKEN\" --header \"Content-Type: application/json\" -d \"{\\\"body\\\":\\\"custom body\\\"}\" https://api.github.com/repos/owner/repo/pulls/$PR_NUMBER ; }",
+              "$SKIP || { curl --fail -X POST --header \"Authorization: token $GITHUB_TOKEN\" --header \"Content-Type: application/json\" -d \"{\\\"labels\\\":[]}\" https://api.github.com/repos/owner/repo/issues/$PR_NUMBER/labels ; }"
             ]
           }
         }
