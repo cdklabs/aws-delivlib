@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [7.5.0](https://github.com/awslabs/aws-delivlib/compare/v7.4.0...v7.5.0) (2020-06-09)
+
+
+### Features
+
+* rename "env" to "environment" in BuildEnvironmentProps ([#359](https://github.com/awslabs/aws-delivlib/issues/359)) ([836e5e0](https://github.com/awslabs/aws-delivlib/commit/836e5e032e0f85afe513c8e59111be8df6d16bca))
+
 ## [7.4.0](https://github.com/awslabs/aws-delivlib/compare/v7.3.2...v7.4.0) (2020-06-07)
 
 
