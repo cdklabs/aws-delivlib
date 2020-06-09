@@ -3889,6 +3889,7 @@ Resources:
       Parameters:
         CodeBuildProjectName:
           Ref: CodeCommitPipelineAutoBuildProject5D212EE9
+        DeletePreviousComments: "true"
         GitHubOAuthToken: "{{resolve:secretsmanager:arn:aws:secretsmanager:us-east-1:712950704752:secret:github-token-nnAqfW:SecretString:::}}"
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/AutoBuild/GitHubCodeBuildLogsSAR
