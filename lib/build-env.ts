@@ -3,7 +3,9 @@ import { aws_codebuild as cbuild } from "monocdk-experiment";
 export interface BuildEnvironmentProps {
   computeType?: cbuild.ComputeType;
   privileged?: boolean;
+  /** @deprecated */
   env?: { [key: string]: string };
+  environment?: { [key: string]: string };
   buildImage?: cbuild.IBuildImage;
 }
 
@@ -11,7 +13,7 @@ export function createBuildEnvironment(props: BuildEnvironmentProps) {
   const environment: cbuild.BuildEnvironment = {
     computeType: props.computeType || cbuild.ComputeType.SMALL,
     privileged: props.privileged,
-    environmentVariables: renderEnvironmentVariables(props.env),
+    environmentVariables: renderEnvironmentVariables({ ...props.environment, ...props.env }),
     buildImage: props.buildImage || cbuild.LinuxBuildImage.fromDockerRegistry('jsii/superchain:latest'),
   };
 
