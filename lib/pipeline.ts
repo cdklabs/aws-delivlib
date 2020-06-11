@@ -406,6 +406,10 @@ export class Pipeline extends cdk.Construct {
     return autoBump;
   }
 
+  /**
+   * Enables automatic merge backs for the source repo.
+   * @param options Options for auto bump (see AutoMergeBackOptions for description of defaults)
+   */
   public autoMergeBack(options?: AutoMergeBackOptions) {
     if (!WritableGitHubRepo.isWritableGitHubRepo(this.repo)) {
       throw new Error(`"repo" must be a WritableGitHubRepo in order to enable auto-merge-back`);
