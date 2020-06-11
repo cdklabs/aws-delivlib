@@ -59,8 +59,7 @@ test('autoBump', () => {
               "$SKIP || { git diff --exit-code --no-patch bump/$VERSION origin/master && { echo \"Skipping pull request...\"; export SKIP=true; } || { echo \"Creating pull request...\"; export SKIP=false; } ; }",
               "$SKIP || { export GITHUB_TOKEN=$(aws secretsmanager get-secret-value --secret-id \"token-secret-arn\" --output=text --query=SecretString) ; }",
               "$SKIP || { curl --fail -X POST -o pr.json --header \"Authorization: token $GITHUB_TOKEN\" --header \"Content-Type: application/json\" -d \"{\\\"title\\\":\\\"chore(release): $VERSION\\\",\\\"base\\\":\\\"master\\\",\\\"head\\\":\\\"bump/$VERSION\\\"}\" https://api.github.com/repos/owner/repo/pulls && export PR_NUMBER=$(node -p 'require(\"./pr.json\").number') ; }",
-              "$SKIP || { curl --fail -X PATCH --header \"Authorization: token $GITHUB_TOKEN\" --header \"Content-Type: application/json\" -d \"{\\\"body\\\":\\\"See [CHANGELOG](https://github.com/owner/repo/blob/bump/$VERSION/CHANGELOG.md)\\\"}\" https://api.github.com/repos/owner/repo/pulls/$PR_NUMBER ; }",
-              "$SKIP || { curl --fail -X POST --header \"Authorization: token $GITHUB_TOKEN\" --header \"Content-Type: application/json\" -d \"{\\\"labels\\\":[]}\" https://api.github.com/repos/owner/repo/issues/$PR_NUMBER/labels ; }"
+              "$SKIP || { curl --fail -X PATCH --header \"Authorization: token $GITHUB_TOKEN\" --header \"Content-Type: application/json\" -d \"{\\\"body\\\":\\\"See [CHANGELOG](https://github.com/owner/repo/blob/bump/$VERSION/CHANGELOG.md)\\\"}\" https://api.github.com/repos/owner/repo/pulls/$PR_NUMBER ; }"
             ]
           }
         }
@@ -134,8 +133,7 @@ test('autoBump with custom cloneDepth', () => {
               "$SKIP || { git diff --exit-code --no-patch bump/$VERSION origin/master && { echo \"Skipping pull request...\"; export SKIP=true; } || { echo \"Creating pull request...\"; export SKIP=false; } ; }",
               "$SKIP || { export GITHUB_TOKEN=$(aws secretsmanager get-secret-value --secret-id \"token-secret-arn\" --output=text --query=SecretString) ; }",
               "$SKIP || { curl --fail -X POST -o pr.json --header \"Authorization: token $GITHUB_TOKEN\" --header \"Content-Type: application/json\" -d \"{\\\"title\\\":\\\"chore(release): $VERSION\\\",\\\"base\\\":\\\"master\\\",\\\"head\\\":\\\"bump/$VERSION\\\"}\" https://api.github.com/repos/owner/repo/pulls && export PR_NUMBER=$(node -p 'require(\"./pr.json\").number') ; }",
-              "$SKIP || { curl --fail -X PATCH --header \"Authorization: token $GITHUB_TOKEN\" --header \"Content-Type: application/json\" -d \"{\\\"body\\\":\\\"See [CHANGELOG](https://github.com/owner/repo/blob/bump/$VERSION/CHANGELOG.md)\\\"}\" https://api.github.com/repos/owner/repo/pulls/$PR_NUMBER ; }",
-              "$SKIP || { curl --fail -X POST --header \"Authorization: token $GITHUB_TOKEN\" --header \"Content-Type: application/json\" -d \"{\\\"labels\\\":[]}\" https://api.github.com/repos/owner/repo/issues/$PR_NUMBER/labels ; }"
+              "$SKIP || { curl --fail -X PATCH --header \"Authorization: token $GITHUB_TOKEN\" --header \"Content-Type: application/json\" -d \"{\\\"body\\\":\\\"See [CHANGELOG](https://github.com/owner/repo/blob/bump/$VERSION/CHANGELOG.md)\\\"}\" https://api.github.com/repos/owner/repo/pulls/$PR_NUMBER ; }"
             ]
           }
         }
@@ -272,8 +270,7 @@ test('autoBump with pull request with custom options', () => {
               "$SKIP || { git diff --exit-code --no-patch bump/$VERSION origin/release && { echo \"Skipping pull request...\"; export SKIP=true; } || { echo \"Creating pull request...\"; export SKIP=false; } ; }",
               "$SKIP || { export GITHUB_TOKEN=$(aws secretsmanager get-secret-value --secret-id \"token-secret-arn\" --output=text --query=SecretString) ; }",
               "$SKIP || { curl --fail -X POST -o pr.json --header \"Authorization: token $GITHUB_TOKEN\" --header \"Content-Type: application/json\" -d \"{\\\"title\\\":\\\"custom title\\\",\\\"base\\\":\\\"release\\\",\\\"head\\\":\\\"bump/$VERSION\\\"}\" https://api.github.com/repos/owner/repo/pulls && export PR_NUMBER=$(node -p 'require(\"./pr.json\").number') ; }",
-              "$SKIP || { curl --fail -X PATCH --header \"Authorization: token $GITHUB_TOKEN\" --header \"Content-Type: application/json\" -d \"{\\\"body\\\":\\\"custom body\\\"}\" https://api.github.com/repos/owner/repo/pulls/$PR_NUMBER ; }",
-              "$SKIP || { curl --fail -X POST --header \"Authorization: token $GITHUB_TOKEN\" --header \"Content-Type: application/json\" -d \"{\\\"labels\\\":[]}\" https://api.github.com/repos/owner/repo/issues/$PR_NUMBER/labels ; }"
+              "$SKIP || { curl --fail -X PATCH --header \"Authorization: token $GITHUB_TOKEN\" --header \"Content-Type: application/json\" -d \"{\\\"body\\\":\\\"custom body\\\"}\" https://api.github.com/repos/owner/repo/pulls/$PR_NUMBER ; }"
             ]
           }
         }

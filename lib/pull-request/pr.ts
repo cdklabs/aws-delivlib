@@ -395,8 +395,10 @@ export class AutoPullRequest extends cdk.Construct {
     // update the body
     commands.push(this.githubCurl(`/pulls/$PR_NUMBER`, '-X PATCH', {'body': body}));
 
-    // apply labels
-    commands.push(this.githubCurl(`/issues/$PR_NUMBER/labels`, '-X POST', {'labels': this.props.labels ?? []}));
+    if (this.props.labels && this.props.labels.length > 0) {
+    // apply labels.
+    commands.push(this.githubCurl(`/issues/$PR_NUMBER/labels`, '-X POST', {'labels': this.props.labels}));
+    }
 
     return commands;
 
