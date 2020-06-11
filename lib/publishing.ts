@@ -105,6 +105,12 @@ export interface PublishToNpmProjectProps {
    * @default - npm default behavior ("latest" unless dist tag is specified in package.json)
    */
   distTag?: string;
+  /**
+   * npm --access public|restricted
+   *
+   * @default 'public'
+   */
+  access?: string;
 }
 
 /**
@@ -119,6 +125,11 @@ export class PublishToNpmProject extends cdk.Construct implements IPublisher {
 
     const forReal = props.dryRun === undefined ? 'false' : (!props.dryRun).toString();
 
+    const access = props.access || 'public';
+    if (access != 'public' && access != 'restricted') {
+      throw new Error (`Unrecognized access type: ${access}`);
+    }
+
     const shellable = new Shellable(this, 'Default', {
       platform: new LinuxPlatform(cbuild.LinuxBuildImage.UBUNTU_14_04_NODEJS_10_1_0),
       scriptDirectory: path.join(__dirname, 'publishing', 'npm'),
@@ -126,7 +137,8 @@ export class PublishToNpmProject extends cdk.Construct implements IPublisher {
       environment: {
         FOR_REAL: forReal,
         NPM_TOKEN_SECRET: props.npmTokenSecret.secretArn,
-        DISTTAG: props.distTag || ''
+        DISTTAG: props.distTag || '',
+        ACCESS: access,
       },
     });
 

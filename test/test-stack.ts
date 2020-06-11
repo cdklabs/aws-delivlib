@@ -105,7 +105,8 @@ export class TestStack extends cdk.Stack {
     //
 
     pipeline.publishToNpm({
-      npmTokenSecret: { secretArn: 'arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/npm-OynG62' }
+      npmTokenSecret: { secretArn: 'arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/npm-OynG62' },
+      access: 'restricted',
     });
 
     // this creates a self-signed certificate
