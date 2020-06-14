@@ -10,8 +10,10 @@ import { WritableGitHubRepo } from "./repo";
 import { LinuxPlatform, Shellable } from "./shellable";
 import { noUndefined } from "./util";
 
-
-
+export enum NpmAccess {
+  PUBLIC = 'public',
+  RESTRICTED = 'restricted',
+}
 
 export interface PublishToMavenProjectProps {
   /**
@@ -108,9 +110,9 @@ export interface PublishToNpmProjectProps {
   /**
    * npm --access public|restricted
    *
-   * @default 'public'
+   * @default NpmAccess.PUBLIC
    */
-  access?: string;
+  access?: NpmAccess;
 }
 
 /**
@@ -125,10 +127,7 @@ export class PublishToNpmProject extends cdk.Construct implements IPublisher {
 
     const forReal = props.dryRun === undefined ? 'false' : (!props.dryRun).toString();
 
-    const access = props.access || 'public';
-    if (access != 'public' && access != 'restricted') {
-      throw new Error (`Unrecognized access type: ${access}`);
-    }
+    const access = props.access || NpmAccess.PUBLIC;
 
     const shellable = new Shellable(this, 'Default', {
       platform: new LinuxPlatform(cbuild.LinuxBuildImage.UBUNTU_14_04_NODEJS_10_1_0),
