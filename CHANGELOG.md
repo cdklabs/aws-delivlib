@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [7.5.3](https://github.com/awslabs/aws-delivlib/compare/v7.5.2...v7.5.3) (2020-06-23)
+
 ### [7.5.2](https://github.com/awslabs/aws-delivlib/compare/v7.5.1...v7.5.2) (2020-06-11)
 
 ### [7.5.1](https://github.com/awslabs/aws-delivlib/compare/v7.5.0...v7.5.1) (2020-06-10)
