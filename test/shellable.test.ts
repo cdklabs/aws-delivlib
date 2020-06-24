@@ -34,7 +34,7 @@ test('assume role', () => {
   const buildSpec = JSON.parse(template.Resources.MyShellableB2FFD397.Properties.Source.BuildSpec);
 
   expect(buildSpec.phases.pre_build.commands)
-    .toContain('aws sts assume-role --role-arn \"arn:aws:role:to:assume\" --role-session-name \"my-session-name\"  > $creds');
+    .toContain('AWS_STS_REGIONAL_ENDPOINTS=legacy aws sts assume-role --role-arn \"arn:aws:role:to:assume\" --role-session-name \"my-session-name\"  > $creds');
 });
 
 test('assume role with external-id', () => {
@@ -54,7 +54,47 @@ test('assume role with external-id', () => {
   const buildSpec = JSON.parse(template.Resources.MyShellableB2FFD397.Properties.Source.BuildSpec);
 
   expect(buildSpec.phases.pre_build.commands)
-    .toContain('aws sts assume-role --role-arn \"arn:aws:role:to:assume\" --role-session-name \"my-session-name\" --external-id \"my-externa-id\" > $creds');
+    .toContain('AWS_STS_REGIONAL_ENDPOINTS=legacy aws sts assume-role --role-arn \"arn:aws:role:to:assume\" --role-session-name \"my-session-name\" --external-id \"my-externa-id\" > $creds');
+});
+
+test('assume role with regional endpoints', () => {
+  const stack = new cdk.Stack();
+
+  new Shellable(stack, 'MyShellable', {
+    scriptDirectory: path.join(__dirname, 'delivlib-tests/linux'),
+    entrypoint: 'test.sh',
+    assumeRole: {
+      roleArn: 'arn:aws:role:to:assume',
+      sessionName: 'my-session-name'
+    },
+    useRegionalStsEndpoints: true
+  });
+
+  const template = SynthUtils.synthesize(stack).template;
+  const buildSpec = JSON.parse(template.Resources.MyShellableB2FFD397.Properties.Source.BuildSpec);
+
+  expect(buildSpec.phases.pre_build.commands)
+    .toContain('AWS_STS_REGIONAL_ENDPOINTS=regional aws sts assume-role --role-arn \"arn:aws:role:to:assume\" --role-session-name \"my-session-name\"  > $creds');
+});
+
+test('assume role with global endpoints', () => {
+  const stack = new cdk.Stack();
+
+  new Shellable(stack, 'MyShellable', {
+    scriptDirectory: path.join(__dirname, 'delivlib-tests/linux'),
+    entrypoint: 'test.sh',
+    assumeRole: {
+      roleArn: 'arn:aws:role:to:assume',
+      sessionName: 'my-session-name'
+    },
+    useRegionalStsEndpoints: false
+  });
+
+  const template = SynthUtils.synthesize(stack).template;
+  const buildSpec = JSON.parse(template.Resources.MyShellableB2FFD397.Properties.Source.BuildSpec);
+
+  expect(buildSpec.phases.pre_build.commands)
+    .toContain('AWS_STS_REGIONAL_ENDPOINTS=legacy aws sts assume-role --role-arn \"arn:aws:role:to:assume\" --role-session-name \"my-session-name\"  > $creds');
 });
 
 test('assume role not supported on windows', () => {

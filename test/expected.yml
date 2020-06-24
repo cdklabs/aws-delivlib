@@ -2067,7 +2067,7 @@ Resources:
                         "mkdir -p /tmp/scriptdir",
                         "unzip /tmp/$(basename $SCRIPT_S3_KEY) -d /tmp/scriptdir",
                         "creds=$(mktemp -d)/creds.json",
-                        "aws sts assume-role --role-arn \"
+                        "AWS_STS_REGIONAL_ENDPOINTS=legacy aws sts assume-role --role-arn \"
               - Fn::GetAtt:
                   - AssumeMe924099BB
                   - Arn
