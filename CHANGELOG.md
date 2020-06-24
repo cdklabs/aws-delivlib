@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [7.6.0](https://github.com/awslabs/aws-delivlib/compare/v7.5.3...v7.6.0) (2020-06-24)
+
+
+### Features
+
+* allow setting a timeout for Shellable ([#375](https://github.com/awslabs/aws-delivlib/issues/375)) ([e729021](https://github.com/awslabs/aws-delivlib/commit/e729021e26baae864c7c6506322cb0a2dae87d0f))
+
 ### [7.5.3](https://github.com/awslabs/aws-delivlib/compare/v7.5.2...v7.5.3) (2020-06-23)
 
 ### [7.5.2](https://github.com/awslabs/aws-delivlib/compare/v7.5.1...v7.5.2) (2020-06-11)
