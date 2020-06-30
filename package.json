@@ -33,7 +33,9 @@
     "url": "https://github.com/awslabs/aws-delivlib.git"
   },
   "license": "Apache-2.0",
-  "dependencies": {},
+  "dependencies": {
+    "changelog-parser": "^2.8.0"
+  },
   "devDependencies": {
     "@monocdk-experiment/assert": "1.44.0",
     "@types/jest": "^25.2.3",
