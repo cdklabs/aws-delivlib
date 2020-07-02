@@ -35,7 +35,7 @@
   "license": "Apache-2.0",
   "dependencies": {},
   "devDependencies": {
-    "@monocdk-experiment/assert": "1.31.0",
+    "@monocdk-experiment/assert": "1.49.0",
     "@types/jest": "^26.0.3",
     "@types/node": "^13.7.6",
     "aws-cdk": "1.49.0",
