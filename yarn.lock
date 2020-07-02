@@ -3705,13 +3705,14 @@ modify-values@^1.0.0:
   resolved "https://registry.yarnpkg.com/modify-values/-/modify-values-1.0.1.tgz#b3939fa605546474e3e3e3c63d64bd43b4ee6022"
   integrity sha512-xV2bxeN6F7oYjZWTe/YPAy6MN2M+sL4u/Rlm2AHCIVGfo2p1yGmBHQ6vHehl4bRTZBdHu3TSkWdYgkwpYzAGSw==
 
-monocdk-experiment@1.44.0:
-  version "1.44.0"
-  resolved "https://registry.yarnpkg.com/monocdk-experiment/-/monocdk-experiment-1.44.0.tgz#ddbe6b6b8ce6e56fc47758b75301c1b3c34eda25"
-  integrity sha512-UpwCEx4Bs0NX5Jl8YWtw5Kaue6VGEpAMwoDlpOQ5Z+Na+YesMxPpOTVBx0/aWukN29EK7qnlUU2u/Sn+TVj5kg==
+monocdk-experiment@1.49.0:
+  version "1.49.0"
+  resolved "https://registry.yarnpkg.com/monocdk-experiment/-/monocdk-experiment-1.49.0.tgz#4c15aa97286d81f8dad81ba9b3d7a6134948cee3"
+  integrity sha512-FB8fmjCyCl3yFJVBrKRB7yPR+iJEz1tfbmhDVuX3luniYAqIBOY2XBMCbHm2z2vRjA8//DsKJaE67ICvCztAfA==
   dependencies:
     case "1.6.3"
     constructs "^3.0.2"
+    fs-extra "^9.0.1"
     jsonschema "^1.2.5"
     minimatch "^3.0.4"
     semver "^7.2.2"
