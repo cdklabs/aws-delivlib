@@ -1217,6 +1217,10 @@ Resources:
         Type: CODEPIPELINE
       Environment:
         ComputeType: BUILD_GENERAL1_SMALL
+        EnvironmentVariables:
+          - Name: DELIVLIB_ENV_TEST
+            Type: PLAINTEXT
+            Value: MAGIC_1924
         Image: jsii/superchain:latest
         ImagePullCredentialsType: SERVICE_ROLE
         PrivilegedMode: false

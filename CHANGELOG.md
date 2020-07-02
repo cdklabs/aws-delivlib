@@ -2,6 +2,39 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [7.6.3](https://github.com/awslabs/aws-delivlib/compare/v7.6.2...v7.6.3) (2020-07-02)
+
+### [7.6.2](https://github.com/awslabs/aws-delivlib/compare/v7.6.1...v7.6.2) (2020-07-01)
+
+### [7.6.1](https://github.com/awslabs/aws-delivlib/compare/v7.6.0...v7.6.1) (2020-06-25)
+
+## [7.6.0](https://github.com/awslabs/aws-delivlib/compare/v7.5.3...v7.6.0) (2020-06-24)
+
+
+### Features
+
+* allow setting a timeout for Shellable ([#375](https://github.com/awslabs/aws-delivlib/issues/375)) ([e729021](https://github.com/awslabs/aws-delivlib/commit/e729021e26baae864c7c6506322cb0a2dae87d0f))
+
+### [7.5.3](https://github.com/awslabs/aws-delivlib/compare/v7.5.2...v7.5.3) (2020-06-23)
+
+### [7.5.2](https://github.com/awslabs/aws-delivlib/compare/v7.5.1...v7.5.2) (2020-06-11)
+
+### [7.5.1](https://github.com/awslabs/aws-delivlib/compare/v7.5.0...v7.5.1) (2020-06-10)
+
+## [7.5.0](https://github.com/awslabs/aws-delivlib/compare/v7.4.0...v7.5.0) (2020-06-09)
+
+
+### Features
+
+* rename "env" to "environment" in BuildEnvironmentProps ([#359](https://github.com/awslabs/aws-delivlib/issues/359)) ([836e5e0](https://github.com/awslabs/aws-delivlib/commit/836e5e032e0f85afe513c8e59111be8df6d16bca))
+
+## [7.4.0](https://github.com/awslabs/aws-delivlib/compare/v7.3.2...v7.4.0) (2020-06-07)
+
+
+### Features
+
+* **auto-build:** delete previous links to build logs ([#301](https://github.com/awslabs/aws-delivlib/issues/301)) ([6607d6a](https://github.com/awslabs/aws-delivlib/commit/6607d6a09a5d1b550208c0c00f82bc748e3b920f))
+
 ### [7.3.2](https://github.com/awslabs/aws-delivlib/compare/v7.3.1...v7.3.2) (2020-06-05)
 
 ### [7.3.1](https://github.com/awslabs/aws-delivlib/compare/v7.3.0...v7.3.1) (2020-06-02)

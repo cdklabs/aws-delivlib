@@ -92,6 +92,13 @@ export interface ShellableOptions {
   buildSpec?: BuildSpec;
 
   /**
+   * The timeout of the build.
+   *
+   * @default the CodeBuild default (1 hour)
+   */
+  timeout?: cdk.Duration;
+
+  /**
    * Alarm period.
    *
    * @default 300 seconds (5 minutes)
@@ -239,6 +246,7 @@ export class Shellable extends cdk.Construct {
         ...renderEnvironmentVariables(props.environmentSecrets, cbuild.BuildEnvironmentVariableType.SECRETS_MANAGER),
         ...renderEnvironmentVariables(props.environmentParameters, cbuild.BuildEnvironmentVariableType.PARAMETER_STORE),
       },
+      timeout: props.timeout,
       buildSpec: cbuild.BuildSpec.fromObject(this.buildSpec.render({ primaryArtifactName: this.outputArtifactName })),
     });
 
