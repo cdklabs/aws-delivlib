@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [8.0.0](https://github.com/awslabs/aws-delivlib/compare/v7.6.4...v8.0.0) (2020-07-05)
+
+
+### ⚠ BREAKING CHANGES
+
+* **bump:** `AutoBump` API has significantly changed. Refer to the docstrings for guidance. 
+
+* **bump:** refactor AutoBump to support more use-case more cleanly ([#324](https://github.com/awslabs/aws-delivlib/issues/324)) ([6a754bb](https://github.com/awslabs/aws-delivlib/commit/6a754bb1f222b0189453c4a598c794ed0f05552a)), closes [/github.com/awslabs/aws-delivlib/blob/master/lib/bump/bump.ts#L254](https://github.com/awslabs//github.com/awslabs/aws-delivlib/blob/master/lib/bump/bump.ts/issues/L254)
+
 ### [7.6.4](https://github.com/awslabs/aws-delivlib/compare/v7.6.3...v7.6.4) (2020-07-03)
 
 ### [7.6.3](https://github.com/awslabs/aws-delivlib/compare/v7.6.2...v7.6.3) (2020-07-02)
