@@ -47,11 +47,11 @@
     "standard-version": "^8.0.0",
     "tslint": "^6.1.2",
     "typescript": "~3.8.2",
-    "constructs": "^3.0.3"
+    "constructs": "^3.0.4"
   },
   "peerDependencies": {
     "monocdk-experiment": "^1.49.0",
-    "constructs": "^3.0.3"
+    "constructs": "^3.0.4"
   },
   "jest": {
     "collectCoverage": true,
