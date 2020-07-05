@@ -100,7 +100,7 @@ export class AutoBump extends cdk.Construct {
     const title = props.title ?? 'chore(release): $VERSION';
     const body = props.body ?? `See [CHANGELOG](https://github.com/${props.repo.owner}/${props.repo.repo}/blob/${branchName}/CHANGELOG.md)`;
 
-    this.pr = new AutoPullRequest(this, 'AutoBump', {
+    this.pr = new AutoPullRequest(this, 'AutoPullRequest', {
       ...props,
       head: {
         name: branchName,
