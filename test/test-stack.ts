@@ -1,4 +1,5 @@
-import { aws_events as events, aws_iam as iam, aws_kms as kms, core as cdk } from "monocdk-experiment";
+import { aws_events as events, aws_iam as iam, aws_kms as kms } from "monocdk-experiment";
+import* as cdk from 'monocdk-experiment';
 import path = require("path");
 import delivlib = require("../lib");
 
@@ -163,9 +164,7 @@ export class TestStack extends cdk.Stack {
     // BUMP
 
     pipeline.autoBump({
-      scheduleExpression: 'disable',
-      bumpCommand: 'npm i && npm run bump',
-      pullRequest: true
+      bumpCommand: 'npm i && npm run bump'
     });
 
     //

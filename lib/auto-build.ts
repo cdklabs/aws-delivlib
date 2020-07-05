@@ -1,4 +1,5 @@
-import { aws_codebuild as codebuild, aws_sam as serverless, core as core } from "monocdk-experiment";
+import { aws_codebuild as codebuild, aws_sam as serverless } from "monocdk-experiment";
+import * as core from 'monocdk-experiment';
 import { BuildEnvironmentProps, createBuildEnvironment } from "./build-env";
 import { IRepo } from './repo';
 

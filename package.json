@@ -33,21 +33,25 @@
     "url": "https://github.com/awslabs/aws-delivlib.git"
   },
   "license": "Apache-2.0",
-  "dependencies": {},
+  "dependencies": {
+    "changelog-parser": "^2.8.0"
+  },
   "devDependencies": {
-    "@monocdk-experiment/assert": "1.31.0",
+    "@monocdk-experiment/assert": "1.49.0",
     "@types/jest": "^26.0.3",
     "@types/node": "^13.7.6",
     "aws-cdk": "1.49.1",
     "jest": "^26.1.0",
     "jest-create-mock-instance": "^1.1.0",
-    "monocdk-experiment": "1.28.0",
+    "monocdk-experiment": "1.49.0",
     "standard-version": "^8.0.0",
     "tslint": "^6.1.2",
-    "typescript": "~3.8.2"
+    "typescript": "~3.8.2",
+    "constructs": "^3.0.3"
   },
   "peerDependencies": {
-    "monocdk-experiment": "^1.26.0"
+    "monocdk-experiment": "^1.49.0",
+    "constructs": "^3.0.3"
   },
   "jest": {
     "collectCoverage": true,

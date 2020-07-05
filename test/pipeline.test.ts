@@ -2,9 +2,9 @@ import {
   aws_codebuild as codebuild,
   aws_codecommit as codecommit,
   aws_codepipeline as cpipeline,
-  aws_codepipeline_actions as cpipeline_actions,
-  core as cdk
+  aws_codepipeline_actions as cpipeline_actions
 } from "monocdk-experiment";
+import * as cdk from 'monocdk-experiment';
 import { expect as cdk_expect, haveResource, haveResourceLike, SynthUtils, ABSENT } from "@monocdk-experiment/assert";
 import path = require("path");
 import delivlib = require("../lib");
@@ -139,7 +139,7 @@ test('can add arbitrary shellables with different artifacts', () => {
     pipelineName: 'HelloPipeline'
   });
 
-  const action = pipeline.addShellable('Build', 'SecondStep', {
+  const action = pipeline.addShellable('Test', 'SecondStep', {
     scriptDirectory: __dirname,
     entrypoint: 'run-test.sh',
   });
@@ -171,7 +171,12 @@ test('can add arbitrary shellables with different artifacts', () => {
             InputArtifacts: [ { Name: "Source" } ],
             OutputArtifacts: [ { Name: "Artifact_Build_Build" } ],
             RunOrder: 1
-          },
+          }
+        ],
+      },
+      {
+        Name: "Test",
+        Actions: [
           {
             ActionTypeId: { Category: "Build", Owner: "AWS", Provider: "CodeBuild", },
             InputArtifacts: [ { Name: "Artifact_Build_Build" } ],

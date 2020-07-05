@@ -1152,6 +1152,20 @@ Resources:
                     - Ref: CodeCommitPipelineBuildProject9F59E8AA
                     - :*
           - Action:
+              - codebuild:CreateReportGroup
+              - codebuild:CreateReport
+              - codebuild:UpdateReport
+              - codebuild:BatchPutTestCases
+            Effect: Allow
+            Resource:
+              Fn::Join:
+                - ""
+                - - "arn:"
+                  - Ref: AWS::Partition
+                  - :codebuild:us-east-1:712950704752:report-group/
+                  - Ref: CodeCommitPipelineBuildProject9F59E8AA
+                  - -*
+          - Action:
               - s3:GetObject*
               - s3:GetBucket*
               - s3:List*
@@ -1489,6 +1503,20 @@ Resources:
                     - Ref: CodeCommitPipelineHelloLinuxCB82AB68
                     - :*
           - Action:
+              - codebuild:CreateReportGroup
+              - codebuild:CreateReport
+              - codebuild:UpdateReport
+              - codebuild:BatchPutTestCases
+            Effect: Allow
+            Resource:
+              Fn::Join:
+                - ""
+                - - "arn:"
+                  - Ref: AWS::Partition
+                  - :codebuild:us-east-1:712950704752:report-group/
+                  - Ref: CodeCommitPipelineHelloLinuxCB82AB68
+                  - -*
+          - Action:
               - s3:GetObject*
               - s3:GetBucket*
               - s3:List*
@@ -1690,6 +1718,20 @@ Resources:
                     - Ref: CodeCommitPipelineHelloWindows61CA8F73
                     - :*
           - Action:
+              - codebuild:CreateReportGroup
+              - codebuild:CreateReport
+              - codebuild:UpdateReport
+              - codebuild:BatchPutTestCases
+            Effect: Allow
+            Resource:
+              Fn::Join:
+                - ""
+                - - "arn:"
+                  - Ref: AWS::Partition
+                  - :codebuild:us-east-1:712950704752:report-group/
+                  - Ref: CodeCommitPipelineHelloWindows61CA8F73
+                  - -*
+          - Action:
               - s3:GetObject*
               - s3:GetBucket*
               - s3:List*
@@ -1888,6 +1930,20 @@ Resources:
                     - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelineAssumeRole05A76F51
                     - :*
+          - Action:
+              - codebuild:CreateReportGroup
+              - codebuild:CreateReport
+              - codebuild:UpdateReport
+              - codebuild:BatchPutTestCases
+            Effect: Allow
+            Resource:
+              Fn::Join:
+                - ""
+                - - "arn:"
+                  - Ref: AWS::Partition
+                  - :codebuild:us-east-1:712950704752:report-group/
+                  - Ref: CodeCommitPipelineAssumeRole05A76F51
+                  - -*
           - Action:
               - s3:GetObject*
               - s3:GetBucket*
@@ -2113,6 +2169,20 @@ Resources:
                     - Ref: CodeCommitPipelineGenerateTwoArtifactsA9DAD33B
                     - :*
           - Action:
+              - codebuild:CreateReportGroup
+              - codebuild:CreateReport
+              - codebuild:UpdateReport
+              - codebuild:BatchPutTestCases
+            Effect: Allow
+            Resource:
+              Fn::Join:
+                - ""
+                - - "arn:"
+                  - Ref: AWS::Partition
+                  - :codebuild:us-east-1:712950704752:report-group/
+                  - Ref: CodeCommitPipelineGenerateTwoArtifactsA9DAD33B
+                  - -*
+          - Action:
               - s3:GetObject*
               - s3:GetBucket*
               - s3:List*
@@ -2312,6 +2382,20 @@ Resources:
                     - Ref: CodeCommitPipelineCanaryHelloCanaryShellableC8458471
                     - :*
           - Action:
+              - codebuild:CreateReportGroup
+              - codebuild:CreateReport
+              - codebuild:UpdateReport
+              - codebuild:BatchPutTestCases
+            Effect: Allow
+            Resource:
+              Fn::Join:
+                - ""
+                - - "arn:"
+                  - Ref: AWS::Partition
+                  - :codebuild:us-east-1:712950704752:report-group/
+                  - Ref: CodeCommitPipelineCanaryHelloCanaryShellableC8458471
+                  - -*
+          - Action:
               - s3:GetObject*
               - s3:GetBucket*
               - s3:List*
@@ -2497,6 +2581,20 @@ Resources:
                     - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelineNpm0D31AEFC
                     - :*
+          - Action:
+              - codebuild:CreateReportGroup
+              - codebuild:CreateReport
+              - codebuild:UpdateReport
+              - codebuild:BatchPutTestCases
+            Effect: Allow
+            Resource:
+              Fn::Join:
+                - ""
+                - - "arn:"
+                  - Ref: AWS::Partition
+                  - :codebuild:us-east-1:712950704752:report-group/
+                  - Ref: CodeCommitPipelineNpm0D31AEFC
+                  - -*
           - Action:
               - s3:GetObject*
               - s3:GetBucket*
@@ -2686,6 +2784,20 @@ Resources:
                     - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelineNuGet67CE1BA7
                     - :*
+          - Action:
+              - codebuild:CreateReportGroup
+              - codebuild:CreateReport
+              - codebuild:UpdateReport
+              - codebuild:BatchPutTestCases
+            Effect: Allow
+            Resource:
+              Fn::Join:
+                - ""
+                - - "arn:"
+                  - Ref: AWS::Partition
+                  - :codebuild:us-east-1:712950704752:report-group/
+                  - Ref: CodeCommitPipelineNuGet67CE1BA7
+                  - -*
           - Action:
               - s3:GetObject*
               - s3:GetBucket*
@@ -2905,6 +3017,20 @@ Resources:
                     - Ref: CodeCommitPipelineMavenB7154296
                     - :*
           - Action:
+              - codebuild:CreateReportGroup
+              - codebuild:CreateReport
+              - codebuild:UpdateReport
+              - codebuild:BatchPutTestCases
+            Effect: Allow
+            Resource:
+              Fn::Join:
+                - ""
+                - - "arn:"
+                  - Ref: AWS::Partition
+                  - :codebuild:us-east-1:712950704752:report-group/
+                  - Ref: CodeCommitPipelineMavenB7154296
+                  - -*
+          - Action:
               - s3:GetObject*
               - s3:GetBucket*
               - s3:List*
@@ -3118,6 +3244,20 @@ Resources:
                     - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelineGitHub0797840C
                     - :*
+          - Action:
+              - codebuild:CreateReportGroup
+              - codebuild:CreateReport
+              - codebuild:UpdateReport
+              - codebuild:BatchPutTestCases
+            Effect: Allow
+            Resource:
+              Fn::Join:
+                - ""
+                - - "arn:"
+                  - Ref: AWS::Partition
+                  - :codebuild:us-east-1:712950704752:report-group/
+                  - Ref: CodeCommitPipelineGitHub0797840C
+                  - -*
           - Action:
               - s3:GetObject*
               - s3:GetBucket*
@@ -3338,6 +3478,20 @@ Resources:
                     - Ref: CodeCommitPipelineGitHubPages53B77CF6
                     - :*
           - Action:
+              - codebuild:CreateReportGroup
+              - codebuild:CreateReport
+              - codebuild:UpdateReport
+              - codebuild:BatchPutTestCases
+            Effect: Allow
+            Resource:
+              Fn::Join:
+                - ""
+                - - "arn:"
+                  - Ref: AWS::Partition
+                  - :codebuild:us-east-1:712950704752:report-group/
+                  - Ref: CodeCommitPipelineGitHubPages53B77CF6
+                  - -*
+          - Action:
               - s3:GetObject*
               - s3:GetBucket*
               - s3:List*
@@ -3539,6 +3693,20 @@ Resources:
                     - Ref: CodeCommitPipelinePyPI2C59CE7B
                     - :*
           - Action:
+              - codebuild:CreateReportGroup
+              - codebuild:CreateReport
+              - codebuild:UpdateReport
+              - codebuild:BatchPutTestCases
+            Effect: Allow
+            Resource:
+              Fn::Join:
+                - ""
+                - - "arn:"
+                  - Ref: AWS::Partition
+                  - :codebuild:us-east-1:712950704752:report-group/
+                  - Ref: CodeCommitPipelinePyPI2C59CE7B
+                  - -*
+          - Action:
               - s3:GetObject*
               - s3:GetBucket*
               - s3:List*
@@ -3688,7 +3856,7 @@ Resources:
       TreatMissingData: ignore
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/PyPI/Default/Alarm/Resource
-  CodeCommitPipelineAutoBumpRole669D4CAA:
+  CodeCommitPipelineAutoBumpAutoPullRequestRoleE7E0E388:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
@@ -3699,8 +3867,8 @@ Resources:
               Service: codebuild.amazonaws.com
         Version: "2012-10-17"
     Metadata:
-      aws:cdk:path: delivlib-test/CodeCommitPipeline/AutoBump/Bump/Role/Resource
-  CodeCommitPipelineAutoBumpRoleDefaultPolicyD6024577:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/AutoBump/AutoPullRequest/PullRequest/Role/Resource
+  CodeCommitPipelineAutoBumpAutoPullRequestRoleDefaultPolicy3BB1CD6F:
     Type: AWS::IAM::Policy
     Properties:
       PolicyDocument:
@@ -3716,14 +3884,28 @@ Resources:
                   - - "arn:"
                     - Ref: AWS::Partition
                     - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
-                    - Ref: CodeCommitPipelineAutoBumpA6619552
+                    - Ref: CodeCommitPipelineAutoBumpAutoPullRequest033F6993
               - Fn::Join:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
                     - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
-                    - Ref: CodeCommitPipelineAutoBumpA6619552
+                    - Ref: CodeCommitPipelineAutoBumpAutoPullRequest033F6993
                     - :*
+          - Action:
+              - codebuild:CreateReportGroup
+              - codebuild:CreateReport
+              - codebuild:UpdateReport
+              - codebuild:BatchPutTestCases
+            Effect: Allow
+            Resource:
+              Fn::Join:
+                - ""
+                - - "arn:"
+                  - Ref: AWS::Partition
+                  - :codebuild:us-east-1:712950704752:report-group/
+                  - Ref: CodeCommitPipelineAutoBumpAutoPullRequest033F6993
+                  - -*
           - Action:
               - secretsmanager:ListSecrets
               - secretsmanager:DescribeSecret
@@ -3737,12 +3919,12 @@ Resources:
             Effect: Allow
             Resource: arn:aws:secretsmanager:us-east-1:712950704752:secret:github-token-nnAqfW
         Version: "2012-10-17"
-      PolicyName: CodeCommitPipelineAutoBumpRoleDefaultPolicyD6024577
+      PolicyName: CodeCommitPipelineAutoBumpAutoPullRequestRoleDefaultPolicy3BB1CD6F
       Roles:
-        - Ref: CodeCommitPipelineAutoBumpRole669D4CAA
+        - Ref: CodeCommitPipelineAutoBumpAutoPullRequestRoleE7E0E388
     Metadata:
-      aws:cdk:path: delivlib-test/CodeCommitPipeline/AutoBump/Bump/Role/DefaultPolicy/Resource
-  CodeCommitPipelineAutoBumpA6619552:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/AutoBump/AutoPullRequest/PullRequest/Role/DefaultPolicy/Resource
+  CodeCommitPipelineAutoBumpAutoPullRequest033F6993:
     Type: AWS::CodeBuild::Project
     Properties:
       Artifacts:
@@ -3755,7 +3937,7 @@ Resources:
         Type: LINUX_CONTAINER
       ServiceRole:
         Fn::GetAtt:
-          - CodeCommitPipelineAutoBumpRole669D4CAA
+          - CodeCommitPipelineAutoBumpAutoPullRequestRoleE7E0E388
           - Arn
       Source:
         BuildSpec: >-
@@ -3770,22 +3952,21 @@ Resources:
               },
               "build": {
                 "commands": [
-                  "git describe --exact-match HEAD && { echo \"No new commits.\"; export SKIP=true; } || { echo \"Changes to release.\"; export SKIP=false; }",
-                  "$SKIP || { npm i && npm run bump; }",
-                  "$SKIP || aws secretsmanager get-secret-value --secret-id \"arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/github-ssh-lwzfjW\" --output=text --query=SecretString > ~/.ssh/id_rsa",
-                  "$SKIP || mkdir -p ~/.ssh",
-                  "$SKIP || chmod 0600 ~/.ssh/id_rsa",
-                  "$SKIP || chmod 0600 ~/.ssh/config",
-                  "$SKIP || ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts",
-                  "$SKIP || { export VERSION=$(git describe) ; }",
-                  "$SKIP || { export BRANCH=bump/$VERSION ; }",
-                  "$SKIP || { git branch -D $BRANCH || true ; }",
-                  "$SKIP || { git checkout -b $BRANCH master ; }",
+                  "export SKIP=false",
+                  "$SKIP || { aws secretsmanager get-secret-value --secret-id \"arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/github-ssh-lwzfjW\" --output=text --query=SecretString > ~/.ssh/id_rsa ; }",
+                  "$SKIP || { mkdir -p ~/.ssh ; }",
+                  "$SKIP || { chmod 0600 ~/.ssh/id_rsa ; }",
+                  "$SKIP || { chmod 0600 ~/.ssh/config ; }",
+                  "$SKIP || { ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts ; }",
+                  "$SKIP || { ls .git && { echo \".git directory exists\";  } || { echo \".git directory doesnot exist - cloning...\" && git clone git@github.com:awslabs/aws-delivlib-sample.git /tmp/repo && mv /tmp/repo/.git . && git reset --hard master; } ; }",
+                  "$SKIP || { git describe --exact-match master && { echo 'Skip condition is met, skipping...' && export SKIP=true; } || { echo 'Skip condition is not met, continuing...' && export SKIP=false; } ; }",
+                  "$SKIP || { git rev-parse --verify origin/bump/$VERSION && { git checkout bump/$VERSION && git merge master && npm i && npm run bump && export VERSION=$(git describe) && echo Finished running user commands;  } || { git checkout master && git checkout -b temp && npm i && npm run bump && export VERSION=$(git describe) && echo Finished running user commands && git branch -m bump/$VERSION; } ; }",
                   "$SKIP || { git remote add origin_ssh git@github.com:awslabs/aws-delivlib-sample.git ; }",
-                  "$SKIP || { git push --follow-tags origin_ssh $BRANCH ; }",
-                  "$SKIP || { git diff --exit-code --no-patch $BRANCH master && { echo \"No changes after bump. Skipping pull request...\"; export SKIP=true; } || { echo \"Creating pull request...\"; export SKIP=false; } ; }",
-                  "$SKIP || { GITHUB_TOKEN=$(aws secretsmanager get-secret-value --secret-id \"arn:aws:secretsmanager:us-east-1:712950704752:secret:github-token-nnAqfW\" --output=text --query=SecretString) ; }",
-                  "$SKIP || { curl --fail -X POST -o pr.json --header \"Authorization: token $GITHUB_TOKEN\" --header \"Content-Type: application/json\" -d \"{\\\"title\\\":\\\"chore(release): $VERSION\\\",\\\"body\\\":\\\"See [CHANGELOG](https://github.com/awslabs/aws-delivlib-sample/blob/$BRANCH/CHANGELOG.md)\\\",\\\"base\\\":\\\"master\\\",\\\"head\\\":\\\"$BRANCH\\\"}\" https://api.github.com/repos/awslabs/aws-delivlib-sample/pulls && export PR_NUMBER=$(node -p 'require(\"./pr.json\").number') ; }"
+                  "$SKIP || { git push --follow-tags origin_ssh bump/$VERSION ; }",
+                  "$SKIP || { git diff --exit-code --no-patch bump/$VERSION origin/master && { echo \"Skipping pull request...\"; export SKIP=true; } || { echo \"Creating pull request...\"; export SKIP=false; } ; }",
+                  "$SKIP || { export GITHUB_TOKEN=$(aws secretsmanager get-secret-value --secret-id \"arn:aws:secretsmanager:us-east-1:712950704752:secret:github-token-nnAqfW\" --output=text --query=SecretString) ; }",
+                  "$SKIP || { curl --fail -X POST -o pr.json --header \"Authorization: token $GITHUB_TOKEN\" --header \"Content-Type: application/json\" -d \"{\\\"title\\\":\\\"chore(release): $VERSION\\\",\\\"base\\\":\\\"master\\\",\\\"head\\\":\\\"bump/$VERSION\\\"}\" https://api.github.com/repos/awslabs/aws-delivlib-sample/pulls && export PR_NUMBER=$(node -p 'require(\"./pr.json\").number') ; }",
+                  "$SKIP || { curl --fail -X PATCH --header \"Authorization: token $GITHUB_TOKEN\" --header \"Content-Type: application/json\" -d \"{\\\"body\\\":\\\"See [CHANGELOG](https://github.com/awslabs/aws-delivlib-sample/blob/bump/$VERSION/CHANGELOG.md)\\\"}\" https://api.github.com/repos/awslabs/aws-delivlib-sample/pulls/$PR_NUMBER ; }"
                 ]
               }
             }
@@ -3797,8 +3978,8 @@ Resources:
       Triggers:
         Webhook: false
     Metadata:
-      aws:cdk:path: delivlib-test/CodeCommitPipeline/AutoBump/Bump/Resource
-  CodeCommitPipelineAutoBumpBumpFailedAlarm47B5C467:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/AutoBump/AutoPullRequest/PullRequest/Resource
+  CodeCommitPipelineAutoBumpAutoPullRequestAutoPullRequestFailedAlarmEFC2345F:
     Type: AWS::CloudWatch::Alarm
     Properties:
       ComparisonOperator: GreaterThanOrEqualToThreshold
@@ -3806,7 +3987,7 @@ Resources:
       Dimensions:
         - Name: ProjectName
           Value:
-            Ref: CodeCommitPipelineAutoBumpA6619552
+            Ref: CodeCommitPipelineAutoBumpAutoPullRequest033F6993
       MetricName: FailedBuilds
       Namespace: AWS/CodeBuild
       Period: 300
@@ -3814,7 +3995,7 @@ Resources:
       Threshold: 1
       TreatMissingData: ignore
     Metadata:
-      aws:cdk:path: delivlib-test/CodeCommitPipeline/AutoBump/BumpFailedAlarm/Resource
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/AutoBump/AutoPullRequest/AutoPullRequestFailedAlarm/Resource
   CodeCommitPipelineAutoBuildProjectRole733AD222:
     Type: AWS::IAM::Role
     Properties:
@@ -3851,6 +4032,20 @@ Resources:
                     - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelineAutoBuildProject5D212EE9
                     - :*
+          - Action:
+              - codebuild:CreateReportGroup
+              - codebuild:CreateReport
+              - codebuild:UpdateReport
+              - codebuild:BatchPutTestCases
+            Effect: Allow
+            Resource:
+              Fn::Join:
+                - ""
+                - - "arn:"
+                  - Ref: AWS::Partition
+                  - :codebuild:us-east-1:712950704752:report-group/
+                  - Ref: CodeCommitPipelineAutoBuildProject5D212EE9
+                  - -*
         Version: "2012-10-17"
       PolicyName: CodeCommitPipelineAutoBuildProjectRoleDefaultPolicyFF5563AC
       Roles:
@@ -4611,9 +4806,9 @@ Resources:
               // eslint-disable-next-line @typescript-eslint/no-require-imports, import/no-extraneous-dependencies
               const s3 = new (require('aws-sdk').S3)();
               // eslint-disable-next-line @typescript-eslint/no-require-imports
-              const https = require("https");
+              const https = require('https');
               // eslint-disable-next-line @typescript-eslint/no-require-imports
-              const url = require("url");
+              const url = require('url');
               log(JSON.stringify(event, undefined, 2));
               const props = event.ResourceProperties;
               if (event.RequestType === 'Delete') {
@@ -4621,15 +4816,15 @@ Resources:
               }
               const req = {
                   Bucket: props.BucketName,
-                  NotificationConfiguration: props.NotificationConfiguration
+                  NotificationConfiguration: props.NotificationConfiguration,
               };
               return s3.putBucketNotificationConfiguration(req, (err, data) => {
                   log({ err, data });
                   if (err) {
-                      return submitResponse("FAILED", err.message + `\nMore information in CloudWatch Log Stream: ${context.logStreamName}`);
+                      return submitResponse('FAILED', err.message + `\nMore information in CloudWatch Log Stream: ${context.logStreamName}`);
                   }
                   else {
-                      return submitResponse("SUCCESS");
+                      return submitResponse('SUCCESS');
                   }
               });
               function log(obj) {
@@ -4641,7 +4836,7 @@ Resources:
               function submitResponse(responseStatus, reason) {
                   const responseBody = JSON.stringify({
                       Status: responseStatus,
-                      Reason: reason || "See the details in CloudWatch Log Stream: " + context.logStreamName,
+                      Reason: reason || 'See the details in CloudWatch Log Stream: ' + context.logStreamName,
                       PhysicalResourceId: event.PhysicalResourceId || event.LogicalResourceId,
                       StackId: event.StackId,
                       RequestId: event.RequestId,
@@ -4654,17 +4849,17 @@ Resources:
                       hostname: parsedUrl.hostname,
                       port: 443,
                       path: parsedUrl.path,
-                      method: "PUT",
+                      method: 'PUT',
                       headers: {
-                          "content-type": "",
-                          "content-length": responseBody.length
-                      }
+                          'content-type': '',
+                          'content-length': responseBody.length,
+                      },
                   };
                   const request = https.request(options, (r) => {
                       log({ statusCode: r.statusCode, statusMessage: r.statusMessage });
                       context.done();
                   });
-                  request.on("error", (error) => {
+                  request.on('error', (error) => {
                       log({ sendError: error });
                       context.done();
                   });

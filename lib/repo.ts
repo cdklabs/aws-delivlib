@@ -1,6 +1,6 @@
 import { aws_codebuild as cbuild, aws_codecommit as ccommit,
-  aws_codepipeline as cpipeline, aws_codepipeline_actions as cpipeline_actions,
-  core as cdk } from "monocdk-experiment";
+  aws_codepipeline as cpipeline, aws_codepipeline_actions as cpipeline_actions} from "monocdk-experiment";
+  import * as cdk from 'monocdk-experiment';
 import { ExternalSecret } from "./permissions";
 
 export interface IRepo {
@@ -105,7 +105,7 @@ export class GitHubRepo implements IRepo {
       oauthToken: cdk.SecretValue.secretsManager(this.tokenSecretArn),
       owner: this.owner,
       repo: this.repo,
-      output: sourceOutput,
+      output: sourceOutput
     }));
     return sourceOutput;
   }

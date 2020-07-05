@@ -1,6 +1,6 @@
 import { aws_codebuild as cbuild, aws_codepipeline as cpipeline,
-  aws_codepipeline_actions as cpipeline_actions, aws_iam as iam, aws_s3 as s3,
-  core as cdk } from "monocdk-experiment";
+  aws_codepipeline_actions as cpipeline_actions, aws_iam as iam, aws_s3 as s3 } from "monocdk-experiment";
+  import * as cdk from 'monocdk-experiment';
 import path = require("path");
 import { ICodeSigningCertificate } from "./code-signing";
 import { OpenPGPKeyPair } from "./open-pgp-key-pair";
