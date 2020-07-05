@@ -3705,10 +3705,10 @@ modify-values@^1.0.0:
   resolved "https://registry.yarnpkg.com/modify-values/-/modify-values-1.0.1.tgz#b3939fa605546474e3e3e3c63d64bd43b4ee6022"
   integrity sha512-xV2bxeN6F7oYjZWTe/YPAy6MN2M+sL4u/Rlm2AHCIVGfo2p1yGmBHQ6vHehl4bRTZBdHu3TSkWdYgkwpYzAGSw==
 
-monocdk-experiment@1.49.0:
-  version "1.49.0"
-  resolved "https://registry.yarnpkg.com/monocdk-experiment/-/monocdk-experiment-1.49.0.tgz#4c15aa97286d81f8dad81ba9b3d7a6134948cee3"
-  integrity sha512-FB8fmjCyCl3yFJVBrKRB7yPR+iJEz1tfbmhDVuX3luniYAqIBOY2XBMCbHm2z2vRjA8//DsKJaE67ICvCztAfA==
+monocdk-experiment@1.49.1:
+  version "1.49.1"
+  resolved "https://registry.yarnpkg.com/monocdk-experiment/-/monocdk-experiment-1.49.1.tgz#532e6c99c4e5ea71a8e8989ebfdf3aecc6b321c6"
+  integrity sha512-SzatMBTLZ7SavXwjZqwdhtiLHiUrjuvawAVQa76E3AjDByRGzN4jGyH1oE71mdjT+DIovR892/78FuSBPgH6Yg==
   dependencies:
     case "1.6.3"
     constructs "^3.0.2"
