@@ -43,7 +43,7 @@
     "aws-cdk": "1.49.1",
     "jest": "^26.1.0",
     "jest-create-mock-instance": "^1.1.0",
-    "monocdk-experiment": "1.49.1",
+    "monocdk-experiment": "1.50.0",
     "standard-version": "^8.0.0",
     "tslint": "^6.1.2",
     "typescript": "~3.8.2",
