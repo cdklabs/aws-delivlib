@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [8.1.0](https://github.com/awslabs/aws-delivlib/compare/v8.0.3...v8.1.0) (2020-07-10)
+
+
+### Features
+
+* add support for reports in  buildspec ([#401](https://github.com/awslabs/aws-delivlib/issues/401)) ([1570ab5](https://github.com/awslabs/aws-delivlib/commit/1570ab58f53c1f05b857ac0c590806073aad0638))
+
 ### [8.0.3](https://github.com/awslabs/aws-delivlib/compare/v8.0.2...v8.0.3) (2020-07-08)
 
 ### [8.0.2](https://github.com/awslabs/aws-delivlib/compare/v8.0.1...v8.0.2) (2020-07-07)
