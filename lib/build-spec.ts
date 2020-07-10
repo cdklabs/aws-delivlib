@@ -166,7 +166,7 @@ export class BuildSpec {
 export interface SimpleBuildSpecProps {
   preBuild?: string[];
   build?: string[];
-  reports?: {[key: string]: ReportStruct };
+  reports?: {[key: string]: ReportStruct};
   artifactDirectory?: string;
 
   /**
@@ -182,10 +182,10 @@ export interface BuildSpecStruct {
   version: '0.2';
   'run-as'?: string;
   env?: EnvStruct;
-  phases?: {[key: string]: PhaseStruct };
+  phases?: {[key: string]: PhaseStruct};
   artifacts?: PrimaryArtifactStruct;
   cache?: CacheStruct;
-  reports?: {[key: string]: ReportStruct };
+  reports?: {[key: string]: ReportStruct};
 }
 
 export interface EnvStruct {
