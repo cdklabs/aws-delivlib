@@ -127,7 +127,7 @@ export class PublishToNpmProject extends cdk.Construct implements IPublisher {
 
     const forReal = props.dryRun === undefined ? 'false' : (!props.dryRun).toString();
 
-    const access = props.access || NpmAccess.PUBLIC;
+    const access = props.access ?? NpmAccess.PUBLIC;
 
     const shellable = new Shellable(this, 'Default', {
       platform: new LinuxPlatform(cbuild.LinuxBuildImage.UBUNTU_14_04_NODEJS_10_1_0),
