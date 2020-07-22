@@ -10,8 +10,18 @@ import { WritableGitHubRepo } from "./repo";
 import { LinuxPlatform, Shellable } from "./shellable";
 import { noUndefined } from "./util";
 
+/**
+ * Type of access permissions to request from npmjs.
+ */
 export enum NpmAccess {
+  /**
+   * No access restriction. Note that unscoped packages must always be public.
+   */
   PUBLIC = 'public',
+
+  /**
+   * Limit access to whitelisted npmjs users.
+   */
   RESTRICTED = 'restricted',
 }
 
@@ -107,8 +117,15 @@ export interface PublishToNpmProjectProps {
    * @default - npm default behavior ("latest" unless dist tag is specified in package.json)
    */
   distTag?: string;
+
   /**
    * npm --access public|restricted
+   *
+   * See https://docs.npmjs.com/cli-commands/publish#:~:text=Tells%20the
+   *
+   * Tells the registry whether this package should be published as public or restricted.
+   * Only applies to scoped packages, which default to restricted.
+   * If you don’t have a paid account, you must publish with --access public to publish scoped packages.
    *
    * @default NpmAccess.PUBLIC
    */
