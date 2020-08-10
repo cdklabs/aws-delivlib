@@ -1,6 +1,6 @@
 {
   "name": "aws-delivlib",
-  "version": "8.1.10",
+  "version": "8.1.12",
   "homepage": "https://github.com/awslabs/aws-delivlib",
   "description": "A fabulous library for defining continuous pipelines for building, testing and releasing code libraries.",
   "main": "lib/index.js",
@@ -38,9 +38,9 @@
   },
   "devDependencies": {
     "@monocdk-experiment/assert": "1.50.0",
-    "@types/jest": "^26.0.8",
+    "@types/jest": "^26.0.9",
     "@types/node": "^13.7.6",
-    "aws-cdk": "1.56.0",
+    "aws-cdk": "1.57.0",
     "jest": "^26.2.2",
     "jest-create-mock-instance": "^1.1.0",
     "monocdk-experiment": "1.51.0",
