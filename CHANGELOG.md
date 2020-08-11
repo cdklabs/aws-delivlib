@@ -2,6 +2,30 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [8.2.1](https://github.com/awslabs/aws-delivlib/compare/v8.2.0...v8.2.1) (2020-08-11)
+
+
+### Bug Fixes
+
+* make changes to RSA key construct path backwards compatible  ([#431](https://github.com/awslabs/aws-delivlib/issues/431)) ([7ac1675](https://github.com/awslabs/aws-delivlib/commit/7ac1675bb177e9b4edc4a92af4f7c17d50e6bd97))
+
+## [8.2.0](https://github.com/awslabs/aws-delivlib/compare/v8.1.12...v8.2.0) (2020-08-11)
+
+
+### Features
+
+* expose STS endpoint type ([#377](https://github.com/awslabs/aws-delivlib/issues/377)) ([3f83f12](https://github.com/awslabs/aws-delivlib/commit/3f83f12b42f3a8273eb3856257c98c16ea649a41))
+
+### [8.1.12](https://github.com/awslabs/aws-delivlib/compare/v8.1.11...v8.1.12) (2020-08-08)
+
+### [8.1.11](https://github.com/awslabs/aws-delivlib/compare/v8.1.10...v8.1.11) (2020-08-06)
+
+### [8.1.10](https://github.com/awslabs/aws-delivlib/compare/v8.1.9...v8.1.10) (2020-08-01)
+
+### [8.1.9](https://github.com/awslabs/aws-delivlib/compare/v8.1.8...v8.1.9) (2020-07-31)
+
+### [8.1.8](https://github.com/awslabs/aws-delivlib/compare/v8.1.7...v8.1.8) (2020-07-29)
+
 ### [8.1.7](https://github.com/awslabs/aws-delivlib/compare/v8.1.6...v8.1.7) (2020-07-24)
 
 ### [8.1.6](https://github.com/awslabs/aws-delivlib/compare/v8.1.5...v8.1.6) (2020-07-23)
