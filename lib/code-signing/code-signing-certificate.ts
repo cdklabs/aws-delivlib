@@ -56,6 +56,13 @@ interface CodeSigningCertificateProps {
    * The Distinguished Name for this CSR.
    */
   distinguishedName: DistinguishedName;
+
+  /**
+   * Base names for the private key and output SSM parameter
+   *
+   * @default - Automatically generated
+   */
+  readonly baseName?: string;
 }
 
 export interface ICodeSigningCertificate extends cdk.IConstruct, ICredentialPair {
@@ -95,8 +102,9 @@ export class CodeSigningCertificate extends cdk.Construct implements ICodeSignin
   constructor(parent: cdk.Construct, id: string, props: CodeSigningCertificateProps) {
     super(parent, id);
 
-    // The construct path of this construct, without any leading /
-    const baseName = this.node.path.replace(/^\/+/, '');
+    // The construct path of this construct with respect to the containing stack, without any leading /
+    const stack = cdk.Stack.of(this);
+    const baseName = props.baseName ?? `${stack.stackName}${this.node.path.substr(stack.node.path.length)}`;
 
     const privateKey = new RsaPrivateKeySecret(this, 'RSAPrivateKey', {
       removalPolicy: props.retainPrivateKey === false ? cdk.RemovalPolicy.DESTROY : cdk.RemovalPolicy.RETAIN,
