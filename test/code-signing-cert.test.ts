@@ -41,3 +41,19 @@ test('secret name consists of stack name and relative construct path', () => {
     SecretName: 'ActualStackName/Inbetween/Cert/RSAPrivateKey',
   });
 });
+
+
+test('secret name can be overridden', () => {
+  // WHEN
+  const yetAnotherParent = new cdk.Construct(stack, 'Inbetween');
+  new delivlib.CodeSigningCertificate(yetAnotherParent, 'Cert', {
+    distinguishedName,
+    pemCertificate: 'asdf',
+    secretEncryptionKey: key,
+    baseName: 'Sekrit',
+  });
+
+  expect(stack).toHaveResource('Custom::RsaPrivateKeySecret', {
+    SecretName: 'Sekrit/RSAPrivateKey',
+  });
+});
