@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [8.2.1](https://github.com/awslabs/aws-delivlib/compare/v8.2.0...v8.2.1) (2020-08-11)
+
+
+### Bug Fixes
+
+* make changes to RSA key construct path backwards compatible  ([#431](https://github.com/awslabs/aws-delivlib/issues/431)) ([7ac1675](https://github.com/awslabs/aws-delivlib/commit/7ac1675bb177e9b4edc4a92af4f7c17d50e6bd97))
+
 ## [8.2.0](https://github.com/awslabs/aws-delivlib/compare/v8.1.12...v8.2.0) (2020-08-11)
 
 
