@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [8.2.0](https://github.com/awslabs/aws-delivlib/compare/v8.1.12...v8.2.0) (2020-08-11)
+
+
+### Features
+
+* expose STS endpoint type ([#377](https://github.com/awslabs/aws-delivlib/issues/377)) ([3f83f12](https://github.com/awslabs/aws-delivlib/commit/3f83f12b42f3a8273eb3856257c98c16ea649a41))
+
 ### [8.1.12](https://github.com/awslabs/aws-delivlib/compare/v8.1.11...v8.1.12) (2020-08-08)
 
 ### [8.1.11](https://github.com/awslabs/aws-delivlib/compare/v8.1.10...v8.1.11) (2020-08-06)
