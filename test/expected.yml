@@ -2606,13 +2606,13 @@ Resources:
                   - - "arn:"
                     - Ref: AWS::Partition
                     - ":s3:::"
-                    - Ref: AssetParametersbb632626d83a88a2f6a287d52c506659562897fb40bdaa48d8b809e468553a7cS3BucketED52B593
+                    - Ref: AssetParametersbb89b1fcacf457ad32272dbb1dafa6c9b089dfd277cf67b295661ce2c9a47c7aS3Bucket7690A0FA
               - Fn::Join:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
                     - ":s3:::"
-                    - Ref: AssetParametersbb632626d83a88a2f6a287d52c506659562897fb40bdaa48d8b809e468553a7cS3BucketED52B593
+                    - Ref: AssetParametersbb89b1fcacf457ad32272dbb1dafa6c9b089dfd277cf67b295661ce2c9a47c7aS3Bucket7690A0FA
                     - /*
           - Action:
               - secretsmanager:ListSecrets
@@ -2670,7 +2670,7 @@ Resources:
           - Name: SCRIPT_S3_BUCKET
             Type: PLAINTEXT
             Value:
-              Ref: AssetParametersbb632626d83a88a2f6a287d52c506659562897fb40bdaa48d8b809e468553a7cS3BucketED52B593
+              Ref: AssetParametersbb89b1fcacf457ad32272dbb1dafa6c9b089dfd277cf67b295661ce2c9a47c7aS3Bucket7690A0FA
           - Name: SCRIPT_S3_KEY
             Type: PLAINTEXT
             Value:
@@ -2680,12 +2680,12 @@ Resources:
                       - 0
                       - Fn::Split:
                           - "||"
-                          - Ref: AssetParametersbb632626d83a88a2f6a287d52c506659562897fb40bdaa48d8b809e468553a7cS3VersionKey5C8ACC70
+                          - Ref: AssetParametersbb89b1fcacf457ad32272dbb1dafa6c9b089dfd277cf67b295661ce2c9a47c7aS3VersionKeyE8284930
                   - Fn::Select:
                       - 1
                       - Fn::Split:
                           - "||"
-                          - Ref: AssetParametersbb632626d83a88a2f6a287d52c506659562897fb40bdaa48d8b809e468553a7cS3VersionKey5C8ACC70
+                          - Ref: AssetParametersbb89b1fcacf457ad32272dbb1dafa6c9b089dfd277cf67b295661ce2c9a47c7aS3VersionKeyE8284930
           - Name: FOR_REAL
             Type: PLAINTEXT
             Value: "true"
@@ -2695,6 +2695,9 @@ Resources:
           - Name: DISTTAG
             Type: PLAINTEXT
             Value: ""
+          - Name: ACCESS
+            Type: PLAINTEXT
+            Value: restricted
         Image: aws/codebuild/nodejs:10.1.0
         PrivilegedMode: false
         Type: LINUX_CONTAINER
@@ -4919,15 +4922,15 @@ Parameters:
   AssetParametersfa3b8e01a3815c9af6c66b1e4c986e8743a43f68fb763464198c94900c0c96daArtifactHash6C3D35CA:
     Type: String
     Description: Artifact hash for asset "fa3b8e01a3815c9af6c66b1e4c986e8743a43f68fb763464198c94900c0c96da"
-  AssetParametersbb632626d83a88a2f6a287d52c506659562897fb40bdaa48d8b809e468553a7cS3BucketED52B593:
+  AssetParametersbb89b1fcacf457ad32272dbb1dafa6c9b089dfd277cf67b295661ce2c9a47c7aS3Bucket7690A0FA:
     Type: String
-    Description: S3 bucket for asset "bb632626d83a88a2f6a287d52c506659562897fb40bdaa48d8b809e468553a7c"
-  AssetParametersbb632626d83a88a2f6a287d52c506659562897fb40bdaa48d8b809e468553a7cS3VersionKey5C8ACC70:
+    Description: S3 bucket for asset "bb89b1fcacf457ad32272dbb1dafa6c9b089dfd277cf67b295661ce2c9a47c7a"
+  AssetParametersbb89b1fcacf457ad32272dbb1dafa6c9b089dfd277cf67b295661ce2c9a47c7aS3VersionKeyE8284930:
     Type: String
-    Description: S3 key for asset version "bb632626d83a88a2f6a287d52c506659562897fb40bdaa48d8b809e468553a7c"
-  AssetParametersbb632626d83a88a2f6a287d52c506659562897fb40bdaa48d8b809e468553a7cArtifactHash659C5F83:
+    Description: S3 key for asset version "bb89b1fcacf457ad32272dbb1dafa6c9b089dfd277cf67b295661ce2c9a47c7a"
+  AssetParametersbb89b1fcacf457ad32272dbb1dafa6c9b089dfd277cf67b295661ce2c9a47c7aArtifactHash43757B85:
     Type: String
-    Description: Artifact hash for asset "bb632626d83a88a2f6a287d52c506659562897fb40bdaa48d8b809e468553a7c"
+    Description: Artifact hash for asset "bb89b1fcacf457ad32272dbb1dafa6c9b089dfd277cf67b295661ce2c9a47c7a"
   AssetParameters3484e3af42fdf9fe20bc76b3aa0b74c59f8ffe2e6aa726d82b5fb8fed9b91889S3Bucket92430D80:
     Type: String
     Description: S3 bucket for asset "3484e3af42fdf9fe20bc76b3aa0b74c59f8ffe2e6aa726d82b5fb8fed9b91889"
