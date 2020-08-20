@@ -46,7 +46,7 @@
     "monocdk-experiment": "1.51.0",
     "standard-version": "^9.0.0",
     "tslint": "^6.1.3",
-    "typescript": "~3.8.2",
+    "typescript": "~3.9.7",
     "constructs": "^3.0.4"
   },
   "peerDependencies": {
