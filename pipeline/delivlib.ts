@@ -26,6 +26,7 @@ export class DelivLibPipelineStack extends cdk.Stack {
     const pipeline = new delivlib.Pipeline(this, 'GitHubPipeline', {
       title: 'aws-delivlib production pipeline',
       repo: github,
+      branch: 'main',
       pipelineName: 'delivlib-main',
       notificationEmail: 'aws-cdk-dev+delivlib-notify@amazon.com',
       buildSpec: codebuild.BuildSpec.fromObject({
