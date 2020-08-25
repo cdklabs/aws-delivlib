@@ -6,12 +6,12 @@
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "scripts": {
-    "build": "yarn build:assets && tsc && tslint --fix --project .",
+    "build": "yarn build:assets && tsc --build && tslint --fix --project .",
     "build:assets": "yarn build:assets:custom-resource-handlers && yarn build:assets:lambda-handlers",
     "build:assets:custom-resource-handlers": "/bin/bash ./build-custom-resource-handlers.sh",
     "build:assets:lambda-handlers": "/bin/bash ./build-lambda-handlers.sh",
     "package": "/bin/bash ./package.sh",
-    "watch": "tsc -w",
+    "watch": "tsc --build --watch",
     "test": "/bin/bash ./test.sh",
     "cdk": "cdk",
     "bump": "standard-version",
@@ -37,21 +37,21 @@
     "changelog-parser": "^2.8.0"
   },
   "devDependencies": {
-    "@monocdk-experiment/assert": "1.50.0",
+    "@monocdk-experiment/assert": "1.60.0",
     "@types/jest": "^26.0.10",
-    "@types/node": "^13.7.6",
+    "@types/node": "^10.17.27",
     "aws-cdk": "1.60.0",
+    "constructs": "^3.0.4",
     "jest": "^26.4.2",
     "jest-create-mock-instance": "^1.1.0",
     "monocdk-experiment": "1.51.0",
     "standard-version": "^9.0.0",
     "tslint": "^6.1.3",
-    "typescript": "~3.8.2",
-    "constructs": "^3.0.4"
+    "typescript": "^4.0.2"
   },
   "peerDependencies": {
-    "monocdk-experiment": "^1.49.0",
-    "constructs": "^3.0.4"
+    "constructs": "^3.0.4",
+    "monocdk-experiment": "^1.60.0"
   },
   "jest": {
     "collectCoverage": true,
