@@ -34,7 +34,7 @@
   },
   "license": "Apache-2.0",
   "dependencies": {
-    "aws-sdk": "^2.695.0",
+    "aws-sdk": "^2.736.0",
     "changelog-parser": "^2.8.0"
   },
   "devDependencies": {
