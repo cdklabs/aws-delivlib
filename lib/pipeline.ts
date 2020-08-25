@@ -1,27 +1,28 @@
-import {
-  aws_cloudwatch as cloudwatch,
+import { aws_cloudwatch as cloudwatch,
   aws_codebuild as cbuild,
   aws_codepipeline as cpipeline,
-  aws_codepipeline_actions as cpipeline_actions,
+  aws_codepipeline_actions as
+  cpipeline_actions,
   aws_events as events,
   aws_events_targets as events_targets,
-  aws_iam as iam,
-  aws_s3 as s3,
+  aws_iam as iam, aws_s3 as s3,
   aws_sns as sns,
-  aws_sns_subscriptions as sns_subs,
-  core as cdk
-} from "monocdk-experiment";
+  aws_sns_subscriptions as sns_subs}
+  from "monocdk-experiment";
+
+  import * as cdk from 'monocdk-experiment';
+
 import { AutoBuild, AutoBuildOptions } from "./auto-build";
 import { createBuildEnvironment } from "./build-env";
-import { AutoBump, AutoBumpOptions } from "./bump";
+import { AutoBump, AutoMergeBack, AutoMergeBackProps, AutoBumpProps} from "./pull-request";
 import { Canary, CanaryProps } from "./canary";
 import { ChangeController } from "./change-controller";
+import { ChimeNotifier } from "./chime-notifier";
 import { PipelineWatcher } from "./pipeline-watcher";
-import publishing = require("./publishing");
 import { IRepo, WritableGitHubRepo } from "./repo";
 import { Shellable, ShellableProps } from "./shellable";
 import { determineRunOrder } from "./util";
-import { ChimeNotifier } from "./chime-notifier";
+import publishing = require("./publishing");
 
 const PUBLISH_STAGE_NAME = 'Publish';
 const TEST_STAGE_NAME = 'Test';
@@ -153,6 +154,40 @@ export interface PipelineProps {
   chimeMessage?: string;
 }
 
+export interface MergeBackStage {
+
+  /**
+   * Which stage should the merge back be part of. (Created if missing)
+   *
+   * @default 'MergeBack'
+   */
+  readonly name?: string
+
+  /**
+   * The name of the stage that the merge back stage should go after of. (Must exist)
+   */
+  readonly after: string;
+}
+
+/**
+ * Options for configuring an auto merge-back for this pipeline.
+ */
+export interface AutoMergeBackOptions extends Omit<AutoMergeBackProps, 'repo'> {
+
+  /**
+   * Specify stage options to create the merge back inside a stage of the pipeline.
+   *
+   * @default - The CodeBuild project will be created indepdent of any stage.
+   */
+  readonly stage?: MergeBackStage
+}
+
+/**
+ * Options for configuring an auto bump for this pipeline.
+ */
+export interface AutoBumpOptions extends Omit<AutoBumpProps, 'repo'> {
+}
+
 /**
  * Defines a delivlib CI/CD pipeline.
  */
@@ -160,6 +195,7 @@ export class Pipeline extends cdk.Construct {
   public buildRole?: iam.IRole;
   public readonly failureAlarm: cloudwatch.Alarm;
   public readonly buildOutput: cpipeline.Artifact;
+  public readonly sourceArtifact: cpipeline.Artifact;
 
   /**
    * The primary CodeBuild project of this pipeline.
@@ -190,7 +226,7 @@ export class Pipeline extends cdk.Construct {
     });
 
     this.branch = props.branch || 'master';
-    const sourceArtifact = props.repo.createSourceStage(this.pipeline, this.branch);
+    this.sourceArtifact = props.repo.createSourceStage(this.pipeline, this.branch);
 
     this.buildEnvironment = createBuildEnvironment(props);
     this.buildSpec = props.buildSpec;
@@ -212,7 +248,7 @@ export class Pipeline extends cdk.Construct {
     buildStage.addAction(new cpipeline_actions.CodeBuildAction({
       actionName: 'Build',
       project: this.buildProject,
-      input: sourceArtifact,
+      input: this.sourceArtifact,
       outputs: [buildOutput],
     }));
     this.buildOutput = buildOutput;
@@ -362,10 +398,43 @@ export class Pipeline extends cdk.Construct {
       throw new Error(`"repo" must be a WritableGitHubRepo in order to enable auto-bump`);
     }
 
-    return new AutoBump(this, 'AutoBump', {
+    const autoBump = new AutoBump(this, 'AutoBump', {
       repo: this.repo,
       ...options
     });
+
+    return autoBump;
+  }
+
+  /**
+   * Enables automatic merge backs for the source repo.
+   * @param options Options for auto bump (see AutoMergeBackOptions for description of defaults)
+   */
+  public autoMergeBack(options?: AutoMergeBackOptions) {
+    if (!WritableGitHubRepo.isWritableGitHubRepo(this.repo)) {
+      throw new Error(`"repo" must be a WritableGitHubRepo in order to enable auto-merge-back`);
+    }
+
+    const mergeBack = new AutoMergeBack(this, 'MergeBack', {
+      repo: this.repo,
+      ...options
+    });
+
+    if (options?.stage) {
+
+      const afterStage = this.getStage(options.stage.after);
+
+      if (!afterStage) {
+        throw new Error(`'options.stage.after' must be configured to an existing stage: ${options.stage.after}`);
+      }
+
+      const stage = this.getOrCreateStage(options.stage.name ?? 'MergeBack', { justAfter: afterStage });
+      stage.addAction(new cpipeline_actions.CodeBuildAction({
+        actionName: 'CreateMergeBackPullRequest',
+        project: mergeBack.pr.project,
+        input: this.sourceArtifact
+      }));
+    }
   }
 
   /**

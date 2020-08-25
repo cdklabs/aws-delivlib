@@ -2,9 +2,9 @@ import {
   aws_codebuild as codebuild,
   aws_codecommit as codecommit,
   aws_codepipeline as cpipeline,
-  aws_codepipeline_actions as cpipeline_actions,
-  core as cdk
+  aws_codepipeline_actions as cpipeline_actions
 } from "monocdk-experiment";
+import * as cdk from 'monocdk-experiment';
 import { expect as cdk_expect, haveResource, haveResourceLike, SynthUtils, ABSENT } from "@monocdk-experiment/assert";
 import path = require("path");
 import delivlib = require("../lib");
@@ -13,7 +13,7 @@ import { determineRunOrder } from "../lib/util";
 
 
 test('pipelineName can be used to set a physical name for the pipeline', async () => {
-  const stack = new cdk.Stack();
+  const stack = new cdk.Stack(new cdk.App(), 'TestStack');
 
   new delivlib.Pipeline(stack, 'Pipeline', {
     repo: createTestRepo(stack),
@@ -26,7 +26,7 @@ test('pipelineName can be used to set a physical name for the pipeline', async (
 });
 
 test('concurrency: unlimited by default', async () => {
-  const stack = new cdk.Stack();
+  const stack = new cdk.Stack(new cdk.App(), 'TestStack');
 
   const stages = createTestPipelineForConcurrencyTests(stack);
 
@@ -40,7 +40,7 @@ test('concurrency: unlimited by default', async () => {
 });
 
 test('concurrency = 1: means that actions will run sequentially', async () => {
-  const stack = new cdk.Stack();
+  const stack = new cdk.Stack(new cdk.App(), 'TestStack');
   const stages = createTestPipelineForConcurrencyTests(stack, { concurrency: 1 } as any);
 
   for (const stage of stages) {
@@ -132,14 +132,14 @@ class TestPublishable extends cdk.Construct implements delivlib.IPublisher {
 }
 
 test('can add arbitrary shellables with different artifacts', () => {
-  const stack = new cdk.Stack();
+  const stack = new cdk.Stack(new cdk.App(), 'TestStack');
 
   const pipeline = new delivlib.Pipeline(stack, 'Pipeline', {
     repo: createTestRepo(stack),
     pipelineName: 'HelloPipeline'
   });
 
-  const action = pipeline.addShellable('Build', 'SecondStep', {
+  const action = pipeline.addShellable('Test', 'SecondStep', {
     scriptDirectory: __dirname,
     entrypoint: 'run-test.sh',
   });
@@ -171,12 +171,17 @@ test('can add arbitrary shellables with different artifacts', () => {
             InputArtifacts: [ { Name: "Source" } ],
             OutputArtifacts: [ { Name: "Artifact_Build_Build" } ],
             RunOrder: 1
-          },
+          }
+        ],
+      },
+      {
+        Name: "Test",
+        Actions: [
           {
             ActionTypeId: { Category: "Build", Owner: "AWS", Provider: "CodeBuild", },
             InputArtifacts: [ { Name: "Artifact_Build_Build" } ],
             Name: "ActionSecondStep",
-            OutputArtifacts: [ { Name: "Artifact_PipelineSecondStepD5683DEB" } ],
+            OutputArtifacts: [ { Name: "Artifact_TestStackPipelineSecondStep91726C11" } ],
             RunOrder: 1
           }
         ],
@@ -186,7 +191,7 @@ test('can add arbitrary shellables with different artifacts', () => {
         Actions: [
           {
             ActionTypeId: { Category: "Build", Owner: "AWS", Provider: "CodeBuild", },
-            InputArtifacts: [ { Name: "Artifact_PipelineSecondStepD5683DEB" } ],
+            InputArtifacts: [ { Name: "Artifact_TestStackPipelineSecondStep91726C11" } ],
             Name: "PubPublish",
             RunOrder: 1
           }
@@ -198,7 +203,7 @@ test('can add arbitrary shellables with different artifacts', () => {
 
 test('autoBuild() can be used to add automatic builds to the pipeline', () => {
   // GIVEN
-  const stack = new cdk.Stack();
+  const stack = new cdk.Stack(new cdk.App(), 'TestStack');
 
   // WHEN
   new delivlib.Pipeline(stack, 'Pipeline', {
@@ -217,7 +222,7 @@ test('autoBuild() can be used to add automatic builds to the pipeline', () => {
 
 test('autoBuild() can be configured to publish logs publically', () => {
   // GIVEN
-  const stack = new cdk.Stack();
+  const stack = new cdk.Stack(new cdk.App(), 'TestStack');
 
   // WHEN
   new delivlib.Pipeline(stack, 'Pipeline', {
@@ -239,7 +244,7 @@ test('autoBuild() can be configured to publish logs publically', () => {
 
 test('autoBuild() can be configured with a different buildspec', () => {
   // GIVEN
-  const stack = new cdk.Stack();
+  const stack = new cdk.Stack(new cdk.App(), 'TestStack');
 
   // WHEN
   new delivlib.Pipeline(stack, 'Pipeline', {
@@ -268,7 +273,7 @@ test('autoBuild() can be configured with a different buildspec', () => {
 
 test('CodeBuild Project name matches buildProjectName property', () => {
   // GIVEN
-  const stack = new cdk.Stack();
+  const stack = new cdk.Stack(new cdk.App(), 'TestStack');
 
   // WHEN
   new delivlib.Pipeline(stack, 'Pipeline', {
@@ -285,7 +290,7 @@ test('CodeBuild Project name matches buildProjectName property', () => {
 
 test('CodeBuild Project name is extended from pipelineName property', () => {
   // GIVEN
-  const stack = new cdk.Stack();
+  const stack = new cdk.Stack(new cdk.App(), 'TestStack');
 
   // WHEN
   new delivlib.Pipeline(stack, 'Pipeline', {
@@ -301,7 +306,7 @@ test('CodeBuild Project name is extended from pipelineName property', () => {
 
 test('CodeBuild Project name is left undefined when neither buildProjectName nor pipelineName are specified', () => {
   // GIVEN
-  const stack = new cdk.Stack();
+  const stack = new cdk.Stack(new cdk.App(), 'TestStack');
 
   // WHEN
   new delivlib.Pipeline(stack, 'Pipeline', {

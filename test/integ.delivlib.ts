@@ -1,4 +1,4 @@
-import { core as cdk } from "monocdk-experiment";
+import * as cdk from "monocdk-experiment";
 import { TestStack } from "./test-stack";
 
 

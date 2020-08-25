@@ -6,7 +6,8 @@
 //
 //     npm run pipeline-update
 //
-import { aws_codebuild as codebuild, core as cdk, aws_ssm as ssm } from "monocdk-experiment";
+import { aws_codebuild as codebuild, aws_ssm as ssm } from "monocdk-experiment";
+import * as cdk from 'monocdk-experiment';
 import delivlib = require("../lib");
 
 
@@ -25,7 +26,8 @@ export class DelivLibPipelineStack extends cdk.Stack {
     const pipeline = new delivlib.Pipeline(this, 'GitHubPipeline', {
       title: 'aws-delivlib production pipeline',
       repo: github,
-      pipelineName: 'delivlib-master',
+      branch: 'main',
+      pipelineName: 'delivlib-main',
       notificationEmail: 'aws-cdk-dev+delivlib-notify@amazon.com',
       buildSpec: codebuild.BuildSpec.fromObject({
         version: '0.2',
@@ -61,8 +63,12 @@ export class DelivLibPipelineStack extends cdk.Stack {
     });
 
     pipeline.autoBump({
+      scheduleExpression: 'cron(0 12 * * ? *)',
       bumpCommand: 'yarn install --frozen-lockfile && yarn bump',
-      branch: 'master'
+      head: {
+        name: 'main'
+      },
+      pushOnly: true
     });
   }
 }

@@ -54,6 +54,7 @@ export class BuildSpec {
         build: props.build !== undefined ? { commands: props.build } : undefined,
       }),
       artifacts,
+      reports: props.reports,
     });
   }
 
@@ -84,7 +85,10 @@ export class BuildSpec {
       "artifacts": mergeObj(this.spec.artifacts, other.spec.artifacts, mergeArtifacts),
       "cache": mergeObj(this.spec.cache, other.spec.cache, (a, b) => ({
         paths: mergeList(a.paths, b.paths)!
-      }))
+      })),
+      "reports": mergeDict(this.spec.reports, other.spec.reports, (a, b) => {
+        throw new Error(`Reports must have unique names, got ${a} and ${b}`);
+      })
     });
 
     function mergeArtifacts(a: PrimaryArtifactStruct, b: PrimaryArtifactStruct): PrimaryArtifactStruct {
@@ -101,6 +105,7 @@ export class BuildSpec {
       }
       return Object.assign({}, a, { 'secondary-artifacts': artifacts });
     }
+
 
     function equalObjects(a: string, b: string) {
       if (a !== b) {
@@ -161,7 +166,7 @@ export class BuildSpec {
 export interface SimpleBuildSpecProps {
   preBuild?: string[];
   build?: string[];
-
+  reports?: {[key: string]: ReportStruct};
   artifactDirectory?: string;
 
   /**
@@ -177,9 +182,10 @@ export interface BuildSpecStruct {
   version: '0.2';
   'run-as'?: string;
   env?: EnvStruct;
-  phases?: {[key: string]: PhaseStruct };
+  phases?: {[key: string]: PhaseStruct};
   artifacts?: PrimaryArtifactStruct;
   cache?: CacheStruct;
+  reports?: {[key: string]: ReportStruct};
 }
 
 export interface EnvStruct {
@@ -191,6 +197,13 @@ export interface PhaseStruct {
   'run-as'?: string;
   commands: string[];
   finally?: string[];
+}
+
+export interface ReportStruct {
+  files?: string[];
+  'base-directory'?: string;
+  'discard-paths'?: 'yes' | 'no';
+  'file-format'?: 'CucumberJson' | 'JunitXml' | 'NunitXml' | 'TestNGXml' | 'VisualStudioTrx';
 }
 
 export interface ArtifactStruct {

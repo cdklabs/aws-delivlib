@@ -1,5 +1,6 @@
 *.d.ts
 *.js
+*.tsbuildinfo
 dist/
 
 # Created by https://www.gitignore.io/api/node

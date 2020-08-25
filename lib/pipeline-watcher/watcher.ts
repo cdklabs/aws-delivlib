@@ -1,5 +1,12 @@
 // tslint:disable-next-line: max-line-length
-import { aws_cloudwatch as cloudwatch, aws_codepipeline as cpipeline, aws_events as events, aws_events_targets as events_targets, aws_iam as iam, aws_lambda as lambda, aws_logs as logs, core as cdk } from "monocdk-experiment";
+import { aws_cloudwatch as cloudwatch,
+  aws_codepipeline as cpipeline,
+  aws_events as events,
+  aws_events_targets as events_targets,
+  aws_iam as iam,
+  aws_lambda as lambda,
+  aws_logs as logs } from "monocdk-experiment";
+import * as cdk from 'monocdk-experiment';
 import fs = require("fs");
 import path = require("path");
 

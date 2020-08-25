@@ -2,6 +2,95 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [8.2.7](https://github.com/awslabs/aws-delivlib/compare/v8.2.6...v8.2.7) (2020-08-23)
+
+### [8.2.6](https://github.com/awslabs/aws-delivlib/compare/v8.2.5...v8.2.6) (2020-08-21)
+
+### [8.2.5](https://github.com/awslabs/aws-delivlib/compare/v8.2.4...v8.2.5) (2020-08-19)
+
+### [8.2.4](https://github.com/awslabs/aws-delivlib/compare/v8.2.3...v8.2.4) (2020-08-18)
+
+### [8.2.3](https://github.com/awslabs/aws-delivlib/compare/v8.2.2...v8.2.3) (2020-08-15)
+
+### [8.2.2](https://github.com/awslabs/aws-delivlib/compare/v8.2.1...v8.2.2) (2020-08-13)
+
+### [8.2.1](https://github.com/awslabs/aws-delivlib/compare/v8.2.0...v8.2.1) (2020-08-11)
+
+
+### Bug Fixes
+
+* make changes to RSA key construct path backwards compatible  ([#431](https://github.com/awslabs/aws-delivlib/issues/431)) ([7ac1675](https://github.com/awslabs/aws-delivlib/commit/7ac1675bb177e9b4edc4a92af4f7c17d50e6bd97))
+
+## [8.2.0](https://github.com/awslabs/aws-delivlib/compare/v8.1.12...v8.2.0) (2020-08-11)
+
+
+### Features
+
+* expose STS endpoint type ([#377](https://github.com/awslabs/aws-delivlib/issues/377)) ([3f83f12](https://github.com/awslabs/aws-delivlib/commit/3f83f12b42f3a8273eb3856257c98c16ea649a41))
+
+### [8.1.12](https://github.com/awslabs/aws-delivlib/compare/v8.1.11...v8.1.12) (2020-08-08)
+
+### [8.1.11](https://github.com/awslabs/aws-delivlib/compare/v8.1.10...v8.1.11) (2020-08-06)
+
+### [8.1.10](https://github.com/awslabs/aws-delivlib/compare/v8.1.9...v8.1.10) (2020-08-01)
+
+### [8.1.9](https://github.com/awslabs/aws-delivlib/compare/v8.1.8...v8.1.9) (2020-07-31)
+
+### [8.1.8](https://github.com/awslabs/aws-delivlib/compare/v8.1.7...v8.1.8) (2020-07-29)
+
+### [8.1.7](https://github.com/awslabs/aws-delivlib/compare/v8.1.6...v8.1.7) (2020-07-24)
+
+### [8.1.6](https://github.com/awslabs/aws-delivlib/compare/v8.1.5...v8.1.6) (2020-07-23)
+
+### [8.1.5](https://github.com/awslabs/aws-delivlib/compare/v8.1.4...v8.1.5) (2020-07-21)
+
+### [8.1.4](https://github.com/awslabs/aws-delivlib/compare/v8.1.3...v8.1.4) (2020-07-19)
+
+### [8.1.3](https://github.com/awslabs/aws-delivlib/compare/v8.1.2...v8.1.3) (2020-07-17)
+
+### [8.1.2](https://github.com/awslabs/aws-delivlib/compare/v8.1.1...v8.1.2) (2020-07-14)
+
+### [8.1.1](https://github.com/awslabs/aws-delivlib/compare/v8.1.0...v8.1.1) (2020-07-12)
+
+## [8.1.0](https://github.com/awslabs/aws-delivlib/compare/v8.0.3...v8.1.0) (2020-07-10)
+
+
+### Features
+
+* add support for reports in  buildspec ([#401](https://github.com/awslabs/aws-delivlib/issues/401)) ([1570ab5](https://github.com/awslabs/aws-delivlib/commit/1570ab58f53c1f05b857ac0c590806073aad0638))
+
+### [8.0.3](https://github.com/awslabs/aws-delivlib/compare/v8.0.2...v8.0.3) (2020-07-08)
+
+### [8.0.2](https://github.com/awslabs/aws-delivlib/compare/v8.0.1...v8.0.2) (2020-07-07)
+
+### [8.0.1](https://github.com/awslabs/aws-delivlib/compare/v8.0.0...v8.0.1) (2020-07-06)
+
+## [8.0.0](https://github.com/awslabs/aws-delivlib/compare/v7.6.4...v8.0.0) (2020-07-05)
+
+
+### ⚠ BREAKING CHANGES
+
+* **bump:** `AutoBump` API has significantly changed. Refer to the docstrings for guidance. 
+
+* **bump:** refactor AutoBump to support more use-case more cleanly ([#324](https://github.com/awslabs/aws-delivlib/issues/324)) ([6a754bb](https://github.com/awslabs/aws-delivlib/commit/6a754bb1f222b0189453c4a598c794ed0f05552a)), closes [/github.com/awslabs/aws-delivlib/blob/master/lib/bump/bump.ts#L254](https://github.com/awslabs//github.com/awslabs/aws-delivlib/blob/master/lib/bump/bump.ts/issues/L254)
+
+### [7.6.4](https://github.com/awslabs/aws-delivlib/compare/v7.6.3...v7.6.4) (2020-07-03)
+
+### [7.6.3](https://github.com/awslabs/aws-delivlib/compare/v7.6.2...v7.6.3) (2020-07-02)
+
+### [7.6.2](https://github.com/awslabs/aws-delivlib/compare/v7.6.1...v7.6.2) (2020-07-01)
+
+### [7.6.1](https://github.com/awslabs/aws-delivlib/compare/v7.6.0...v7.6.1) (2020-06-25)
+
+## [7.6.0](https://github.com/awslabs/aws-delivlib/compare/v7.5.3...v7.6.0) (2020-06-24)
+
+
+### Features
+
+* allow setting a timeout for Shellable ([#375](https://github.com/awslabs/aws-delivlib/issues/375)) ([e729021](https://github.com/awslabs/aws-delivlib/commit/e729021e26baae864c7c6506322cb0a2dae87d0f))
+
+### [7.5.3](https://github.com/awslabs/aws-delivlib/compare/v7.5.2...v7.5.3) (2020-06-23)
+
 ### [7.5.2](https://github.com/awslabs/aws-delivlib/compare/v7.5.1...v7.5.2) (2020-06-11)
 
 ### [7.5.1](https://github.com/awslabs/aws-delivlib/compare/v7.5.0...v7.5.1) (2020-06-10)

@@ -1,7 +1,8 @@
 import { aws_cloudwatch as cloudwatch, aws_codepipeline as cp, aws_events as
   events, aws_events_targets as events_targets, aws_iam as iam, aws_lambda as
-  lambda, aws_s3 as s3, aws_s3_notifications as s3_notifications, core as cdk }
+  lambda, aws_s3 as s3, aws_s3_notifications as s3_notifications }
   from "monocdk-experiment";
+  import * as cdk from 'monocdk-experiment';
 import path = require("path");
 
 export interface ChangeControllerProps {
@@ -69,7 +70,7 @@ export class ChangeController extends cdk.Construct {
 
     const fn = new lambda.Function(this, 'Function', {
       description: `Enforces a Change Control Policy into CodePipeline's ${props.pipelineStage.stageName} stage`,
-      code: lambda.Code.asset(path.join(__dirname, '../change-control-lambda')),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../change-control-lambda'), { exclude: ['*.tsbuildinfo'] }),
       runtime: lambda.Runtime.NODEJS_10_X,
       handler: 'index.handler',
       environment: {

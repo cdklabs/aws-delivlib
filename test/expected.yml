@@ -1152,6 +1152,20 @@ Resources:
                     - Ref: CodeCommitPipelineBuildProject9F59E8AA
                     - :*
           - Action:
+              - codebuild:CreateReportGroup
+              - codebuild:CreateReport
+              - codebuild:UpdateReport
+              - codebuild:BatchPutTestCases
+            Effect: Allow
+            Resource:
+              Fn::Join:
+                - ""
+                - - "arn:"
+                  - Ref: AWS::Partition
+                  - :codebuild:us-east-1:712950704752:report-group/
+                  - Ref: CodeCommitPipelineBuildProject9F59E8AA
+                  - -*
+          - Action:
               - s3:GetObject*
               - s3:GetBucket*
               - s3:List*
@@ -1321,6 +1335,8 @@ Resources:
 
           Object.defineProperty(exports, "__esModule", { value: true });
 
+          exports.handler = exports.logger = exports.codePipeline = void 0;
+
           const AWS = require("aws-sdk");
 
           // export for tests
@@ -1359,7 +1375,7 @@ Resources:
 
           exports.handler = handler;
 
-          //# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoid2F0Y2hlci1oYW5kbGVyLmpzIiwic291cmNlUm9vdCI6IiIsInNvdXJjZXMiOlsid2F0Y2hlci1oYW5kbGVyLnRzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiI7O0FBQUEsK0JBQWdDO0FBSWhDLG1CQUFtQjtBQUNOLFFBQUEsWUFBWSxHQUFHLElBQUksR0FBRyxDQUFDLFlBQVksRUFBRSxDQUFDO0FBQ3RDLFFBQUEsTUFBTSxHQUFHO0lBQ3BCLEdBQUcsRUFBRSxDQUFDLElBQVksRUFBRSxFQUFFLENBQUMsT0FBTyxDQUFDLE1BQU0sQ0FBQyxLQUFLLENBQUMsSUFBSSxDQUFDO0NBQ2xELENBQUM7QUFFRjs7Ozs7O0dBTUc7QUFDSSxLQUFLLFVBQVUsT0FBTztJQUMzQixNQUFNLFlBQVksR0FBRyxPQUFPLENBQUMsR0FBRyxDQUFDLGFBQWEsQ0FBQztJQUMvQyxJQUFJLENBQUMsWUFBWSxFQUFFO1FBQ2pCLE1BQU0sSUFBSSxLQUFLLENBQUMsNkRBQTZELENBQUMsQ0FBQztLQUNoRjtJQUNELE1BQU0sS0FBSyxHQUFHLE1BQU0sb0JBQVksQ0FBQyxnQkFBZ0IsQ0FBQztRQUNoRCxJQUFJLEVBQUUsWUFBWTtLQUNuQixDQUFDLENBQUMsT0FBTyxFQUFFLENBQUM7SUFFYixJQUFJLFdBQVcsR0FBRyxDQUFDLENBQUM7SUFDcEIsSUFBSSxLQUFLLENBQUMsV0FBVyxFQUFFO1FBQ3JCLFdBQVcsR0FBRyxLQUFLLENBQUMsV0FBVzthQUM1QixNQUFNLENBQUMsS0FBSyxDQUFDLEVBQUUsQ0FBQyxLQUFLLENBQUMsZUFBZSxLQUFLLFNBQVMsSUFBSSxLQUFLLENBQUMsZUFBZSxDQUFDLE1BQU0sS0FBSyxRQUFRLENBQUM7YUFDakcsTUFBTSxDQUFDO0tBQ1g7SUFDRCxjQUFNLENBQUMsR0FBRyxDQUFDLElBQUksQ0FBQyxTQUFTLENBQUM7UUFDeEIsV0FBVztLQUNaLENBQUMsQ0FBQyxDQUFDO0FBQ04sQ0FBQztBQWxCRCwwQkFrQkMifQ==
+          //# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoid2F0Y2hlci1oYW5kbGVyLmpzIiwic291cmNlUm9vdCI6IiIsInNvdXJjZXMiOlsid2F0Y2hlci1oYW5kbGVyLnRzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiI7OztBQUFBLCtCQUFnQztBQUloQyxtQkFBbUI7QUFDTixRQUFBLFlBQVksR0FBRyxJQUFJLEdBQUcsQ0FBQyxZQUFZLEVBQUUsQ0FBQztBQUN0QyxRQUFBLE1BQU0sR0FBRztJQUNwQixHQUFHLEVBQUUsQ0FBQyxJQUFZLEVBQUUsRUFBRSxDQUFDLE9BQU8sQ0FBQyxNQUFNLENBQUMsS0FBSyxDQUFDLElBQUksQ0FBQztDQUNsRCxDQUFDO0FBRUY7Ozs7OztHQU1HO0FBQ0ksS0FBSyxVQUFVLE9BQU87SUFDM0IsTUFBTSxZQUFZLEdBQUcsT0FBTyxDQUFDLEdBQUcsQ0FBQyxhQUFhLENBQUM7SUFDL0MsSUFBSSxDQUFDLFlBQVksRUFBRTtRQUNqQixNQUFNLElBQUksS0FBSyxDQUFDLDZEQUE2RCxDQUFDLENBQUM7S0FDaEY7SUFDRCxNQUFNLEtBQUssR0FBRyxNQUFNLG9CQUFZLENBQUMsZ0JBQWdCLENBQUM7UUFDaEQsSUFBSSxFQUFFLFlBQVk7S0FDbkIsQ0FBQyxDQUFDLE9BQU8sRUFBRSxDQUFDO0lBRWIsSUFBSSxXQUFXLEdBQUcsQ0FBQyxDQUFDO0lBQ3BCLElBQUksS0FBSyxDQUFDLFdBQVcsRUFBRTtRQUNyQixXQUFXLEdBQUcsS0FBSyxDQUFDLFdBQVc7YUFDNUIsTUFBTSxDQUFDLEtBQUssQ0FBQyxFQUFFLENBQUMsS0FBSyxDQUFDLGVBQWUsS0FBSyxTQUFTLElBQUksS0FBSyxDQUFDLGVBQWUsQ0FBQyxNQUFNLEtBQUssUUFBUSxDQUFDO2FBQ2pHLE1BQU0sQ0FBQztLQUNYO0lBQ0QsY0FBTSxDQUFDLEdBQUcsQ0FBQyxJQUFJLENBQUMsU0FBUyxDQUFDO1FBQ3hCLFdBQVc7S0FDWixDQUFDLENBQUMsQ0FBQztBQUNOLENBQUM7QUFsQkQsMEJBa0JDIn0=
       Handler: index.handler
       Role:
         Fn::GetAtt:
@@ -1488,6 +1504,20 @@ Resources:
                     - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelineHelloLinuxCB82AB68
                     - :*
+          - Action:
+              - codebuild:CreateReportGroup
+              - codebuild:CreateReport
+              - codebuild:UpdateReport
+              - codebuild:BatchPutTestCases
+            Effect: Allow
+            Resource:
+              Fn::Join:
+                - ""
+                - - "arn:"
+                  - Ref: AWS::Partition
+                  - :codebuild:us-east-1:712950704752:report-group/
+                  - Ref: CodeCommitPipelineHelloLinuxCB82AB68
+                  - -*
           - Action:
               - s3:GetObject*
               - s3:GetBucket*
@@ -1690,6 +1720,20 @@ Resources:
                     - Ref: CodeCommitPipelineHelloWindows61CA8F73
                     - :*
           - Action:
+              - codebuild:CreateReportGroup
+              - codebuild:CreateReport
+              - codebuild:UpdateReport
+              - codebuild:BatchPutTestCases
+            Effect: Allow
+            Resource:
+              Fn::Join:
+                - ""
+                - - "arn:"
+                  - Ref: AWS::Partition
+                  - :codebuild:us-east-1:712950704752:report-group/
+                  - Ref: CodeCommitPipelineHelloWindows61CA8F73
+                  - -*
+          - Action:
               - s3:GetObject*
               - s3:GetBucket*
               - s3:List*
@@ -1889,6 +1933,20 @@ Resources:
                     - Ref: CodeCommitPipelineAssumeRole05A76F51
                     - :*
           - Action:
+              - codebuild:CreateReportGroup
+              - codebuild:CreateReport
+              - codebuild:UpdateReport
+              - codebuild:BatchPutTestCases
+            Effect: Allow
+            Resource:
+              Fn::Join:
+                - ""
+                - - "arn:"
+                  - Ref: AWS::Partition
+                  - :codebuild:us-east-1:712950704752:report-group/
+                  - Ref: CodeCommitPipelineAssumeRole05A76F51
+                  - -*
+          - Action:
               - s3:GetObject*
               - s3:GetBucket*
               - s3:List*
@@ -2011,7 +2069,7 @@ Resources:
                         "mkdir -p /tmp/scriptdir",
                         "unzip /tmp/$(basename $SCRIPT_S3_KEY) -d /tmp/scriptdir",
                         "creds=$(mktemp -d)/creds.json",
-                        "aws sts assume-role --role-arn \"
+                        "AWS_STS_REGIONAL_ENDPOINTS=legacy aws sts assume-role --role-arn \"
               - Fn::GetAtt:
                   - AssumeMe924099BB
                   - Arn
@@ -2112,6 +2170,20 @@ Resources:
                     - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelineGenerateTwoArtifactsA9DAD33B
                     - :*
+          - Action:
+              - codebuild:CreateReportGroup
+              - codebuild:CreateReport
+              - codebuild:UpdateReport
+              - codebuild:BatchPutTestCases
+            Effect: Allow
+            Resource:
+              Fn::Join:
+                - ""
+                - - "arn:"
+                  - Ref: AWS::Partition
+                  - :codebuild:us-east-1:712950704752:report-group/
+                  - Ref: CodeCommitPipelineGenerateTwoArtifactsA9DAD33B
+                  - -*
           - Action:
               - s3:GetObject*
               - s3:GetBucket*
@@ -2312,6 +2384,20 @@ Resources:
                     - Ref: CodeCommitPipelineCanaryHelloCanaryShellableC8458471
                     - :*
           - Action:
+              - codebuild:CreateReportGroup
+              - codebuild:CreateReport
+              - codebuild:UpdateReport
+              - codebuild:BatchPutTestCases
+            Effect: Allow
+            Resource:
+              Fn::Join:
+                - ""
+                - - "arn:"
+                  - Ref: AWS::Partition
+                  - :codebuild:us-east-1:712950704752:report-group/
+                  - Ref: CodeCommitPipelineCanaryHelloCanaryShellableC8458471
+                  - -*
+          - Action:
               - s3:GetObject*
               - s3:GetBucket*
               - s3:List*
@@ -2498,6 +2584,20 @@ Resources:
                     - Ref: CodeCommitPipelineNpm0D31AEFC
                     - :*
           - Action:
+              - codebuild:CreateReportGroup
+              - codebuild:CreateReport
+              - codebuild:UpdateReport
+              - codebuild:BatchPutTestCases
+            Effect: Allow
+            Resource:
+              Fn::Join:
+                - ""
+                - - "arn:"
+                  - Ref: AWS::Partition
+                  - :codebuild:us-east-1:712950704752:report-group/
+                  - Ref: CodeCommitPipelineNpm0D31AEFC
+                  - -*
+          - Action:
               - s3:GetObject*
               - s3:GetBucket*
               - s3:List*
@@ -2508,13 +2608,13 @@ Resources:
                   - - "arn:"
                     - Ref: AWS::Partition
                     - ":s3:::"
-                    - Ref: AssetParametersbb632626d83a88a2f6a287d52c506659562897fb40bdaa48d8b809e468553a7cS3BucketED52B593
+                    - Ref: AssetParametersbb89b1fcacf457ad32272dbb1dafa6c9b089dfd277cf67b295661ce2c9a47c7aS3Bucket7690A0FA
               - Fn::Join:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
                     - ":s3:::"
-                    - Ref: AssetParametersbb632626d83a88a2f6a287d52c506659562897fb40bdaa48d8b809e468553a7cS3BucketED52B593
+                    - Ref: AssetParametersbb89b1fcacf457ad32272dbb1dafa6c9b089dfd277cf67b295661ce2c9a47c7aS3Bucket7690A0FA
                     - /*
           - Action:
               - secretsmanager:ListSecrets
@@ -2572,7 +2672,7 @@ Resources:
           - Name: SCRIPT_S3_BUCKET
             Type: PLAINTEXT
             Value:
-              Ref: AssetParametersbb632626d83a88a2f6a287d52c506659562897fb40bdaa48d8b809e468553a7cS3BucketED52B593
+              Ref: AssetParametersbb89b1fcacf457ad32272dbb1dafa6c9b089dfd277cf67b295661ce2c9a47c7aS3Bucket7690A0FA
           - Name: SCRIPT_S3_KEY
             Type: PLAINTEXT
             Value:
@@ -2582,12 +2682,12 @@ Resources:
                       - 0
                       - Fn::Split:
                           - "||"
-                          - Ref: AssetParametersbb632626d83a88a2f6a287d52c506659562897fb40bdaa48d8b809e468553a7cS3VersionKey5C8ACC70
+                          - Ref: AssetParametersbb89b1fcacf457ad32272dbb1dafa6c9b089dfd277cf67b295661ce2c9a47c7aS3VersionKeyE8284930
                   - Fn::Select:
                       - 1
                       - Fn::Split:
                           - "||"
-                          - Ref: AssetParametersbb632626d83a88a2f6a287d52c506659562897fb40bdaa48d8b809e468553a7cS3VersionKey5C8ACC70
+                          - Ref: AssetParametersbb89b1fcacf457ad32272dbb1dafa6c9b089dfd277cf67b295661ce2c9a47c7aS3VersionKeyE8284930
           - Name: FOR_REAL
             Type: PLAINTEXT
             Value: "true"
@@ -2597,6 +2697,9 @@ Resources:
           - Name: DISTTAG
             Type: PLAINTEXT
             Value: ""
+          - Name: ACCESS
+            Type: PLAINTEXT
+            Value: restricted
         Image: aws/codebuild/nodejs:10.1.0
         PrivilegedMode: false
         Type: LINUX_CONTAINER
@@ -2686,6 +2789,20 @@ Resources:
                     - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelineNuGet67CE1BA7
                     - :*
+          - Action:
+              - codebuild:CreateReportGroup
+              - codebuild:CreateReport
+              - codebuild:UpdateReport
+              - codebuild:BatchPutTestCases
+            Effect: Allow
+            Resource:
+              Fn::Join:
+                - ""
+                - - "arn:"
+                  - Ref: AWS::Partition
+                  - :codebuild:us-east-1:712950704752:report-group/
+                  - Ref: CodeCommitPipelineNuGet67CE1BA7
+                  - -*
           - Action:
               - s3:GetObject*
               - s3:GetBucket*
@@ -2905,6 +3022,20 @@ Resources:
                     - Ref: CodeCommitPipelineMavenB7154296
                     - :*
           - Action:
+              - codebuild:CreateReportGroup
+              - codebuild:CreateReport
+              - codebuild:UpdateReport
+              - codebuild:BatchPutTestCases
+            Effect: Allow
+            Resource:
+              Fn::Join:
+                - ""
+                - - "arn:"
+                  - Ref: AWS::Partition
+                  - :codebuild:us-east-1:712950704752:report-group/
+                  - Ref: CodeCommitPipelineMavenB7154296
+                  - -*
+          - Action:
               - s3:GetObject*
               - s3:GetBucket*
               - s3:List*
@@ -3118,6 +3249,20 @@ Resources:
                     - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelineGitHub0797840C
                     - :*
+          - Action:
+              - codebuild:CreateReportGroup
+              - codebuild:CreateReport
+              - codebuild:UpdateReport
+              - codebuild:BatchPutTestCases
+            Effect: Allow
+            Resource:
+              Fn::Join:
+                - ""
+                - - "arn:"
+                  - Ref: AWS::Partition
+                  - :codebuild:us-east-1:712950704752:report-group/
+                  - Ref: CodeCommitPipelineGitHub0797840C
+                  - -*
           - Action:
               - s3:GetObject*
               - s3:GetBucket*
@@ -3338,6 +3483,20 @@ Resources:
                     - Ref: CodeCommitPipelineGitHubPages53B77CF6
                     - :*
           - Action:
+              - codebuild:CreateReportGroup
+              - codebuild:CreateReport
+              - codebuild:UpdateReport
+              - codebuild:BatchPutTestCases
+            Effect: Allow
+            Resource:
+              Fn::Join:
+                - ""
+                - - "arn:"
+                  - Ref: AWS::Partition
+                  - :codebuild:us-east-1:712950704752:report-group/
+                  - Ref: CodeCommitPipelineGitHubPages53B77CF6
+                  - -*
+          - Action:
               - s3:GetObject*
               - s3:GetBucket*
               - s3:List*
@@ -3539,6 +3698,20 @@ Resources:
                     - Ref: CodeCommitPipelinePyPI2C59CE7B
                     - :*
           - Action:
+              - codebuild:CreateReportGroup
+              - codebuild:CreateReport
+              - codebuild:UpdateReport
+              - codebuild:BatchPutTestCases
+            Effect: Allow
+            Resource:
+              Fn::Join:
+                - ""
+                - - "arn:"
+                  - Ref: AWS::Partition
+                  - :codebuild:us-east-1:712950704752:report-group/
+                  - Ref: CodeCommitPipelinePyPI2C59CE7B
+                  - -*
+          - Action:
               - s3:GetObject*
               - s3:GetBucket*
               - s3:List*
@@ -3688,7 +3861,7 @@ Resources:
       TreatMissingData: ignore
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/PyPI/Default/Alarm/Resource
-  CodeCommitPipelineAutoBumpRole669D4CAA:
+  CodeCommitPipelineAutoBumpAutoPullRequestRoleE7E0E388:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
@@ -3699,8 +3872,8 @@ Resources:
               Service: codebuild.amazonaws.com
         Version: "2012-10-17"
     Metadata:
-      aws:cdk:path: delivlib-test/CodeCommitPipeline/AutoBump/Bump/Role/Resource
-  CodeCommitPipelineAutoBumpRoleDefaultPolicyD6024577:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/AutoBump/AutoPullRequest/PullRequest/Role/Resource
+  CodeCommitPipelineAutoBumpAutoPullRequestRoleDefaultPolicy3BB1CD6F:
     Type: AWS::IAM::Policy
     Properties:
       PolicyDocument:
@@ -3716,14 +3889,28 @@ Resources:
                   - - "arn:"
                     - Ref: AWS::Partition
                     - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
-                    - Ref: CodeCommitPipelineAutoBumpA6619552
+                    - Ref: CodeCommitPipelineAutoBumpAutoPullRequest033F6993
               - Fn::Join:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
                     - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
-                    - Ref: CodeCommitPipelineAutoBumpA6619552
+                    - Ref: CodeCommitPipelineAutoBumpAutoPullRequest033F6993
                     - :*
+          - Action:
+              - codebuild:CreateReportGroup
+              - codebuild:CreateReport
+              - codebuild:UpdateReport
+              - codebuild:BatchPutTestCases
+            Effect: Allow
+            Resource:
+              Fn::Join:
+                - ""
+                - - "arn:"
+                  - Ref: AWS::Partition
+                  - :codebuild:us-east-1:712950704752:report-group/
+                  - Ref: CodeCommitPipelineAutoBumpAutoPullRequest033F6993
+                  - -*
           - Action:
               - secretsmanager:ListSecrets
               - secretsmanager:DescribeSecret
@@ -3737,12 +3924,12 @@ Resources:
             Effect: Allow
             Resource: arn:aws:secretsmanager:us-east-1:712950704752:secret:github-token-nnAqfW
         Version: "2012-10-17"
-      PolicyName: CodeCommitPipelineAutoBumpRoleDefaultPolicyD6024577
+      PolicyName: CodeCommitPipelineAutoBumpAutoPullRequestRoleDefaultPolicy3BB1CD6F
       Roles:
-        - Ref: CodeCommitPipelineAutoBumpRole669D4CAA
+        - Ref: CodeCommitPipelineAutoBumpAutoPullRequestRoleE7E0E388
     Metadata:
-      aws:cdk:path: delivlib-test/CodeCommitPipeline/AutoBump/Bump/Role/DefaultPolicy/Resource
-  CodeCommitPipelineAutoBumpA6619552:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/AutoBump/AutoPullRequest/PullRequest/Role/DefaultPolicy/Resource
+  CodeCommitPipelineAutoBumpAutoPullRequest033F6993:
     Type: AWS::CodeBuild::Project
     Properties:
       Artifacts:
@@ -3755,7 +3942,7 @@ Resources:
         Type: LINUX_CONTAINER
       ServiceRole:
         Fn::GetAtt:
-          - CodeCommitPipelineAutoBumpRole669D4CAA
+          - CodeCommitPipelineAutoBumpAutoPullRequestRoleE7E0E388
           - Arn
       Source:
         BuildSpec: >-
@@ -3770,22 +3957,21 @@ Resources:
               },
               "build": {
                 "commands": [
-                  "git describe --exact-match HEAD && { echo \"No new commits.\"; export SKIP=true; } || { echo \"Changes to release.\"; export SKIP=false; }",
-                  "$SKIP || { npm i && npm run bump; }",
-                  "$SKIP || aws secretsmanager get-secret-value --secret-id \"arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/github-ssh-lwzfjW\" --output=text --query=SecretString > ~/.ssh/id_rsa",
-                  "$SKIP || mkdir -p ~/.ssh",
-                  "$SKIP || chmod 0600 ~/.ssh/id_rsa",
-                  "$SKIP || chmod 0600 ~/.ssh/config",
-                  "$SKIP || ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts",
-                  "$SKIP || { export VERSION=$(git describe) ; }",
-                  "$SKIP || { export BRANCH=bump/$VERSION ; }",
-                  "$SKIP || { git branch -D $BRANCH || true ; }",
-                  "$SKIP || { git checkout -b $BRANCH master ; }",
+                  "export SKIP=false",
+                  "$SKIP || { aws secretsmanager get-secret-value --secret-id \"arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/github-ssh-lwzfjW\" --output=text --query=SecretString > ~/.ssh/id_rsa ; }",
+                  "$SKIP || { mkdir -p ~/.ssh ; }",
+                  "$SKIP || { chmod 0600 ~/.ssh/id_rsa ; }",
+                  "$SKIP || { chmod 0600 ~/.ssh/config ; }",
+                  "$SKIP || { ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts ; }",
+                  "$SKIP || { ls .git && { echo \".git directory exists\";  } || { echo \".git directory doesnot exist - cloning...\" && git clone git@github.com:awslabs/aws-delivlib-sample.git /tmp/repo && mv /tmp/repo/.git . && git reset --hard master; } ; }",
+                  "$SKIP || { git describe --exact-match master && { echo 'Skip condition is met, skipping...' && export SKIP=true; } || { echo 'Skip condition is not met, continuing...' && export SKIP=false; } ; }",
+                  "$SKIP || { git rev-parse --verify origin/bump/$VERSION && { git checkout bump/$VERSION && git merge master && npm i && npm run bump && export VERSION=$(git describe) && echo Finished running user commands;  } || { git checkout master && git checkout -b temp && npm i && npm run bump && export VERSION=$(git describe) && echo Finished running user commands && git branch -m bump/$VERSION; } ; }",
                   "$SKIP || { git remote add origin_ssh git@github.com:awslabs/aws-delivlib-sample.git ; }",
-                  "$SKIP || { git push --follow-tags origin_ssh $BRANCH ; }",
-                  "$SKIP || { git diff --exit-code --no-patch $BRANCH master && { echo \"No changes after bump. Skipping pull request...\"; export SKIP=true; } || { echo \"Creating pull request...\"; export SKIP=false; } ; }",
-                  "$SKIP || { GITHUB_TOKEN=$(aws secretsmanager get-secret-value --secret-id \"arn:aws:secretsmanager:us-east-1:712950704752:secret:github-token-nnAqfW\" --output=text --query=SecretString) ; }",
-                  "$SKIP || { curl --fail -X POST -o pr.json --header \"Authorization: token $GITHUB_TOKEN\" --header \"Content-Type: application/json\" -d \"{\\\"title\\\":\\\"chore(release): $VERSION\\\",\\\"body\\\":\\\"See [CHANGELOG](https://github.com/awslabs/aws-delivlib-sample/blob/$BRANCH/CHANGELOG.md)\\\",\\\"base\\\":\\\"master\\\",\\\"head\\\":\\\"$BRANCH\\\"}\" https://api.github.com/repos/awslabs/aws-delivlib-sample/pulls && export PR_NUMBER=$(node -p 'require(\"./pr.json\").number') ; }"
+                  "$SKIP || { git push --follow-tags origin_ssh bump/$VERSION ; }",
+                  "$SKIP || { git diff --exit-code --no-patch bump/$VERSION origin/master && { echo \"Skipping pull request...\"; export SKIP=true; } || { echo \"Creating pull request...\"; export SKIP=false; } ; }",
+                  "$SKIP || { export GITHUB_TOKEN=$(aws secretsmanager get-secret-value --secret-id \"arn:aws:secretsmanager:us-east-1:712950704752:secret:github-token-nnAqfW\" --output=text --query=SecretString) ; }",
+                  "$SKIP || { curl --fail -X POST -o pr.json --header \"Authorization: token $GITHUB_TOKEN\" --header \"Content-Type: application/json\" -d \"{\\\"title\\\":\\\"chore(release): $VERSION\\\",\\\"base\\\":\\\"master\\\",\\\"head\\\":\\\"bump/$VERSION\\\"}\" https://api.github.com/repos/awslabs/aws-delivlib-sample/pulls && export PR_NUMBER=$(node -p 'require(\"./pr.json\").number') ; }",
+                  "$SKIP || { curl --fail -X PATCH --header \"Authorization: token $GITHUB_TOKEN\" --header \"Content-Type: application/json\" -d \"{\\\"body\\\":\\\"See [CHANGELOG](https://github.com/awslabs/aws-delivlib-sample/blob/bump/$VERSION/CHANGELOG.md)\\\"}\" https://api.github.com/repos/awslabs/aws-delivlib-sample/pulls/$PR_NUMBER ; }"
                 ]
               }
             }
@@ -3797,8 +3983,8 @@ Resources:
       Triggers:
         Webhook: false
     Metadata:
-      aws:cdk:path: delivlib-test/CodeCommitPipeline/AutoBump/Bump/Resource
-  CodeCommitPipelineAutoBumpBumpFailedAlarm47B5C467:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/AutoBump/AutoPullRequest/PullRequest/Resource
+  CodeCommitPipelineAutoBumpAutoPullRequestAutoPullRequestFailedAlarmEFC2345F:
     Type: AWS::CloudWatch::Alarm
     Properties:
       ComparisonOperator: GreaterThanOrEqualToThreshold
@@ -3806,7 +3992,7 @@ Resources:
       Dimensions:
         - Name: ProjectName
           Value:
-            Ref: CodeCommitPipelineAutoBumpA6619552
+            Ref: CodeCommitPipelineAutoBumpAutoPullRequest033F6993
       MetricName: FailedBuilds
       Namespace: AWS/CodeBuild
       Period: 300
@@ -3814,7 +4000,7 @@ Resources:
       Threshold: 1
       TreatMissingData: ignore
     Metadata:
-      aws:cdk:path: delivlib-test/CodeCommitPipeline/AutoBump/BumpFailedAlarm/Resource
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/AutoBump/AutoPullRequest/AutoPullRequestFailedAlarm/Resource
   CodeCommitPipelineAutoBuildProjectRole733AD222:
     Type: AWS::IAM::Role
     Properties:
@@ -3851,6 +4037,20 @@ Resources:
                     - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelineAutoBuildProject5D212EE9
                     - :*
+          - Action:
+              - codebuild:CreateReportGroup
+              - codebuild:CreateReport
+              - codebuild:UpdateReport
+              - codebuild:BatchPutTestCases
+            Effect: Allow
+            Resource:
+              Fn::Join:
+                - ""
+                - - "arn:"
+                  - Ref: AWS::Partition
+                  - :codebuild:us-east-1:712950704752:report-group/
+                  - Ref: CodeCommitPipelineAutoBuildProject5D212EE9
+                  - -*
         Version: "2012-10-17"
       PolicyName: CodeCommitPipelineAutoBuildProjectRoleDefaultPolicyFF5563AC
       Roles:
@@ -3993,7 +4193,7 @@ Resources:
     Properties:
       Code:
         S3Bucket:
-          Ref: AssetParameters0325c38481a47ea8f294cf6944b029039b69bda08b9ba364e516991c2e3844d2S3Bucket1EB09787
+          Ref: AssetParameters045404274d7898a55cd6d738aeb2721b556812ceff5fc65b9459b1ebc7ec1b80S3Bucket130C94C8
         S3Key:
           Fn::Join:
             - ""
@@ -4001,12 +4201,12 @@ Resources:
                   - 0
                   - Fn::Split:
                       - "||"
-                      - Ref: AssetParameters0325c38481a47ea8f294cf6944b029039b69bda08b9ba364e516991c2e3844d2S3VersionKey74F0473F
+                      - Ref: AssetParameters045404274d7898a55cd6d738aeb2721b556812ceff5fc65b9459b1ebc7ec1b80S3VersionKeyE6320D10
               - Fn::Select:
                   - 1
                   - Fn::Split:
                       - "||"
-                      - Ref: AssetParameters0325c38481a47ea8f294cf6944b029039b69bda08b9ba364e516991c2e3844d2S3VersionKey74F0473F
+                      - Ref: AssetParameters045404274d7898a55cd6d738aeb2721b556812ceff5fc65b9459b1ebc7ec1b80S3VersionKeyE6320D10
       Handler: index.handler
       Role:
         Fn::GetAtt:
@@ -4143,7 +4343,7 @@ Resources:
         Fn::GetAtt:
           - RSAPrivateKey72FD327D38134632934028EC437AA486D8EE708F
           - Arn
-      ResourceVersion: BLjKDoZBvWkpu/2Z0UsbLK9eSA5A/RmBBeU1yDicnQo=
+      ResourceVersion: dE0mwKWcr0X9gueqzAAYfCAoIr7KJudfZNk/SWIRty8=
       Description: The PEM-encoded private key of the x509 Code-Signing Certificate
       KeySize: 2048
       SecretName: delivlib-test/X509CodeSigningKey/RSAPrivateKey
@@ -4182,7 +4382,7 @@ Resources:
         Fn::GetAtt:
           - CreateCSR541F67826DCF49A78C5A67715ADD9E4C8F4169F6
           - Arn
-      ResourceVersion: iBoynpY7yatuqVxi26yNMbBOClrDdEXQ5vLx3hJXO2Q=
+      ResourceVersion: IYB6+Xbl2YbbQUwGTTuysFbomJlkvgL7sMHbmp0qLPM=
       PrivateKeySecretId:
         Fn::GetAtt:
           - X509CodeSigningKeyRSAPrivateKeyE5980A70
@@ -4267,7 +4467,7 @@ Resources:
     Properties:
       Code:
         S3Bucket:
-          Ref: AssetParameters06b891a005537b1a91342dcbac4f2f59fd684c163abbcb52cf0aef3b00f3ea63S3BucketE1E42335
+          Ref: AssetParametersa6b9c49acbfddbbec8556b9a90744ab7ff522b33678820364ec11c0b4d045fbaS3Bucket305C54DB
         S3Key:
           Fn::Join:
             - ""
@@ -4275,12 +4475,12 @@ Resources:
                   - 0
                   - Fn::Split:
                       - "||"
-                      - Ref: AssetParameters06b891a005537b1a91342dcbac4f2f59fd684c163abbcb52cf0aef3b00f3ea63S3VersionKey73A3BBC9
+                      - Ref: AssetParametersa6b9c49acbfddbbec8556b9a90744ab7ff522b33678820364ec11c0b4d045fbaS3VersionKeyF5C6B2B4
               - Fn::Select:
                   - 1
                   - Fn::Split:
                       - "||"
-                      - Ref: AssetParameters06b891a005537b1a91342dcbac4f2f59fd684c163abbcb52cf0aef3b00f3ea63S3VersionKey73A3BBC9
+                      - Ref: AssetParametersa6b9c49acbfddbbec8556b9a90744ab7ff522b33678820364ec11c0b4d045fbaS3VersionKeyF5C6B2B4
       Handler: index.handler
       Role:
         Fn::GetAtt:
@@ -4336,7 +4536,7 @@ Resources:
     Properties:
       Code:
         S3Bucket:
-          Ref: AssetParameters66693eac15b639f520eae8792fa224d79daade6b11f29cb591f7a4454c96688fS3BucketDF99D61F
+          Ref: AssetParameters290469eba3cc334767fa3523486d99f0683506f61a25fb412bc8ab589c1a9113S3Bucket2EED87B7
         S3Key:
           Fn::Join:
             - ""
@@ -4344,12 +4544,12 @@ Resources:
                   - 0
                   - Fn::Split:
                       - "||"
-                      - Ref: AssetParameters66693eac15b639f520eae8792fa224d79daade6b11f29cb591f7a4454c96688fS3VersionKey20C945D4
+                      - Ref: AssetParameters290469eba3cc334767fa3523486d99f0683506f61a25fb412bc8ab589c1a9113S3VersionKey1D018108
               - Fn::Select:
                   - 1
                   - Fn::Split:
                       - "||"
-                      - Ref: AssetParameters66693eac15b639f520eae8792fa224d79daade6b11f29cb591f7a4454c96688fS3VersionKey20C945D4
+                      - Ref: AssetParameters290469eba3cc334767fa3523486d99f0683506f61a25fb412bc8ab589c1a9113S3VersionKey1D018108
       Handler: index.handler
       Role:
         Fn::GetAtt:
@@ -4457,7 +4657,7 @@ Resources:
         Fn::GetAtt:
           - SingletonLambdaf25803d3054b44fc985f4860d7d6ee746203BDE6
           - Arn
-      ResourceVersion: Y1Sc7a3E0USjm4xogCxAon9TDVH9T1HwAqUo/H60DQ4=
+      ResourceVersion: qk6pRrAGYdcFeTDQZ0uHX5S6pX7tII4i35ieVfLHgZs=
       Identity: aws-cdk-dev
       Email: aws-cdk-dev+delivlib@amazon.com
       Expiry: 4y
@@ -4540,7 +4740,7 @@ Resources:
     Properties:
       Code:
         S3Bucket:
-          Ref: AssetParametersda03228a665e74c92c0b724ed63e8729cf2f5c49953c6b617dc631025eed154bS3BucketAF205857
+          Ref: AssetParameters71bae0fad934fc89f42fdcbcd062a0a5b67e5020140d9202b13371564a955328S3Bucket1F0942D0
         S3Key:
           Fn::Join:
             - ""
@@ -4548,12 +4748,12 @@ Resources:
                   - 0
                   - Fn::Split:
                       - "||"
-                      - Ref: AssetParametersda03228a665e74c92c0b724ed63e8729cf2f5c49953c6b617dc631025eed154bS3VersionKeyB4DF83D2
+                      - Ref: AssetParameters71bae0fad934fc89f42fdcbcd062a0a5b67e5020140d9202b13371564a955328S3VersionKey1D527127
               - Fn::Select:
                   - 1
                   - Fn::Split:
                       - "||"
-                      - Ref: AssetParametersda03228a665e74c92c0b724ed63e8729cf2f5c49953c6b617dc631025eed154bS3VersionKeyB4DF83D2
+                      - Ref: AssetParameters71bae0fad934fc89f42fdcbcd062a0a5b67e5020140d9202b13371564a955328S3VersionKey1D527127
       Handler: index.handler
       Role:
         Fn::GetAtt:
@@ -4611,9 +4811,9 @@ Resources:
               // eslint-disable-next-line @typescript-eslint/no-require-imports, import/no-extraneous-dependencies
               const s3 = new (require('aws-sdk').S3)();
               // eslint-disable-next-line @typescript-eslint/no-require-imports
-              const https = require("https");
+              const https = require('https');
               // eslint-disable-next-line @typescript-eslint/no-require-imports
-              const url = require("url");
+              const url = require('url');
               log(JSON.stringify(event, undefined, 2));
               const props = event.ResourceProperties;
               if (event.RequestType === 'Delete') {
@@ -4621,15 +4821,15 @@ Resources:
               }
               const req = {
                   Bucket: props.BucketName,
-                  NotificationConfiguration: props.NotificationConfiguration
+                  NotificationConfiguration: props.NotificationConfiguration,
               };
               return s3.putBucketNotificationConfiguration(req, (err, data) => {
                   log({ err, data });
                   if (err) {
-                      return submitResponse("FAILED", err.message + `\nMore information in CloudWatch Log Stream: ${context.logStreamName}`);
+                      return submitResponse('FAILED', err.message + `\nMore information in CloudWatch Log Stream: ${context.logStreamName}`);
                   }
                   else {
-                      return submitResponse("SUCCESS");
+                      return submitResponse('SUCCESS');
                   }
               });
               function log(obj) {
@@ -4641,7 +4841,7 @@ Resources:
               function submitResponse(responseStatus, reason) {
                   const responseBody = JSON.stringify({
                       Status: responseStatus,
-                      Reason: reason || "See the details in CloudWatch Log Stream: " + context.logStreamName,
+                      Reason: reason || 'See the details in CloudWatch Log Stream: ' + context.logStreamName,
                       PhysicalResourceId: event.PhysicalResourceId || event.LogicalResourceId,
                       StackId: event.StackId,
                       RequestId: event.RequestId,
@@ -4654,17 +4854,17 @@ Resources:
                       hostname: parsedUrl.hostname,
                       port: 443,
                       path: parsedUrl.path,
-                      method: "PUT",
+                      method: 'PUT',
                       headers: {
-                          "content-type": "",
-                          "content-length": responseBody.length
-                      }
+                          'content-type': '',
+                          'content-length': responseBody.length,
+                      },
                   };
                   const request = https.request(options, (r) => {
                       log({ statusCode: r.statusCode, statusMessage: r.statusMessage });
                       context.done();
                   });
-                  request.on("error", (error) => {
+                  request.on('error', (error) => {
                       log({ sendError: error });
                       context.done();
                   });
@@ -4724,15 +4924,15 @@ Parameters:
   AssetParametersfa3b8e01a3815c9af6c66b1e4c986e8743a43f68fb763464198c94900c0c96daArtifactHash6C3D35CA:
     Type: String
     Description: Artifact hash for asset "fa3b8e01a3815c9af6c66b1e4c986e8743a43f68fb763464198c94900c0c96da"
-  AssetParametersbb632626d83a88a2f6a287d52c506659562897fb40bdaa48d8b809e468553a7cS3BucketED52B593:
+  AssetParametersbb89b1fcacf457ad32272dbb1dafa6c9b089dfd277cf67b295661ce2c9a47c7aS3Bucket7690A0FA:
     Type: String
-    Description: S3 bucket for asset "bb632626d83a88a2f6a287d52c506659562897fb40bdaa48d8b809e468553a7c"
-  AssetParametersbb632626d83a88a2f6a287d52c506659562897fb40bdaa48d8b809e468553a7cS3VersionKey5C8ACC70:
+    Description: S3 bucket for asset "bb89b1fcacf457ad32272dbb1dafa6c9b089dfd277cf67b295661ce2c9a47c7a"
+  AssetParametersbb89b1fcacf457ad32272dbb1dafa6c9b089dfd277cf67b295661ce2c9a47c7aS3VersionKeyE8284930:
     Type: String
-    Description: S3 key for asset version "bb632626d83a88a2f6a287d52c506659562897fb40bdaa48d8b809e468553a7c"
-  AssetParametersbb632626d83a88a2f6a287d52c506659562897fb40bdaa48d8b809e468553a7cArtifactHash659C5F83:
+    Description: S3 key for asset version "bb89b1fcacf457ad32272dbb1dafa6c9b089dfd277cf67b295661ce2c9a47c7a"
+  AssetParametersbb89b1fcacf457ad32272dbb1dafa6c9b089dfd277cf67b295661ce2c9a47c7aArtifactHash43757B85:
     Type: String
-    Description: Artifact hash for asset "bb632626d83a88a2f6a287d52c506659562897fb40bdaa48d8b809e468553a7c"
+    Description: Artifact hash for asset "bb89b1fcacf457ad32272dbb1dafa6c9b089dfd277cf67b295661ce2c9a47c7a"
   AssetParameters3484e3af42fdf9fe20bc76b3aa0b74c59f8ffe2e6aa726d82b5fb8fed9b91889S3Bucket92430D80:
     Type: String
     Description: S3 bucket for asset "3484e3af42fdf9fe20bc76b3aa0b74c59f8ffe2e6aa726d82b5fb8fed9b91889"
@@ -4742,24 +4942,24 @@ Parameters:
   AssetParameters3484e3af42fdf9fe20bc76b3aa0b74c59f8ffe2e6aa726d82b5fb8fed9b91889ArtifactHash5F2FF58F:
     Type: String
     Description: Artifact hash for asset "3484e3af42fdf9fe20bc76b3aa0b74c59f8ffe2e6aa726d82b5fb8fed9b91889"
-  AssetParameters06b891a005537b1a91342dcbac4f2f59fd684c163abbcb52cf0aef3b00f3ea63S3BucketE1E42335:
+  AssetParametersa6b9c49acbfddbbec8556b9a90744ab7ff522b33678820364ec11c0b4d045fbaS3Bucket305C54DB:
     Type: String
-    Description: S3 bucket for asset "06b891a005537b1a91342dcbac4f2f59fd684c163abbcb52cf0aef3b00f3ea63"
-  AssetParameters06b891a005537b1a91342dcbac4f2f59fd684c163abbcb52cf0aef3b00f3ea63S3VersionKey73A3BBC9:
+    Description: S3 bucket for asset "a6b9c49acbfddbbec8556b9a90744ab7ff522b33678820364ec11c0b4d045fba"
+  AssetParametersa6b9c49acbfddbbec8556b9a90744ab7ff522b33678820364ec11c0b4d045fbaS3VersionKeyF5C6B2B4:
     Type: String
-    Description: S3 key for asset version "06b891a005537b1a91342dcbac4f2f59fd684c163abbcb52cf0aef3b00f3ea63"
-  AssetParameters06b891a005537b1a91342dcbac4f2f59fd684c163abbcb52cf0aef3b00f3ea63ArtifactHash0543CE20:
+    Description: S3 key for asset version "a6b9c49acbfddbbec8556b9a90744ab7ff522b33678820364ec11c0b4d045fba"
+  AssetParametersa6b9c49acbfddbbec8556b9a90744ab7ff522b33678820364ec11c0b4d045fbaArtifactHash125F9CC6:
     Type: String
-    Description: Artifact hash for asset "06b891a005537b1a91342dcbac4f2f59fd684c163abbcb52cf0aef3b00f3ea63"
-  AssetParameters66693eac15b639f520eae8792fa224d79daade6b11f29cb591f7a4454c96688fS3BucketDF99D61F:
+    Description: Artifact hash for asset "a6b9c49acbfddbbec8556b9a90744ab7ff522b33678820364ec11c0b4d045fba"
+  AssetParameters290469eba3cc334767fa3523486d99f0683506f61a25fb412bc8ab589c1a9113S3Bucket2EED87B7:
     Type: String
-    Description: S3 bucket for asset "66693eac15b639f520eae8792fa224d79daade6b11f29cb591f7a4454c96688f"
-  AssetParameters66693eac15b639f520eae8792fa224d79daade6b11f29cb591f7a4454c96688fS3VersionKey20C945D4:
+    Description: S3 bucket for asset "290469eba3cc334767fa3523486d99f0683506f61a25fb412bc8ab589c1a9113"
+  AssetParameters290469eba3cc334767fa3523486d99f0683506f61a25fb412bc8ab589c1a9113S3VersionKey1D018108:
     Type: String
-    Description: S3 key for asset version "66693eac15b639f520eae8792fa224d79daade6b11f29cb591f7a4454c96688f"
-  AssetParameters66693eac15b639f520eae8792fa224d79daade6b11f29cb591f7a4454c96688fArtifactHashB6A6CA8C:
+    Description: S3 key for asset version "290469eba3cc334767fa3523486d99f0683506f61a25fb412bc8ab589c1a9113"
+  AssetParameters290469eba3cc334767fa3523486d99f0683506f61a25fb412bc8ab589c1a9113ArtifactHash401E96A5:
     Type: String
-    Description: Artifact hash for asset "66693eac15b639f520eae8792fa224d79daade6b11f29cb591f7a4454c96688f"
+    Description: Artifact hash for asset "290469eba3cc334767fa3523486d99f0683506f61a25fb412bc8ab589c1a9113"
   AssetParameters18b64c4ff8c34f9925c226eb6cd9693b6d9b738290d88ed58e02da3d1d6fb927S3Bucket708B7E7B:
     Type: String
     Description: S3 bucket for asset "18b64c4ff8c34f9925c226eb6cd9693b6d9b738290d88ed58e02da3d1d6fb927"
@@ -4778,15 +4978,15 @@ Parameters:
   AssetParameters69a776bec2bf25cc316055ac300a38998a429f41c98f76ef762e1aacb23488feArtifactHash71758B84:
     Type: String
     Description: Artifact hash for asset "69a776bec2bf25cc316055ac300a38998a429f41c98f76ef762e1aacb23488fe"
-  AssetParametersda03228a665e74c92c0b724ed63e8729cf2f5c49953c6b617dc631025eed154bS3BucketAF205857:
+  AssetParameters71bae0fad934fc89f42fdcbcd062a0a5b67e5020140d9202b13371564a955328S3Bucket1F0942D0:
     Type: String
-    Description: S3 bucket for asset "da03228a665e74c92c0b724ed63e8729cf2f5c49953c6b617dc631025eed154b"
-  AssetParametersda03228a665e74c92c0b724ed63e8729cf2f5c49953c6b617dc631025eed154bS3VersionKeyB4DF83D2:
+    Description: S3 bucket for asset "71bae0fad934fc89f42fdcbcd062a0a5b67e5020140d9202b13371564a955328"
+  AssetParameters71bae0fad934fc89f42fdcbcd062a0a5b67e5020140d9202b13371564a955328S3VersionKey1D527127:
     Type: String
-    Description: S3 key for asset version "da03228a665e74c92c0b724ed63e8729cf2f5c49953c6b617dc631025eed154b"
-  AssetParametersda03228a665e74c92c0b724ed63e8729cf2f5c49953c6b617dc631025eed154bArtifactHash5D282FA8:
+    Description: S3 key for asset version "71bae0fad934fc89f42fdcbcd062a0a5b67e5020140d9202b13371564a955328"
+  AssetParameters71bae0fad934fc89f42fdcbcd062a0a5b67e5020140d9202b13371564a955328ArtifactHashA69BBB21:
     Type: String
-    Description: Artifact hash for asset "da03228a665e74c92c0b724ed63e8729cf2f5c49953c6b617dc631025eed154b"
+    Description: Artifact hash for asset "71bae0fad934fc89f42fdcbcd062a0a5b67e5020140d9202b13371564a955328"
   AssetParameters95e395880ca2de45ad4273f17cb4915be787585da0aa7b17a2cbbd860594ad9eS3Bucket23CD221A:
     Type: String
     Description: S3 bucket for asset "95e395880ca2de45ad4273f17cb4915be787585da0aa7b17a2cbbd860594ad9e"
@@ -4823,13 +5023,13 @@ Parameters:
   AssetParametersdc8eddab035b83a69e3f916300dc1f93dc508e78e729182de9f019cc8ffd7e3aArtifactHash4FC2FBD6:
     Type: String
     Description: Artifact hash for asset "dc8eddab035b83a69e3f916300dc1f93dc508e78e729182de9f019cc8ffd7e3a"
-  AssetParameters0325c38481a47ea8f294cf6944b029039b69bda08b9ba364e516991c2e3844d2S3Bucket1EB09787:
+  AssetParameters045404274d7898a55cd6d738aeb2721b556812ceff5fc65b9459b1ebc7ec1b80S3Bucket130C94C8:
     Type: String
-    Description: S3 bucket for asset "0325c38481a47ea8f294cf6944b029039b69bda08b9ba364e516991c2e3844d2"
-  AssetParameters0325c38481a47ea8f294cf6944b029039b69bda08b9ba364e516991c2e3844d2S3VersionKey74F0473F:
+    Description: S3 bucket for asset "045404274d7898a55cd6d738aeb2721b556812ceff5fc65b9459b1ebc7ec1b80"
+  AssetParameters045404274d7898a55cd6d738aeb2721b556812ceff5fc65b9459b1ebc7ec1b80S3VersionKeyE6320D10:
     Type: String
-    Description: S3 key for asset version "0325c38481a47ea8f294cf6944b029039b69bda08b9ba364e516991c2e3844d2"
-  AssetParameters0325c38481a47ea8f294cf6944b029039b69bda08b9ba364e516991c2e3844d2ArtifactHash797C5DAB:
+    Description: S3 key for asset version "045404274d7898a55cd6d738aeb2721b556812ceff5fc65b9459b1ebc7ec1b80"
+  AssetParameters045404274d7898a55cd6d738aeb2721b556812ceff5fc65b9459b1ebc7ec1b80ArtifactHash4E688BE5:
     Type: String
-    Description: Artifact hash for asset "0325c38481a47ea8f294cf6944b029039b69bda08b9ba364e516991c2e3844d2"
+    Description: Artifact hash for asset "045404274d7898a55cd6d738aeb2721b556812ceff5fc65b9459b1ebc7ec1b80"
 

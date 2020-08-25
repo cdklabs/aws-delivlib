@@ -1,7 +1,8 @@
 import { aws_cloudwatch as cloudwatch, aws_codebuild as cbuild,
   aws_codepipeline as cpipeline, aws_codepipeline_actions as cpipeline_actions,
-  aws_iam as iam, aws_s3_assets as assets, core as cdk, aws_secretsmanager, aws_ssm } from
+  aws_iam as iam, aws_s3_assets as assets, aws_secretsmanager, aws_ssm } from
   "monocdk-experiment";
+  import * as cdk from 'monocdk-experiment';
 import fs = require("fs");
 import path = require("path");
 import { BuildSpec } from "./build-spec";
@@ -77,6 +78,14 @@ export interface ShellableOptions {
   buildProjectName?: string;
 
   /**
+   * Indicates if Regional AWS STS endpoints should be used instead
+   * of the global endpoint. Specify true to use Regional AWS STS endpoints.
+   *
+   * @default false
+   */
+  useRegionalStsEndpoints?: boolean;
+
+  /**
    * Can be used to run this build using a specific IAM role. This can be used,
    * for example, to execute in the context of another account (e.g. to run
    * tests in isolation).
@@ -89,6 +98,13 @@ export interface ShellableOptions {
    * @default No additional buildspec
    */
   buildSpec?: BuildSpec;
+
+  /**
+   * The timeout of the build.
+   *
+   * @default the CodeBuild default (1 hour)
+   */
+  timeout?: cdk.Duration;
 
   /**
    * Alarm period.
@@ -219,7 +235,7 @@ export class Shellable extends cdk.Construct {
     }
 
     this.buildSpec = BuildSpec.simple({
-      preBuild: this.platform.prebuildCommands(props.assumeRole),
+      preBuild: this.platform.prebuildCommands(props.assumeRole, props.useRegionalStsEndpoints),
       build: this.platform.buildCommands(props.entrypoint)
     }).merge(props.buildSpec || BuildSpec.empty());
 
@@ -238,6 +254,7 @@ export class Shellable extends cdk.Construct {
         ...renderEnvironmentVariables(props.environmentSecrets, cbuild.BuildEnvironmentVariableType.SECRETS_MANAGER),
         ...renderEnvironmentVariables(props.environmentParameters, cbuild.BuildEnvironmentVariableType.PARAMETER_STORE),
       },
+      timeout: props.timeout,
       buildSpec: cbuild.BuildSpec.fromObject(this.buildSpec.render({ primaryArtifactName: this.outputArtifactName })),
     });
 
@@ -321,7 +338,7 @@ export abstract class ShellPlatform {
   /**
    * Return commands to download the script bundle
    */
-  public abstract prebuildCommands(assumeRole?: AssumeRole): string[];
+  public abstract prebuildCommands(assumeRole?: AssumeRole, useRegionalStsEndpoints?: boolean): string[];
 
   /**
    * Return commands to start the entrypoint script
@@ -340,7 +357,7 @@ export abstract class ShellPlatform {
 export class LinuxPlatform extends ShellPlatform {
   public readonly platformType = PlatformType.Linux;
 
-  public prebuildCommands(assumeRole?: AssumeRole): string[] {
+  public prebuildCommands(assumeRole?: AssumeRole, useRegionalStsEndpoints?: boolean): string[] {
     const lines = new Array<string>();
     // Better echo the location here; if this fails, the error message only contains
     // the unexpanded variables by default. It might fail if you're running an old
@@ -353,8 +370,9 @@ export class LinuxPlatform extends ShellPlatform {
 
     if (assumeRole) {
       const externalId = assumeRole.externalId ? `--external-id "${assumeRole.externalId}"` : '';
+      const StsEndpoints = useRegionalStsEndpoints ? "regional" : "legacy";
       lines.push('creds=$(mktemp -d)/creds.json');
-      lines.push(`aws sts assume-role --role-arn "${assumeRole.roleArn}" --role-session-name "${assumeRole.sessionName}" ${externalId} > $creds`);
+      lines.push(`AWS_STS_REGIONAL_ENDPOINTS=${StsEndpoints} aws sts assume-role --role-arn "${assumeRole.roleArn}" --role-session-name "${assumeRole.sessionName}" ${externalId} > $creds`);
       lines.push('export AWS_ACCESS_KEY_ID="$(cat ${creds} | grep "AccessKeyId" | cut -d\'"\' -f 4)"');
       lines.push('export AWS_SECRET_ACCESS_KEY="$(cat ${creds} | grep "SecretAccessKey" | cut -d\'"\' -f 4)"');
       lines.push('export AWS_SESSION_TOKEN="$(cat ${creds} | grep "SessionToken" | cut -d\'"\' -f 4)"');
@@ -378,7 +396,7 @@ export class LinuxPlatform extends ShellPlatform {
 export class WindowsPlatform extends ShellPlatform {
   public readonly platformType = PlatformType.Windows;
 
-  public prebuildCommands(assumeRole?: AssumeRole): string[] {
+  public prebuildCommands(assumeRole?: AssumeRole, _useRegionalStsEndpoints?: boolean): string[] {
     if (assumeRole) {
       throw new Error(`assumeRole is not supported on Windows: https://github.com/awslabs/aws-delivlib/issues/57`);
     }

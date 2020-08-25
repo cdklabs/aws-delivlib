@@ -1,4 +1,5 @@
-import { aws_cloudformation as cfn, aws_lambda as lambda, core as cdk } from "monocdk-experiment";
+import { aws_cloudformation as cfn, aws_lambda as lambda} from "monocdk-experiment";
+import * as cdk from 'monocdk-experiment';
 import path = require("path");
 import { hashFileOrDirectory } from "../util";
 import { RsaPrivateKeySecret } from "./private-key";
