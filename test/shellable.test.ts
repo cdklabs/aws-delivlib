@@ -1,14 +1,13 @@
 import * as cdk from "monocdk-experiment";
 import { expect as assert, haveResource, ResourcePart, SynthUtils } from "@monocdk-experiment/assert";
-import path = require("path");
+import * as path from "path";
 import { Shellable, ShellPlatform } from "../lib";
-const { Stack } = cdk;
 
 
 // tslint:disable:max-line-length
 
 test('minimal configuration', () => {
-  const stack = new cdk.Stack();
+  const stack = new cdk.Stack(new cdk.App(), 'TestStack');
 
   new Shellable(stack, 'MyShellable', {
     scriptDirectory: path.join(__dirname, 'delivlib-tests/linux'),
@@ -19,7 +18,7 @@ test('minimal configuration', () => {
 });
 
 test('assume role', () => {
-  const stack = new cdk.Stack();
+  const stack = new cdk.Stack(new cdk.App(), 'TestStack');
 
   new Shellable(stack, 'MyShellable', {
     scriptDirectory: path.join(__dirname, 'delivlib-tests/linux'),
@@ -38,7 +37,7 @@ test('assume role', () => {
 });
 
 test('assume role with external-id', () => {
-  const stack = new cdk.Stack();
+  const stack = new cdk.Stack(new cdk.App(), 'TestStack');
 
   new Shellable(stack, 'MyShellable', {
     scriptDirectory: path.join(__dirname, 'delivlib-tests/linux'),
@@ -58,7 +57,7 @@ test('assume role with external-id', () => {
 });
 
 test('assume role with regional endpoints', () => {
-  const stack = new cdk.Stack();
+  const stack = new cdk.Stack(new cdk.App(), 'TestStack');
 
   new Shellable(stack, 'MyShellable', {
     scriptDirectory: path.join(__dirname, 'delivlib-tests/linux'),
@@ -78,7 +77,7 @@ test('assume role with regional endpoints', () => {
 });
 
 test('assume role with global endpoints', () => {
-  const stack = new cdk.Stack();
+  const stack = new cdk.Stack(new cdk.App(), 'TestStack');
 
   new Shellable(stack, 'MyShellable', {
     scriptDirectory: path.join(__dirname, 'delivlib-tests/linux'),
@@ -98,7 +97,7 @@ test('assume role with global endpoints', () => {
 });
 
 test('assume role not supported on windows', () => {
-  const stack = new Stack();
+  const stack = new cdk.Stack(new cdk.App(), 'TestStack');
 
   expect(() => new Shellable(stack, 'MyShellable', {
     scriptDirectory: path.join(__dirname, 'delivlib-tests/linux'),
@@ -112,7 +111,7 @@ test('assume role not supported on windows', () => {
 });
 
 test('alarm options - defaults', () => {
-  const stack = new Stack();
+  const stack = new cdk.Stack(new cdk.App(), 'TestStack');
 
   new Shellable(stack, 'MyShellable', {
     scriptDirectory: path.join(__dirname, 'delivlib-tests/linux'),
@@ -127,7 +126,7 @@ test('alarm options - defaults', () => {
 });
 
 test('alarm options - custom', () => {
-  const stack = new Stack();
+  const stack = new cdk.Stack(new cdk.App(), 'TestStack');
 
   new Shellable(stack, 'MyShellable', {
     scriptDirectory: path.join(__dirname, 'delivlib-tests/linux'),
@@ -145,7 +144,7 @@ test('alarm options - custom', () => {
 });
 
 test('privileged mode', () => {
-  const stack = new Stack();
+  const stack = new cdk.Stack(new cdk.App(), 'TestStack');
 
   new Shellable(stack, 'AllowDocker', {
     scriptDirectory: path.join(__dirname, 'delivlib-tests/linux'),
@@ -161,7 +160,7 @@ test('privileged mode', () => {
 });
 
 test('environment variables', () => {
-  const stack = new Stack();
+  const stack = new cdk.Stack(new cdk.App(), 'TestStack');
 
   new Shellable(stack, 'EnvironmentVariables', {
     scriptDirectory: path.join(__dirname, 'delivlib-tests/linux'),
