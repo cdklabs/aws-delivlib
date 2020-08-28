@@ -37,7 +37,7 @@
     "changelog-parser": "^2.8.0"
   },
   "devDependencies": {
-    "@monocdk-experiment/assert": "1.60.0",
+    "@monocdk-experiment/assert": "1.61.0",
     "@types/jest": "^26.0.10",
     "@types/node": "^10.17.27",
     "aws-cdk": "1.61.0",
