@@ -2,13 +2,6 @@
 # yarn lockfile v1
 
 
-"@aws-cdk/cfnspec@1.60.0":
-  version "1.60.0"
-  resolved "https://registry.yarnpkg.com/@aws-cdk/cfnspec/-/cfnspec-1.60.0.tgz#6efa14d21bbabb5b24dc883ea4134ff039b66421"
-  integrity sha512-lZlI/5FrIZ4F0pOKs0H4jEVBkUB12KvH3cboxXJUv9LJw2VMJgdtDWjdNEqcAZ28C3uNjpDTGc8vRmzCukJWyg==
-  dependencies:
-    md5 "^2.2.1"
-
 "@aws-cdk/cfnspec@1.61.0":
   version "1.61.0"
   resolved "https://registry.yarnpkg.com/@aws-cdk/cfnspec/-/cfnspec-1.61.0.tgz#69e998ab83c0a478b76e1c5deb8484171dfd95f9"
@@ -23,18 +16,6 @@
   dependencies:
     jsonschema "^1.2.5"
     semver "^7.2.2"
-
-"@aws-cdk/cloudformation-diff@1.60.0":
-  version "1.60.0"
-  resolved "https://registry.yarnpkg.com/@aws-cdk/cloudformation-diff/-/cloudformation-diff-1.60.0.tgz#db2612bb52229ed5522647f281eb683f5dec4837"
-  integrity sha512-xCBevPJojoD7Ceobk0YgIgTJJ6nkVDwnXfFOy9iHMU2tx3ibE7mJAHH9q8+crWM7/i83Eir721JYzwTyn4sn/w==
-  dependencies:
-    "@aws-cdk/cfnspec" "1.60.0"
-    colors "^1.4.0"
-    diff "^4.0.2"
-    fast-deep-equal "^3.1.3"
-    string-width "^4.2.0"
-    table "^5.4.6"
 
 "@aws-cdk/cloudformation-diff@1.61.0":
   version "1.61.0"
@@ -527,12 +508,12 @@
     "@types/yargs" "^15.0.0"
     chalk "^4.0.0"
 
-"@monocdk-experiment/assert@1.60.0":
-  version "1.60.0"
-  resolved "https://registry.yarnpkg.com/@monocdk-experiment/assert/-/assert-1.60.0.tgz#9289ddbc42d413a0ed7a00e503dd8fbc6cc22e81"
-  integrity sha512-TjTuCnzG9GFNOGZdlZYD2jDj8GddxyNjcaqDacC1zMmlOwQiE/CNt6g/8N2oSK5LCckWuddx0zqOQ5Ie5o56eQ==
+"@monocdk-experiment/assert@1.61.0":
+  version "1.61.0"
+  resolved "https://registry.yarnpkg.com/@monocdk-experiment/assert/-/assert-1.61.0.tgz#9d39cc4beba30e70c089e23ec124882339a46629"
+  integrity sha512-VbRwfE8vxj92Npnvjrw/peLCOuhkHmrpPvs1T3qkjPCRj+nHs+dR+I/TEMCnjfiK9S8AjCD1bWSZC/Pvh7NnbA==
   dependencies:
-    "@aws-cdk/cloudformation-diff" "1.60.0"
+    "@aws-cdk/cloudformation-diff" "1.61.0"
 
 "@sinonjs/commons@^1.7.0":
   version "1.8.1"
@@ -3546,7 +3527,7 @@ map-visit@^1.0.0:
   dependencies:
     object-visit "^1.0.0"
 
-md5@^2.2.1, md5@^2.3.0:
+md5@^2.3.0:
   version "2.3.0"
   resolved "https://registry.yarnpkg.com/md5/-/md5-2.3.0.tgz#c3da9a6aae3a30b46b7b0c349b87b110dc3bda4f"
   integrity sha512-T1GITYmFaKuO91vxyoQMFETst+O71VUPEU3ze5GNzDm0OWdP8v1ziTaAEPUr/3kLsY3Sftgz242A1SetQiDL7g==
