@@ -171,6 +171,21 @@ export interface AssumeRole {
   sessionName: string;
 
   /**
+   * The duration of the role session. The value  can  range
+   * from  900  seconds  (15  minutes) up to the maximum session duration
+   * setting for the role. This setting can have a value from 1  hour  to
+   * 12 hours. If you specify a value higher than this setting, the oper-
+   * ation fails. For example, if you specify a session  duration  of  12
+   * hours,  but your administrator set the maximum session duration to 6
+   * hours, your operation fails. To learn how to view the maximum  value
+   * for  your  role, see View the Maximum Session Duration Setting for a
+   * Role in the IAM User Guide.
+   *
+   * By default, the value is set to 3600 seconds.
+   */
+  sessionDuration?: cdk.Duration;
+
+  /**
    * A  unique  identifier  that  is  used by third parties when assuming roles
    * in their customers' accounts. For each  role  that  the  third party can
    * assume, they should instruct their customers to ensure the role's trust
@@ -369,10 +384,12 @@ export class LinuxPlatform extends ShellPlatform {
     lines.push(`unzip /tmp/$(basename \$${S3_KEY_ENV}) -d /tmp/scriptdir`);
 
     if (assumeRole) {
+
+      const sessionDuration = assumeRole.sessionDuration ?? cdk.Duration.hours(1);
       const externalId = assumeRole.externalId ? `--external-id "${assumeRole.externalId}"` : '';
       const StsEndpoints = useRegionalStsEndpoints ? "regional" : "legacy";
       lines.push('creds=$(mktemp -d)/creds.json');
-      lines.push(`AWS_STS_REGIONAL_ENDPOINTS=${StsEndpoints} aws sts assume-role --role-arn "${assumeRole.roleArn}" --role-session-name "${assumeRole.sessionName}" ${externalId} > $creds`);
+      lines.push(`AWS_STS_REGIONAL_ENDPOINTS=${StsEndpoints} aws sts assume-role --role-arn "${assumeRole.roleArn}" --role-session-name "${assumeRole.sessionName}" ${externalId} --duration-seconds ${sessionDuration.toSeconds()} > $creds`);
       lines.push('export AWS_ACCESS_KEY_ID="$(cat ${creds} | grep "AccessKeyId" | cut -d\'"\' -f 4)"');
       lines.push('export AWS_SECRET_ACCESS_KEY="$(cat ${creds} | grep "SecretAccessKey" | cut -d\'"\' -f 4)"');
       lines.push('export AWS_SESSION_TOKEN="$(cat ${creds} | grep "SessionToken" | cut -d\'"\' -f 4)"');
