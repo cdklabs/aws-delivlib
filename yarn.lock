@@ -9,6 +9,13 @@
   dependencies:
     md5 "^2.3.0"
 
+"@aws-cdk/cfnspec@1.62.0":
+  version "1.62.0"
+  resolved "https://registry.yarnpkg.com/@aws-cdk/cfnspec/-/cfnspec-1.62.0.tgz#46ce41776acd38177eec71118a4a79963b313a4c"
+  integrity sha512-/WCpfcKNGOkcGiE72uRt35JuG3TrysBkqYXHkfJiKSZOouInLty9iftMVxHk/lkjpA7UV+tgtLuy5ymFiiaFMw==
+  dependencies:
+    md5 "^2.3.0"
+
 "@aws-cdk/cloud-assembly-schema@1.61.1":
   version "1.61.1"
   resolved "https://registry.yarnpkg.com/@aws-cdk/cloud-assembly-schema/-/cloud-assembly-schema-1.61.1.tgz#cdc0fe910ed96e3f384f852cab3f0551ef864493"
@@ -23,6 +30,18 @@
   integrity sha512-zBwMfCqsTHGbaFr8hZr7DB2lTqlGpuvKFTkJjQcvrz1vVMnSQ9X9woEvpxv7uBCXYFtNbkd+o8vLjhqT8FbKsA==
   dependencies:
     "@aws-cdk/cfnspec" "1.61.1"
+    colors "^1.4.0"
+    diff "^4.0.2"
+    fast-deep-equal "^3.1.3"
+    string-width "^4.2.0"
+    table "^5.4.6"
+
+"@aws-cdk/cloudformation-diff@1.62.0":
+  version "1.62.0"
+  resolved "https://registry.yarnpkg.com/@aws-cdk/cloudformation-diff/-/cloudformation-diff-1.62.0.tgz#7797254d84b627a2ce74350eca60a94bfe243248"
+  integrity sha512-Gdyxk4yPQNRLa8vbq1K18VSyXEbywfOGOZz6AyOd5vta16NCeRnK49rLpgOjcyZLNmGNaez9u1U4P9EmwFw5tw==
+  dependencies:
+    "@aws-cdk/cfnspec" "1.62.0"
     colors "^1.4.0"
     diff "^4.0.2"
     fast-deep-equal "^3.1.3"
@@ -508,12 +527,12 @@
     "@types/yargs" "^15.0.0"
     chalk "^4.0.0"
 
-"@monocdk-experiment/assert@1.61.1":
-  version "1.61.1"
-  resolved "https://registry.yarnpkg.com/@monocdk-experiment/assert/-/assert-1.61.1.tgz#961569cacd4955226e722b289c1c1f57055e8f64"
-  integrity sha512-GfJfMmTRSVAOVDCqwZfUt+wKJxjcS+HSbKJZymwN86Cg+DOCd+zdFykhtauRFurvC5sUEVAVoYt0Vf8ie7eXvA==
+"@monocdk-experiment/assert@1.62.0":
+  version "1.62.0"
+  resolved "https://registry.yarnpkg.com/@monocdk-experiment/assert/-/assert-1.62.0.tgz#339e076181c70db93e326f5cee6018a4340afa13"
+  integrity sha512-I+fcI8e8y5TQObz300zihn/i932zYzsB6M4hKslcfBb9rEhBcQFe9SUVwDyv2p9M/cmc4cCA0VSJG3hQNeeb+A==
   dependencies:
-    "@aws-cdk/cloudformation-diff" "1.61.1"
+    "@aws-cdk/cloudformation-diff" "1.62.0"
 
 "@sinonjs/commons@^1.7.0":
   version "1.8.1"
