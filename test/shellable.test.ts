@@ -6,6 +6,39 @@ import { Shellable, ShellPlatform } from "../lib";
 
 // tslint:disable:max-line-length
 
+test('can assume a refreshable role', () => {
+  const stack = new cdk.Stack(new cdk.App(), 'TestStack');
+
+  new Shellable(stack, 'MyShellable', {
+    scriptDirectory: path.join(__dirname, 'delivlib-tests/linux'),
+    entrypoint: 'test.sh',
+    assumeRole: {
+      profileName: 'profile',
+      roleArn: 'arn',
+      sessionName: 'session',
+      refresh: true
+    }
+  });
+
+  const template = assert(stack).value;
+
+  expect(JSON.parse(template.Resources.MyShellableB2FFD397.Properties.Source.BuildSpec).phases.pre_build.commands).toEqual([
+    "echo \"Downloading scripts from s3://${SCRIPT_S3_BUCKET}/${SCRIPT_S3_KEY}\"",
+    "aws s3 cp s3://${SCRIPT_S3_BUCKET}/${SCRIPT_S3_KEY} /tmp",
+    "mkdir -p /tmp/scriptdir",
+    "unzip /tmp/$(basename $SCRIPT_S3_KEY) -d /tmp/scriptdir",
+    "mkdir -p ~/.aws",
+    "touch ~/.aws/credentials",
+    "config=~/.aws/config",
+    "echo [profile profile]>> ${config}",
+    "echo credential_source = EcsContainer >> ${config}",
+    "echo role_session_name = session >> ${config}",
+    "echo role_arn = arn >> $config",
+    "export AWS_PROFILE=profile",
+    "export AWS_SDK_LOAD_CONFIG=1"
+  ]);
+});
+
 test('minimal configuration', () => {
   const stack = new cdk.Stack(new cdk.App(), 'TestStack');
 
