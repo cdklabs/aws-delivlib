@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [8.3.1](https://github.com/awslabs/aws-delivlib/compare/v8.3.0...v8.3.1) (2020-09-09)
+
+
+### Bug Fixes
+
+* auto bump does not work for delivlib's own pipeline ([dcc6d5c](https://github.com/awslabs/aws-delivlib/commit/dcc6d5c443c94138da8b7cdbda81a54a5bda9372))
+
 ## [8.3.0](https://github.com/awslabs/aws-delivlib/compare/v8.2.7...v8.3.0) (2020-09-09)
 
 
