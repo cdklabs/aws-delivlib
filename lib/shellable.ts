@@ -196,45 +196,23 @@ export interface AssumeRole {
    * This is needed to support long running sessions that needs sessions that are longer than
    * the session duration that can be configured with a `sts assume-role`.
    *
-   * When a profile name is specified, you must also configure one of `sourceProfile` or `credentialSource`.
+   * The application code will access to this profile in the `AWS_PROFILE` env variable.
+   *
+   * Only relevant if `refresh` is specified.
    *
    * @see https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html
+   *
+   * @default 'long-running-profile'
    */
-  profileName?: string,
+  profileName?: string;
 
   /**
-   * A profile name to be used as the credential with which to assume the role.
-   * Must exist in either the credential or the config file.
-   * Either this or `credentialSource` is required when using `profileName`
+   * Specify this if you have a long running execution that needs long running sessions.
    *
-   * @see https://docs.aws.amazon.com/credref/latest/refdocs/setting-global-source_profile.html
+   * This will create a profile and use it to delegate credential refreshing to the SDK/CLI
    */
-  sourceProfile?: string,
+  refresh?: boolean;
 
-  /**
-   * A credential mechanism to use as the credentials with which to assume the role.
-   * Either this or `sourceProfile` is required when using `profileName`
-   *
-   * @see https://docs.aws.amazon.com/credref/latest/refdocs/setting-global-credential_source.html
-   *
-   */
-  credentialSource?: CredentialSource,
-
-  /**
-   * The directory to create `credentials` and `config` files in case `profileName` is used.
-   *
-   * @default ~/.aws
-   */
-  awsHomeDir?: string;
-}
-
-export enum CredentialSource {
-
-  Environment = 'Environment',
-
-  Ec2InstanceMetadata = 'Ec2InstanceMetadata',
-
-  EcsContainer = 'EcsContainer'
 }
 
 /**
@@ -419,29 +397,17 @@ export class LinuxPlatform extends ShellPlatform {
 
     if (assumeRole) {
 
-      if (assumeRole.profileName) {
+      if (assumeRole.refresh) {
 
-        if (!assumeRole.credentialSource && !assumeRole.sourceProfile) {
-          throw new Error(`Either 'credentialSource' or 'sourceProfile' is required when using a profile`);
-        }
+        const awsHome = '~/.aws';
 
-        if (assumeRole.credentialSource && assumeRole.sourceProfile) {
-          throw new Error(`Only one of 'credentialSource' or 'sourceProfile' is allowed when using a profile`);
-        }
-
-        const awsHome = assumeRole.awsHomeDir ?? '~/.aws';
+        const profileName = assumeRole.profileName ?? 'long-running-profile';
 
         lines.push(`mkdir -p ${awsHome}`);
         lines.push(`touch ${awsHome}/credentials`);
         lines.push(`config=${awsHome}/config`);
-        lines.push(`echo [profile ${assumeRole.profileName}]>> $\{config\}`);
-
-        if (assumeRole.credentialSource) {
-          lines.push(`echo credential_source = ${assumeRole.credentialSource} >> $\{config\}`);
-        } else {
-          lines.push(`echo source_profile = ${assumeRole.sourceProfile} >> $\{config\}`);
-        }
-
+        lines.push(`echo [profile ${profileName}]>> $\{config\}`);
+        lines.push(`echo credential_source = EcsContainer >> $\{config\}`);
         lines.push(`echo role_session_name = ${assumeRole.sessionName} >> $\{config\}`);
         lines.push(`echo role_arn = ${assumeRole.roleArn} >> $config`);
 
@@ -450,7 +416,7 @@ export class LinuxPlatform extends ShellPlatform {
         }
 
         // let the application code know which role is being used.
-        lines.push(`export AWS_PROFILE=${assumeRole.profileName}`);
+        lines.push(`export AWS_PROFILE=${profileName}`);
 
       } else {
 
