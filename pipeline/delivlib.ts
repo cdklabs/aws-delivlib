@@ -66,6 +66,9 @@ export class DelivLibPipelineStack extends cdk.Stack {
       scheduleExpression: 'cron(0 12 * * ? *)',
       bumpCommand: 'yarn install --frozen-lockfile && yarn bump',
       head: {
+        name: 'main',
+      },
+      base: {
         name: 'main'
       },
       pushOnly: true
