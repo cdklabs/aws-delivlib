@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [8.3.0](https://github.com/awslabs/aws-delivlib/compare/v8.2.7...v8.3.0) (2020-09-09)
+
+
+### Features
+
+* support assume role profiles ([1565302](https://github.com/awslabs/aws-delivlib/commit/1565302fe48e8189cb68a5af3bc1398c9fd473f2))
+
+
+### Bug Fixes
+
+* **pr:** AutoPR handle repos without master branch ([#451](https://github.com/awslabs/aws-delivlib/issues/451)) ([9adf11e](https://github.com/awslabs/aws-delivlib/commit/9adf11e94578f1e8031a7ef667eeb9717080ed23))
+
 ### [8.2.7](https://github.com/awslabs/aws-delivlib/compare/v8.2.6...v8.2.7) (2020-08-23)
 
 ### [8.2.6](https://github.com/awslabs/aws-delivlib/compare/v8.2.5...v8.2.6) (2020-08-21)
