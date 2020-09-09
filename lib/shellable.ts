@@ -418,6 +418,9 @@ export class LinuxPlatform extends ShellPlatform {
         // let the application code know which role is being used.
         lines.push(`export AWS_PROFILE=${profileName}`);
 
+        // force the CLI/SDK to actually load the config file.
+        lines.push('export AWS_SDK_LOAD_CONFIG=1');
+
       } else {
 
         const externalId = assumeRole.externalId ? `--external-id "${assumeRole.externalId}"` : '';

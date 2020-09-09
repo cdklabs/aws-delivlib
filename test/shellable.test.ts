@@ -35,6 +35,7 @@ test('can assume a refreshable role', () => {
     "echo role_session_name = session >> ${config}",
     "echo role_arn = arn >> $config",
     "export AWS_PROFILE=profile",
+    "export AWS_SDK_LOAD_CONFIG=1"
   ]);
 });
 
