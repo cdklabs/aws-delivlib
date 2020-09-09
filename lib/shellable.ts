@@ -186,6 +186,55 @@ export interface AssumeRole {
    * underscores or  any  of  the  following characters: =,.@:/-
    */
   externalId?: string;
+
+  /**
+   * When a profie name is configured, an assumed role configuration will be created
+   * in the shared aws configuration file (~/.aws/config). This is in contrary of simply invoking
+   * an `sts assume-role` command that creates a session with a fixed expiry date.
+   *
+   * Using a profile will delegate credential refreshing to the SDK/CLI.
+   * This is needed to support long running sessions that needs sessions that are longer than
+   * the session duration that can be configured with a `sts assume-role`.
+   *
+   * When a profile name is specified, you must also configure one of `sourceProfile` or `credentialSource`.
+   *
+   * @see https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html
+   */
+  profileName?: string,
+
+  /**
+   * A profile name to be used as the credential with which to assume the role.
+   * Must exist in either the credential or the config file.
+   * Either this or `credentialSource` is required when using `profileName`
+   *
+   * @see https://docs.aws.amazon.com/credref/latest/refdocs/setting-global-source_profile.html
+   */
+  sourceProfile?: string,
+
+  /**
+   * A credential mechanism to use as the credentials with which to assume the role.
+   * Either this or `sourceProfile` is required when using `profileName`
+   *
+   * @see https://docs.aws.amazon.com/credref/latest/refdocs/setting-global-credential_source.html
+   *
+   */
+  credentialSource?: CredentialSource,
+
+  /**
+   * The directory to create `credentials` and `config` files in case `profileName` is used.
+   *
+   * @default ~/.aws
+   */
+  awsHomeDir?: string;
+}
+
+export enum CredentialSource {
+
+  Environment = 'Environment',
+
+  Ec2InstanceMetadata = 'Ec2InstanceMetadata',
+
+  EcsContainer = 'EcsContainer'
 }
 
 /**
@@ -369,13 +418,44 @@ export class LinuxPlatform extends ShellPlatform {
     lines.push(`unzip /tmp/$(basename \$${S3_KEY_ENV}) -d /tmp/scriptdir`);
 
     if (assumeRole) {
+
       const externalId = assumeRole.externalId ? `--external-id "${assumeRole.externalId}"` : '';
       const StsEndpoints = useRegionalStsEndpoints ? "regional" : "legacy";
-      lines.push('creds=$(mktemp -d)/creds.json');
-      lines.push(`AWS_STS_REGIONAL_ENDPOINTS=${StsEndpoints} aws sts assume-role --role-arn "${assumeRole.roleArn}" --role-session-name "${assumeRole.sessionName}" ${externalId} > $creds`);
-      lines.push('export AWS_ACCESS_KEY_ID="$(cat ${creds} | grep "AccessKeyId" | cut -d\'"\' -f 4)"');
-      lines.push('export AWS_SECRET_ACCESS_KEY="$(cat ${creds} | grep "SecretAccessKey" | cut -d\'"\' -f 4)"');
-      lines.push('export AWS_SESSION_TOKEN="$(cat ${creds} | grep "SessionToken" | cut -d\'"\' -f 4)"');
+      lines.push(`export AWS_STS_REGIONAL_ENDPOINTS=${StsEndpoints}`);
+
+      if (assumeRole.profileName) {
+
+        if (!assumeRole.credentialSource && !assumeRole.sourceProfile) {
+          throw new Error(`Either 'credentialSource' or 'sourceProfile' is required when using a profile`);
+        }
+
+        const awsHome = assumeRole.awsHomeDir ?? '~/.aws';
+
+        lines.push(`mkdir -p ${awsHome}`);
+        lines.push(`touch ${awsHome}/credentials`);
+        lines.push(`config=${awsHome}/config`);
+        lines.push(`echo [profile ${assumeRole.profileName}]>> $\{config\}`);
+
+        if (assumeRole.credentialSource) {
+          lines.push(`echo credential_source = ${assumeRole.credentialSource} >> $\{config\}`);
+        } else {
+          lines.push(`echo source_profile = ${assumeRole.sourceProfile} >> $\{config\}`);
+        }
+
+        lines.push(`echo role_session_name = ${assumeRole.sessionName} >> $\{config\}`);
+        lines.push(`echo role_arn = ${assumeRole.roleArn} >> $config`);
+        lines.push(`echo external_id = ${assumeRole.externalId} >> $config`);
+
+        // let the application code know which role is being used.
+        lines.push(`export AWS_PROFILE=${assumeRole.profileName}`);
+
+      } else {
+        lines.push('creds=$(mktemp -d)/creds.json');
+        lines.push(`aws sts assume-role --role-arn "${assumeRole.roleArn}" --role-session-name "${assumeRole.sessionName}" ${externalId} > $creds`);
+        lines.push('export AWS_ACCESS_KEY_ID="$(cat ${creds} | grep "AccessKeyId" | cut -d\'"\' -f 4)"');
+        lines.push('export AWS_SECRET_ACCESS_KEY="$(cat ${creds} | grep "SecretAccessKey" | cut -d\'"\' -f 4)"');
+        lines.push('export AWS_SESSION_TOKEN="$(cat ${creds} | grep "SessionToken" | cut -d\'"\' -f 4)"');
+      }
     }
 
     return lines;
