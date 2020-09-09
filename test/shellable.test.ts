@@ -1,10 +1,110 @@
 import * as cdk from "monocdk-experiment";
 import { expect as assert, haveResource, ResourcePart, SynthUtils } from "@monocdk-experiment/assert";
 import * as path from "path";
-import { Shellable, ShellPlatform } from "../lib";
+import { Shellable, ShellPlatform, CredentialSource } from "../lib";
 
 
 // tslint:disable:max-line-length
+
+test('can use profile to assume role with credential_source', () => {
+  const stack = new cdk.Stack(new cdk.App(), 'TestStack');
+
+  new Shellable(stack, 'MyShellable', {
+    scriptDirectory: path.join(__dirname, 'delivlib-tests/linux'),
+    entrypoint: 'test.sh',
+    assumeRole: {
+      profileName: 'profile',
+      roleArn: 'arn',
+      sessionName: 'session',
+      credentialSource: CredentialSource.EcsContainer
+    }
+  });
+
+  const template = assert(stack).value;
+
+  expect(JSON.parse(template.Resources.MyShellableB2FFD397.Properties.Source.BuildSpec).phases.pre_build.commands).toEqual([
+    "echo \"Downloading scripts from s3://${SCRIPT_S3_BUCKET}/${SCRIPT_S3_KEY}\"",
+    "aws s3 cp s3://${SCRIPT_S3_BUCKET}/${SCRIPT_S3_KEY} /tmp",
+    "mkdir -p /tmp/scriptdir",
+    "unzip /tmp/$(basename $SCRIPT_S3_KEY) -d /tmp/scriptdir",
+    "mkdir -p ~/.aws",
+    "touch ~/.aws/credentials",
+    "config=~/.aws/config",
+    "echo [profile profile]>> ${config}",
+    "echo credential_source = EcsContainer >> ${config}",
+    "echo role_session_name = session >> ${config}",
+    "echo role_arn = arn >> $config",
+    "export AWS_PROFILE=profile",
+  ]);
+});
+
+test('can use profile to assume role with source_profile', () => {
+  const stack = new cdk.Stack(new cdk.App(), 'TestStack');
+
+  new Shellable(stack, 'MyShellable', {
+    scriptDirectory: path.join(__dirname, 'delivlib-tests/linux'),
+    entrypoint: 'test.sh',
+    assumeRole: {
+      profileName: 'profile',
+      roleArn: 'arn',
+      sessionName: 'session',
+      sourceProfile: 'other-profile'
+    }
+  });
+
+  const template = assert(stack).value;
+
+  expect(JSON.parse(template.Resources.MyShellableB2FFD397.Properties.Source.BuildSpec).phases.pre_build.commands).toEqual([
+    "echo \"Downloading scripts from s3://${SCRIPT_S3_BUCKET}/${SCRIPT_S3_KEY}\"",
+    "aws s3 cp s3://${SCRIPT_S3_BUCKET}/${SCRIPT_S3_KEY} /tmp",
+    "mkdir -p /tmp/scriptdir",
+    "unzip /tmp/$(basename $SCRIPT_S3_KEY) -d /tmp/scriptdir",
+    "mkdir -p ~/.aws",
+    "touch ~/.aws/credentials",
+    "config=~/.aws/config",
+    "echo [profile profile]>> ${config}",
+    "echo source_profile = other-profile >> ${config}",
+    "echo role_session_name = session >> ${config}",
+    "echo role_arn = arn >> $config",
+    "export AWS_PROFILE=profile",
+  ]);
+});
+
+test('cannot use profile to assume role with both credential_source and source_profile', () => {
+  const stack = new cdk.Stack(new cdk.App(), 'TestStack');
+
+  expect(() => {
+    new Shellable(stack, 'MyShellable', {
+      scriptDirectory: path.join(__dirname, 'delivlib-tests/linux'),
+      entrypoint: 'test.sh',
+      assumeRole: {
+        profileName: 'profile',
+        roleArn: 'arn',
+        sessionName: 'session',
+        credentialSource: CredentialSource.Ec2InstanceMetadata,
+        sourceProfile: 'other-profile'
+      }
+    });
+  }).toThrow("Only one of 'credentialSource' or 'sourceProfile' is allowed when using a profile");
+
+});
+
+test('cannot use profile to assume role without credential_source nor source_profile', () => {
+  const stack = new cdk.Stack(new cdk.App(), 'TestStack');
+
+  expect(() => {
+    new Shellable(stack, 'MyShellable', {
+      scriptDirectory: path.join(__dirname, 'delivlib-tests/linux'),
+      entrypoint: 'test.sh',
+      assumeRole: {
+        profileName: 'profile',
+        roleArn: 'arn',
+        sessionName: 'session',
+      }
+    });
+  }).toThrow("Either 'credentialSource' or 'sourceProfile' is required when using a profile");
+
+});
 
 test('minimal configuration', () => {
   const stack = new cdk.Stack(new cdk.App(), 'TestStack');

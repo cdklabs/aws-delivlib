@@ -419,14 +419,14 @@ export class LinuxPlatform extends ShellPlatform {
 
     if (assumeRole) {
 
-      const externalId = assumeRole.externalId ? `--external-id "${assumeRole.externalId}"` : '';
-      const StsEndpoints = useRegionalStsEndpoints ? "regional" : "legacy";
-      lines.push(`export AWS_STS_REGIONAL_ENDPOINTS=${StsEndpoints}`);
-
       if (assumeRole.profileName) {
 
         if (!assumeRole.credentialSource && !assumeRole.sourceProfile) {
           throw new Error(`Either 'credentialSource' or 'sourceProfile' is required when using a profile`);
+        }
+
+        if (assumeRole.credentialSource && assumeRole.sourceProfile) {
+          throw new Error(`Only one of 'credentialSource' or 'sourceProfile' is allowed when using a profile`);
         }
 
         const awsHome = assumeRole.awsHomeDir ?? '~/.aws';
@@ -444,14 +444,21 @@ export class LinuxPlatform extends ShellPlatform {
 
         lines.push(`echo role_session_name = ${assumeRole.sessionName} >> $\{config\}`);
         lines.push(`echo role_arn = ${assumeRole.roleArn} >> $config`);
-        lines.push(`echo external_id = ${assumeRole.externalId} >> $config`);
+
+        if (assumeRole.externalId) {
+          lines.push(`echo external_id = ${assumeRole.externalId} >> $config`);
+        }
 
         // let the application code know which role is being used.
         lines.push(`export AWS_PROFILE=${assumeRole.profileName}`);
 
       } else {
+
+        const externalId = assumeRole.externalId ? `--external-id "${assumeRole.externalId}"` : '';
+        const StsEndpoints = useRegionalStsEndpoints ? "regional" : "legacy";
+
         lines.push('creds=$(mktemp -d)/creds.json');
-        lines.push(`aws sts assume-role --role-arn "${assumeRole.roleArn}" --role-session-name "${assumeRole.sessionName}" ${externalId} > $creds`);
+        lines.push(`AWS_STS_REGIONAL_ENDPOINTS=${StsEndpoints} aws sts assume-role --role-arn "${assumeRole.roleArn}" --role-session-name "${assumeRole.sessionName}" ${externalId} > $creds`);
         lines.push('export AWS_ACCESS_KEY_ID="$(cat ${creds} | grep "AccessKeyId" | cut -d\'"\' -f 4)"');
         lines.push('export AWS_SECRET_ACCESS_KEY="$(cat ${creds} | grep "SecretAccessKey" | cut -d\'"\' -f 4)"');
         lines.push('export AWS_SESSION_TOKEN="$(cat ${creds} | grep "SessionToken" | cut -d\'"\' -f 4)"');
