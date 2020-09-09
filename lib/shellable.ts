@@ -419,7 +419,7 @@ export class LinuxPlatform extends ShellPlatform {
         // let the application code know which role is being used.
         lines.push(`export AWS_PROFILE=${profileName}`);
 
-        // force the CLI/SDK to actually load the config file.
+        // force the AWS SDK for JavaScript to actually load the config file (do automatically so users don't forget)
         lines.push('export AWS_SDK_LOAD_CONFIG=1');
 
       } else {
