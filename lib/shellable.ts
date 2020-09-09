@@ -208,8 +208,9 @@ export interface AssumeRole {
 
   /**
    * Specify this if you have a long running execution that needs long running sessions.
-   *
    * This will create a profile and use it to delegate credential refreshing to the SDK/CLI
+   *
+   * @default false
    */
   refresh?: boolean;
 
