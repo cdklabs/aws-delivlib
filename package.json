@@ -39,7 +39,7 @@
   "devDependencies": {
     "@monocdk-experiment/assert": "1.62.0",
     "@types/jest": "^26.0.13",
-    "@types/node": "^10.17.30",
+    "@types/node": "^10.17.31",
     "aws-cdk": "1.62.0",
     "constructs": "^3.0.4",
     "jest": "^26.4.2",
