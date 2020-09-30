@@ -44,7 +44,7 @@
     "constructs": "^3.0.4",
     "jest": "^26.4.2",
     "jest-create-mock-instance": "^1.1.0",
-    "monocdk-experiment": "1.51.0",
+    "monocdk-experiment": "1.64.1",
     "standard-version": "^9.0.0",
     "ts-jest": "^26.4.1",
     "tslint": "^6.1.3",
