@@ -2,13 +2,6 @@
 # yarn lockfile v1
 
 
-"@aws-cdk/cfnspec@1.65.0":
-  version "1.65.0"
-  resolved "https://registry.yarnpkg.com/@aws-cdk/cfnspec/-/cfnspec-1.65.0.tgz#08bf29fb8b110f40e8e101a78406e4f67d1dac56"
-  integrity sha512-Jjw959v0MeQH2GYISFCumQVuc1G/emTP/bdDkxJNFq0IcNQ6KYg9dXhntxgXSUS3HInCo6lLo5E75gd6Mlc4Cg==
-  dependencies:
-    md5 "^2.3.0"
-
 "@aws-cdk/cfnspec@1.66.0":
   version "1.66.0"
   resolved "https://registry.yarnpkg.com/@aws-cdk/cfnspec/-/cfnspec-1.66.0.tgz#ed400b2fbcafcaf8e93ba504b9c42fce0824608d"
@@ -23,18 +16,6 @@
   dependencies:
     jsonschema "^1.2.7"
     semver "^7.3.2"
-
-"@aws-cdk/cloudformation-diff@1.65.0":
-  version "1.65.0"
-  resolved "https://registry.yarnpkg.com/@aws-cdk/cloudformation-diff/-/cloudformation-diff-1.65.0.tgz#2642fa7be2150bed2b59485871287e86b98e6d8f"
-  integrity sha512-T//bKlYdOpC+dMAwwo9o4sw5P+GSrkRZUxgi1nX1Lemqzi0XFUM3ftyAe/LsSgHkfr/dinUrWEngXiKrFwnpmg==
-  dependencies:
-    "@aws-cdk/cfnspec" "1.65.0"
-    colors "^1.4.0"
-    diff "^4.0.2"
-    fast-deep-equal "^3.1.3"
-    string-width "^4.2.0"
-    table "^6.0.3"
 
 "@aws-cdk/cloudformation-diff@1.66.0":
   version "1.66.0"
@@ -534,12 +515,12 @@
     "@types/yargs" "^15.0.0"
     chalk "^4.0.0"
 
-"@monocdk-experiment/assert@1.65.0":
-  version "1.65.0"
-  resolved "https://registry.yarnpkg.com/@monocdk-experiment/assert/-/assert-1.65.0.tgz#d54a4cb0875ca2b972db2ffd65b3583061ea5cb8"
-  integrity sha512-5LaOGIi6gRIBhoDv6mMnwmfa2MjCB7TWAwtDf1fX4SUdi6s6SwaCXP/Fheq1Mp4B2TbK5sF1eMce0jzy+GbV8Q==
+"@monocdk-experiment/assert@1.66.0":
+  version "1.66.0"
+  resolved "https://registry.yarnpkg.com/@monocdk-experiment/assert/-/assert-1.66.0.tgz#3646d929794340a434d645a5d0d18712d8b0aa84"
+  integrity sha512-f7oJHWo4ylB6K/LzOfpMUIpqNhEX+jPglkKVTmjuStagMRN0m41UyqUHsY0lOiQDfo/L5+FLz4YprvQRVFhaFw==
   dependencies:
-    "@aws-cdk/cloudformation-diff" "1.65.0"
+    "@aws-cdk/cloudformation-diff" "1.66.0"
 
 "@sinonjs/commons@^1.7.0":
   version "1.8.1"
