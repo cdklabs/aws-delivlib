@@ -42,7 +42,7 @@
     "@types/node": "^10.17.35",
     "aws-cdk": "1.66.0",
     "constructs": "^3.0.4",
-    "jest": "^26.4.2",
+    "jest": "^26.5.0",
     "jest-create-mock-instance": "^1.1.0",
     "monocdk-experiment": "1.51.0",
     "standard-version": "^9.0.0",
