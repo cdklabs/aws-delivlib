@@ -41,7 +41,7 @@
     "@types/jest": "^26.0.14",
     "@types/node": "^10.17.37",
     "aws-cdk": "1.66.0",
-    "constructs": "^3.0.5",
+    "constructs": "^3.0.7",
     "jest": "^26.4.2",
     "jest-create-mock-instance": "^1.1.0",
     "monocdk-experiment": "1.51.0",
@@ -51,7 +51,7 @@
     "typescript": "^4.0.3"
   },
   "peerDependencies": {
-    "constructs": "^3.0.5",
+    "constructs": "^3.0.7",
     "monocdk-experiment": "^1.60.0"
   },
   "jest": {
