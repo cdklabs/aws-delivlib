@@ -10,8 +10,20 @@ import { WritableGitHubRepo } from "./repo";
 import { LinuxPlatform, Shellable } from "./shellable";
 import { noUndefined } from "./util";
 
+/**
+ * Type of access permissions to request from npmjs.
+ */
+export enum NpmAccess {
+  /**
+   * No access restriction. Note that unscoped packages must always be public.
+   */
+  PUBLIC = 'public',
 
-
+  /**
+   * Limit access to whitelisted npmjs users.
+   */
+  RESTRICTED = 'restricted',
+}
 
 export interface PublishToMavenProjectProps {
   /**
@@ -105,6 +117,19 @@ export interface PublishToNpmProjectProps {
    * @default - npm default behavior ("latest" unless dist tag is specified in package.json)
    */
   distTag?: string;
+
+  /**
+   * npm --access public|restricted
+   *
+   * See https://docs.npmjs.com/cli-commands/publish#:~:text=Tells%20the
+   *
+   * Tells the registry whether this package should be published as public or restricted.
+   * Only applies to scoped packages, which default to restricted.
+   * If you don’t have a paid account, you must publish with --access public to publish scoped packages.
+   *
+   * @default NpmAccess.PUBLIC
+   */
+  access?: NpmAccess;
 }
 
 /**
@@ -119,6 +144,8 @@ export class PublishToNpmProject extends cdk.Construct implements IPublisher {
 
     const forReal = props.dryRun === undefined ? 'false' : (!props.dryRun).toString();
 
+    const access = props.access ?? NpmAccess.PUBLIC;
+
     const shellable = new Shellable(this, 'Default', {
       platform: new LinuxPlatform(cbuild.LinuxBuildImage.UBUNTU_14_04_NODEJS_10_1_0),
       scriptDirectory: path.join(__dirname, 'publishing', 'npm'),
@@ -126,7 +153,8 @@ export class PublishToNpmProject extends cdk.Construct implements IPublisher {
       environment: {
         FOR_REAL: forReal,
         NPM_TOKEN_SECRET: props.npmTokenSecret.secretArn,
-        DISTTAG: props.distTag || ''
+        DISTTAG: props.distTag || '',
+        ACCESS: access,
       },
     });
 

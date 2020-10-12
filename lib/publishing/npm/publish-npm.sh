@@ -27,6 +27,11 @@ if [ -n "${DISTTAG}" ]; then
     DISTTAG="--tag=${DISTTAG}"
 fi
 
+ACCESS="${ACCESS:-"public"}"
+if [ -n "$ACCESS" ]; then
+    ACCESS=public
+fi
+
 echo "📦 Publishing to NPM"
 
 TOKENS=$(npm token list 2>&1 || echo '')
@@ -51,7 +56,7 @@ for TGZ in $(find ${PWD}/js -iname '*.tgz'); do
     # returns an empty string if the package exists, but version doesn't
     npm_view=$(npm view ${mod}@${ver} 2> /dev/null || true)
     if [ -z "${npm_view}" ]; then
-        $dry_npm publish $TGZ --access=public ${DISTTAG} --loglevel=silly
+        $dry_npm publish $TGZ --access=${ACCESS} ${DISTTAG} --loglevel=silly
     else
         echo "⚠️ Package ${mod}@${ver} already published. Skipping."
     fi

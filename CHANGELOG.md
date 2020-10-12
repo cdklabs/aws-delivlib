@@ -2,6 +2,69 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [8.3.17](https://github.com/awslabs/aws-delivlib/compare/v8.3.16...v8.3.17) (2020-10-09)
+
+### [8.3.16](https://github.com/awslabs/aws-delivlib/compare/v8.3.15...v8.3.16) (2020-10-08)
+
+### [8.3.15](https://github.com/awslabs/aws-delivlib/compare/v8.3.14...v8.3.15) (2020-10-07)
+
+### [8.3.14](https://github.com/awslabs/aws-delivlib/compare/v8.3.13...v8.3.14) (2020-10-06)
+
+### [8.3.13](https://github.com/awslabs/aws-delivlib/compare/v8.3.12...v8.3.13) (2020-10-05)
+
+### [8.3.12](https://github.com/awslabs/aws-delivlib/compare/v8.3.11...v8.3.12) (2020-10-01)
+
+### [8.3.11](https://github.com/awslabs/aws-delivlib/compare/v8.3.10...v8.3.11) (2020-09-30)
+
+### [8.3.10](https://github.com/awslabs/aws-delivlib/compare/v8.3.9...v8.3.10) (2020-09-28)
+
+### [8.3.9](https://github.com/awslabs/aws-delivlib/compare/v8.3.8...v8.3.9) (2020-09-25)
+
+### [8.3.8](https://github.com/awslabs/aws-delivlib/compare/v8.3.7...v8.3.8) (2020-09-21)
+
+### [8.3.7](https://github.com/awslabs/aws-delivlib/compare/v8.3.6...v8.3.7) (2020-09-18)
+
+### [8.3.6](https://github.com/awslabs/aws-delivlib/compare/v8.3.5...v8.3.6) (2020-09-17)
+
+### [8.3.5](https://github.com/awslabs/aws-delivlib/compare/v8.3.4...v8.3.5) (2020-09-16)
+
+### [8.3.4](https://github.com/awslabs/aws-delivlib/compare/v8.3.3...v8.3.4) (2020-09-15)
+
+### [8.3.3](https://github.com/awslabs/aws-delivlib/compare/v8.3.2...v8.3.3) (2020-09-14)
+
+### [8.3.2](https://github.com/awslabs/aws-delivlib/compare/v8.3.1...v8.3.2) (2020-09-11)
+
+### [8.3.1](https://github.com/awslabs/aws-delivlib/compare/v8.3.0...v8.3.1) (2020-09-09)
+
+
+### Bug Fixes
+
+* auto bump does not work for delivlib's own pipeline ([dcc6d5c](https://github.com/awslabs/aws-delivlib/commit/dcc6d5c443c94138da8b7cdbda81a54a5bda9372))
+
+## [8.3.0](https://github.com/awslabs/aws-delivlib/compare/v8.2.7...v8.3.0) (2020-09-09)
+
+
+### Features
+
+* support assume role profiles ([1565302](https://github.com/awslabs/aws-delivlib/commit/1565302fe48e8189cb68a5af3bc1398c9fd473f2))
+
+
+### Bug Fixes
+
+* **pr:** AutoPR handle repos without master branch ([#451](https://github.com/awslabs/aws-delivlib/issues/451)) ([9adf11e](https://github.com/awslabs/aws-delivlib/commit/9adf11e94578f1e8031a7ef667eeb9717080ed23))
+
+### [8.2.7](https://github.com/awslabs/aws-delivlib/compare/v8.2.6...v8.2.7) (2020-08-23)
+
+### [8.2.6](https://github.com/awslabs/aws-delivlib/compare/v8.2.5...v8.2.6) (2020-08-21)
+
+### [8.2.5](https://github.com/awslabs/aws-delivlib/compare/v8.2.4...v8.2.5) (2020-08-19)
+
+### [8.2.4](https://github.com/awslabs/aws-delivlib/compare/v8.2.3...v8.2.4) (2020-08-18)
+
+### [8.2.3](https://github.com/awslabs/aws-delivlib/compare/v8.2.2...v8.2.3) (2020-08-15)
+
+### [8.2.2](https://github.com/awslabs/aws-delivlib/compare/v8.2.1...v8.2.2) (2020-08-13)
+
 ### [8.2.1](https://github.com/awslabs/aws-delivlib/compare/v8.2.0...v8.2.1) (2020-08-11)
 
 

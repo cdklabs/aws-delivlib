@@ -1,9 +1,7 @@
 import { aws_codebuild as codebuild, aws_sam as serverless } from "monocdk-experiment";
-import * as core from 'monocdk-experiment';
+import * as cdk from 'monocdk-experiment';
 import { BuildEnvironmentProps, createBuildEnvironment } from "./build-env";
 import { IRepo } from './repo';
-
-const { Token } = core;
 
 export interface AutoBuildOptions {
   /**
@@ -64,8 +62,8 @@ export interface AutoBuildProps extends AutoBuildOptions {
   readonly branch?: string;
 }
 
-export class AutoBuild extends core.Construct {
-  constructor(scope: core.Construct, id: string, props: AutoBuildProps) {
+export class AutoBuild extends cdk.Construct {
+  constructor(scope: cdk.Construct, id: string, props: AutoBuildProps) {
     super(scope, id);
 
     const project = new codebuild.Project(this, 'Project', {
@@ -77,7 +75,7 @@ export class AutoBuild extends core.Construct {
     });
 
     const publicLogs = props.publicLogs !== undefined ? props.publicLogs : false;
-    const githubToken = props.repo.tokenSecretArn ? core.SecretValue.secretsManager(props.repo.tokenSecretArn) : undefined;
+    const githubToken = props.repo.tokenSecretArn ? cdk.SecretValue.secretsManager(props.repo.tokenSecretArn) : undefined;
 
     if (publicLogs) {
       new serverless.CfnApplication(this, 'GitHubCodeBuildLogsSAR', {
@@ -88,7 +86,7 @@ export class AutoBuild extends core.Construct {
         parameters: {
           CodeBuildProjectName: project.projectName,
           DeletePreviousComments: (props.deletePreviousPublicLogsLinks ?? true).toString(),
-          ...githubToken ? { GitHubOAuthToken: Token.asString(githubToken)} : undefined,
+          ...githubToken ? { GitHubOAuthToken: cdk.Token.asString(githubToken)} : undefined,
         }
       });
     }
