@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [8.4.0](https://github.com/awslabs/aws-delivlib/compare/v8.3.18...v8.4.0) (2020-10-12)
+
+
+### Features
+
+* build timeout ([82df7bf](https://github.com/awslabs/aws-delivlib/commit/82df7bf9ce336e0ae65f8834d7e620040fe6f885))
+
 ### [8.3.18](https://github.com/awslabs/aws-delivlib/compare/v8.3.17...v8.3.18) (2020-10-12)
 
 ### [8.3.17](https://github.com/awslabs/aws-delivlib/compare/v8.3.16...v8.3.17) (2020-10-09)
