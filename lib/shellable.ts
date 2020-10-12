@@ -186,6 +186,34 @@ export interface AssumeRole {
    * underscores or  any  of  the  following characters: =,.@:/-
    */
   externalId?: string;
+
+  /**
+   * When a profie name is configured, an assumed role configuration will be created
+   * in the shared aws configuration file (~/.aws/config). This is in contrary of simply invoking
+   * an `sts assume-role` command that creates a session with a fixed expiry date.
+   *
+   * Using a profile will delegate credential refreshing to the SDK/CLI.
+   * This is needed to support long running sessions that needs sessions that are longer than
+   * the session duration that can be configured with a `sts assume-role`.
+   *
+   * The application code will access to this profile in the `AWS_PROFILE` env variable.
+   *
+   * Only relevant if `refresh` is specified.
+   *
+   * @see https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html
+   *
+   * @default 'long-running-profile'
+   */
+  profileName?: string;
+
+  /**
+   * Specify this if you have a long running execution that needs long running sessions.
+   * This will create a profile and use it to delegate credential refreshing to the SDK/CLI
+   *
+   * @default false
+   */
+  refresh?: boolean;
+
 }
 
 /**
@@ -369,13 +397,42 @@ export class LinuxPlatform extends ShellPlatform {
     lines.push(`unzip /tmp/$(basename \$${S3_KEY_ENV}) -d /tmp/scriptdir`);
 
     if (assumeRole) {
-      const externalId = assumeRole.externalId ? `--external-id "${assumeRole.externalId}"` : '';
-      const StsEndpoints = useRegionalStsEndpoints ? "regional" : "legacy";
-      lines.push('creds=$(mktemp -d)/creds.json');
-      lines.push(`AWS_STS_REGIONAL_ENDPOINTS=${StsEndpoints} aws sts assume-role --role-arn "${assumeRole.roleArn}" --role-session-name "${assumeRole.sessionName}" ${externalId} > $creds`);
-      lines.push('export AWS_ACCESS_KEY_ID="$(cat ${creds} | grep "AccessKeyId" | cut -d\'"\' -f 4)"');
-      lines.push('export AWS_SECRET_ACCESS_KEY="$(cat ${creds} | grep "SecretAccessKey" | cut -d\'"\' -f 4)"');
-      lines.push('export AWS_SESSION_TOKEN="$(cat ${creds} | grep "SessionToken" | cut -d\'"\' -f 4)"');
+
+      if (assumeRole.refresh) {
+
+        const awsHome = '~/.aws';
+
+        const profileName = assumeRole.profileName ?? 'long-running-profile';
+
+        lines.push(`mkdir -p ${awsHome}`);
+        lines.push(`touch ${awsHome}/credentials`);
+        lines.push(`config=${awsHome}/config`);
+        lines.push(`echo [profile ${profileName}]>> $\{config\}`);
+        lines.push(`echo credential_source = EcsContainer >> $\{config\}`);
+        lines.push(`echo role_session_name = ${assumeRole.sessionName} >> $\{config\}`);
+        lines.push(`echo role_arn = ${assumeRole.roleArn} >> $config`);
+
+        if (assumeRole.externalId) {
+          lines.push(`echo external_id = ${assumeRole.externalId} >> $config`);
+        }
+
+        // let the application code know which role is being used.
+        lines.push(`export AWS_PROFILE=${profileName}`);
+
+        // force the AWS SDK for JavaScript to actually load the config file (do automatically so users don't forget)
+        lines.push('export AWS_SDK_LOAD_CONFIG=1');
+
+      } else {
+
+        const externalId = assumeRole.externalId ? `--external-id "${assumeRole.externalId}"` : '';
+        const StsEndpoints = useRegionalStsEndpoints ? "regional" : "legacy";
+
+        lines.push('creds=$(mktemp -d)/creds.json');
+        lines.push(`AWS_STS_REGIONAL_ENDPOINTS=${StsEndpoints} aws sts assume-role --role-arn "${assumeRole.roleArn}" --role-session-name "${assumeRole.sessionName}" ${externalId} > $creds`);
+        lines.push('export AWS_ACCESS_KEY_ID="$(cat ${creds} | grep "AccessKeyId" | cut -d\'"\' -f 4)"');
+        lines.push('export AWS_SECRET_ACCESS_KEY="$(cat ${creds} | grep "SecretAccessKey" | cut -d\'"\' -f 4)"');
+        lines.push('export AWS_SESSION_TOKEN="$(cat ${creds} | grep "SessionToken" | cut -d\'"\' -f 4)"');
+      }
     }
 
     return lines;

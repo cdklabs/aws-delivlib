@@ -19,7 +19,8 @@
         "inlineSourceMap": true,
         "experimentalDecorators": true,
         "jsx": "react",
-        "jsxFactory": "jsx.create"
+        "jsxFactory": "jsx.create",
+        "incremental": true
     },
     "exclude": [
         "change-control-lambda"

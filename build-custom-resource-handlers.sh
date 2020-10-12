@@ -20,6 +20,11 @@ compile="tsc --alwaysStrict
 for handler in pgp-secret private-key certificate-signing-request
 do
   echo "Building CustomResource handler ${handler}"
-  ${compile} --outDir "./custom-resource-handlers/bin/${handler}" "./custom-resource-handlers/src/${handler}.ts" ./custom-resource-handlers/src/_*.ts
+  ${compile}                                                                    \
+    --incremental                                                               \
+    --tsBuildInfoFile "./custom-resource-handlers/src/${handler}.tsbuildinfo"   \
+    --outDir "./custom-resource-handlers/bin/${handler}"                        \
+    "./custom-resource-handlers/src/${handler}.ts"                              \
+    ./custom-resource-handlers/src/_*.ts
   mv "./custom-resource-handlers/bin/${handler}/${handler}.js" "./custom-resource-handlers/bin/${handler}/index.js"
 done

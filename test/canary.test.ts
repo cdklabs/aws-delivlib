@@ -9,7 +9,7 @@ const testDir = path.join(__dirname, 'delivlib-tests', 'linux');
 
 test('correctly creates canary', () => {
   // GIVEN
-  const stack = new cdk.Stack(undefined, 'TestStack');
+  const stack = new cdk.Stack(new cdk.App(), 'TestStack');
   // WHEN
   new Canary(stack, 'Canary', {
     schedule: events.Schedule.expression('rate(1 minute)'),

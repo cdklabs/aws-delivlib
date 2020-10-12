@@ -1,11 +1,9 @@
 import { aws_codepipeline as aws_codepipeline, aws_codepipeline_actions as aws_codepipeline_actions } from "monocdk-experiment";
-import * as core from 'monocdk-experiment';
+import * as cdk from 'monocdk-experiment';
 import * as https from "https";
 import { codePipeline, handler } from "../lib/chime-notifier/notifier-handler";
 import { ChimeNotifier } from "../lib";
 import "@monocdk-experiment/assert/jest";
-const { Stack } = core;
-const { Pipeline, ActionCategory, Artifact } = aws_codepipeline;
 
 jest.mock('https');
 
@@ -95,8 +93,8 @@ test('call codepipeline and then post to webhooks', async () => {
 });
 
 test('can add to stack', () => {
-  const stack = new Stack();
-  const pipeline = new Pipeline(stack, 'Pipe');
+  const stack = new cdk.Stack(new cdk.App(), 'TestStack');
+  const pipeline = new aws_codepipeline.Pipeline(stack, 'Pipe');
   pipeline.addStage({ stageName: 'Source', actions: [new FakeSourceAction()] });
   pipeline.addStage({ stageName: 'Build', actions: [new aws_codepipeline_actions.ManualApprovalAction({ actionName: 'Dummy' })] });
 
@@ -113,7 +111,7 @@ export class FakeSourceAction extends aws_codepipeline_actions.Action {
   constructor() {
     super({
       actionName: 'Fake',
-      category: ActionCategory.SOURCE,
+      category: aws_codepipeline.ActionCategory.SOURCE,
       provider: 'FAKE',
       artifactBounds: {
         minInputs: 0,
@@ -121,12 +119,12 @@ export class FakeSourceAction extends aws_codepipeline_actions.Action {
         minOutputs: 1,
         maxOutputs: 1,
       },
-      outputs: [new Artifact('bla')],
+      outputs: [new aws_codepipeline.Artifact('bla')],
     });
   }
 
   // tslint:disable-next-line: max-line-length
-  protected bound(_scope: core.Construct, _stage: aws_codepipeline.IStage, _options: aws_codepipeline.ActionBindOptions): aws_codepipeline.ActionConfig {
+  protected bound(_scope: cdk.Construct, _stage: aws_codepipeline.IStage, _options: aws_codepipeline.ActionBindOptions): aws_codepipeline.ActionConfig {
     return {
       configuration: { }
     };

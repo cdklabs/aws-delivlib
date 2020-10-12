@@ -1,14 +1,46 @@
 import * as cdk from "monocdk-experiment";
 import { expect as assert, haveResource, ResourcePart, SynthUtils } from "@monocdk-experiment/assert";
-import path = require("path");
+import * as path from "path";
 import { Shellable, ShellPlatform } from "../lib";
-const { Stack } = cdk;
 
 
 // tslint:disable:max-line-length
 
+test('can assume a refreshable role', () => {
+  const stack = new cdk.Stack(new cdk.App(), 'TestStack');
+
+  new Shellable(stack, 'MyShellable', {
+    scriptDirectory: path.join(__dirname, 'delivlib-tests/linux'),
+    entrypoint: 'test.sh',
+    assumeRole: {
+      profileName: 'profile',
+      roleArn: 'arn',
+      sessionName: 'session',
+      refresh: true
+    }
+  });
+
+  const template = assert(stack).value;
+
+  expect(JSON.parse(template.Resources.MyShellableB2FFD397.Properties.Source.BuildSpec).phases.pre_build.commands).toEqual([
+    "echo \"Downloading scripts from s3://${SCRIPT_S3_BUCKET}/${SCRIPT_S3_KEY}\"",
+    "aws s3 cp s3://${SCRIPT_S3_BUCKET}/${SCRIPT_S3_KEY} /tmp",
+    "mkdir -p /tmp/scriptdir",
+    "unzip /tmp/$(basename $SCRIPT_S3_KEY) -d /tmp/scriptdir",
+    "mkdir -p ~/.aws",
+    "touch ~/.aws/credentials",
+    "config=~/.aws/config",
+    "echo [profile profile]>> ${config}",
+    "echo credential_source = EcsContainer >> ${config}",
+    "echo role_session_name = session >> ${config}",
+    "echo role_arn = arn >> $config",
+    "export AWS_PROFILE=profile",
+    "export AWS_SDK_LOAD_CONFIG=1"
+  ]);
+});
+
 test('minimal configuration', () => {
-  const stack = new cdk.Stack();
+  const stack = new cdk.Stack(new cdk.App(), 'TestStack');
 
   new Shellable(stack, 'MyShellable', {
     scriptDirectory: path.join(__dirname, 'delivlib-tests/linux'),
@@ -19,7 +51,7 @@ test('minimal configuration', () => {
 });
 
 test('assume role', () => {
-  const stack = new cdk.Stack();
+  const stack = new cdk.Stack(new cdk.App(), 'TestStack');
 
   new Shellable(stack, 'MyShellable', {
     scriptDirectory: path.join(__dirname, 'delivlib-tests/linux'),
@@ -38,7 +70,7 @@ test('assume role', () => {
 });
 
 test('assume role with external-id', () => {
-  const stack = new cdk.Stack();
+  const stack = new cdk.Stack(new cdk.App(), 'TestStack');
 
   new Shellable(stack, 'MyShellable', {
     scriptDirectory: path.join(__dirname, 'delivlib-tests/linux'),
@@ -58,7 +90,7 @@ test('assume role with external-id', () => {
 });
 
 test('assume role with regional endpoints', () => {
-  const stack = new cdk.Stack();
+  const stack = new cdk.Stack(new cdk.App(), 'TestStack');
 
   new Shellable(stack, 'MyShellable', {
     scriptDirectory: path.join(__dirname, 'delivlib-tests/linux'),
@@ -78,7 +110,7 @@ test('assume role with regional endpoints', () => {
 });
 
 test('assume role with global endpoints', () => {
-  const stack = new cdk.Stack();
+  const stack = new cdk.Stack(new cdk.App(), 'TestStack');
 
   new Shellable(stack, 'MyShellable', {
     scriptDirectory: path.join(__dirname, 'delivlib-tests/linux'),
@@ -98,7 +130,7 @@ test('assume role with global endpoints', () => {
 });
 
 test('assume role not supported on windows', () => {
-  const stack = new Stack();
+  const stack = new cdk.Stack(new cdk.App(), 'TestStack');
 
   expect(() => new Shellable(stack, 'MyShellable', {
     scriptDirectory: path.join(__dirname, 'delivlib-tests/linux'),
@@ -112,7 +144,7 @@ test('assume role not supported on windows', () => {
 });
 
 test('alarm options - defaults', () => {
-  const stack = new Stack();
+  const stack = new cdk.Stack(new cdk.App(), 'TestStack');
 
   new Shellable(stack, 'MyShellable', {
     scriptDirectory: path.join(__dirname, 'delivlib-tests/linux'),
@@ -127,7 +159,7 @@ test('alarm options - defaults', () => {
 });
 
 test('alarm options - custom', () => {
-  const stack = new Stack();
+  const stack = new cdk.Stack(new cdk.App(), 'TestStack');
 
   new Shellable(stack, 'MyShellable', {
     scriptDirectory: path.join(__dirname, 'delivlib-tests/linux'),
@@ -145,7 +177,7 @@ test('alarm options - custom', () => {
 });
 
 test('privileged mode', () => {
-  const stack = new Stack();
+  const stack = new cdk.Stack(new cdk.App(), 'TestStack');
 
   new Shellable(stack, 'AllowDocker', {
     scriptDirectory: path.join(__dirname, 'delivlib-tests/linux'),
@@ -161,7 +193,7 @@ test('privileged mode', () => {
 });
 
 test('environment variables', () => {
-  const stack = new Stack();
+  const stack = new cdk.Stack(new cdk.App(), 'TestStack');
 
   new Shellable(stack, 'EnvironmentVariables', {
     scriptDirectory: path.join(__dirname, 'delivlib-tests/linux'),

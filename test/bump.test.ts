@@ -1,9 +1,9 @@
 // tslint:disable: max-line-length
-import * as core from "monocdk-experiment";
+import * as cdk from "monocdk-experiment";
 import { AutoBump, WritableGitHubRepo } from "../lib";
 import '@monocdk-experiment/assert/jest';
 
-const Stack = core.Stack;
+const Stack = cdk.Stack;
 
 const MOCK_REPO = new WritableGitHubRepo({
   sshKeySecret: { secretArn: 'ssh-key-secret-arn' },
@@ -15,7 +15,7 @@ const MOCK_REPO = new WritableGitHubRepo({
 
 test('autoBump', () => {
   // GIVEN
-  const stack = new Stack();
+  const stack = new Stack(new cdk.App(), 'TestStack');
 
   // WHEN
   new AutoBump(stack, 'MyAutoBump', {
@@ -71,7 +71,7 @@ test('autoBump', () => {
 
 test('autoBump with schedule', () => {
 
-  const stack = new Stack();
+  const stack = new Stack(new cdk.App(), 'TestStack');
 
   // WHEN
   new AutoBump(stack, 'MyAutoBump', {
@@ -88,7 +88,7 @@ test('autoBump with schedule', () => {
 
 test('autoBump with custom cloneDepth', () => {
   // GIVEN
-  const stack = new Stack();
+  const stack = new Stack(new cdk.App(), 'TestStack');
 
   // WHEN
   new AutoBump(stack, 'MyAutoBump', {
@@ -144,7 +144,7 @@ test('autoBump with custom cloneDepth', () => {
 
 test('autoBump with schedule disabled', () => {
   // GIVEN
-  const stack = new Stack();
+  const stack = new Stack(new cdk.App(), 'TestStack');
 
   // WHEN
   new AutoBump(stack, 'MyAutoBump', {
@@ -160,7 +160,7 @@ test('autoBump with schedule disabled', () => {
 
 test('autoBump with push only', () => {
   // GIVEN
-  const stack = new Stack();
+  const stack = new Stack(new cdk.App(), 'TestStack');
   const repo = new WritableGitHubRepo({
     sshKeySecret: { secretArn: 'ssh-key-secret-arn' },
     commitUsername: 'user',
@@ -219,7 +219,7 @@ test('autoBump with push only', () => {
 
 test('autoBump with pull request with custom options', () => {
   // GIVEN
-  const stack = new Stack();
+  const stack = new Stack(new cdk.App(), 'TestStack');
 
   // WHEN
   new AutoBump(stack, 'MyAutoBump', {
@@ -262,7 +262,7 @@ test('autoBump with pull request with custom options', () => {
               "$SKIP || { chmod 0600 ~/.ssh/id_rsa ; }",
               "$SKIP || { chmod 0600 ~/.ssh/config ; }",
               "$SKIP || { ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts ; }",
-              "$SKIP || { ls .git && { echo \".git directory exists\";  } || { echo \".git directory doesnot exist - cloning...\" && git clone git@github.com:owner/repo.git /tmp/repo && mv /tmp/repo/.git . && git reset --hard master; } ; }",
+              "$SKIP || { ls .git && { echo \".git directory exists\";  } || { echo \".git directory doesnot exist - cloning...\" && git clone git@github.com:owner/repo.git /tmp/repo && mv /tmp/repo/.git . && git reset --hard release; } ; }",
               "$SKIP || { git describe --exact-match release && { echo 'Skip condition is met, skipping...' && export SKIP=true; } || { echo 'Skip condition is not met, continuing...' && export SKIP=false; } ; }",
               "$SKIP || { git rev-parse --verify origin/bump/$VERSION && { git checkout bump/$VERSION && git merge release && /bin/sh ./bump.sh && export VERSION=$(git describe) && echo Finished running user commands;  } || { git checkout release && git checkout -b temp && /bin/sh ./bump.sh && export VERSION=$(git describe) && echo Finished running user commands && git branch -m bump/$VERSION; } ; }",
               "$SKIP || { git remote add origin_ssh git@github.com:owner/repo.git ; }",
@@ -281,7 +281,7 @@ test('autoBump with pull request with custom options', () => {
 
 test('autoBump with pull request fails when head=base', () => {
   // GIVEN
-  const stack = new Stack();
+  const stack = new Stack(new cdk.App(), 'TestStack');
 
   // WHEN
   expect(() => new AutoBump(stack, 'MyAutoBump', {

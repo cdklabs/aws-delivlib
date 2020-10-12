@@ -26,7 +26,8 @@ export class DelivLibPipelineStack extends cdk.Stack {
     const pipeline = new delivlib.Pipeline(this, 'GitHubPipeline', {
       title: 'aws-delivlib production pipeline',
       repo: github,
-      pipelineName: 'delivlib-master',
+      branch: 'main',
+      pipelineName: 'delivlib-main',
       notificationEmail: 'aws-cdk-dev+delivlib-notify@amazon.com',
       buildSpec: codebuild.BuildSpec.fromObject({
         version: '0.2',
@@ -65,7 +66,10 @@ export class DelivLibPipelineStack extends cdk.Stack {
       scheduleExpression: 'cron(0 12 * * ? *)',
       bumpCommand: 'yarn install --frozen-lockfile && yarn bump',
       head: {
-        name: 'master'
+        name: 'main',
+      },
+      base: {
+        name: 'main'
       },
       pushOnly: true
     });
