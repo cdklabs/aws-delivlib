@@ -1235,6 +1235,7 @@ Resources:
         Fn::GetAtt:
           - CodeCommitPipelineBuildPipelineArtifactsBucketEncryptionKey05A62A83
           - Arn
+      TimeoutInMinutes: 480
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/BuildProject/Resource
   CodeCommitPipelineBuildProjectOnBuildFailed2A08058D:
