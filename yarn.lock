@@ -1425,10 +1425,10 @@ concat-stream@^2.0.0:
     readable-stream "^3.0.2"
     typedarray "^0.0.6"
 
-constructs@^3.0.18, constructs@^3.0.2:
-  version "3.0.18"
-  resolved "https://registry.yarnpkg.com/constructs/-/constructs-3.0.18.tgz#25300c8c41b5e7d6398477779098dab58ac79074"
-  integrity sha512-7k8wbkTVLPmhfxyDzcBMhPCWjNRX1U1Uy1QHERkCstKrGnAVEMCR4GpKsjzqWlVfMzcbKz9LdBtHl60tuHWdJw==
+constructs@^3.0.2, constructs@^3.0.22:
+  version "3.0.22"
+  resolved "https://registry.yarnpkg.com/constructs/-/constructs-3.0.22.tgz#d2565985a2e3e2142c57d2673844fd6c3e27c54d"
+  integrity sha512-PuQVuCM7I2Y6rYsMsip+rTvwpgo8FXMQX4JNzbIL4dvG96Kqmhmb5qt6zI730LB1OlKGAe/r92xqgExUkGQo4w==
 
 conventional-changelog-angular@^5.0.11:
   version "5.0.11"
