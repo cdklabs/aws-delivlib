@@ -62,9 +62,14 @@ export class CodeCommitRepo implements IRepo {
 
 interface GitHubRepoProps {
   /**
-   * The OAuth token secret that allows access to your github repo.
+   * Secrets Manager ARN of the OAuth token secret that allows access to your github repo.
    */
   tokenSecretArn: string;
+
+  /**
+   * Options for referencing a secret value from Secrets Manager
+   */
+  tokenSecretOptions?: cdk.SecretsManagerSecretOptions;
 
   /**
    * In the form "account/repo".
@@ -77,6 +82,7 @@ export class GitHubRepo implements IRepo {
   public readonly owner: string;
   public readonly repo: string;
   public readonly tokenSecretArn: string;
+  public readonly tokenSecretOptions?: cdk.SecretsManagerSecretOptions;
 
   constructor(props: GitHubRepoProps) {
     const repository = props.repository;
@@ -85,6 +91,7 @@ export class GitHubRepo implements IRepo {
     this.owner = owner;
     this.repo = repo;
     this.tokenSecretArn = props.tokenSecretArn;
+    this.tokenSecretOptions = props.tokenSecretOptions;
   }
 
   public get repositoryUrlHttp() {
@@ -102,7 +109,7 @@ export class GitHubRepo implements IRepo {
     stage.addAction(new cpipeline_actions.GitHubSourceAction({
       actionName: 'Pull',
       branch,
-      oauthToken: cdk.SecretValue.secretsManager(this.tokenSecretArn),
+      oauthToken: cdk.SecretValue.secretsManager(this.tokenSecretArn, this.tokenSecretOptions),
       owner: this.owner,
       repo: this.repo,
       output: sourceOutput
