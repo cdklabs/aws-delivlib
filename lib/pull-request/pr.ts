@@ -318,7 +318,7 @@ export class AutoPullRequest extends cdk.Construct {
       `&& { echo ".git directory exists";  } ` +
 
       // clone if it doesn't
-      `|| { echo ".git directory doesnot exist - cloning..." && git clone git@github.com:${this.props.repo.owner}/${this.props.repo.repo}.git /tmp/repo && mv /tmp/repo/.git . && git reset --hard master; }`,
+      `|| { echo ".git directory doesnot exist - cloning..." && git clone git@github.com:${this.props.repo.owner}/${this.props.repo.repo}.git /tmp/repo && mv /tmp/repo/.git . && git reset --hard ${this.baseBranch}; }`,
 
     ];
 
@@ -349,16 +349,17 @@ export class AutoPullRequest extends cdk.Construct {
         + `--secret-id "${this.props.repo.sshKeySecret.secretArn}" `
         + `--output=text --query=SecretString > ~/.ssh/id_rsa`,
       `mkdir -p ~/.ssh`,
-      `chmod 0600 ~/.ssh/id_rsa`,
-      `chmod 0600 ~/.ssh/config`,
+      `chmod 0600 ~/.ssh/id_rsa ~/.ssh/config`,
       `ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts`
     ];
 
   }
 
   private pushHead(): string[] {
-
+    // We will do nothing and set `SKIP=true` if the head ref is an ancestor of the base branch (no PR could be created)
     return [
+      `git merge-base --is-ancestor ${this.props.head.name} origin/${this.baseBranch}`
+      + ` && { echo "Skipping: ${this.props.head.name} is an ancestor of origin/${this.baseBranch}"; export SKIP=true }`,
       `git remote add origin_ssh ${this.props.repo.repositoryUrlSsh}`,
       `git push --follow-tags origin_ssh ${this.props.head.name}`
     ];
@@ -380,11 +381,6 @@ export class AutoPullRequest extends cdk.Construct {
     const createRequest = { title, base, head };
 
     const commands = [];
-
-    // don't create if head.hash == base.hash
-    commands.push(`git diff --exit-code --no-patch ${head} origin/${base} && ` +
-    '{ echo "Skipping pull request..."; export SKIP=true; } || ' +
-    '{ echo "Creating pull request..."; export SKIP=false; }');
 
     // read the token
     commands.push(`export GITHUB_TOKEN=$(aws secretsmanager get-secret-value --secret-id "${this.props.repo.tokenSecretArn}" --output=text --query=SecretString)`);

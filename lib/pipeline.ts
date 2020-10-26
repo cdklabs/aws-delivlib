@@ -7,7 +7,8 @@ import { aws_cloudwatch as cloudwatch,
   aws_events_targets as events_targets,
   aws_iam as iam, aws_s3 as s3,
   aws_sns as sns,
-  aws_sns_subscriptions as sns_subs}
+  aws_sns_subscriptions as sns_subs,
+  Duration}
   from "monocdk-experiment";
 
   import * as cdk from 'monocdk-experiment';
@@ -152,6 +153,15 @@ export interface PipelineProps {
    * @default - A default message
    */
   chimeMessage?: string;
+
+  /**
+   * Build timeout
+   *
+   * How long the build can take at maximum (before failing with an error).
+   *
+   * @default - Duration.hours(8)
+   */
+  readonly buildTimeout?: Duration;
 }
 
 export interface MergeBackStage {
@@ -239,6 +249,7 @@ export class Pipeline extends cdk.Construct {
       projectName: buildProjectName,
       environment: this.buildEnvironment,
       buildSpec: this.buildSpec,
+      timeout: props.buildTimeout ?? Duration.hours(8),
     });
 
     this.buildRole = this.buildProject.role;
