@@ -26,5 +26,5 @@ do
     --outDir "./custom-resource-handlers/bin/${handler}"                        \
     "./custom-resource-handlers/src/${handler}.ts"                              \
     ./custom-resource-handlers/src/_*.ts
-  mv "./custom-resource-handlers/bin/${handler}/${handler}.js" "./custom-resource-handlers/bin/${handler}/index.js"
+  cp "./custom-resource-handlers/bin/${handler}/${handler}.js" "./custom-resource-handlers/bin/${handler}/index.js"
 done
