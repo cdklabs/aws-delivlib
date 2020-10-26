@@ -4226,7 +4226,7 @@ Resources:
     Properties:
       Code:
         S3Bucket:
-          Ref: AssetParametersd0bfb277172e82787752b8118d5c3784df28c5a362e2d9524f7286f32ca436dcS3Bucket2CA955F8
+          Ref: AssetParametersb876f0d7f0377270d562201fd99ecf4636ba04f6999d4802a9345adea19262faS3Bucket85D90D2D
         S3Key:
           Fn::Join:
             - ""
@@ -4234,12 +4234,12 @@ Resources:
                   - 0
                   - Fn::Split:
                       - "||"
-                      - Ref: AssetParametersd0bfb277172e82787752b8118d5c3784df28c5a362e2d9524f7286f32ca436dcS3VersionKey5D24E7C2
+                      - Ref: AssetParametersb876f0d7f0377270d562201fd99ecf4636ba04f6999d4802a9345adea19262faS3VersionKeyA26DBF5A
               - Fn::Select:
                   - 1
                   - Fn::Split:
                       - "||"
-                      - Ref: AssetParametersd0bfb277172e82787752b8118d5c3784df28c5a362e2d9524f7286f32ca436dcS3VersionKey5D24E7C2
+                      - Ref: AssetParametersb876f0d7f0377270d562201fd99ecf4636ba04f6999d4802a9345adea19262faS3VersionKeyA26DBF5A
       Handler: index.handler
       Role:
         Fn::GetAtt:
@@ -5040,13 +5040,13 @@ Parameters:
   AssetParametersdc8eddab035b83a69e3f916300dc1f93dc508e78e729182de9f019cc8ffd7e3aArtifactHash4FC2FBD6:
     Type: String
     Description: Artifact hash for asset "dc8eddab035b83a69e3f916300dc1f93dc508e78e729182de9f019cc8ffd7e3a"
-  AssetParametersd0bfb277172e82787752b8118d5c3784df28c5a362e2d9524f7286f32ca436dcS3Bucket2CA955F8:
+  AssetParametersb876f0d7f0377270d562201fd99ecf4636ba04f6999d4802a9345adea19262faS3Bucket85D90D2D:
     Type: String
-    Description: S3 bucket for asset "d0bfb277172e82787752b8118d5c3784df28c5a362e2d9524f7286f32ca436dc"
-  AssetParametersd0bfb277172e82787752b8118d5c3784df28c5a362e2d9524f7286f32ca436dcS3VersionKey5D24E7C2:
+    Description: S3 bucket for asset "b876f0d7f0377270d562201fd99ecf4636ba04f6999d4802a9345adea19262fa"
+  AssetParametersb876f0d7f0377270d562201fd99ecf4636ba04f6999d4802a9345adea19262faS3VersionKeyA26DBF5A:
     Type: String
-    Description: S3 key for asset version "d0bfb277172e82787752b8118d5c3784df28c5a362e2d9524f7286f32ca436dc"
-  AssetParametersd0bfb277172e82787752b8118d5c3784df28c5a362e2d9524f7286f32ca436dcArtifactHashF89E2B69:
+    Description: S3 key for asset version "b876f0d7f0377270d562201fd99ecf4636ba04f6999d4802a9345adea19262fa"
+  AssetParametersb876f0d7f0377270d562201fd99ecf4636ba04f6999d4802a9345adea19262faArtifactHash555AB85C:
     Type: String
-    Description: Artifact hash for asset "d0bfb277172e82787752b8118d5c3784df28c5a362e2d9524f7286f32ca436dc"
+    Description: Artifact hash for asset "b876f0d7f0377270d562201fd99ecf4636ba04f6999d4802a9345adea19262fa"
 
