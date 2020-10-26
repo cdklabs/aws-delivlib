@@ -1,8 +1,8 @@
 import { aws_cloudwatch as cloudwatch, aws_codebuild as cbuild,
   aws_codepipeline as cpipeline, aws_codepipeline_actions as cpipeline_actions,
   aws_iam as iam, aws_s3_assets as assets, aws_secretsmanager, aws_ssm } from
-  "monocdk-experiment";
-  import * as cdk from 'monocdk-experiment';
+  "monocdk";
+  import * as cdk from 'monocdk';
 import fs = require("fs");
 import path = require("path");
 import { BuildSpec } from "./build-spec";

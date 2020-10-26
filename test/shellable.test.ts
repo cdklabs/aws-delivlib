@@ -1,4 +1,4 @@
-import * as cdk from "monocdk-experiment";
+import * as cdk from "monocdk";
 import { expect as assert, haveResource, ResourcePart, SynthUtils } from "@monocdk-experiment/assert";
 import * as path from "path";
 import { Shellable, ShellPlatform } from "../lib";
@@ -202,7 +202,7 @@ test('environment variables', () => {
       ENV_VAR: 'env-var-value',
     },
     environmentSecrets: {
-      ENV_VAR_SECRET: 'env-var-secret-name',
+      ENV_VAR_SECRET: 'arn:test:secretsmanager:region:000000000000:secret:env-var-secret-name-abc123',
     },
     environmentParameters: {
       ENV_VAR_PARAMETER: 'env-var-parameter-name'
@@ -236,7 +236,7 @@ test('environment variables', () => {
         {
           Name: 'ENV_VAR_SECRET',
           Type: 'SECRETS_MANAGER',
-          Value: 'env-var-secret-name'
+          Value: 'arn:test:secretsmanager:region:000000000000:secret:env-var-secret-name-abc123'
         },
         {
           Name: 'ENV_VAR_PARAMETER',
@@ -312,7 +312,8 @@ test('environment variables', () => {
             "codebuild:CreateReportGroup",
             "codebuild:CreateReport",
             "codebuild:UpdateReport",
-            "codebuild:BatchPutTestCases"
+            "codebuild:BatchPutTestCases",
+            "codebuild:BatchPutCodeCoverages",
           ],
           "Effect": "Allow",
           "Resource": {
@@ -387,7 +388,7 @@ test('environment variables', () => {
             "secretsmanager:DescribeSecret"
           ],
           "Effect": "Allow",
-          "Resource": "env-var-secret-name"
+          "Resource": "arn:test:secretsmanager:region:000000000000:secret:env-var-secret-name-abc123"
         },
         {
           "Action": [

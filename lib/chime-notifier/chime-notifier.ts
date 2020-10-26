@@ -4,8 +4,8 @@ import {
   aws_lambda as lambda,
   aws_events as events,
   aws_events_targets as events_targets,
-} from "monocdk-experiment";
-import * as cdk from 'monocdk-experiment';
+} from "monocdk";
+import * as cdk from 'monocdk';
 import fs = require("fs");
 import path = require('path');
 
