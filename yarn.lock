@@ -935,7 +935,7 @@ aws-cdk@1.70.0:
     wrap-ansi "^7.0.0"
     yargs "^16.1.0"
 
-aws-sdk@^2.776.0:
+aws-sdk@^2.736.0, aws-sdk@^2.776.0:
   version "2.778.0"
   resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.778.0.tgz#9304d1b2a1f94bfd8a56169f1da20ff40f417f40"
   integrity sha512-sIJRO7tMaztLs+gvHF/Wo+iek/rhH99+2OzharQJMS0HATPl5/EdhKgWGv1n/bNpVH+kD3n0QMQgdFu0FNUt0Q==
