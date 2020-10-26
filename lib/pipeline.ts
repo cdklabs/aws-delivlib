@@ -9,9 +9,9 @@ import { aws_cloudwatch as cloudwatch,
   aws_sns as sns,
   aws_sns_subscriptions as sns_subs,
   Duration}
-  from "monocdk-experiment";
+  from "monocdk";
 
-  import * as cdk from 'monocdk-experiment';
+  import * as cdk from 'monocdk';
 
 import { AutoBuild, AutoBuildOptions } from "./auto-build";
 import { createBuildEnvironment } from "./build-env";

@@ -1,4 +1,4 @@
-import * as cdk from "monocdk-experiment";
+import * as cdk from "monocdk";
 import { AutoPullRequest, AutoPullRequestProps } from './pr';
 
 /**

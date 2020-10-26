@@ -12,7 +12,7 @@ import {
   StackProps,
   aws_codebuild as codebuild,
   aws_ssm as ssm,
-} from "monocdk-experiment";
+} from "monocdk";
 import delivlib = require("../lib");
 
 

@@ -305,6 +305,18 @@ Resources:
     DeletionPolicy: Delete
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/BuildPipeline/ArtifactsBucketEncryptionKey/Resource
+  CodeCommitPipelineBuildPipelineArtifactsBucketEncryptionKeyAliasB1396C5D:
+    Type: AWS::KMS::Alias
+    Properties:
+      AliasName: alias/codepipeline-delivlibtestcodecommitpipelinebuildpipeline5be6878f
+      TargetKeyId:
+        Fn::GetAtt:
+          - CodeCommitPipelineBuildPipelineArtifactsBucketEncryptionKey05A62A83
+          - Arn
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
+    Metadata:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/BuildPipeline/ArtifactsBucketEncryptionKeyAlias/Resource
   CodeCommitPipelineBuildPipelineArtifactsBucketED2813B3:
     Type: AWS::S3::Bucket
     Properties:
@@ -325,18 +337,6 @@ Resources:
     DeletionPolicy: Retain
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/BuildPipeline/ArtifactsBucket/Resource
-  CodeCommitPipelineBuildPipelineArtifactsBucketEncryptionKeyAliasB1396C5D:
-    Type: AWS::KMS::Alias
-    Properties:
-      AliasName: alias/codepipeline-delivlibtestcodecommitpipelinebuildpipeline5be6878f
-      TargetKeyId:
-        Fn::GetAtt:
-          - CodeCommitPipelineBuildPipelineArtifactsBucketEncryptionKey05A62A83
-          - Arn
-    UpdateReplacePolicy: Delete
-    DeletionPolicy: Delete
-    Metadata:
-      aws:cdk:path: delivlib-test/CodeCommitPipeline/BuildPipeline/ArtifactsBucketEncryptionKeyAlias/Resource
   CodeCommitPipelineBuildPipelineRole1843599A:
     Type: AWS::IAM::Role
     Properties:
@@ -1156,6 +1156,7 @@ Resources:
               - codebuild:CreateReport
               - codebuild:UpdateReport
               - codebuild:BatchPutTestCases
+              - codebuild:BatchPutCodeCoverages
             Effect: Allow
             Resource:
               Fn::Join:
@@ -1510,6 +1511,7 @@ Resources:
               - codebuild:CreateReport
               - codebuild:UpdateReport
               - codebuild:BatchPutTestCases
+              - codebuild:BatchPutCodeCoverages
             Effect: Allow
             Resource:
               Fn::Join:
@@ -1725,6 +1727,7 @@ Resources:
               - codebuild:CreateReport
               - codebuild:UpdateReport
               - codebuild:BatchPutTestCases
+              - codebuild:BatchPutCodeCoverages
             Effect: Allow
             Resource:
               Fn::Join:
@@ -1938,6 +1941,7 @@ Resources:
               - codebuild:CreateReport
               - codebuild:UpdateReport
               - codebuild:BatchPutTestCases
+              - codebuild:BatchPutCodeCoverages
             Effect: Allow
             Resource:
               Fn::Join:
@@ -2176,6 +2180,7 @@ Resources:
               - codebuild:CreateReport
               - codebuild:UpdateReport
               - codebuild:BatchPutTestCases
+              - codebuild:BatchPutCodeCoverages
             Effect: Allow
             Resource:
               Fn::Join:
@@ -2389,6 +2394,7 @@ Resources:
               - codebuild:CreateReport
               - codebuild:UpdateReport
               - codebuild:BatchPutTestCases
+              - codebuild:BatchPutCodeCoverages
             Effect: Allow
             Resource:
               Fn::Join:
@@ -2483,6 +2489,7 @@ Resources:
             }
           }
         Type: NO_SOURCE
+      EncryptionKey: alias/aws/s3
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/CanaryHelloCanary/Shellable/Resource/Resource
   CodeCommitPipelineCanaryHelloCanaryShellableEventsRole0F756230:
@@ -2589,6 +2596,7 @@ Resources:
               - codebuild:CreateReport
               - codebuild:UpdateReport
               - codebuild:BatchPutTestCases
+              - codebuild:BatchPutCodeCoverages
             Effect: Allow
             Resource:
               Fn::Join:
@@ -2795,6 +2803,7 @@ Resources:
               - codebuild:CreateReport
               - codebuild:UpdateReport
               - codebuild:BatchPutTestCases
+              - codebuild:BatchPutCodeCoverages
             Effect: Allow
             Resource:
               Fn::Join:
@@ -3027,6 +3036,7 @@ Resources:
               - codebuild:CreateReport
               - codebuild:UpdateReport
               - codebuild:BatchPutTestCases
+              - codebuild:BatchPutCodeCoverages
             Effect: Allow
             Resource:
               Fn::Join:
@@ -3255,6 +3265,7 @@ Resources:
               - codebuild:CreateReport
               - codebuild:UpdateReport
               - codebuild:BatchPutTestCases
+              - codebuild:BatchPutCodeCoverages
             Effect: Allow
             Resource:
               Fn::Join:
@@ -3488,6 +3499,7 @@ Resources:
               - codebuild:CreateReport
               - codebuild:UpdateReport
               - codebuild:BatchPutTestCases
+              - codebuild:BatchPutCodeCoverages
             Effect: Allow
             Resource:
               Fn::Join:
@@ -3703,6 +3715,7 @@ Resources:
               - codebuild:CreateReport
               - codebuild:UpdateReport
               - codebuild:BatchPutTestCases
+              - codebuild:BatchPutCodeCoverages
             Effect: Allow
             Resource:
               Fn::Join:
@@ -3903,6 +3916,7 @@ Resources:
               - codebuild:CreateReport
               - codebuild:UpdateReport
               - codebuild:BatchPutTestCases
+              - codebuild:BatchPutCodeCoverages
             Effect: Allow
             Resource:
               Fn::Join:
@@ -3980,6 +3994,7 @@ Resources:
         Location: https://github.com/awslabs/aws-delivlib-sample.git
         ReportBuildStatus: false
         Type: GITHUB
+      EncryptionKey: alias/aws/s3
       Triggers:
         Webhook: false
     Metadata:
@@ -4042,6 +4057,7 @@ Resources:
               - codebuild:CreateReport
               - codebuild:UpdateReport
               - codebuild:BatchPutTestCases
+              - codebuild:BatchPutCodeCoverages
             Effect: Allow
             Resource:
               Fn::Join:
@@ -4077,6 +4093,7 @@ Resources:
         ReportBuildStatus: true
         Type: GITHUB
       BadgeEnabled: true
+      EncryptionKey: alias/aws/s3
       Triggers:
         FilterGroups:
           - - Pattern: PUSH, PULL_REQUEST_CREATED, PULL_REQUEST_UPDATED
@@ -4129,9 +4146,25 @@ Resources:
                 - CodeCommitPipelineChangeControllerFunction776EAE6A
                 - Arn
     DependsOn:
-      - CodeCommitPipelineChangeControllerFunctionAllowBucketNotificationsFromdelivlibtestCodeCommitPipelineChangeControllerCalendarEBE698816996B3BB
+      - CodeCommitPipelineChangeControllerCalendarAllowBucketNotificationsTodelivlibtestCodeCommitPipelineChangeControllerFunction83CC56EB3330DA3F
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/ChangeController/Calendar/Notifications/Resource
+  CodeCommitPipelineChangeControllerCalendarAllowBucketNotificationsTodelivlibtestCodeCommitPipelineChangeControllerFunction83CC56EB3330DA3F:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+          - CodeCommitPipelineChangeControllerFunction776EAE6A
+          - Arn
+      Principal: s3.amazonaws.com
+      SourceAccount: "712950704752"
+      SourceArn:
+        Fn::GetAtt:
+          - CodeCommitPipelineChangeControllerCalendar94B1DEA8
+          - Arn
+    Metadata:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/ChangeController/Calendar/AllowBucketNotificationsTodelivlibtestCodeCommitPipelineChangeControllerFunction83CC56EB
   CodeCommitPipelineChangeControllerFunctionServiceRoleF02841DB:
     Type: AWS::IAM::Role
     Properties:
@@ -4228,22 +4261,6 @@ Resources:
       - CodeCommitPipelineChangeControllerFunctionServiceRoleF02841DB
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/ChangeController/Function/Resource
-  CodeCommitPipelineChangeControllerFunctionAllowBucketNotificationsFromdelivlibtestCodeCommitPipelineChangeControllerCalendarEBE698816996B3BB:
-    Type: AWS::Lambda::Permission
-    Properties:
-      Action: lambda:InvokeFunction
-      FunctionName:
-        Fn::GetAtt:
-          - CodeCommitPipelineChangeControllerFunction776EAE6A
-          - Arn
-      Principal: s3.amazonaws.com
-      SourceAccount: "712950704752"
-      SourceArn:
-        Fn::GetAtt:
-          - CodeCommitPipelineChangeControllerCalendar94B1DEA8
-          - Arn
-    Metadata:
-      aws:cdk:path: delivlib-test/CodeCommitPipeline/ChangeController/Function/AllowBucketNotificationsFromdelivlibtestCodeCommitPipelineChangeControllerCalendarEBE69881
   CodeCommitPipelineChangeControllerFunctionAllowEventRuledelivlibtestCodeCommitPipelineChangeControllerRule9C4D9DE885142D66:
     Type: AWS::Lambda::Permission
     Properties:
@@ -4835,7 +4852,7 @@ Resources:
               function log(obj) {
                   console.error(event.RequestId, event.StackId, event.LogicalResourceId, obj);
               }
-              // tslint:disable-next-line:max-line-length
+              // eslint-disable-next-line max-len
               // adapted from https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-lambda-function-code.html#cfn-lambda-function-code-cfnresponsemodule
               // to allow sending an error messge as a reason.
               function submitResponse(responseStatus, reason) {

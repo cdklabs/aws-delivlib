@@ -1,5 +1,5 @@
 // tslint:disable: max-line-length
-import * as cdk from "monocdk-experiment";
+import * as cdk from "monocdk";
 import { AutoBump, WritableGitHubRepo } from "../lib";
 import '@monocdk-experiment/assert/jest';
 
