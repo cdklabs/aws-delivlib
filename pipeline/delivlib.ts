@@ -70,6 +70,9 @@ export class DelivLibPipelineStack extends Stack {
     pipeline.autoBump({
       scheduleExpression: 'cron(0 12 * * ? *)',
       bumpCommand: 'yarn install --frozen-lockfile && yarn bump',
+      base: {
+        name: 'main',
+      },
       head: {
         name: 'main'
       },
