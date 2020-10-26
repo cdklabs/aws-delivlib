@@ -302,7 +302,7 @@ export class AutoPullRequest extends cdk.Construct {
       `&& { git checkout ${this.props.head.name} && git merge ${this.headSource} && ${this.runCommands()};  } ` +
 
       // create if it doesnt. we initially use 'temp' to allow using exports in the head branch name. (e.g bump/$VERSION)
-      `|| { git checkout ${this.headSource} && git checkout -b temp && ${this.runCommands()} && git branch -m ${this.props.head.name}; }`,
+      `|| { git checkout ${this.headSource} && git checkout -b temp && ${this.runCommands()} && git branch -M ${this.props.head.name}; }`,
 
     ];
 
