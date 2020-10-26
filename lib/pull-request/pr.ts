@@ -359,7 +359,8 @@ export class AutoPullRequest extends cdk.Construct {
     // We will do nothing and set `SKIP=true` if the head ref is an ancestor of the base branch (no PR could be created)
     return [
       `git merge-base --is-ancestor ${this.props.head.name} origin/${this.baseBranch}`
-      + ` && { echo "Skipping: ${this.props.head.name} is an ancestor of origin/${this.baseBranch}"; export SKIP=true }`,
+        + ` && { echo "Skipping: ${this.props.head.name} is an ancestor of origin/${this.baseBranch}"; export SKIP=true; }`
+        + ` || { echo "Pushing: ${this.props.head.name} is ahead of origin/${this.baseBranch}"; export SKIP=false; }`,
       `git remote add origin_ssh ${this.props.repo.repositoryUrlSsh}`,
       `git push --follow-tags origin_ssh ${this.props.head.name}:${this.props.head.name}`
     ];

@@ -3966,7 +3966,7 @@ Resources:
                   "$SKIP || { ls .git && { echo \".git directory exists\";  } || { echo \".git directory doesnot exist - cloning...\" && git clone git@github.com:awslabs/aws-delivlib-sample.git /tmp/repo && mv /tmp/repo/.git . && git reset --hard master; } ; }",
                   "$SKIP || { git describe --exact-match master && { echo 'Skip condition is met, skipping...' && export SKIP=true; } || { echo 'Skip condition is not met, continuing...' && export SKIP=false; } ; }",
                   "$SKIP || { git rev-parse --verify origin/bump/$VERSION && { git checkout bump/$VERSION && git merge master && npm i && npm run bump && export VERSION=$(git describe) && echo Finished running user commands;  } || { git checkout master && git checkout -b temp && npm i && npm run bump && export VERSION=$(git describe) && echo Finished running user commands && git branch -M bump/$VERSION; } ; }",
-                  "$SKIP || { git merge-base --is-ancestor bump/$VERSION origin/master && { echo \"Skipping: bump/$VERSION is an ancestor of origin/master\"; export SKIP=true } ; }",
+                  "$SKIP || { git merge-base --is-ancestor bump/$VERSION origin/master && { echo \"Skipping: bump/$VERSION is an ancestor of origin/master\"; export SKIP=true; } || { echo \"Pushing: bump/$VERSION is ahead of origin/master\"; export SKIP=false; } ; }",
                   "$SKIP || { git remote add origin_ssh git@github.com:awslabs/aws-delivlib-sample.git ; }",
                   "$SKIP || { git push --follow-tags origin_ssh bump/$VERSION:bump/$VERSION ; }",
                   "$SKIP || { export GITHUB_TOKEN=$(aws secretsmanager get-secret-value --secret-id \"arn:aws:secretsmanager:us-east-1:712950704752:secret:github-token-nnAqfW\" --output=text --query=SecretString) ; }",
@@ -4193,7 +4193,7 @@ Resources:
     Properties:
       Code:
         S3Bucket:
-          Ref: AssetParameters045404274d7898a55cd6d738aeb2721b556812ceff5fc65b9459b1ebc7ec1b80S3Bucket130C94C8
+          Ref: AssetParametersc9ffd39bbe701146512f833e6e5369112d44e4c898a4689f8ab618289ac0b3d0S3Bucket7B5D9335
         S3Key:
           Fn::Join:
             - ""
@@ -4201,12 +4201,12 @@ Resources:
                   - 0
                   - Fn::Split:
                       - "||"
-                      - Ref: AssetParameters045404274d7898a55cd6d738aeb2721b556812ceff5fc65b9459b1ebc7ec1b80S3VersionKeyE6320D10
+                      - Ref: AssetParametersc9ffd39bbe701146512f833e6e5369112d44e4c898a4689f8ab618289ac0b3d0S3VersionKey34995B55
               - Fn::Select:
                   - 1
                   - Fn::Split:
                       - "||"
-                      - Ref: AssetParameters045404274d7898a55cd6d738aeb2721b556812ceff5fc65b9459b1ebc7ec1b80S3VersionKeyE6320D10
+                      - Ref: AssetParametersc9ffd39bbe701146512f833e6e5369112d44e4c898a4689f8ab618289ac0b3d0S3VersionKey34995B55
       Handler: index.handler
       Role:
         Fn::GetAtt:
@@ -5023,13 +5023,13 @@ Parameters:
   AssetParametersdc8eddab035b83a69e3f916300dc1f93dc508e78e729182de9f019cc8ffd7e3aArtifactHash4FC2FBD6:
     Type: String
     Description: Artifact hash for asset "dc8eddab035b83a69e3f916300dc1f93dc508e78e729182de9f019cc8ffd7e3a"
-  AssetParameters045404274d7898a55cd6d738aeb2721b556812ceff5fc65b9459b1ebc7ec1b80S3Bucket130C94C8:
+  AssetParametersc9ffd39bbe701146512f833e6e5369112d44e4c898a4689f8ab618289ac0b3d0S3Bucket7B5D9335:
     Type: String
-    Description: S3 bucket for asset "045404274d7898a55cd6d738aeb2721b556812ceff5fc65b9459b1ebc7ec1b80"
-  AssetParameters045404274d7898a55cd6d738aeb2721b556812ceff5fc65b9459b1ebc7ec1b80S3VersionKeyE6320D10:
+    Description: S3 bucket for asset "c9ffd39bbe701146512f833e6e5369112d44e4c898a4689f8ab618289ac0b3d0"
+  AssetParametersc9ffd39bbe701146512f833e6e5369112d44e4c898a4689f8ab618289ac0b3d0S3VersionKey34995B55:
     Type: String
-    Description: S3 key for asset version "045404274d7898a55cd6d738aeb2721b556812ceff5fc65b9459b1ebc7ec1b80"
-  AssetParameters045404274d7898a55cd6d738aeb2721b556812ceff5fc65b9459b1ebc7ec1b80ArtifactHash4E688BE5:
+    Description: S3 key for asset version "c9ffd39bbe701146512f833e6e5369112d44e4c898a4689f8ab618289ac0b3d0"
+  AssetParametersc9ffd39bbe701146512f833e6e5369112d44e4c898a4689f8ab618289ac0b3d0ArtifactHash4B973C8A:
     Type: String
-    Description: Artifact hash for asset "045404274d7898a55cd6d738aeb2721b556812ceff5fc65b9459b1ebc7ec1b80"
+    Description: Artifact hash for asset "c9ffd39bbe701146512f833e6e5369112d44e4c898a4689f8ab618289ac0b3d0"
 
