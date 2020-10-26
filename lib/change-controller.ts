@@ -70,7 +70,15 @@ export class ChangeController extends cdk.Construct {
 
     const fn = new lambda.Function(this, 'Function', {
       description: `Enforces a Change Control Policy into CodePipeline's ${props.pipelineStage.stageName} stage`,
-      code: lambda.Code.fromAsset(path.join(__dirname, '../change-control-lambda'), { exclude: ['*.tsbuildinfo'] }),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../change-control-lambda'), {
+        exclude: [
+          '**/.DS_Store',
+          '*.tsbuildinfo',
+          '*.ts',
+          'tsconfig.json',
+          'yarn.lock',
+        ],
+      }),
       runtime: lambda.Runtime.NODEJS_10_X,
       handler: 'index.handler',
       environment: {
