@@ -3801,7 +3801,7 @@ Resources:
                   "$SKIP || { mkdir -p ~/.ssh ; }",
                   "$SKIP || { chmod 0600 ~/.ssh/id_rsa ~/.ssh/config ; }",
                   "$SKIP || { ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts ; }",
-                  "$SKIP || { ls .git && { echo \".git directory exists\";  } || { echo \".git directory doesnot exist - cloning...\" && git clone git@github.com:awslabs/aws-delivlib-sample.git /tmp/repo && mv /tmp/repo/.git . && git reset --hard master; } ; }",
+                  "$SKIP || { ls .git && { echo \".git directory exists\";  } || { echo \".git directory doesnot exist - cloning...\" && git init . && git remote add origin git@github.com:awslabs/aws-delivlib-sample.git && git fetch && git reset --hard origin/master && git branch -M master && git clean -fqdx; } ; }",
                   "$SKIP || { git describe --exact-match master && { echo 'Skip condition is met, skipping...' && export SKIP=true; } || { echo 'Skip condition is not met, continuing...' && export SKIP=false; } ; }",
                   "$SKIP || { git rev-parse --verify origin/bump/$VERSION && { git checkout bump/$VERSION && git merge master && npm i && npm run bump && export VERSION=$(git describe) && echo Finished running user commands;  } || { git checkout master && git checkout -b temp && npm i && npm run bump && export VERSION=$(git describe) && echo Finished running user commands && git branch -M bump/$VERSION; } ; }",
                   "$SKIP || { git merge-base --is-ancestor bump/$VERSION origin/master && { echo \"Skipping: bump/$VERSION is an ancestor of origin/master\"; export SKIP=true; } || { echo \"Pushing: bump/$VERSION is ahead of origin/master\"; export SKIP=false; } ; }",
@@ -4050,7 +4050,7 @@ Resources:
     Properties:
       Code:
         S3Bucket: cdk-hnb659fds-assets-712950704752-us-east-1
-        S3Key: 0a53a68507066ca05f357772bcdf7ad688b48ef9a0712595b42c72d7bc349280.zip
+        S3Key: b876f0d7f0377270d562201fd99ecf4636ba04f6999d4802a9345adea19262fa.zip
       Handler: index.handler
       Role:
         Fn::GetAtt:
