@@ -259,7 +259,7 @@ test('autoBump with pull request with custom options', () => {
               "$SKIP || { mkdir -p ~/.ssh ; }",
               "$SKIP || { chmod 0600 ~/.ssh/id_rsa ~/.ssh/config ; }",
               "$SKIP || { ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts ; }",
-              "$SKIP || { ls .git && { echo \".git directory exists\";  } || { echo \".git directory doesnot exist - cloning...\" && git clone git@github.com:owner/repo.git /tmp/repo && mv /tmp/repo/.git . && git reset --hard master; } ; }",
+              "$SKIP || { ls .git && { echo \".git directory exists\";  } || { echo \".git directory doesnot exist - cloning...\" && git clone git@github.com:owner/repo.git /tmp/repo && mv /tmp/repo/.git . && git reset --hard release; } ; }",
               "$SKIP || { git describe --exact-match release && { echo 'Skip condition is met, skipping...' && export SKIP=true; } || { echo 'Skip condition is not met, continuing...' && export SKIP=false; } ; }",
               "$SKIP || { git rev-parse --verify origin/bump/$VERSION && { git checkout bump/$VERSION && git merge release && /bin/sh ./bump.sh && export VERSION=$(git describe) && echo Finished running user commands;  } || { git checkout release && git checkout -b temp && /bin/sh ./bump.sh && export VERSION=$(git describe) && echo Finished running user commands && git branch -m bump/$VERSION; } ; }",
               "$SKIP || { git merge-base --is-ancestor bump/$VERSION origin/release && { echo \"Skipping: bump/$VERSION is an ancestor of origin/release\"; export SKIP=true } ; }",
