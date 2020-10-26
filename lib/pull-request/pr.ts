@@ -361,7 +361,7 @@ export class AutoPullRequest extends cdk.Construct {
       `git merge-base --is-ancestor ${this.props.head.name} origin/${this.baseBranch}`
       + ` && { echo "Skipping: ${this.props.head.name} is an ancestor of origin/${this.baseBranch}"; export SKIP=true }`,
       `git remote add origin_ssh ${this.props.repo.repositoryUrlSsh}`,
-      `git push --follow-tags origin_ssh ${this.props.head.name}`
+      `git push --follow-tags origin_ssh ${this.props.head.name}:${this.props.head.name}`
     ];
   }
 
