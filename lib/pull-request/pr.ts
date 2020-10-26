@@ -318,7 +318,7 @@ export class AutoPullRequest extends cdk.Construct {
       `&& { echo ".git directory exists";  } ` +
 
       // clone if it doesn't
-      `|| { echo ".git directory doesnot exist - cloning..." && git clone git@github.com:${this.props.repo.owner}/${this.props.repo.repo}.git /tmp/repo && mv /tmp/repo/.git . && git reset --hard ${this.baseBranch}; }`,
+      `|| { echo ".git directory doesnot exist - cloning..." && git init . && git remote add origin git@github.com:${this.props.repo.owner}/${this.props.repo.repo}.git && git fetch && git reset --hard origin/${this.baseBranch} && git branch -M ${this.baseBranch} && git clean -fqdx; }`,
 
     ];
 
