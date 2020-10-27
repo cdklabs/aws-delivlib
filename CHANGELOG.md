@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [9.0.0](https://github.com/awslabs/aws-delivlib/compare/v8.6.0...v9.0.0) (2020-10-27)
+
+
+### ⚠ BREAKING CHANGES
+
+* From this release on, `aws-delivlib` has a dependency
+on `monocdk` instead of `monocdk-experiment`.
+
+### Bug Fixes
+
+* untracked files preventing checkout ([#530](https://github.com/awslabs/aws-delivlib/issues/530)) ([77a7bc2](https://github.com/awslabs/aws-delivlib/commit/77a7bc237f66ceb66244b95f20859bf25bef6b52))
+
+
+* upgrade to `monocdk` 1.70.0 ([7b7e9dd](https://github.com/awslabs/aws-delivlib/commit/7b7e9dd0a0c006f159c8cd669519c8f829d50a94))
+
 ## [8.6.0](https://github.com/awslabs/aws-delivlib/compare/v8.4.8...v8.6.0) (2020-10-26)
 
 
