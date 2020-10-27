@@ -1,5 +1,5 @@
 // tslint:disable: max-line-length
-import * as cdk from "monocdk-experiment";
+import * as cdk from "monocdk";
 import { AutoBump, WritableGitHubRepo } from "../lib";
 import '@monocdk-experiment/assert/jest';
 
@@ -48,15 +48,14 @@ test('autoBump', () => {
               "export SKIP=false",
               "$SKIP || { aws secretsmanager get-secret-value --secret-id \"ssh-key-secret-arn\" --output=text --query=SecretString > ~/.ssh/id_rsa ; }",
               "$SKIP || { mkdir -p ~/.ssh ; }",
-              "$SKIP || { chmod 0600 ~/.ssh/id_rsa ; }",
-              "$SKIP || { chmod 0600 ~/.ssh/config ; }",
+              "$SKIP || { chmod 0600 ~/.ssh/id_rsa ~/.ssh/config ; }",
               "$SKIP || { ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts ; }",
-              "$SKIP || { ls .git && { echo \".git directory exists\";  } || { echo \".git directory doesnot exist - cloning...\" && git clone git@github.com:owner/repo.git /tmp/repo && mv /tmp/repo/.git . && git reset --hard master; } ; }",
+              "$SKIP || { ls .git && { echo \".git directory exists\";  } || { echo \".git directory doesnot exist - cloning...\" && git init . && git remote add origin git@github.com:owner/repo.git && git fetch && git reset --hard origin/master && git branch -M master && git clean -fqdx; } ; }",
               "$SKIP || { git describe --exact-match master && { echo 'Skip condition is met, skipping...' && export SKIP=true; } || { echo 'Skip condition is not met, continuing...' && export SKIP=false; } ; }",
-              "$SKIP || { git rev-parse --verify origin/bump/$VERSION && { git checkout bump/$VERSION && git merge master && /bin/sh ./bump.sh && export VERSION=$(git describe) && echo Finished running user commands;  } || { git checkout master && git checkout -b temp && /bin/sh ./bump.sh && export VERSION=$(git describe) && echo Finished running user commands && git branch -m bump/$VERSION; } ; }",
+              "$SKIP || { git rev-parse --verify origin/bump/$VERSION && { git checkout bump/$VERSION && git merge master && /bin/sh ./bump.sh && export VERSION=$(git describe) && echo Finished running user commands;  } || { git checkout master && git checkout -b temp && /bin/sh ./bump.sh && export VERSION=$(git describe) && echo Finished running user commands && git branch -M bump/$VERSION; } ; }",
+              "$SKIP || { git merge-base --is-ancestor bump/$VERSION origin/master && { echo \"Skipping: bump/$VERSION is an ancestor of origin/master\"; export SKIP=true; } || { echo \"Pushing: bump/$VERSION is ahead of origin/master\"; export SKIP=false; } ; }",
               "$SKIP || { git remote add origin_ssh git@github.com:owner/repo.git ; }",
-              "$SKIP || { git push --follow-tags origin_ssh bump/$VERSION ; }",
-              "$SKIP || { git diff --exit-code --no-patch bump/$VERSION origin/master && { echo \"Skipping pull request...\"; export SKIP=true; } || { echo \"Creating pull request...\"; export SKIP=false; } ; }",
+              "$SKIP || { git push --follow-tags origin_ssh bump/$VERSION:bump/$VERSION ; }",
               "$SKIP || { export GITHUB_TOKEN=$(aws secretsmanager get-secret-value --secret-id \"token-secret-arn\" --output=text --query=SecretString) ; }",
               "$SKIP || { curl --fail -X POST -o pr.json --header \"Authorization: token $GITHUB_TOKEN\" --header \"Content-Type: application/json\" -d \"{\\\"title\\\":\\\"chore(release): $VERSION\\\",\\\"base\\\":\\\"master\\\",\\\"head\\\":\\\"bump/$VERSION\\\"}\" https://api.github.com/repos/owner/repo/pulls && export PR_NUMBER=$(node -p 'require(\"./pr.json\").number') ; }",
               "$SKIP || { curl --fail -X PATCH --header \"Authorization: token $GITHUB_TOKEN\" --header \"Content-Type: application/json\" -d \"{\\\"body\\\":\\\"See [CHANGELOG](https://github.com/owner/repo/blob/bump/$VERSION/CHANGELOG.md)\\\"}\" https://api.github.com/repos/owner/repo/pulls/$PR_NUMBER ; }"
@@ -122,15 +121,14 @@ test('autoBump with custom cloneDepth', () => {
               "export SKIP=false",
               "$SKIP || { aws secretsmanager get-secret-value --secret-id \"ssh-key-secret-arn\" --output=text --query=SecretString > ~/.ssh/id_rsa ; }",
               "$SKIP || { mkdir -p ~/.ssh ; }",
-              "$SKIP || { chmod 0600 ~/.ssh/id_rsa ; }",
-              "$SKIP || { chmod 0600 ~/.ssh/config ; }",
+              "$SKIP || { chmod 0600 ~/.ssh/id_rsa ~/.ssh/config ; }",
               "$SKIP || { ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts ; }",
-              "$SKIP || { ls .git && { echo \".git directory exists\";  } || { echo \".git directory doesnot exist - cloning...\" && git clone git@github.com:owner/repo.git /tmp/repo && mv /tmp/repo/.git . && git reset --hard master; } ; }",
+              "$SKIP || { ls .git && { echo \".git directory exists\";  } || { echo \".git directory doesnot exist - cloning...\" && git init . && git remote add origin git@github.com:owner/repo.git && git fetch && git reset --hard origin/master && git branch -M master && git clean -fqdx; } ; }",
               "$SKIP || { git describe --exact-match master && { echo 'Skip condition is met, skipping...' && export SKIP=true; } || { echo 'Skip condition is not met, continuing...' && export SKIP=false; } ; }",
-              "$SKIP || { git rev-parse --verify origin/bump/$VERSION && { git checkout bump/$VERSION && git merge master && /bin/sh ./bump.sh && export VERSION=$(git describe) && echo Finished running user commands;  } || { git checkout master && git checkout -b temp && /bin/sh ./bump.sh && export VERSION=$(git describe) && echo Finished running user commands && git branch -m bump/$VERSION; } ; }",
+              "$SKIP || { git rev-parse --verify origin/bump/$VERSION && { git checkout bump/$VERSION && git merge master && /bin/sh ./bump.sh && export VERSION=$(git describe) && echo Finished running user commands;  } || { git checkout master && git checkout -b temp && /bin/sh ./bump.sh && export VERSION=$(git describe) && echo Finished running user commands && git branch -M bump/$VERSION; } ; }",
+              "$SKIP || { git merge-base --is-ancestor bump/$VERSION origin/master && { echo \"Skipping: bump/$VERSION is an ancestor of origin/master\"; export SKIP=true; } || { echo \"Pushing: bump/$VERSION is ahead of origin/master\"; export SKIP=false; } ; }",
               "$SKIP || { git remote add origin_ssh git@github.com:owner/repo.git ; }",
-              "$SKIP || { git push --follow-tags origin_ssh bump/$VERSION ; }",
-              "$SKIP || { git diff --exit-code --no-patch bump/$VERSION origin/master && { echo \"Skipping pull request...\"; export SKIP=true; } || { echo \"Creating pull request...\"; export SKIP=false; } ; }",
+              "$SKIP || { git push --follow-tags origin_ssh bump/$VERSION:bump/$VERSION ; }",
               "$SKIP || { export GITHUB_TOKEN=$(aws secretsmanager get-secret-value --secret-id \"token-secret-arn\" --output=text --query=SecretString) ; }",
               "$SKIP || { curl --fail -X POST -o pr.json --header \"Authorization: token $GITHUB_TOKEN\" --header \"Content-Type: application/json\" -d \"{\\\"title\\\":\\\"chore(release): $VERSION\\\",\\\"base\\\":\\\"master\\\",\\\"head\\\":\\\"bump/$VERSION\\\"}\" https://api.github.com/repos/owner/repo/pulls && export PR_NUMBER=$(node -p 'require(\"./pr.json\").number') ; }",
               "$SKIP || { curl --fail -X PATCH --header \"Authorization: token $GITHUB_TOKEN\" --header \"Content-Type: application/json\" -d \"{\\\"body\\\":\\\"See [CHANGELOG](https://github.com/owner/repo/blob/bump/$VERSION/CHANGELOG.md)\\\"}\" https://api.github.com/repos/owner/repo/pulls/$PR_NUMBER ; }"
@@ -201,14 +199,14 @@ test('autoBump with push only', () => {
               "export SKIP=false",
               "$SKIP || { aws secretsmanager get-secret-value --secret-id \"ssh-key-secret-arn\" --output=text --query=SecretString > ~/.ssh/id_rsa ; }",
               "$SKIP || { mkdir -p ~/.ssh ; }",
-              "$SKIP || { chmod 0600 ~/.ssh/id_rsa ; }",
-              "$SKIP || { chmod 0600 ~/.ssh/config ; }",
+              "$SKIP || { chmod 0600 ~/.ssh/id_rsa ~/.ssh/config ; }",
               "$SKIP || { ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts ; }",
-              "$SKIP || { ls .git && { echo \".git directory exists\";  } || { echo \".git directory doesnot exist - cloning...\" && git clone git@github.com:owner/repo.git /tmp/repo && mv /tmp/repo/.git . && git reset --hard master; } ; }",
+              "$SKIP || { ls .git && { echo \".git directory exists\";  } || { echo \".git directory doesnot exist - cloning...\" && git init . && git remote add origin git@github.com:owner/repo.git && git fetch && git reset --hard origin/master && git branch -M master && git clean -fqdx; } ; }",
               "$SKIP || { git describe --exact-match master && { echo 'Skip condition is met, skipping...' && export SKIP=true; } || { echo 'Skip condition is not met, continuing...' && export SKIP=false; } ; }",
-              "$SKIP || { git rev-parse --verify origin/bump/$VERSION && { git checkout bump/$VERSION && git merge master && /bin/sh ./bump.sh && export VERSION=$(git describe) && echo Finished running user commands;  } || { git checkout master && git checkout -b temp && /bin/sh ./bump.sh && export VERSION=$(git describe) && echo Finished running user commands && git branch -m bump/$VERSION; } ; }",
+              "$SKIP || { git rev-parse --verify origin/bump/$VERSION && { git checkout bump/$VERSION && git merge master && /bin/sh ./bump.sh && export VERSION=$(git describe) && echo Finished running user commands;  } || { git checkout master && git checkout -b temp && /bin/sh ./bump.sh && export VERSION=$(git describe) && echo Finished running user commands && git branch -M bump/$VERSION; } ; }",
+              "$SKIP || { git merge-base --is-ancestor bump/$VERSION origin/master && { echo \"Skipping: bump/$VERSION is an ancestor of origin/master\"; export SKIP=true; } || { echo \"Pushing: bump/$VERSION is ahead of origin/master\"; export SKIP=false; } ; }",
               "$SKIP || { git remote add origin_ssh git@github.com:owner/repo.git ; }",
-              "$SKIP || { git push --follow-tags origin_ssh bump/$VERSION ; }"
+              "$SKIP || { git push --follow-tags origin_ssh bump/$VERSION:bump/$VERSION ; }"
             ]
           }
         }
@@ -259,15 +257,14 @@ test('autoBump with pull request with custom options', () => {
               "export SKIP=false",
               "$SKIP || { aws secretsmanager get-secret-value --secret-id \"ssh-key-secret-arn\" --output=text --query=SecretString > ~/.ssh/id_rsa ; }",
               "$SKIP || { mkdir -p ~/.ssh ; }",
-              "$SKIP || { chmod 0600 ~/.ssh/id_rsa ; }",
-              "$SKIP || { chmod 0600 ~/.ssh/config ; }",
+              "$SKIP || { chmod 0600 ~/.ssh/id_rsa ~/.ssh/config ; }",
               "$SKIP || { ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts ; }",
-              "$SKIP || { ls .git && { echo \".git directory exists\";  } || { echo \".git directory doesnot exist - cloning...\" && git clone git@github.com:owner/repo.git /tmp/repo && mv /tmp/repo/.git . && git reset --hard release; } ; }",
+              "$SKIP || { ls .git && { echo \".git directory exists\";  } || { echo \".git directory doesnot exist - cloning...\" && git init . && git remote add origin git@github.com:owner/repo.git && git fetch && git reset --hard origin/release && git branch -M release && git clean -fqdx; } ; }",
               "$SKIP || { git describe --exact-match release && { echo 'Skip condition is met, skipping...' && export SKIP=true; } || { echo 'Skip condition is not met, continuing...' && export SKIP=false; } ; }",
-              "$SKIP || { git rev-parse --verify origin/bump/$VERSION && { git checkout bump/$VERSION && git merge release && /bin/sh ./bump.sh && export VERSION=$(git describe) && echo Finished running user commands;  } || { git checkout release && git checkout -b temp && /bin/sh ./bump.sh && export VERSION=$(git describe) && echo Finished running user commands && git branch -m bump/$VERSION; } ; }",
+              "$SKIP || { git rev-parse --verify origin/bump/$VERSION && { git checkout bump/$VERSION && git merge release && /bin/sh ./bump.sh && export VERSION=$(git describe) && echo Finished running user commands;  } || { git checkout release && git checkout -b temp && /bin/sh ./bump.sh && export VERSION=$(git describe) && echo Finished running user commands && git branch -M bump/$VERSION; } ; }",
+              "$SKIP || { git merge-base --is-ancestor bump/$VERSION origin/release && { echo \"Skipping: bump/$VERSION is an ancestor of origin/release\"; export SKIP=true; } || { echo \"Pushing: bump/$VERSION is ahead of origin/release\"; export SKIP=false; } ; }",
               "$SKIP || { git remote add origin_ssh git@github.com:owner/repo.git ; }",
-              "$SKIP || { git push --follow-tags origin_ssh bump/$VERSION ; }",
-              "$SKIP || { git diff --exit-code --no-patch bump/$VERSION origin/release && { echo \"Skipping pull request...\"; export SKIP=true; } || { echo \"Creating pull request...\"; export SKIP=false; } ; }",
+              "$SKIP || { git push --follow-tags origin_ssh bump/$VERSION:bump/$VERSION ; }",
               "$SKIP || { export GITHUB_TOKEN=$(aws secretsmanager get-secret-value --secret-id \"token-secret-arn\" --output=text --query=SecretString) ; }",
               "$SKIP || { curl --fail -X POST -o pr.json --header \"Authorization: token $GITHUB_TOKEN\" --header \"Content-Type: application/json\" -d \"{\\\"title\\\":\\\"custom title\\\",\\\"base\\\":\\\"release\\\",\\\"head\\\":\\\"bump/$VERSION\\\"}\" https://api.github.com/repos/owner/repo/pulls && export PR_NUMBER=$(node -p 'require(\"./pr.json\").number') ; }",
               "$SKIP || { curl --fail -X PATCH --header \"Authorization: token $GITHUB_TOKEN\" --header \"Content-Type: application/json\" -d \"{\\\"body\\\":\\\"custom body\\\"}\" https://api.github.com/repos/owner/repo/pulls/$PR_NUMBER ; }"

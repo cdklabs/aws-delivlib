@@ -1,6 +1,6 @@
 import { aws_codebuild as cbuild, aws_codecommit as ccommit,
-  aws_codepipeline as cpipeline, aws_codepipeline_actions as cpipeline_actions} from "monocdk-experiment";
-  import * as cdk from 'monocdk-experiment';
+  aws_codepipeline as cpipeline, aws_codepipeline_actions as cpipeline_actions} from "monocdk";
+  import * as cdk from 'monocdk';
 import { ExternalSecret } from "./permissions";
 
 export interface IRepo {

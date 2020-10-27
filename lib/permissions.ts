@@ -1,4 +1,4 @@
-import { aws_iam as iam } from "monocdk-experiment";
+import { aws_iam as iam } from "monocdk";
 
 
 

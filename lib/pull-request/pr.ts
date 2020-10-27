@@ -1,8 +1,8 @@
 import { aws_cloudwatch as cloudwatch,
   aws_codebuild as cbuild,
   aws_events as events,
-  aws_events_targets as events_targets } from "monocdk-experiment";
-import * as cdk from 'monocdk-experiment';
+  aws_events_targets as events_targets } from "monocdk";
+import * as cdk from 'monocdk';
 import { BuildEnvironmentProps, createBuildEnvironment } from "../build-env";
 import { WritableGitHubRepo } from "../repo";
 import permissions = require("../permissions");
@@ -302,7 +302,7 @@ export class AutoPullRequest extends cdk.Construct {
       `&& { git checkout ${this.props.head.name} && git merge ${this.headSource} && ${this.runCommands()};  } ` +
 
       // create if it doesnt. we initially use 'temp' to allow using exports in the head branch name. (e.g bump/$VERSION)
-      `|| { git checkout ${this.headSource} && git checkout -b temp && ${this.runCommands()} && git branch -m ${this.props.head.name}; }`,
+      `|| { git checkout ${this.headSource} && git checkout -b temp && ${this.runCommands()} && git branch -M ${this.props.head.name}; }`,
 
     ];
 
@@ -318,7 +318,7 @@ export class AutoPullRequest extends cdk.Construct {
       `&& { echo ".git directory exists";  } ` +
 
       // clone if it doesn't
-      `|| { echo ".git directory doesnot exist - cloning..." && git clone git@github.com:${this.props.repo.owner}/${this.props.repo.repo}.git /tmp/repo && mv /tmp/repo/.git . && git reset --hard ${this.baseBranch}; }`,
+      `|| { echo ".git directory doesnot exist - cloning..." && git init . && git remote add origin git@github.com:${this.props.repo.owner}/${this.props.repo.repo}.git && git fetch && git reset --hard origin/${this.baseBranch} && git branch -M ${this.baseBranch} && git clean -fqdx; }`,
 
     ];
 
@@ -349,18 +349,20 @@ export class AutoPullRequest extends cdk.Construct {
         + `--secret-id "${this.props.repo.sshKeySecret.secretArn}" `
         + `--output=text --query=SecretString > ~/.ssh/id_rsa`,
       `mkdir -p ~/.ssh`,
-      `chmod 0600 ~/.ssh/id_rsa`,
-      `chmod 0600 ~/.ssh/config`,
+      `chmod 0600 ~/.ssh/id_rsa ~/.ssh/config`,
       `ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts`
     ];
 
   }
 
   private pushHead(): string[] {
-
+    // We will do nothing and set `SKIP=true` if the head ref is an ancestor of the base branch (no PR could be created)
     return [
+      `git merge-base --is-ancestor ${this.props.head.name} origin/${this.baseBranch}`
+        + ` && { echo "Skipping: ${this.props.head.name} is an ancestor of origin/${this.baseBranch}"; export SKIP=true; }`
+        + ` || { echo "Pushing: ${this.props.head.name} is ahead of origin/${this.baseBranch}"; export SKIP=false; }`,
       `git remote add origin_ssh ${this.props.repo.repositoryUrlSsh}`,
-      `git push --follow-tags origin_ssh ${this.props.head.name}`
+      `git push --follow-tags origin_ssh ${this.props.head.name}:${this.props.head.name}`
     ];
   }
 
@@ -380,11 +382,6 @@ export class AutoPullRequest extends cdk.Construct {
     const createRequest = { title, base, head };
 
     const commands = [];
-
-    // don't create if head.hash == base.hash
-    commands.push(`git diff --exit-code --no-patch ${head} origin/${base} && ` +
-    '{ echo "Skipping pull request..."; export SKIP=true; } || ' +
-    '{ echo "Creating pull request..."; export SKIP=false; }');
 
     // read the token
     commands.push(`export GITHUB_TOKEN=$(aws secretsmanager get-secret-value --secret-id "${this.props.repo.tokenSecretArn}" --output=text --query=SecretString)`);

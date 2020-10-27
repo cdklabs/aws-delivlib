@@ -5,8 +5,8 @@ import { aws_cloudwatch as cloudwatch,
   aws_events_targets as events_targets,
   aws_iam as iam,
   aws_lambda as lambda,
-  aws_logs as logs } from "monocdk-experiment";
-import * as cdk from 'monocdk-experiment';
+  aws_logs as logs } from "monocdk";
+import * as cdk from 'monocdk';
 import fs = require("fs");
 import path = require("path");
 

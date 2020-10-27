@@ -6,13 +6,18 @@
 //
 //     npm run pipeline-update
 //
-import { aws_codebuild as codebuild, aws_ssm as ssm } from "monocdk-experiment";
-import * as cdk from 'monocdk-experiment';
+import {
+  App,
+  Stack,
+  StackProps,
+  aws_codebuild as codebuild,
+  aws_ssm as ssm,
+} from "monocdk";
 import delivlib = require("../lib");
 
 
-export class DelivLibPipelineStack extends cdk.Stack {
-  constructor(parent: cdk.App, id: string, props: cdk.StackProps = { }) {
+export class DelivLibPipelineStack extends Stack {
+  constructor(parent: App, id: string, props: StackProps = { }) {
     super(parent, id, props);
 
     const github = new delivlib.WritableGitHubRepo({
@@ -65,10 +70,10 @@ export class DelivLibPipelineStack extends cdk.Stack {
     pipeline.autoBump({
       scheduleExpression: 'cron(0 12 * * ? *)',
       bumpCommand: 'yarn install --frozen-lockfile && yarn bump',
-      head: {
+      base: {
         name: 'main',
       },
-      base: {
+      head: {
         name: 'main'
       },
       pushOnly: true
@@ -76,7 +81,7 @@ export class DelivLibPipelineStack extends cdk.Stack {
   }
 }
 
-const app = new cdk.App();
+const app = new App();
 
 // this pipeline is mastered in a specific account where all the secrets are stored
 new DelivLibPipelineStack(app, 'aws-delivlib-pipeline', {

@@ -1,5 +1,5 @@
-import { aws_iam as iam, aws_kms as kms } from "monocdk-experiment";
-import * as cdk from 'monocdk-experiment';
+import { aws_iam as iam, aws_kms as kms } from "monocdk";
+import * as cdk from 'monocdk';
 import { OpenPGPKeyPair } from "./open-pgp-key-pair";
 
 

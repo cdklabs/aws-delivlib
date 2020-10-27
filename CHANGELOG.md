@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [8.6.0](https://github.com/awslabs/aws-delivlib/compare/v8.4.8...v8.6.0) (2020-10-26)
+
+
+### Features
+
+* **bump:** skip push & PR if head is behind base ([4af1774](https://github.com/awslabs/aws-delivlib/commit/4af1774886ff05c74e8c781526f13c43665aaf24))
+
+
+### Bug Fixes
+
+* **bump:** a branch named '<branch>' already exists ([ba5e600](https://github.com/awslabs/aws-delivlib/commit/ba5e60030c6d52473db3108a3e33c4f6c6f11984))
+* **bump:** specify remote branch name in 'git push' ([53ea149](https://github.com/awslabs/aws-delivlib/commit/53ea149027c497350a91dafb0b6ea1695afafc7c))
+
+## [8.5.0](https://github.com/awslabs/aws-delivlib/compare/v8.4.8...v8.5.0) (2020-10-26)
+
+
+### Features
+
+* **bump:** skip push & PR if head is behind base ([4af1774](https://github.com/awslabs/aws-delivlib/commit/4af1774886ff05c74e8c781526f13c43665aaf24))
+
+
+### Bug Fixes
+
+* **bump:** a branch named '<branch>' already exists ([ba5e600](https://github.com/awslabs/aws-delivlib/commit/ba5e60030c6d52473db3108a3e33c4f6c6f11984))
+* **bump:** specify remote branch name in 'git push' ([53ea149](https://github.com/awslabs/aws-delivlib/commit/53ea149027c497350a91dafb0b6ea1695afafc7c))
+
 ### [8.4.8](https://github.com/awslabs/aws-delivlib/compare/v8.4.7...v8.4.8) (2020-10-22)
 
 ### [8.4.7](https://github.com/awslabs/aws-delivlib/compare/v8.4.6...v8.4.7) (2020-10-21)
