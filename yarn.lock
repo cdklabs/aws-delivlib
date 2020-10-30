@@ -3705,10 +3705,10 @@ modify-values@^1.0.0:
   resolved "https://registry.yarnpkg.com/modify-values/-/modify-values-1.0.1.tgz#b3939fa605546474e3e3e3c63d64bd43b4ee6022"
   integrity sha512-xV2bxeN6F7oYjZWTe/YPAy6MN2M+sL4u/Rlm2AHCIVGfo2p1yGmBHQ6vHehl4bRTZBdHu3TSkWdYgkwpYzAGSw==
 
-monocdk@1.70.0:
-  version "1.70.0"
-  resolved "https://registry.yarnpkg.com/monocdk/-/monocdk-1.70.0.tgz#6aa96c4141ba42537b8eb7e986f2a27a1f8ddc9a"
-  integrity sha512-O/K60nCtvSAm5Zx6HreMmf3xZiAZHIblunzluwk/+7C4EjZRMwylGe41wA3j5ElVMCz1Lg14P4tYxUdgfOsaNQ==
+monocdk@1.71.0:
+  version "1.71.0"
+  resolved "https://registry.yarnpkg.com/monocdk/-/monocdk-1.71.0.tgz#657869907abe5daf96bfd91e2656f41b6414eef4"
+  integrity sha512-Xrz8ACee7+Aea6IWuFWj5dv22/VQVo+E4My8WifuEfbO76nmESmsjVChR9to4mVsDZMTGpDpBo0zqkApmG6kvw==
   dependencies:
     case "1.6.3"
     fs-extra "^9.0.1"
