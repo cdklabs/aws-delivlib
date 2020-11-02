@@ -1,14 +1,16 @@
-import { aws_codebuild as cbuild, aws_codecommit as ccommit,
-  aws_codepipeline as cpipeline, aws_codepipeline_actions as cpipeline_actions} from "monocdk";
-  import * as cdk from 'monocdk';
-import { ExternalSecret } from "./permissions";
+import {
+  Construct, SecretValue,
+  aws_codebuild as cbuild, aws_codecommit as ccommit,
+  aws_codepipeline as cpipeline, aws_codepipeline_actions as cpipeline_actions,
+} from 'monocdk';
+import { ExternalSecret } from './permissions';
 
 export interface IRepo {
   repositoryUrlHttp: string;
   repositoryUrlSsh: string;
   readonly allowsBadge: boolean;
   readonly tokenSecretArn?: string;
-  createBuildSource(parent: cdk.Construct, webhook: boolean, options?: BuildSourceOptions): cbuild.ISource;
+  createBuildSource(parent: Construct, webhook: boolean, options?: BuildSourceOptions): cbuild.ISource;
   createSourceStage(pipeline: cpipeline.Pipeline, branch: string): cpipeline.Artifact;
   describe(): any;
 }
@@ -48,7 +50,7 @@ export class CodeCommitRepo implements IRepo {
     return this.repository.repositoryCloneUrlSsh;
   }
 
-  public createBuildSource(_: cdk.Construct, _webhook: boolean, options: BuildSourceOptions = { }): cbuild.ISource {
+  public createBuildSource(_: Construct, _webhook: boolean, options: BuildSourceOptions = { }): cbuild.ISource {
     return cbuild.Source.codeCommit({
       repository: this.repository,
       cloneDepth: options.cloneDepth,
@@ -80,7 +82,7 @@ export class GitHubRepo implements IRepo {
 
   constructor(props: GitHubRepoProps) {
     const repository = props.repository;
-    const [ owner, repo ] = repository.split('/');
+    const [owner, repo] = repository.split('/');
 
     this.owner = owner;
     this.repo = repo;
@@ -102,15 +104,15 @@ export class GitHubRepo implements IRepo {
     stage.addAction(new cpipeline_actions.GitHubSourceAction({
       actionName: 'Pull',
       branch,
-      oauthToken: cdk.SecretValue.secretsManager(this.tokenSecretArn),
+      oauthToken: SecretValue.secretsManager(this.tokenSecretArn),
       owner: this.owner,
       repo: this.repo,
-      output: sourceOutput
+      output: sourceOutput,
     }));
     return sourceOutput;
   }
 
-  public createBuildSource(_: cdk.Construct, webhook: boolean, options: BuildSourceOptions = { }): cbuild.ISource {
+  public createBuildSource(_: Construct, webhook: boolean, options: BuildSourceOptions = { }): cbuild.ISource {
     return cbuild.Source.gitHub({
       owner: this.owner,
       repo: this.repo,
@@ -118,8 +120,8 @@ export class GitHubRepo implements IRepo {
       cloneDepth: options.cloneDepth,
       reportBuildStatus: webhook,
       webhookFilters: webhook
-          ? this.createWebhookFilters(options.branch)
-          : undefined,
+        ? this.createWebhookFilters(options.branch)
+        : undefined,
     });
   }
 
@@ -133,7 +135,7 @@ export class GitHubRepo implements IRepo {
         cbuild.FilterGroup.inEventOf(cbuild.EventAction.PUSH)
           .andBranchIs(branch),
         cbuild.FilterGroup.inEventOf(cbuild.EventAction.PULL_REQUEST_CREATED, cbuild.EventAction.PULL_REQUEST_UPDATED)
-          .andBaseBranchIs(branch)
+          .andBaseBranchIs(branch),
       ];
     }
     return [
@@ -141,7 +143,7 @@ export class GitHubRepo implements IRepo {
         cbuild.EventAction.PUSH,
         cbuild.EventAction.PULL_REQUEST_CREATED,
         cbuild.EventAction.PULL_REQUEST_UPDATED,
-      )
+      ),
     ];
   }
 }

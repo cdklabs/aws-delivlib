@@ -6,7 +6,7 @@
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "scripts": {
-    "build": "yarn build:assets && tsc --build && tslint --fix --project .",
+    "build": "yarn build:assets && tsc --build && eslint --ext .ts .",
     "build:assets": "yarn build:assets:custom-resource-handlers && yarn build:assets:lambda-handlers",
     "build:assets:custom-resource-handlers": "/bin/bash ./build-custom-resource-handlers.sh",
     "build:assets:lambda-handlers": "/bin/bash ./build-lambda-handlers.sh",
@@ -40,14 +40,17 @@
     "@monocdk-experiment/assert": "1.71.0",
     "@types/jest": "^26.0.15",
     "@types/node": "^10.17.44",
+    "@typescript-eslint/eslint-plugin": "^4.3.0",
+    "@typescript-eslint/parser": "^4.3.0",
     "aws-cdk": "1.71.0",
     "constructs": "^3.2.9",
+    "eslint": "^7.10.0",
+    "eslint-plugin-import": "^2.22.1",
     "jest": "^26.6.1",
     "jest-create-mock-instance": "^1.1.0",
     "monocdk": "1.71.0",
     "standard-version": "^9.0.0",
     "ts-jest": "^26.4.3",
-    "tslint": "^6.1.3",
     "typescript": "^4.0.3"
   },
   "peerDependencies": {

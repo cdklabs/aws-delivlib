@@ -1,13 +1,13 @@
+import * as fs from 'fs';
+import * as path from 'path';
 import {
+  Construct, Duration,
   aws_codepipeline as cpipeline,
   aws_iam as iam,
   aws_lambda as lambda,
   aws_events as events,
   aws_events_targets as events_targets,
-} from "monocdk";
-import * as cdk from 'monocdk';
-import fs = require("fs");
-import path = require('path');
+} from 'monocdk';
 
 /**
  * Properties for a ChimeNotifier
@@ -41,11 +41,11 @@ export interface ChimeNotifierProps {
 /**
  * Send a message to a Chime room when a pipeline fails
  */
-export class ChimeNotifier extends cdk.Construct {
-  constructor(scope: cdk.Construct, id: string, props: ChimeNotifierProps) {
+export class ChimeNotifier extends Construct {
+  constructor(scope: Construct, id: string, props: ChimeNotifierProps) {
     super(scope, id);
 
-    const message = props.message ?? "/md @All Pipeline **$PIPELINE** failed in action **$ACTION**. Latest change:\n```\n$REVISION\n```\n([Failure details]($URL))";
+    const message = props.message ?? '/md @All Pipeline **$PIPELINE** failed in action **$ACTION**. Latest change:\n```\n$REVISION\n```\n([Failure details]($URL))';
 
     if (props.webhookUrls.length > 0) {
       // Reuse the same Lambda code for all pipelines, we will move the Lambda parameterizations into
@@ -55,7 +55,7 @@ export class ChimeNotifier extends cdk.Construct {
         uuid: '0f4a3ee0-692e-4249-932f-a46a833886d8',
         code: lambda.Code.inline(stripComments(fs.readFileSync(path.join(__dirname, 'notifier-handler.js')).toString('utf8'))),
         runtime: lambda.Runtime.NODEJS_10_X,
-        timeout: cdk.Duration.minutes(5),
+        timeout: Duration.minutes(5),
       });
 
       notifierLambda.addToRolePolicy(new iam.PolicyStatement({
@@ -71,12 +71,12 @@ export class ChimeNotifier extends cdk.Construct {
             webhookUrls: props.webhookUrls,
             // Copy over "detail" field
             detail: events.EventField.fromPath('$.detail'),
-          })
+          }),
         }),
         eventPattern: {
           detail: {
             state: ['FAILED'],
-          }
+          },
         },
       });
     }

@@ -1,12 +1,13 @@
-import { aws_cloudwatch as cloudwatch, aws_codebuild as cbuild,
+import * as fs from 'fs';
+import * as path from 'path';
+import {
+  Construct, Duration,
+  aws_cloudwatch as cloudwatch, aws_codebuild as cbuild,
   aws_codepipeline as cpipeline, aws_codepipeline_actions as cpipeline_actions,
-  aws_iam as iam, aws_s3_assets as assets, aws_secretsmanager, aws_ssm } from
-  "monocdk";
-  import * as cdk from 'monocdk';
-import fs = require("fs");
-import path = require("path");
-import { BuildSpec } from "./build-spec";
-import { renderEnvironmentVariables } from "./util";
+  aws_iam as iam, aws_s3_assets as assets, aws_secretsmanager, aws_ssm,
+} from 'monocdk';
+import { BuildSpec } from './build-spec';
+import { renderEnvironmentVariables } from './util';
 
 const S3_BUCKET_ENV = 'SCRIPT_S3_BUCKET';
 const S3_KEY_ENV = 'SCRIPT_S3_KEY';
@@ -104,14 +105,14 @@ export interface ShellableOptions {
    *
    * @default the CodeBuild default (1 hour)
    */
-  timeout?: cdk.Duration;
+  timeout?: Duration;
 
   /**
    * Alarm period.
    *
    * @default 300 seconds (5 minutes)
    */
-  alarmPeriod?: cdk.Duration;
+  alarmPeriod?: Duration;
 
   /**
    * Alarm threshold.
@@ -229,7 +230,7 @@ export interface AssumeRole {
  *
  * Supports both Windows and Linux computes.
  */
-export class Shellable extends cdk.Construct {
+export class Shellable extends Construct {
   public readonly project: cbuild.Project;
   public readonly role: iam.IRole;
 
@@ -243,7 +244,7 @@ export class Shellable extends cdk.Construct {
 
   private readonly outputArtifactName: string;
 
-  constructor(parent: cdk.Construct, id: string, props: ShellableProps) {
+  constructor(parent: Construct, id: string, props: ShellableProps) {
     super(parent, id);
 
     this.platform = props.platform || ShellPlatform.LinuxUbuntu;
@@ -254,7 +255,7 @@ export class Shellable extends cdk.Construct {
     }
 
     const asset = new assets.Asset(this, 'ScriptDirectory', {
-      path: props.scriptDirectory
+      path: props.scriptDirectory,
     });
 
     this.outputArtifactName = `Artifact_${this.node.uniqueId}`;
@@ -264,7 +265,7 @@ export class Shellable extends cdk.Construct {
 
     this.buildSpec = BuildSpec.simple({
       preBuild: this.platform.prebuildCommands(props.assumeRole, props.useRegionalStsEndpoints),
-      build: this.platform.buildCommands(props.entrypoint)
+      build: this.platform.buildCommands(props.entrypoint),
     }).merge(props.buildSpec || BuildSpec.empty());
 
     this.project = new cbuild.Project(this, 'Resource', {
@@ -273,7 +274,7 @@ export class Shellable extends cdk.Construct {
       environment: {
         buildImage: this.platform.buildImage,
         computeType: props.computeType || cbuild.ComputeType.MEDIUM,
-        privileged: props.privileged
+        privileged: props.privileged,
       },
       environmentVariables: {
         [S3_BUCKET_ENV]: { value: asset.s3BucketName },
@@ -308,8 +309,8 @@ export class Shellable extends cdk.Construct {
       }));
     }
 
-    this.alarm = new cloudwatch.Alarm(this, `Alarm`, {
-      metric: this.project.metricFailedBuilds({ period: props.alarmPeriod || cdk.Duration.seconds(300) }),
+    this.alarm = new cloudwatch.Alarm(this, 'Alarm', {
+      metric: this.project.metricFailedBuilds({ period: props.alarmPeriod || Duration.seconds(300) }),
       threshold: props.alarmThreshold || 1,
       comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
       evaluationPeriods: props.alarmEvaluationPeriods || 1,
@@ -318,14 +319,14 @@ export class Shellable extends cdk.Construct {
   }
 
   public addToPipeline(stage: cpipeline.IStage, name: string, inputArtifact: cpipeline.Artifact, runOrder?: number):
-      cpipeline_actions.CodeBuildAction {
+  cpipeline_actions.CodeBuildAction {
     const codeBuildAction = new cpipeline_actions.CodeBuildAction({
       actionName: name,
       project: this.project,
       runOrder,
       input: inputArtifact,
       outputs: [new cpipeline.Artifact(this.outputArtifactName)].concat(
-          this.buildSpec.additionalArtifactNames.map(artifactName => new cpipeline.Artifact(artifactName))),
+        this.buildSpec.additionalArtifactNames.map(artifactName => new cpipeline.Artifact(artifactName))),
     });
     stage.addAction(codeBuildAction);
     return codeBuildAction;
@@ -393,7 +394,7 @@ export class LinuxPlatform extends ShellPlatform {
     // to only allow downloading the very latest version.
     lines.push(`echo "Downloading scripts from s3://\${${S3_BUCKET_ENV}}/\${${S3_KEY_ENV}}"`);
     lines.push(`aws s3 cp s3://\${${S3_BUCKET_ENV}}/\${${S3_KEY_ENV}} /tmp`);
-    lines.push(`mkdir -p /tmp/scriptdir`);
+    lines.push('mkdir -p /tmp/scriptdir');
     lines.push(`unzip /tmp/$(basename \$${S3_KEY_ENV}) -d /tmp/scriptdir`);
 
     if (assumeRole) {
@@ -408,7 +409,7 @@ export class LinuxPlatform extends ShellPlatform {
         lines.push(`touch ${awsHome}/credentials`);
         lines.push(`config=${awsHome}/config`);
         lines.push(`echo [profile ${profileName}]>> $\{config\}`);
-        lines.push(`echo credential_source = EcsContainer >> $\{config\}`);
+        lines.push('echo credential_source = EcsContainer >> $\{config\}');
         lines.push(`echo role_session_name = ${assumeRole.sessionName} >> $\{config\}`);
         lines.push(`echo role_arn = ${assumeRole.roleArn} >> $config`);
 
@@ -425,7 +426,7 @@ export class LinuxPlatform extends ShellPlatform {
       } else {
 
         const externalId = assumeRole.externalId ? `--external-id "${assumeRole.externalId}"` : '';
-        const StsEndpoints = useRegionalStsEndpoints ? "regional" : "legacy";
+        const StsEndpoints = useRegionalStsEndpoints ? 'regional' : 'legacy';
 
         lines.push('creds=$(mktemp -d)/creds.json');
         lines.push(`AWS_STS_REGIONAL_ENDPOINTS=${StsEndpoints} aws sts assume-role --role-arn "${assumeRole.roleArn}" --role-session-name "${assumeRole.sessionName}" ${externalId} > $creds`);
@@ -455,7 +456,7 @@ export class WindowsPlatform extends ShellPlatform {
 
   public prebuildCommands(assumeRole?: AssumeRole, _useRegionalStsEndpoints?: boolean): string[] {
     if (assumeRole) {
-      throw new Error(`assumeRole is not supported on Windows: https://github.com/awslabs/aws-delivlib/issues/57`);
+      throw new Error('assumeRole is not supported on Windows: https://github.com/awslabs/aws-delivlib/issues/57');
     }
 
     return [
@@ -468,12 +469,12 @@ export class WindowsPlatform extends ShellPlatform {
 
   public buildCommands(entrypoint: string): string[] {
     return [
-      `Set-Variable -Name TEMPDIR -Value (New-TemporaryFile).DirectoryName`,
+      'Set-Variable -Name TEMPDIR -Value (New-TemporaryFile).DirectoryName',
       `aws s3 cp s3://$env:${S3_BUCKET_ENV}/$env:${S3_KEY_ENV} $TEMPDIR\\scripts.zip`,
       'New-Item -ItemType Directory -Path $TEMPDIR\\scriptdir',
       'Expand-Archive -Path $TEMPDIR/scripts.zip -DestinationPath $TEMPDIR\\scriptdir',
       '$env:SCRIPT_DIR = "$TEMPDIR\\scriptdir"',
-      `& $TEMPDIR\\scriptdir\\${entrypoint}`
+      `& $TEMPDIR\\scriptdir\\${entrypoint}`,
     ];
   }
 }
