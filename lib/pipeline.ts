@@ -1,10 +1,11 @@
 import {
   Construct, Duration, IConstruct,
+  aws_chatbot as chatbot,
   aws_cloudwatch as cloudwatch,
   aws_codebuild as cbuild,
   aws_codepipeline as cpipeline,
-  aws_codepipeline_actions as
-  cpipeline_actions,
+  aws_codepipeline_actions as cpipeline_actions,
+  aws_codestarnotifications as starnotifs,
   aws_events as events,
   aws_events_targets as events_targets,
   aws_iam as iam, aws_s3 as s3,
@@ -31,43 +32,43 @@ export interface PipelineProps {
   /**
    * The source repository to build (e.g. GitHubRepo).
    */
-  repo: IRepo;
+  readonly repo: IRepo;
 
   /**
    * A display name for this pipeline.
    */
-  title?: string;
+  readonly title?: string;
 
   /**
    * A physical name for this pipeline.
    * @default - a new name will be generated.
    */
-  pipelineName?: string;
+  readonly pipelineName?: string;
 
   /**
    * Branch to build.
    * @default master
    */
-  branch?: string;
+  readonly branch?: string;
 
   /**
    * Email to send failure notifications.
    * @default - No email notifications
    */
-  notificationEmail?: string;
+  readonly notificationEmail?: string;
 
   /**
    * The image used for the builds.
    *
    * @default jsii/superchain (see docs)
    */
-  buildImage?: cbuild.IBuildImage;
+  readonly buildImage?: cbuild.IBuildImage;
 
   /**
    * The name of the CodeBuild project that will be part of this pipeline.
    * @default - `${pipelineName}-Build`, if `pipelineName` property is specified; automatically generated, otherwise.
    */
-  buildProjectName?: string;
+  readonly buildProjectName?: string;
 
   /**
    * The type of compute to use for this build.
@@ -75,7 +76,7 @@ export interface PipelineProps {
    *
    * @default taken from {@link #buildImage#defaultComputeType}
    */
-  computeType?: cbuild.ComputeType;
+  readonly computeType?: cbuild.ComputeType;
 
   /**
    * Indicates how the project builds Docker images. Specify true to enable
@@ -87,23 +88,23 @@ export interface PipelineProps {
    *
    * @default false
    */
-  privileged?: boolean;
+  readonly privileged?: boolean;
 
   /**
    * Environment variables to pass to build
    */
-  environment?: { [key: string]: string };
+  readonly environment?: { [key: string]: string };
 
   /**
    * Optional buildspec, as an alternative to a buildspec.yml file
    */
-  buildSpec?: cbuild.BuildSpec;
+  readonly buildSpec?: cbuild.BuildSpec;
 
   /**
    * Indicates whether to re-run the pipeline after you've updated it.
    * @default true
    */
-  restartExecutionOnUpdate?: boolean;
+  readonly restartExecutionOnUpdate?: boolean;
 
   /**
    * Indicates the concurrency limit test and publish stages.
@@ -113,7 +114,7 @@ export interface PipelineProps {
    *
    * @default - no limit
    */
-  concurrency?: number;
+  readonly concurrency?: number;
 
   /**
    * Set the default dryRun for all publishing steps
@@ -122,14 +123,14 @@ export interface PipelineProps {
    *
    * @default false
    */
-  dryRun?: boolean;
+  readonly dryRun?: boolean;
 
   /**
    * Automatically build commits that are pushed to this repository, including PR builds on github.
    *
    * @default false
    */
-  autoBuild?: boolean;
+  readonly autoBuild?: boolean;
 
   /**
    * Options for auto-build
@@ -137,21 +138,21 @@ export interface PipelineProps {
    * @default - 'autoBuildOptions.publicLogs' will be set to its default. 'autoBuildOptions.buildspec' will be configured to match with the
    * 'buildSpec' property.
    */
-  autoBuildOptions?: AutoBuildOptions;
+  readonly autoBuildOptions?: AutoBuildOptions;
 
   /**
    * Post a notification to the given Chime webhooks if the pipeline fails
    *
    * @default - no Chime notifications on pipeline failure
    */
-  chimeFailureWebhooks?: string[];
+  readonly chimeFailureWebhooks?: string[];
 
   /**
    * The Chime message to post
    *
    * @default - A default message
    */
-  chimeMessage?: string;
+  readonly chimeMessage?: string;
 
   /**
    * Build timeout
@@ -160,7 +161,13 @@ export interface PipelineProps {
    *
    * @default - Duration.hours(8)
    */
-  buildTimeout?: Duration;
+  readonly buildTimeout?: Duration;
+
+  /**
+   * Slack channel configurations where failure notification
+   * in this pipeline should be sent.
+   */
+  readonly failureNotifySlack?: chatbot.SlackChannelConfiguration[];
 }
 
 export interface MergeBackStage {
@@ -285,6 +292,23 @@ export class Pipeline extends Construct {
 
     if (props.autoBuild) {
       this.autoBuild(props.autoBuildOptions);
+    }
+
+    if (props.failureNotifySlack && props.failureNotifySlack.length > 0) {
+      props.failureNotifySlack.forEach(s => {
+        new starnotifs.CfnNotificationRule(this, `FailureSlackNotification-${s.slackChannelConfigurationName}`, {
+          name: `${this.pipeline.pipelineName}-failednotifications`,
+          detailType: 'BASIC',
+          resource: this.pipeline.pipelineArn,
+          targets: [
+            {
+              targetAddress: s.slackChannelConfigurationArn,
+              targetType: 'AWSChatbotSlack',
+            },
+          ],
+          eventTypeIds: ['codepipeline-pipeline-action-execution-failed'],
+        });
+      });
     }
   }
 
