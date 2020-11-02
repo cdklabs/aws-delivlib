@@ -1,10 +1,7 @@
-import { aws_codebuild as cbuild } from "monocdk";
-import crypto = require("crypto");
-import fs = require("fs");
-import path = require("path");
-
-
-
+import crypto = require('crypto');
+import fs = require('fs');
+import path = require('path');
+import { aws_codebuild as cbuild } from 'monocdk';
 
 
 /**

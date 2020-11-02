@@ -1,14 +1,16 @@
-import { aws_codebuild as cbuild, aws_codepipeline as cpipeline,
-  aws_codepipeline_actions as cpipeline_actions, aws_iam as iam, aws_s3 as s3 } from "monocdk";
-  import * as cdk from 'monocdk';
-import path = require("path");
-import { ICodeSigningCertificate } from "./code-signing";
-import { OpenPGPKeyPair } from "./open-pgp-key-pair";
-import permissions = require("./permissions");
-import { AddToPipelineOptions, IPublisher } from "./pipeline";
-import { WritableGitHubRepo } from "./repo";
-import { LinuxPlatform, Shellable } from "./shellable";
-import { noUndefined } from "./util";
+import path = require('path');
+import {
+  aws_codebuild as cbuild, aws_codepipeline as cpipeline,
+  aws_codepipeline_actions as cpipeline_actions, aws_iam as iam, aws_s3 as s3,
+} from 'monocdk';
+import * as cdk from 'monocdk';
+import { ICodeSigningCertificate } from './code-signing';
+import { OpenPGPKeyPair } from './open-pgp-key-pair';
+import permissions = require('./permissions');
+import { AddToPipelineOptions, IPublisher } from './pipeline';
+import { WritableGitHubRepo } from './repo';
+import { LinuxPlatform, Shellable } from './shellable';
+import { noUndefined } from './util';
 
 /**
  * Type of access permissions to request from npmjs.
@@ -310,7 +312,7 @@ export class PublishDocsToGitHubProject extends cdk.Construct implements IPublis
         COMMIT_USERNAME: props.githubRepo.commitUsername,
         COMMIT_EMAIL: props.githubRepo.commitEmail,
         BUILD_MANIFEST: props.buildManifestFileName || './build.json',
-      }
+      },
     });
 
     if (shellable.role) {
@@ -403,7 +405,7 @@ export class PublishToGitHub extends cdk.Construct implements IPublisher {
         // Transmit the names of the secondary sources to the shell script (for easier iteration)
         SECONDARY_SOURCE_NAMES: props.additionalInputArtifacts ? props.additionalInputArtifacts.map(a => a.artifactName).join(' ') : undefined,
         SIGN_ADDITIONAL_ARTIFACTS: props.additionalInputArtifacts && props.signAdditionalArtifacts !== false ? 'true' : undefined,
-      })
+      }),
     });
 
     // allow script to read the signing key
@@ -460,7 +462,7 @@ export class PublishToS3 extends cdk.Construct implements IPublisher {
         BUCKET_URL: `s3://${props.bucket.bucketName}`,
         CHANGELOG: props.public ? 'true' : 'false',
         FOR_REAL: forReal,
-      }
+      },
     });
 
     // Allow script to write to bucket
@@ -512,7 +514,7 @@ export class PublishToPyPi extends cdk.Construct {
       entrypoint: 'publish.sh',
       environment: {
         FOR_REAL: forReal,
-        PYPI_CREDENTIALS_SECRET_ID: props.loginSecret.secretArn
+        PYPI_CREDENTIALS_SECRET_ID: props.loginSecret.secretArn,
       },
     });
 

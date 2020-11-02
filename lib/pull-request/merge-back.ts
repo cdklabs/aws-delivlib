@@ -1,7 +1,7 @@
-import * as cdk from "monocdk";
-import { WritableGitHubRepo } from "../repo";
+import * as cdk from 'monocdk';
+import { WritableGitHubRepo } from '../repo';
 import * as pr from './pr';
-import { AutoPullRequestProps } from "./pr";
+import { AutoPullRequestProps } from './pr';
 
 /**
  *
@@ -86,7 +86,7 @@ export class AutoMergeBack extends cdk.Construct {
 
     const versionCommand = props.versionCommand ?? 'git describe';
     const headName = props.head?.name ?? 'merge-back/$VERSION';
-    const title = props.title ?? `chore(merge-back): $VERSION`;
+    const title = props.title ?? 'chore(merge-back): $VERSION';
     const body = props.body ?? `See [CHANGELOG](https://github.com/${props.repo.owner}/${props.repo.repo}/blob/${headName}/CHANGELOG.md)`;
 
     this.pr = new pr.AutoPullRequest(this, 'AutoMergeBack', {
@@ -95,12 +95,12 @@ export class AutoMergeBack extends cdk.Construct {
       title,
       head: {
         name: headName,
-        source: props.head?.source
+        source: props.head?.source,
       },
       exports: {
         ...props.exports,
-        'VERSION': versionCommand,
-      }
+        VERSION: versionCommand,
+      },
     });
   }
 }

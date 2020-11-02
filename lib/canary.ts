@@ -1,9 +1,9 @@
-import { aws_cloudwatch as cloudwatch, aws_codebuild as cbuild, aws_events as events,
-  aws_events_targets as events_targets } from "monocdk";
+import {
+  aws_cloudwatch as cloudwatch, aws_codebuild as cbuild, aws_events as events,
+  aws_events_targets as events_targets,
+} from 'monocdk';
 import * as cdk from 'monocdk';
-import { Shellable, ShellableProps } from "./shellable";
-
-
+import { Shellable, ShellableProps } from './shellable';
 
 
 export interface CanaryProps extends ShellableProps {
@@ -38,7 +38,7 @@ export class Canary extends cdk.Construct {
       environment: env,
     });
 
-    new events.Rule(this, `Schedule`, {
+    new events.Rule(this, 'Schedule', {
       schedule: props.schedule || events.Schedule.expression('rate(1 minute)'),
       targets: [new events_targets.CodeBuildProject(shellable.project)],
     });

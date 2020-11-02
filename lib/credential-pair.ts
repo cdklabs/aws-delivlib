@@ -1,8 +1,5 @@
-import { aws_ssm as ssm } from "monocdk";
-import { aws_secretsmanager as secretsManager } from "monocdk";
-
-
-
+import { aws_ssm as ssm } from 'monocdk';
+import { aws_secretsmanager as secretsManager } from 'monocdk';
 
 
 /**

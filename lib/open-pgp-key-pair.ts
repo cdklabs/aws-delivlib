@@ -1,9 +1,9 @@
 // tslint:disable-next-line: max-line-length
-import { aws_cloudformation as cfn, aws_iam as iam, aws_kms as kms, aws_lambda as lambda, aws_secretsmanager as secretsManager, aws_ssm as ssm } from "monocdk";
+import path = require('path');
+import { aws_cloudformation as cfn, aws_iam as iam, aws_kms as kms, aws_lambda as lambda, aws_secretsmanager as secretsManager, aws_ssm as ssm } from 'monocdk';
 import * as cdk from 'monocdk';
-import path = require("path");
-import { ICredentialPair } from "./credential-pair";
-import { hashFileOrDirectory } from "./util";
+import { ICredentialPair } from './credential-pair';
+import { hashFileOrDirectory } from './util';
 
 /**
  * The type of the {@link OpenPGPKeyPairProps.removalPolicy} property.
@@ -130,7 +130,7 @@ export class OpenPGPKeyPair extends cdk.Construct implements ICredentialPair {
         service: 'secretsmanager',
         resource: 'secret',
         sep: ':',
-        resourceName: `${props.secretName}-??????`
+        resourceName: `${props.secretName}-??????`,
       })],
     }));
 
@@ -148,7 +148,7 @@ export class OpenPGPKeyPair extends cdk.Construct implements ICredentialPair {
         conditions: {
           StringEquals: {
             'kms:ViaService': `secretsmanager.${cdk.Stack.of(this).region}.amazonaws.com`,
-          }
+          },
         },
       }));
     }

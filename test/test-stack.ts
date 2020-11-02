@@ -1,7 +1,7 @@
-import { aws_events as events, aws_iam as iam, aws_kms as kms } from "monocdk";
+import path = require('path');
+import { aws_events as events, aws_iam as iam, aws_kms as kms } from 'monocdk';
 import * as cdk from 'monocdk';
-import path = require("path");
-import delivlib = require("../lib");
+import delivlib = require('../lib');
 
 
 const testDir = path.join(__dirname, 'delivlib-tests');
@@ -31,8 +31,8 @@ export class TestStack extends cdk.Stack {
       repo: githubRepo,
       notificationEmail: 'aws-cdk-dev+delivlib-test@amazon.com',
       environment: {
-        DELIVLIB_ENV_TEST: 'MAGIC_1924'
-      }
+        DELIVLIB_ENV_TEST: 'MAGIC_1924',
+      },
     });
 
     //
@@ -43,21 +43,21 @@ export class TestStack extends cdk.Stack {
     pipeline.addTest('HelloLinux', {
       platform: delivlib.ShellPlatform.LinuxUbuntu,
       entrypoint: 'test.sh',
-      scriptDirectory: path.join(testDir, 'linux')
+      scriptDirectory: path.join(testDir, 'linux'),
     });
 
     // add a test that runs on Windows
     pipeline.addTest('HelloWindows', {
       platform: delivlib.ShellPlatform.Windows,
       entrypoint: 'test.ps1',
-      scriptDirectory: path.join(testDir, 'windows')
+      scriptDirectory: path.join(testDir, 'windows'),
     });
 
     const externalId = 'require-me-please';
 
     const role = new iam.Role(this, 'AssumeMe', {
       assumedBy: new iam.AccountPrincipal(cdk.Stack.of(this).account),
-      externalId
+      externalId,
     });
 
     pipeline.addTest('AssumeRole', {
@@ -66,11 +66,11 @@ export class TestStack extends cdk.Stack {
       assumeRole: {
         roleArn: role.roleArn,
         sessionName: 'assume-role-test',
-        externalId
+        externalId,
       },
       environment: {
-        EXPECTED_ROLE_NAME: role.roleName
-      }
+        EXPECTED_ROLE_NAME: role.roleName,
+      },
     });
 
     const action = pipeline.addShellable('Test', 'GenerateTwoArtifacts', {
@@ -84,9 +84,9 @@ export class TestStack extends cdk.Stack {
         ],
         artifactDirectory: 'output1',
         additionalArtifactDirectories: {
-          artifact2: 'output2'
-        }
-      })
+          artifact2: 'output2',
+        },
+      }),
     });
     const shellableArtifacts = action.actionProperties.outputs;
 
@@ -97,7 +97,7 @@ export class TestStack extends cdk.Stack {
     pipeline.addCanary('HelloCanary', {
       schedule: events.Schedule.expression('rate(1 minute)'),
       scriptDirectory: path.join(testDir, 'linux'),
-      entrypoint: 'test.sh'
+      entrypoint: 'test.sh',
     });
 
     //
@@ -118,7 +118,7 @@ export class TestStack extends cdk.Stack {
         locality: 'Zity',
         organizationName: 'Amazon Test',
         organizationalUnitName: 'AWS',
-        stateOrProvince: 'Ztate'
+        stateOrProvince: 'Ztate',
       },
       retainPrivateKey: false,
     });
@@ -144,13 +144,13 @@ export class TestStack extends cdk.Stack {
       mavenLoginSecret: { secretArn: 'arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/maven-7ROCWi' },
       mavenEndpoint: 'https://aws.oss.sonatype.org:443/',
       signingKey,
-      stagingProfileId: '68a05363083174'
+      stagingProfileId: '68a05363083174',
     });
 
     pipeline.publishToGitHub({
       githubRepo,
       signingKey,
-      additionalInputArtifacts: shellableArtifacts
+      additionalInputArtifacts: shellableArtifacts,
     });
 
     pipeline.publishToGitHubPages({
@@ -158,21 +158,21 @@ export class TestStack extends cdk.Stack {
     });
 
     pipeline.publishToPyPI({
-      loginSecret: { secretArn: 'arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/pypi-tOhH6X' }
+      loginSecret: { secretArn: 'arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/pypi-tOhH6X' },
     });
 
     //
     // BUMP
 
     pipeline.autoBump({
-      bumpCommand: 'npm i && npm run bump'
+      bumpCommand: 'npm i && npm run bump',
     });
 
     //
     // AUTO-BUILD
 
     pipeline.autoBuild({
-      publicLogs: true
+      publicLogs: true,
     });
 
     //

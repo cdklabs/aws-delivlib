@@ -10,19 +10,19 @@ import {
   aws_iam as iam, aws_s3 as s3,
   aws_sns as sns,
   aws_sns_subscriptions as sns_subs,
-} from "monocdk";
+} from 'monocdk';
 
-import { AutoBuild, AutoBuildOptions } from "./auto-build";
-import { createBuildEnvironment } from "./build-env";
-import { AutoBump, AutoMergeBack, AutoMergeBackProps, AutoBumpProps} from "./pull-request";
-import { Canary, CanaryProps } from "./canary";
-import { ChangeController } from "./change-controller";
-import { ChimeNotifier } from "./chime-notifier";
-import { PipelineWatcher } from "./pipeline-watcher";
-import { IRepo, WritableGitHubRepo } from "./repo";
-import { Shellable, ShellableProps } from "./shellable";
-import { determineRunOrder } from "./util";
-import publishing = require("./publishing");
+import { AutoBuild, AutoBuildOptions } from './auto-build';
+import { createBuildEnvironment } from './build-env';
+import { Canary, CanaryProps } from './canary';
+import { ChangeController } from './change-controller';
+import { ChimeNotifier } from './chime-notifier';
+import { PipelineWatcher } from './pipeline-watcher';
+import publishing = require('./publishing');
+import { AutoBump, AutoMergeBack, AutoMergeBackProps, AutoBumpProps } from './pull-request';
+import { IRepo, WritableGitHubRepo } from './repo';
+import { Shellable, ShellableProps } from './shellable';
+import { determineRunOrder } from './util';
 
 const PUBLISH_STAGE_NAME = 'Publish';
 const TEST_STAGE_NAME = 'Test';
@@ -231,7 +231,7 @@ export class Pipeline extends Construct {
 
     this.pipeline = new cpipeline.Pipeline(this, 'BuildPipeline', {
       pipelineName: props.pipelineName,
-      restartExecutionOnUpdate: props.restartExecutionOnUpdate === undefined ? true : props.restartExecutionOnUpdate
+      restartExecutionOnUpdate: props.restartExecutionOnUpdate === undefined ? true : props.restartExecutionOnUpdate,
     });
 
     this.branch = props.branch || 'master';
@@ -279,7 +279,7 @@ export class Pipeline extends Construct {
       new ChimeNotifier(this, 'ChimeNotifier', {
         pipeline: this.pipeline,
         message: props.chimeMessage,
-        webhookUrls: props.chimeFailureWebhooks
+        webhookUrls: props.chimeFailureWebhooks,
       });
     }
 
@@ -296,10 +296,10 @@ export class Pipeline extends Construct {
 
     const sh = new Shellable(this, id, options);
     const action = sh.addToPipeline(
-        stage,
-        options.actionName || `Action${id}`,
-        options.inputArtifact || this.buildOutput,
-        this.determineRunOrderForNewAction(stage));
+      stage,
+      options.actionName || `Action${id}`,
+      options.inputArtifact || this.buildOutput,
+      this.determineRunOrderForNewAction(stage));
 
     if (options.failureNotification) {
       this.addBuildFailureNotification(sh.project, options.failureNotification);
@@ -312,7 +312,7 @@ export class Pipeline extends Construct {
     this.addShellable(TEST_STAGE_NAME, id, {
       actionName: `Test${id}`,
       failureNotification: `Test ${id} failed`,
-      ...props
+      ...props,
     });
   }
 
@@ -330,7 +330,7 @@ export class Pipeline extends Construct {
 
     publisher.addToPipeline(stage, `${publisher.node.id}Publish`, {
       inputArtifact: options.inputArtifact || this.buildOutput,
-      runOrder: this.determineRunOrderForNewAction(stage)
+      runOrder: this.determineRunOrderForNewAction(stage),
     });
   }
 
@@ -353,21 +353,21 @@ export class Pipeline extends Construct {
   public publishToNpm(options: publishing.PublishToNpmProjectProps) {
     this.addPublish(new publishing.PublishToNpmProject(this, 'Npm', {
       dryRun: this.dryRun,
-      ...options
+      ...options,
     }));
   }
 
   public publishToMaven(options: publishing.PublishToMavenProjectProps) {
     this.addPublish(new publishing.PublishToMavenProject(this, 'Maven', {
       dryRun: this.dryRun,
-      ...options
+      ...options,
     }));
   }
 
   public publishToNuGet(options: publishing.PublishToNuGetProjectProps) {
     this.addPublish(new publishing.PublishToNuGetProject(this, 'NuGet', {
       dryRun: this.dryRun,
-      ...options
+      ...options,
     }));
   }
 
@@ -381,21 +381,21 @@ export class Pipeline extends Construct {
   public publishToGitHub(options: publishing.PublishToGitHubProps) {
     this.addPublish(new publishing.PublishToGitHub(this, 'GitHub', {
       dryRun: this.dryRun,
-      ...options
+      ...options,
     }));
   }
 
   public publishToPyPI(options: publishing.PublishToPyPiProps) {
     this.addPublish(new publishing.PublishToPyPi(this, 'PyPI', {
       dryRun: this.dryRun,
-      ...options
+      ...options,
     }));
   }
 
   public publishToS3(id: string, options: publishing.PublishToS3Props & AddPublishOptions) {
     this.addPublish(new publishing.PublishToS3(this, id, {
       dryRun: this.dryRun,
-      ...options
+      ...options,
     }), options);
   }
 
@@ -405,12 +405,12 @@ export class Pipeline extends Construct {
    */
   public autoBump(options?: AutoBumpOptions): AutoBump {
     if (!WritableGitHubRepo.isWritableGitHubRepo(this.repo)) {
-      throw new Error(`"repo" must be a WritableGitHubRepo in order to enable auto-bump`);
+      throw new Error('"repo" must be a WritableGitHubRepo in order to enable auto-bump');
     }
 
     const autoBump = new AutoBump(this, 'AutoBump', {
       repo: this.repo,
-      ...options
+      ...options,
     });
 
     return autoBump;
@@ -422,12 +422,12 @@ export class Pipeline extends Construct {
    */
   public autoMergeBack(options?: AutoMergeBackOptions) {
     if (!WritableGitHubRepo.isWritableGitHubRepo(this.repo)) {
-      throw new Error(`"repo" must be a WritableGitHubRepo in order to enable auto-merge-back`);
+      throw new Error('"repo" must be a WritableGitHubRepo in order to enable auto-merge-back');
     }
 
     const mergeBack = new AutoMergeBack(this, 'MergeBack', {
       repo: this.repo,
-      ...options
+      ...options,
     });
 
     if (options?.stage) {
@@ -442,7 +442,7 @@ export class Pipeline extends Construct {
       stage.addAction(new cpipeline_actions.CodeBuildAction({
         actionName: 'CreateMergeBackPullRequest',
         project: mergeBack.pr.project,
-        input: this.sourceArtifact
+        input: this.sourceArtifact,
       }));
     }
   }
@@ -456,14 +456,14 @@ export class Pipeline extends Construct {
       environment: this.buildEnvironment,
       repo: this.repo,
       buildSpec: options.buildSpec || this.buildSpec,
-      ...options
+      ...options,
     });
   }
 
   private addFailureAlarm(title?: string): cloudwatch.Alarm {
     return new PipelineWatcher(this, 'PipelineWatcher', {
       pipeline: this.pipeline,
-      title
+      title,
     }).alarm;
   }
 

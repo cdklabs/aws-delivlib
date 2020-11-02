@@ -1,11 +1,8 @@
-import { aws_cloudformation as cfn, aws_lambda as lambda} from "monocdk";
+import path = require('path');
+import { aws_cloudformation as cfn, aws_lambda as lambda } from 'monocdk';
 import * as cdk from 'monocdk';
-import path = require("path");
-import { hashFileOrDirectory } from "../util";
-import { RsaPrivateKeySecret } from "./private-key";
-
-
-
+import { hashFileOrDirectory } from '../util';
+import { RsaPrivateKeySecret } from './private-key';
 
 
 export interface CertificateSigningRequestProps {
@@ -83,7 +80,7 @@ export class CertificateSigningRequest extends cdk.Construct {
         // Key Usage
         extendedKeyUsage: props.extendedKeyUsage || '',
         keyUsage: props.keyUsage,
-      }
+      },
     });
     if (customResource.role) {
       // Make sure the permissions are all good before proceeding

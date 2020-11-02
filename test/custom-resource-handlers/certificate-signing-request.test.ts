@@ -1,7 +1,7 @@
-import aws = require('aws-sdk');
 import fs = require('fs');
-import { createMockInstance } from 'jest-create-mock-instance';
 import path = require('path');
+import aws = require('aws-sdk');
+import { createMockInstance } from 'jest-create-mock-instance';
 import cfn = require('../../custom-resource-handlers/src/_cloud-formation');
 import lambda = require('../../custom-resource-handlers/src/_lambda');
 
@@ -11,19 +11,19 @@ const eventBase = {
   ResponseURL: 'https://response/url',
   RequestId: '5EF100FB-0075-4716-970B-FBCA05BFE118',
   ResourceProperties: {
-    ServiceToken:             'Service-Token (Would be the function ARN',
-    ResourceVersion:          'The hash of the function code',
+    ServiceToken: 'Service-Token (Would be the function ARN',
+    ResourceVersion: 'The hash of the function code',
 
-    DnCommonName:             'Test',
-    DnCountry:                'FR',
-    DnStateOrProvince:        'TestLand',
-    DnLocality:               'Test City',
-    DnOrganizationName:       'Test, Inc.',
+    DnCommonName: 'Test',
+    DnCountry: 'FR',
+    DnStateOrProvince: 'TestLand',
+    DnLocality: 'Test City',
+    DnOrganizationName: 'Test, Inc.',
     DnOrganizationalUnitName: 'QA Department',
-    DnEmailAddress:           'test@acme.test',
-    KeyUsage:                 'critical,use-the-key',
-    ExtendedKeyUsage:         'critical,abuse-the-key',
-    PrivateKeySecretId:       'arn:::private-key-secret',
+    DnEmailAddress: 'test@acme.test',
+    KeyUsage: 'critical,use-the-key',
+    ExtendedKeyUsage: 'critical,abuse-the-key',
+    PrivateKeySecretId: 'arn:::private-key-secret',
   },
   ResourceType: 'Custom::Resource::Type',
   StackId: 'StackID-1324597',
@@ -61,12 +61,12 @@ fs.readFile = jest.fn().mockName('fs.readFile')
   .mockImplementation(async (file, opts, cb) => {
     expect(opts.encoding).toBe('utf8');
     switch (file) {
-    case require('path').join(mockTmpDir, 'csr.pem'):
-      return cb(undefined, mockCsr);
-    case require('path').join(mockTmpDir, 'cert.pem'):
-      return cb(undefined, mockCertificate);
-    default:
-      cb(new Error('Unexpected call!'));
+      case require('path').join(mockTmpDir, 'csr.pem'):
+        return cb(undefined, mockCsr);
+      case require('path').join(mockTmpDir, 'cert.pem'):
+        return cb(undefined, mockCertificate);
+      default:
+        cb(new Error('Unexpected call!'));
     }
   }) as any;
 const mockWriteFile = fs.writeFile = jest.fn().mockName('fs.writeFile')
@@ -96,21 +96,21 @@ test('Create', async () => {
   mockExec.mockImplementation(async (cmd: string, ...args: string[]) => {
     await expect(cmd).toBe('/opt/openssl');
     switch (args[0]) {
-    case 'req':
-      await expect(args).toEqual(['req', '-config', require('path').join(mockTmpDir, 'csr.config'),
-                                         '-key',    require('path').join(mockTmpDir, 'private_key.pem'),
-                                         '-out',    require('path').join(mockTmpDir, 'csr.pem'),
-                                         '-new']);
-      break;
-    case 'x509':
-      await expect(args).toEqual(['x509', '-in',      require('path').join(mockTmpDir, 'csr.pem'),
-                                          '-out',     require('path').join(mockTmpDir, 'cert.pem'),
-                                          '-req',
-                                          '-signkey', require('path').join(mockTmpDir, 'private_key.pem'),
-                                          '-days', '365']);
-      break;
-    default:
-      throw new Error(`Unexpected call!`);
+      case 'req':
+        await expect(args).toEqual(['req', '-config', require('path').join(mockTmpDir, 'csr.config'),
+          '-key', require('path').join(mockTmpDir, 'private_key.pem'),
+          '-out', require('path').join(mockTmpDir, 'csr.pem'),
+          '-new']);
+        break;
+      case 'x509':
+        await expect(args).toEqual(['x509', '-in', require('path').join(mockTmpDir, 'csr.pem'),
+          '-out', require('path').join(mockTmpDir, 'cert.pem'),
+          '-req',
+          '-signkey', require('path').join(mockTmpDir, 'private_key.pem'),
+          '-days', '365']);
+        break;
+      default:
+        throw new Error('Unexpected call!');
     }
     return '';
   });
@@ -120,20 +120,20 @@ test('Create', async () => {
 
   await expect(mockWriteFile)
     .toBeCalledWith(path.join(mockTmpDir, 'csr.config'),
-                    csrDocument,
-                    expect.anything(),
-                    expect.any(Function));
+      csrDocument,
+      expect.anything(),
+      expect.any(Function));
   await expect(mockWriteFile)
     .toBeCalledWith(path.join(mockTmpDir, 'private_key.pem'),
-                    mockPrivateKey,
-                    expect.anything(),
-                    expect.any(Function));
+      mockPrivateKey,
+      expect.anything(),
+      expect.any(Function));
   await expect(mockRmrf).toBeCalledWith(mockTmpDir);
   return expect(cfn.sendResponse)
     .toBeCalledWith(event,
-                    cfn.Status.SUCCESS,
-                    event.LogicalResourceId,
-                    { Ref: event.LogicalResourceId, CSR: mockCsr, SelfSignedCertificate: mockCertificate });
+      cfn.Status.SUCCESS,
+      event.LogicalResourceId,
+      { Ref: event.LogicalResourceId, CSR: mockCsr, SelfSignedCertificate: mockCertificate });
 });
 
 test('Update', async () => {
@@ -147,21 +147,21 @@ test('Update', async () => {
   mockExec.mockImplementation(async (cmd: string, ...args: string[]) => {
     await expect(cmd).toBe('/opt/openssl');
     switch (args[0]) {
-    case 'req':
-      await expect(args).toEqual(['req', '-config', require('path').join(mockTmpDir, 'csr.config'),
-                                         '-key',    require('path').join(mockTmpDir, 'private_key.pem'),
-                                         '-out',    require('path').join(mockTmpDir, 'csr.pem'),
-                                         '-new']);
-      break;
-    case 'x509':
-      await expect(args).toEqual(['x509', '-in',      require('path').join(mockTmpDir, 'csr.pem'),
-                                          '-out',     require('path').join(mockTmpDir, 'cert.pem'),
-                                          '-req',
-                                          '-signkey', require('path').join(mockTmpDir, 'private_key.pem'),
-                                          '-days', '365']);
-      break;
-    default:
-      throw new Error(`Unexpected call!`);
+      case 'req':
+        await expect(args).toEqual(['req', '-config', require('path').join(mockTmpDir, 'csr.config'),
+          '-key', require('path').join(mockTmpDir, 'private_key.pem'),
+          '-out', require('path').join(mockTmpDir, 'csr.pem'),
+          '-new']);
+        break;
+      case 'x509':
+        await expect(args).toEqual(['x509', '-in', require('path').join(mockTmpDir, 'csr.pem'),
+          '-out', require('path').join(mockTmpDir, 'cert.pem'),
+          '-req',
+          '-signkey', require('path').join(mockTmpDir, 'private_key.pem'),
+          '-days', '365']);
+        break;
+      default:
+        throw new Error('Unexpected call!');
     }
     return '';
   });
@@ -171,20 +171,20 @@ test('Update', async () => {
 
   await expect(mockWriteFile)
     .toBeCalledWith(path.join(mockTmpDir, 'csr.config'),
-                    csrDocument,
-                    expect.anything(),
-                    expect.any(Function));
+      csrDocument,
+      expect.anything(),
+      expect.any(Function));
   await expect(mockWriteFile)
     .toBeCalledWith(path.join(mockTmpDir, 'private_key.pem'),
-                    mockPrivateKey,
-                    expect.anything(),
-                    expect.any(Function));
+      mockPrivateKey,
+      expect.anything(),
+      expect.any(Function));
   await expect(mockRmrf).toBeCalledWith(mockTmpDir);
   return expect(cfn.sendResponse)
     .toBeCalledWith(event,
-                    cfn.Status.SUCCESS,
-                    event.LogicalResourceId,
-                    { Ref: event.LogicalResourceId, CSR: mockCsr, SelfSignedCertificate: mockCertificate });
+      cfn.Status.SUCCESS,
+      event.LogicalResourceId,
+      { Ref: event.LogicalResourceId, CSR: mockCsr, SelfSignedCertificate: mockCertificate });
 });
 
 test('Delete', async () => {
@@ -199,7 +199,7 @@ test('Delete', async () => {
 
   return expect(cfn.sendResponse)
     .toBeCalledWith(event,
-                    cfn.Status.SUCCESS,
-                    event.LogicalResourceId,
-                    { Ref: event.LogicalResourceId });
+      cfn.Status.SUCCESS,
+      event.LogicalResourceId,
+      { Ref: event.LogicalResourceId });
 });

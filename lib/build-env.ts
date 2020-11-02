@@ -1,4 +1,4 @@
-import { aws_codebuild as cbuild } from "monocdk";
+import { aws_codebuild as cbuild } from 'monocdk';
 
 export interface BuildEnvironmentProps {
   computeType?: cbuild.ComputeType;

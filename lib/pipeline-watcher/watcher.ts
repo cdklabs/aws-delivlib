@@ -1,14 +1,16 @@
 // tslint:disable-next-line: max-line-length
-import { aws_cloudwatch as cloudwatch,
+import fs = require('fs');
+import path = require('path');
+import {
+  aws_cloudwatch as cloudwatch,
   aws_codepipeline as cpipeline,
   aws_events as events,
   aws_events_targets as events_targets,
   aws_iam as iam,
   aws_lambda as lambda,
-  aws_logs as logs } from "monocdk";
+  aws_logs as logs,
+} from 'monocdk';
 import * as cdk from 'monocdk';
-import fs = require("fs");
-import path = require("path");
 
 export interface PipelineWatcherProps {
   /**
@@ -47,8 +49,8 @@ export class PipelineWatcher extends cdk.Construct {
       runtime: lambda.Runtime.NODEJS_10_X,
       code: lambda.Code.inline(fs.readFileSync(path.join(__dirname, 'watcher-handler.js')).toString('utf8')),
       environment: {
-        PIPELINE_NAME: props.pipeline.pipelineName
-      }
+        PIPELINE_NAME: props.pipeline.pipelineName,
+      },
     });
 
     // See https://github.com/awslabs/aws-cdk/issues/1340 for exposing grants on the pipeline.
@@ -71,7 +73,7 @@ export class PipelineWatcher extends cdk.Construct {
     const triggerResource = trigger.node.findChild('Resource') as cdk.Resource;
     triggerResource.node.addDependency(logGroupResource);
 
-    const metricNamespace =  `CDK/Delivlib`;
+    const metricNamespace = 'CDK/Delivlib';
     const metricName = `${props.pipeline.pipelineName}_FailedStages`;
 
     new logs.MetricFilter(this, 'MetricFilter', {
@@ -79,7 +81,7 @@ export class PipelineWatcher extends cdk.Construct {
       metricNamespace,
       metricName,
       metricValue: '$.failedCount',
-      logGroup
+      logGroup,
     });
 
     this.alarm = new cloudwatch.Alarm(this, 'Alarm', {

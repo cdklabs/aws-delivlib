@@ -1,11 +1,8 @@
-import { aws_cloudformation as cfn, aws_iam as iam, aws_kms as kms, aws_lambda as lambda } from "monocdk";
+import path = require('path');
+import { aws_cloudformation as cfn, aws_iam as iam, aws_kms as kms, aws_lambda as lambda } from 'monocdk';
 import * as cdk from 'monocdk';
-import path = require("path");
-import { hashFileOrDirectory } from "../util";
-import { CertificateSigningRequest, DistinguishedName } from "./certificate-signing-request";
-
-
-
+import { hashFileOrDirectory } from '../util';
+import { CertificateSigningRequest, DistinguishedName } from './certificate-signing-request';
 
 
 export interface RsaPrivateKeySecretProps {
@@ -79,13 +76,13 @@ export class RsaPrivateKeySecret extends cdk.Construct {
       resource: 'secret',
       sep: ':',
       // The ARN of a secret has "-" followed by 6 random characters appended at the end
-      resourceName: `${props.secretName}-??????`
+      resourceName: `${props.secretName}-??????`,
     });
     customResource.addToRolePolicy(new iam.PolicyStatement({
       actions: [
         'secretsmanager:CreateSecret',
         'secretsmanager:DeleteSecret',
-        'secretsmanager:UpdateSecret'
+        'secretsmanager:UpdateSecret',
       ],
       resources: [this.secretArnLike],
     }));
@@ -133,12 +130,12 @@ export class RsaPrivateKeySecret extends cdk.Construct {
               resources: [props.secretEncryptionKey.keyArn],
               conditions: {
                 StringEquals: {
-                  'kms:ViaService': `secretsmanager.${cdk.Stack.of(this).region}.amazonaws.com`
+                  'kms:ViaService': `secretsmanager.${cdk.Stack.of(this).region}.amazonaws.com`,
                 },
-                StringLike: { 'kms:EncryptionContext:SecretARN': [this.secretArnLike, 'RequestToValidateKeyAccess'] }
+                StringLike: { 'kms:EncryptionContext:SecretARN': [this.secretArnLike, 'RequestToValidateKeyAccess'] },
               },
             }),
-          ]
+          ],
         }));
       }
     }
@@ -160,7 +157,9 @@ export class RsaPrivateKeySecret extends cdk.Construct {
   public newCertificateSigningRequest(id: string, dn: DistinguishedName, keyUsage: string, extendedKeyUsage?: string) {
     return new CertificateSigningRequest(this, id, {
       privateKey: this,
-      dn, keyUsage, extendedKeyUsage
+      dn,
+      keyUsage,
+      extendedKeyUsage,
     });
   }
 

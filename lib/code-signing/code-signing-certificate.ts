@@ -1,12 +1,9 @@
-import { aws_iam as iam, aws_kms as kms, aws_secretsmanager as secretsManager, aws_ssm as ssm} from "monocdk";
+import { aws_iam as iam, aws_kms as kms, aws_secretsmanager as secretsManager, aws_ssm as ssm } from 'monocdk';
 import * as cdk from 'monocdk';
-import { ICredentialPair } from "../credential-pair";
-import permissions = require("../permissions");
-import { DistinguishedName } from "./certificate-signing-request";
-import { RsaPrivateKeySecret } from "./private-key";
-
-
-
+import { ICredentialPair } from '../credential-pair';
+import permissions = require('../permissions');
+import { DistinguishedName } from './certificate-signing-request';
+import { RsaPrivateKeySecret } from './private-key';
 
 
 export { DistinguishedName } from './certificate-signing-request';
@@ -108,7 +105,7 @@ export class CodeSigningCertificate extends cdk.Construct implements ICodeSignin
 
     const privateKey = new RsaPrivateKeySecret(this, 'RSAPrivateKey', {
       removalPolicy: props.retainPrivateKey === false ? cdk.RemovalPolicy.DESTROY : cdk.RemovalPolicy.RETAIN,
-      description: `The PEM-encoded private key of the x509 Code-Signing Certificate`,
+      description: 'The PEM-encoded private key of the x509 Code-Signing Certificate',
       keySize: props.rsaKeySize || 2048,
       secretEncryptionKey: props.secretEncryptionKey,
       secretName: `${baseName}/RSAPrivateKey`,
@@ -123,9 +120,9 @@ export class CodeSigningCertificate extends cdk.Construct implements ICodeSignin
 
     if (!certificate || props.forceCertificateSigningRequest) {
       const csr = privateKey.newCertificateSigningRequest('CertificateSigningRequest',
-                                                          props.distinguishedName,
-                                                          'critical,digitalSignature',
-                                                          'critical,codeSigning');
+        props.distinguishedName,
+        'critical,digitalSignature',
+        'critical,codeSigning');
 
       new cdk.CfnOutput(this, 'CSR', {
         description: 'A PEM-encoded Certificate Signing Request for a Code-Signing Certificate',
@@ -161,7 +158,7 @@ export class CodeSigningCertificate extends cdk.Construct implements ICodeSignin
       resources: [cdk.Stack.of(this).formatArn({
         // TODO: This is a workaround until https://github.com/awslabs/aws-cdk/pull/1726 is released
         service: 'ssm',
-        resource: `parameter${this.principal.parameterName}`
+        resource: `parameter${this.principal.parameterName}`,
       })],
     }));
   }

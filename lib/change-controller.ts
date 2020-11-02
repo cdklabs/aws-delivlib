@@ -1,9 +1,11 @@
-import { aws_cloudwatch as cloudwatch, aws_codepipeline as cp, aws_events as
+import path = require('path');
+import {
+  aws_cloudwatch as cloudwatch, aws_codepipeline as cp, aws_events as
   events, aws_events_targets as events_targets, aws_iam as iam, aws_lambda as
-  lambda, aws_s3 as s3, aws_s3_notifications as s3_notifications }
-  from "monocdk";
-  import * as cdk from 'monocdk';
-import path = require("path");
+  lambda, aws_s3 as s3, aws_s3_notifications as s3_notifications,
+}
+  from 'monocdk';
+import * as cdk from 'monocdk';
 
 export interface ChangeControllerProps {
   /**
@@ -109,7 +111,7 @@ export class ChangeController extends cdk.Construct {
       threshold: 1,
       datapointsToAlarm: 1,
       period: cdk.Duration.seconds(300),
-      evaluationPeriods: 1
+      evaluationPeriods: 1,
     });
 
     const schedule = props.schedule || events.Schedule.expression('rate(15 minutes)');
@@ -124,11 +126,11 @@ export class ChangeController extends cdk.Construct {
 
     if (props.createOutputs !== false) {
       new cdk.CfnOutput(this, 'ChangeControlBucketKey', {
-        value: changeControlObjectKey
+        value: changeControlObjectKey,
       });
 
       new cdk.CfnOutput(this, 'ChangeControlBucket', {
-        value: changeControlBucket.bucketName
+        value: changeControlBucket.bucketName,
       });
     }
   }

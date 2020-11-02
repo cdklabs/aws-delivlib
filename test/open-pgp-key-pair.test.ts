@@ -1,7 +1,7 @@
-import { aws_kms as kms } from "monocdk";
+import assert = require('@monocdk-experiment/assert');
+import { aws_kms as kms } from 'monocdk';
 import * as cdk from 'monocdk';
-import assert = require("@monocdk-experiment/assert");
-import { OpenPGPKeyPair } from "../lib/open-pgp-key-pair";
+import { OpenPGPKeyPair } from '../lib/open-pgp-key-pair';
 
 
 test('correctly creates', () => {
@@ -17,7 +17,7 @@ test('correctly creates', () => {
     keySizeBits: 1_024,
     pubKeyParameterName: 'TestParameter',
     secretName: 'SecretName',
-    version: 0
+    version: 0,
   });
 
   // THEN
@@ -47,7 +47,7 @@ test('correctly forwards parameter name', () => {
     identity: 'Test',
     keySizeBits: 1_024,
     secretName: 'SecretName',
-    version: 0
+    version: 0,
   });
 
   // THEN
@@ -88,17 +88,16 @@ test('Handler has appropriate permissions', () => {
         ],
         Resource: {
           'Fn::Join': ['',
-            ['arn:', { Ref: 'AWS::Partition' }, ':secretsmanager:', { Ref: 'AWS::Region' }, ':', { Ref: 'AWS::AccountId' }, ':secret:Bar-??????']
-          ]
-        }
+            ['arn:', { Ref: 'AWS::Partition' }, ':secretsmanager:', { Ref: 'AWS::Region' }, ':', { Ref: 'AWS::AccountId' }, ':secret:Bar-??????']],
+        },
       }, {
         Effect: 'Allow',
         Action: 'ssm:DeleteParameter',
-        Resource: '*'
-      }]
+        Resource: '*',
+      }],
     },
     PolicyName: 'SingletonLambdaf25803d3054b44fc985f4860d7d6ee74ServiceRoleDefaultPolicyA8FDF5BD',
-    Roles: [{ Ref: 'SingletonLambdaf25803d3054b44fc985f4860d7d6ee74ServiceRole410148CF' }]
+    Roles: [{ Ref: 'SingletonLambdaf25803d3054b44fc985f4860d7d6ee74ServiceRole410148CF' }],
   }));
 
   assert.expect(stack).to(assert.haveResourceLike('AWS::KMS::Key', {
@@ -111,10 +110,10 @@ test('Handler has appropriate permissions', () => {
         Action: ['kms:Decrypt', 'kms:GenerateDataKey'],
         Resource: '*',
         Condition: {
-          StringEquals: { 'kms:ViaService': { 'Fn::Join': ['', ['secretsmanager.', { Ref: 'AWS::Region' }, '.amazonaws.com']] } }
+          StringEquals: { 'kms:ViaService': { 'Fn::Join': ['', ['secretsmanager.', { Ref: 'AWS::Region' }, '.amazonaws.com']] } },
         },
         Principal: { AWS: { 'Fn::GetAtt': ['SingletonLambdaf25803d3054b44fc985f4860d7d6ee74ServiceRole410148CF', 'Arn'] } },
-      }]
-    }
+      }],
+    },
   }));
 });

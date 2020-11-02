@@ -1,8 +1,6 @@
-import { aws_iam as iam, aws_kms as kms } from "monocdk";
+import { aws_iam as iam, aws_kms as kms } from 'monocdk';
 import * as cdk from 'monocdk';
-import { OpenPGPKeyPair } from "./open-pgp-key-pair";
-
-
+import { OpenPGPKeyPair } from './open-pgp-key-pair';
 
 
 /**
@@ -64,7 +62,7 @@ export class OpenPgpKey extends cdk.Construct {
       secretName,
       pubKeyParameterName: `/${secretName}.pub`,
       encryptionKey: this.key,
-      version: 1
+      version: 1,
     });
   }
 

@@ -1,6 +1,5 @@
-import AWS = require("aws-sdk");
-import * as https from "https";
-
+import * as https from 'https';
+import AWS = require('aws-sdk');
 
 
 // export for tests
@@ -43,7 +42,7 @@ export async function handler(event: any) {
   const pipelineExecutionId = details['execution-id'];
 
   if (!pipelineName || !pipelineExecutionId) {
-    process.stderr.write(`Malformed event!\n`);
+    process.stderr.write('Malformed event!\n');
     return;
   }
 
@@ -54,7 +53,7 @@ export async function handler(event: any) {
   const revisionSummary = firstArtifact?.revisionSummary ?? firstArtifact?.revisionId ?? `execution ${pipelineExecutionId}`;
 
   // Find the action that caused the pipeline to fail (no pagination for now)
-  const actionResponse = await codePipeline.listActionExecutions({ pipelineName, filter: { pipelineExecutionId }}).promise();
+  const actionResponse = await codePipeline.listActionExecutions({ pipelineName, filter: { pipelineExecutionId } }).promise();
   process.stdout.write(`${JSON.stringify(actionResponse)}\n`);
   const failingActionDetails = (actionResponse.actionExecutionDetails || []).find(d => d.status === 'Failed');
   const failingAction = failingActionDetails?.actionName ?? 'UNKNOWN';
@@ -75,8 +74,8 @@ async function sendChimeNotification(url: string, message: string) {
     const req = https.request(url, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
-      }
+        'Content-Type': 'application/json',
+      },
     }, (res) => {
       if (res.statusCode !== 200) {
         ko(new Error(`Server responded with ${res.statusCode}: ${JSON.stringify(res.headers)}`));
@@ -89,7 +88,7 @@ async function sendChimeNotification(url: string, message: string) {
     });
 
     req.on('error', ko);
-    req.write(JSON.stringify({"Content": message}));
+    req.write(JSON.stringify({ Content: message }));
     req.end();
   });
 }

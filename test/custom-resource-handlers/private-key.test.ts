@@ -1,5 +1,5 @@
-import aws = require('aws-sdk');
 import fs = require('fs');
+import aws = require('aws-sdk');
 import { createMockInstance } from 'jest-create-mock-instance';
 import cfn = require('../../custom-resource-handlers/src/_cloud-formation');
 import lambda = require('../../custom-resource-handlers/src/_lambda');
@@ -11,13 +11,13 @@ const eventBase = {
   ResponseURL: 'https://response/url',
   RequestId: '5EF100FB-0075-4716-970B-FBCA05BFE118',
   ResourceProperties: {
-    ServiceToken:     'Service-Token (Would be the function ARN',
-    ResourceVersion:  'The hash of the function code',
+    ServiceToken: 'Service-Token (Would be the function ARN',
+    ResourceVersion: 'The hash of the function code',
 
-    Description:      'Description of my secret',
-    KeySize:          4_096,
-    KmsKeyId:         'alias/KmsKey',
-    SecretName:       'Sekret/Name/Shhhh',
+    Description: 'Description of my secret',
+    KeySize: 4_096,
+    KmsKeyId: 'alias/KmsKey',
+    SecretName: 'Sekret/Name/Shhhh',
   },
   ResourceType: 'Custom::Resource::Type',
   StackId: 'StackID-1324597',
@@ -77,9 +77,9 @@ test('Create', async () => {
   await expect(mockRmrf).toBeCalledWith(mockTmpDir);
   return expect(cfn.sendResponse)
     .toBeCalledWith(event,
-                    cfn.Status.SUCCESS,
-                    secretArn,
-                    { Ref: secretArn, SecretArn: secretArn });
+      cfn.Status.SUCCESS,
+      secretArn,
+      { Ref: secretArn, SecretArn: secretArn });
 });
 
 test('Update (changing KeySize)', async () => {
@@ -101,10 +101,10 @@ test('Update (changing KeySize)', async () => {
   await expect(mockSecretsManager.deleteSecret).not.toBeCalled();
   return expect(cfn.sendResponse)
     .toBeCalledWith(event,
-                    cfn.Status.FAILED,
-                    secretArn,
-                    {},
-                    expect.stringContaining('The KeySize property cannot be updated'));
+      cfn.Status.FAILED,
+      secretArn,
+      {},
+      expect.stringContaining('The KeySize property cannot be updated'));
 });
 
 test('Update (changing SecretName)', async () => {
@@ -126,10 +126,10 @@ test('Update (changing SecretName)', async () => {
   await expect(mockSecretsManager.deleteSecret).not.toBeCalled();
   return expect(cfn.sendResponse)
     .toBeCalledWith(event,
-                    cfn.Status.FAILED,
-                    secretArn,
-                    {},
-                    expect.stringContaining('The SecretName property cannot be updated'));
+      cfn.Status.FAILED,
+      secretArn,
+      {},
+      expect.stringContaining('The SecretName property cannot be updated'));
 });
 
 test('Update (changing Description and KmsKeyId)', async () => {
@@ -158,9 +158,9 @@ test('Update (changing Description and KmsKeyId)', async () => {
   await expect(mockSecretsManager.deleteSecret).not.toBeCalled();
   return expect(cfn.sendResponse)
     .toBeCalledWith(event,
-                    cfn.Status.SUCCESS,
-                    secretArn,
-                    { Ref: secretArn, SecretArn: secretArn });
+      cfn.Status.SUCCESS,
+      secretArn,
+      { Ref: secretArn, SecretArn: secretArn });
 });
 
 test('Delete', async () => {
@@ -192,7 +192,7 @@ test('Delete', async () => {
     });
   return expect(cfn.sendResponse)
     .toBeCalledWith(event,
-                    cfn.Status.SUCCESS,
-                    event.PhysicalResourceId,
-                    { Ref: event.PhysicalResourceId });
+      cfn.Status.SUCCESS,
+      event.PhysicalResourceId,
+      { Ref: event.PhysicalResourceId });
 });

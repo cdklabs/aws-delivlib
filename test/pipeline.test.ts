@@ -1,15 +1,15 @@
+import path = require('path');
+import { expect as cdk_expect, haveResource, haveResourceLike, SynthUtils, ABSENT } from '@monocdk-experiment/assert';
 import {
   aws_codebuild as codebuild,
   aws_codecommit as codecommit,
   aws_codepipeline as cpipeline,
-  aws_codepipeline_actions as cpipeline_actions
-} from "monocdk";
+  aws_codepipeline_actions as cpipeline_actions,
+} from 'monocdk';
 import * as cdk from 'monocdk';
-import { expect as cdk_expect, haveResource, haveResourceLike, SynthUtils, ABSENT } from "@monocdk-experiment/assert";
-import path = require("path");
-import delivlib = require("../lib");
-import { AddToPipelineOptions, IPublisher } from "../lib";
-import { determineRunOrder } from "../lib/util";
+import delivlib = require('../lib');
+import { AddToPipelineOptions, IPublisher } from '../lib';
+import { determineRunOrder } from '../lib/util';
 
 
 test('pipelineName can be used to set a physical name for the pipeline', async () => {
@@ -17,11 +17,11 @@ test('pipelineName can be used to set a physical name for the pipeline', async (
 
   new delivlib.Pipeline(stack, 'Pipeline', {
     repo: createTestRepo(stack),
-    pipelineName: 'HelloPipeline'
+    pipelineName: 'HelloPipeline',
   });
 
   cdk_expect(stack).to(haveResource('AWS::CodePipeline::Pipeline', {
-    Name: 'HelloPipeline'
+    Name: 'HelloPipeline',
   }));
 });
 
@@ -54,10 +54,10 @@ test('concurrency = 1: means that actions will run sequentially', async () => {
 });
 
 test('determineRunOrder: creates groups of up to "concurrency" actions', async () => {
-  testCase({ actionCount: 1,  concurrency: 1 });
+  testCase({ actionCount: 1, concurrency: 1 });
   testCase({ actionCount: 10, concurrency: 1 });
   testCase({ actionCount: 56, concurrency: 4 });
-  testCase({ actionCount: 3,  concurrency: 2 });
+  testCase({ actionCount: 3, concurrency: 2 });
 
   function testCase({ actionCount, concurrency }: { actionCount: number, concurrency: number }) {
     const actionsPerRunOrder: { [runOrder: number]: number } = { };
@@ -71,7 +71,7 @@ test('determineRunOrder: creates groups of up to "concurrency" actions', async (
 
     // assert that there are no more than *concurrency* actions in each runOrder
     let total = 0;
-    for (const [ , count ] of Object.entries(actionsPerRunOrder)) {
+    for (const [, count] of Object.entries(actionsPerRunOrder)) {
       expect(count).toBeLessThanOrEqual(concurrency);
       total += count;
     }
@@ -83,7 +83,7 @@ test('determineRunOrder: creates groups of up to "concurrency" actions', async (
 function createTestPipelineForConcurrencyTests(stack: cdk.Stack, props?: delivlib.PipelineProps) {
   const pipeline = new delivlib.Pipeline(stack, 'Pipeline', {
     repo: createTestRepo(stack),
-    ...props
+    ...props,
   });
 
   const project = new codebuild.Project(stack, 'publish', {
@@ -136,7 +136,7 @@ test('can add arbitrary shellables with different artifacts', () => {
 
   const pipeline = new delivlib.Pipeline(stack, 'Pipeline', {
     repo: createTestRepo(stack),
-    pipelineName: 'HelloPipeline'
+    pipelineName: 'HelloPipeline',
   });
 
   const action = pipeline.addShellable('Test', 'SecondStep', {
@@ -149,54 +149,54 @@ test('can add arbitrary shellables with different artifacts', () => {
   cdk_expect(stack).to(haveResourceLike('AWS::CodePipeline::Pipeline', {
     Stages: [
       {
-        Name: "Source",
+        Name: 'Source',
         Actions: [
           {
-            ActionTypeId: { Category: "Source", Owner: "AWS", Provider: "CodeCommit" },
-            Name: "Pull",
+            ActionTypeId: { Category: 'Source', Owner: 'AWS', Provider: 'CodeCommit' },
+            Name: 'Pull',
             OutputArtifacts: [
               {
-                Name: "Source"
-              }
+                Name: 'Source',
+              },
             ],
-          }
+          },
         ],
       },
       {
-        Name: "Build",
+        Name: 'Build',
         Actions: [
           {
-            Name: "Build",
-            ActionTypeId: { Category: "Build", Owner: "AWS", Provider: "CodeBuild" },
-            InputArtifacts: [ { Name: "Source" } ],
-            OutputArtifacts: [ { Name: "Artifact_Build_Build" } ],
-            RunOrder: 1
-          }
+            Name: 'Build',
+            ActionTypeId: { Category: 'Build', Owner: 'AWS', Provider: 'CodeBuild' },
+            InputArtifacts: [{ Name: 'Source' }],
+            OutputArtifacts: [{ Name: 'Artifact_Build_Build' }],
+            RunOrder: 1,
+          },
         ],
       },
       {
-        Name: "Test",
+        Name: 'Test',
         Actions: [
           {
-            ActionTypeId: { Category: "Build", Owner: "AWS", Provider: "CodeBuild", },
-            InputArtifacts: [ { Name: "Artifact_Build_Build" } ],
-            Name: "ActionSecondStep",
-            OutputArtifacts: [ { Name: "Artifact_TestStackPipelineSecondStep91726C11" } ],
-            RunOrder: 1
-          }
+            ActionTypeId: { Category: 'Build', Owner: 'AWS', Provider: 'CodeBuild' },
+            InputArtifacts: [{ Name: 'Artifact_Build_Build' }],
+            Name: 'ActionSecondStep',
+            OutputArtifacts: [{ Name: 'Artifact_TestStackPipelineSecondStep91726C11' }],
+            RunOrder: 1,
+          },
         ],
       },
       {
-        Name: "Publish",
+        Name: 'Publish',
         Actions: [
           {
-            ActionTypeId: { Category: "Build", Owner: "AWS", Provider: "CodeBuild", },
-            InputArtifacts: [ { Name: "Artifact_TestStackPipelineSecondStep91726C11" } ],
-            Name: "PubPublish",
-            RunOrder: 1
-          }
+            ActionTypeId: { Category: 'Build', Owner: 'AWS', Provider: 'CodeBuild' },
+            InputArtifacts: [{ Name: 'Artifact_TestStackPipelineSecondStep91726C11' }],
+            Name: 'PubPublish',
+            RunOrder: 1,
+          },
         ],
-      }
+      },
     ],
   }));
 });
@@ -209,14 +209,14 @@ test('autoBuild() can be used to add automatic builds to the pipeline', () => {
   new delivlib.Pipeline(stack, 'Pipeline', {
     repo: createTestRepo(stack),
     pipelineName: 'HelloPipeline',
-    autoBuild: true
+    autoBuild: true,
   });
 
   cdk_expect(stack).notTo(haveResource('AWS::Serverless::Application', {
     Location: {
-      ApplicationId: "arn:aws:serverlessrepo:us-east-1:277187709615:applications/github-codebuild-logs",
-      SemanticVersion: "1.3.0"
-    }
+      ApplicationId: 'arn:aws:serverlessrepo:us-east-1:277187709615:applications/github-codebuild-logs',
+      SemanticVersion: '1.3.0',
+    },
   }));
 });
 
@@ -230,15 +230,15 @@ test('autoBuild() can be configured to publish logs publically', () => {
     pipelineName: 'HelloPipeline',
     autoBuild: true,
     autoBuildOptions: {
-      publicLogs: true
-    }
+      publicLogs: true,
+    },
   });
 
   cdk_expect(stack).to(haveResource('AWS::Serverless::Application', {
     Location: {
-      ApplicationId: "arn:aws:serverlessrepo:us-east-1:277187709615:applications/github-codebuild-logs",
-      SemanticVersion: "1.3.0"
-    }
+      ApplicationId: 'arn:aws:serverlessrepo:us-east-1:277187709615:applications/github-codebuild-logs',
+      SemanticVersion: '1.3.0',
+    },
   }));
 });
 
@@ -259,15 +259,15 @@ test('autoBuild() can be configured with a different buildspec', () => {
   // THEN
   cdk_expect(stack).to(haveResource('AWS::CodeBuild::Project', {
     Source: {
-      BuildSpec: "different-buildspec.yaml",
+      BuildSpec: 'different-buildspec.yaml',
       Location: {
-        "Fn::GetAtt": [
-          "Repo02AC86CF",
-          "CloneUrlHttp"
-        ]
+        'Fn::GetAtt': [
+          'Repo02AC86CF',
+          'CloneUrlHttp',
+        ],
       },
-      Type: "CODECOMMIT",
-    }
+      Type: 'CODECOMMIT',
+    },
   }));
 });
 
@@ -284,7 +284,7 @@ test('CodeBuild Project name matches buildProjectName property', () => {
 
   // THEN
   cdk_expect(stack).to(haveResourceLike('AWS::CodeBuild::Project', {
-    Name: 'HelloBuild'
+    Name: 'HelloBuild',
   }));
 });
 
@@ -300,7 +300,7 @@ test('CodeBuild Project name is extended from pipelineName property', () => {
 
   // THEN
   cdk_expect(stack).to(haveResourceLike('AWS::CodeBuild::Project', {
-    Name: 'HelloPipeline-Build'
+    Name: 'HelloPipeline-Build',
   }));
 });
 
