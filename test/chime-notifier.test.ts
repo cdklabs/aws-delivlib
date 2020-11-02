@@ -1,6 +1,9 @@
 import * as https from 'https';
-import { aws_codepipeline as aws_codepipeline, aws_codepipeline_actions as aws_codepipeline_actions } from 'monocdk';
-import * as cdk from 'monocdk';
+import {
+  App, Construct, Stack,
+  aws_codepipeline as aws_codepipeline,
+  aws_codepipeline_actions as aws_codepipeline_actions,
+} from 'monocdk';
 import { ChimeNotifier } from '../lib';
 import { codePipeline, handler } from '../lib/chime-notifier/notifier-handler';
 import '@monocdk-experiment/assert/jest';
@@ -93,7 +96,7 @@ test('call codepipeline and then post to webhooks', async () => {
 });
 
 test('can add to stack', () => {
-  const stack = new cdk.Stack(new cdk.App(), 'TestStack');
+  const stack = new Stack(new App(), 'TestStack');
   const pipeline = new aws_codepipeline.Pipeline(stack, 'Pipe');
   pipeline.addStage({ stageName: 'Source', actions: [new FakeSourceAction()] });
   pipeline.addStage({ stageName: 'Build', actions: [new aws_codepipeline_actions.ManualApprovalAction({ actionName: 'Dummy' })] });
@@ -124,7 +127,7 @@ export class FakeSourceAction extends aws_codepipeline_actions.Action {
   }
 
   // tslint:disable-next-line: max-line-length
-  protected bound(_scope: cdk.Construct, _stage: aws_codepipeline.IStage, _options: aws_codepipeline.ActionBindOptions): aws_codepipeline.ActionConfig {
+  protected bound(_scope: Construct, _stage: aws_codepipeline.IStage, _options: aws_codepipeline.ActionBindOptions): aws_codepipeline.ActionConfig {
     return {
       configuration: { },
     };

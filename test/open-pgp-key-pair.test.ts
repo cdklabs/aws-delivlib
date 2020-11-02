@@ -1,12 +1,14 @@
 import * as assert from '@monocdk-experiment/assert';
-import { aws_kms as kms } from 'monocdk';
-import * as cdk from 'monocdk';
+import {
+  App, Stack,
+  aws_kms as kms,
+} from 'monocdk';
 import { OpenPGPKeyPair } from '../lib/open-pgp-key-pair';
 
 
 test('correctly creates', () => {
   // GIVEN
-  const stack = new cdk.Stack(new cdk.App(), 'TestStack');
+  const stack = new Stack(new App(), 'TestStack');
   const encryptionKey = new kms.Key(stack, 'CMK');
   // WHEN
   new OpenPGPKeyPair(stack, 'Secret', {
@@ -35,7 +37,7 @@ test('correctly creates', () => {
 
 test('correctly forwards parameter name', () => {
   // GIVEN
-  const stack = new cdk.Stack(new cdk.App(), 'TestStack');
+  const stack = new Stack(new App(), 'TestStack');
   const parameterName = 'TestParameterName';
 
   // WHEN
@@ -60,7 +62,7 @@ test('correctly forwards parameter name', () => {
 
 test('Handler has appropriate permissions', () => {
   // GIVEN
-  const stack = new cdk.Stack(new cdk.App(), 'TestStack');
+  const stack = new Stack(new App(), 'TestStack');
 
   // WHEN
   new OpenPGPKeyPair(stack, 'Secret', {

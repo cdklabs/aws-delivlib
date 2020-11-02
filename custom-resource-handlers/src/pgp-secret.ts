@@ -1,13 +1,15 @@
-import crypto = require('crypto');
-import fs = require('fs');
-import os = require('os');
-import path = require('path');
-import util = require('util');
-import aws = require('aws-sdk');
+import * as crypto from 'crypto';
+import * as fs from 'fs';
+import * as os from 'os';
+import * as path from 'path';
+import * as util from 'util';
+import * as aws from 'aws-sdk';
 
-import cfn = require('./_cloud-formation');
+import * as cfn from './_cloud-formation';
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 import _exec = require('./_exec');
-import lambda = require('./_lambda');
+import * as lambda from './_lambda';
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 import _rmrf = require('./_rmrf');
 
 const mkdtemp = util.promisify(fs.mkdtemp);
@@ -47,7 +49,7 @@ async function handleEvent(event: cfn.Event, context: lambda.Context): Promise<c
     const immutableFields = ['Email', 'Expiry', 'Identity', 'KeySizeBits', 'SecretName', 'Version'];
     for (const key of immutableFields) {
       if (props[key] !== oldProps[key]) {
-        // tslint:disable-next-line:no-console
+        // eslint-disable-next-line no-console
         console.log(`New key required: ${key} changed from ${oldProps[key]} to ${props[key]}`);
         newKey = true;
       }

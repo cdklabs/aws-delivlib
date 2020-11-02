@@ -1,7 +1,6 @@
 import * as cdk from 'monocdk';
 import { WritableGitHubRepo } from '../repo';
 import * as pr from './pr';
-import { AutoPullRequestProps } from './pr';
 
 /**
  *
@@ -10,7 +9,7 @@ import { AutoPullRequestProps } from './pr';
  *  - commands: We don't allow any commands on the head branch. The point is to merge back existing commits.
  *  - head: We want to provide a default value for the head branch name.
  */
-type Omitted = Omit<AutoPullRequestProps, 'commands' | 'head'>;
+type Omitted = Omit<pr.AutoPullRequestProps, 'commands' | 'head'>;
 
 /**
  * Properties for configuring the head branch of the bump PR.

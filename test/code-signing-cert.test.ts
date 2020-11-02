@@ -1,16 +1,18 @@
-import { aws_kms as kms } from 'monocdk';
-import * as cdk from 'monocdk';
+import {
+  App, Construct, Stack,
+  aws_kms as kms,
+} from 'monocdk';
 import '@monocdk-experiment/assert/jest';
 import * as delivlib from '../lib';
 
 
-let app: cdk.App;
-let stack: cdk.Stack;
+let app: App;
+let stack: Stack;
 let key: kms.Key;
 beforeEach(() => {
-  app = new cdk.App();
-  const randomExtraContainer = new cdk.Construct(app, 'SomethingElse');
-  stack = new cdk.Stack(randomExtraContainer, 'Stack', {
+  app = new App();
+  const randomExtraContainer = new Construct(app, 'SomethingElse');
+  stack = new Stack(randomExtraContainer, 'Stack', {
     stackName: 'ActualStackName',
   });
   key = new kms.Key(stack, 'Key');
@@ -28,7 +30,7 @@ const distinguishedName: delivlib.DistinguishedName = {
 
 test('secret name consists of stack name and relative construct path', () => {
   // WHEN
-  const yetAnotherParent = new cdk.Construct(stack, 'Inbetween');
+  const yetAnotherParent = new Construct(stack, 'Inbetween');
   new delivlib.CodeSigningCertificate(yetAnotherParent, 'Cert', {
     distinguishedName,
     pemCertificate: 'asdf',
@@ -45,7 +47,7 @@ test('secret name consists of stack name and relative construct path', () => {
 
 test('secret name can be overridden', () => {
   // WHEN
-  const yetAnotherParent = new cdk.Construct(stack, 'Inbetween');
+  const yetAnotherParent = new Construct(stack, 'Inbetween');
   new delivlib.CodeSigningCertificate(yetAnotherParent, 'Cert', {
     distinguishedName,
     pemCertificate: 'asdf',

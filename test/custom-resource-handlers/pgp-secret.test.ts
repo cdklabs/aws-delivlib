@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 import crypto = require('crypto');
 import fs = require('fs');
 import path = require('path');

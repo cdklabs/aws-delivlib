@@ -1,7 +1,14 @@
 // tslint:disable-next-line: max-line-length
 import * as path from 'path';
-import { aws_cloudformation as cfn, aws_iam as iam, aws_kms as kms, aws_lambda as lambda, aws_secretsmanager as secretsManager, aws_ssm as ssm } from 'monocdk';
-import * as cdk from 'monocdk';
+import {
+  Construct, Duration, Stack, RemovalPolicy,
+  aws_cloudformation as cfn,
+  aws_iam as iam,
+  aws_kms as kms,
+  aws_lambda as lambda,
+  aws_secretsmanager as secretsManager,
+  aws_ssm as ssm,
+} from 'monocdk';
 import { ICredentialPair } from './credential-pair';
 import { hashFileOrDirectory } from './util';
 
@@ -97,11 +104,11 @@ interface OpenPGPKeyPairProps {
  *
  * { "PrivateKey": "... ASCII repr of key...", "Passphrase": "passphrase of the key" }
  */
-export class OpenPGPKeyPair extends cdk.Construct implements ICredentialPair {
+export class OpenPGPKeyPair extends Construct implements ICredentialPair {
   public readonly principal: ssm.IStringParameter;
   public readonly credential: secretsManager.ISecret;
 
-  constructor(parent: cdk.Construct, name: string, props: OpenPGPKeyPairProps) {
+  constructor(parent: Construct, name: string, props: OpenPGPKeyPairProps) {
     super(parent, name);
 
     const codeLocation = path.resolve(__dirname, '..', 'custom-resource-handlers', 'bin', 'pgp-secret');
@@ -111,7 +118,7 @@ export class OpenPGPKeyPair extends cdk.Construct implements ICredentialPair {
       description: 'Generates an OpenPGP Key and stores the private key in Secrets Manager and the public key in an SSM Parameter',
       code: new lambda.AssetCode(codeLocation),
       handler: 'index.handler',
-      timeout: cdk.Duration.seconds(300),
+      timeout: Duration.seconds(300),
       runtime: lambda.Runtime.NODEJS_10_X,
       // add the layer that contains the GPG binary (+ shared libraries)
       layers: [new lambda.LayerVersion(this, 'GpgLayer', {
@@ -126,7 +133,7 @@ export class OpenPGPKeyPair extends cdk.Construct implements ICredentialPair {
         'secretsmanager:UpdateSecret',
         'secretsmanager:DeleteSecret',
       ],
-      resources: [cdk.Stack.of(this).formatArn({
+      resources: [Stack.of(this).formatArn({
         service: 'secretsmanager',
         resource: 'secret',
         sep: ':',
@@ -147,7 +154,7 @@ export class OpenPGPKeyPair extends cdk.Construct implements ICredentialPair {
         principals: [fn.role!.grantPrincipal],
         conditions: {
           StringEquals: {
-            'kms:ViaService': `secretsmanager.${cdk.Stack.of(this).region}.amazonaws.com`,
+            'kms:ViaService': `secretsmanager.${Stack.of(this).region}.amazonaws.com`,
           },
         },
       }));
@@ -205,11 +212,11 @@ export class OpenPGPKeyPair extends cdk.Construct implements ICredentialPair {
   }
 }
 
-function openPgpKeyPairRemovalPolicyToCoreRemovalPolicy(removalPolicy?: OpenPGPKeyPairRemovalPolicy): cdk.RemovalPolicy {
+function openPgpKeyPairRemovalPolicyToCoreRemovalPolicy(removalPolicy?: OpenPGPKeyPairRemovalPolicy): RemovalPolicy {
   if (removalPolicy === undefined) {
-    return cdk.RemovalPolicy.RETAIN;
+    return RemovalPolicy.RETAIN;
   }
   return removalPolicy === OpenPGPKeyPairRemovalPolicy.RETAIN
-    ? cdk.RemovalPolicy.RETAIN
-    : cdk.RemovalPolicy.DESTROY;
+    ? RemovalPolicy.RETAIN
+    : RemovalPolicy.DESTROY;
 }

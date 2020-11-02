@@ -1,5 +1,10 @@
-import { aws_iam as iam, aws_kms as kms, aws_secretsmanager as secretsManager, aws_ssm as ssm } from 'monocdk';
-import * as cdk from 'monocdk';
+import {
+  Construct, CfnOutput, IConstruct, RemovalPolicy, Stack,
+  aws_iam as iam,
+  aws_kms as kms,
+  aws_secretsmanager as secretsManager,
+  aws_ssm as ssm,
+} from 'monocdk';
 import { ICredentialPair } from '../credential-pair';
 import * as permissions from '../permissions';
 import { DistinguishedName } from './certificate-signing-request';
@@ -62,7 +67,7 @@ interface CodeSigningCertificateProps {
   readonly baseName?: string;
 }
 
-export interface ICodeSigningCertificate extends cdk.IConstruct, ICredentialPair {
+export interface ICodeSigningCertificate extends IConstruct, ICredentialPair {
   /**
    * Grant the IAM principal permissions to read the private key and
    * certificate.
@@ -75,7 +80,7 @@ export interface ICodeSigningCertificate extends cdk.IConstruct, ICredentialPair
  * not be usable until the ``pemCertificate`` value has been provided. A typical workflow to use this Construct would be:
  *
  * 1. Add an instance of the construct to your app, without providing the ``pemCertificate`` property
- * 2. Deploy the stack to provision a Private Key and obtain the CSR (you can surface it using a cdk.Output, for example)
+ * 2. Deploy the stack to provision a Private Key and obtain the CSR (you can surface it using a Output, for example)
  * 3. Submit the CSR to your Certificate Authority of choice.
  * 4. Populate the ``pemCertificate`` property with the PEM-encoded certificate provided by your CA of coice.
  * 5. Re-deploy the stack so make the certificate usable
@@ -85,7 +90,7 @@ export interface ICodeSigningCertificate extends cdk.IConstruct, ICredentialPair
  * you wish to retain the private key, you can set ``forceCertificateSigningRequest`` to ``true`` in order to obtain a
  * new CSR document.
  */
-export class CodeSigningCertificate extends cdk.Construct implements ICodeSigningCertificate {
+export class CodeSigningCertificate extends Construct implements ICodeSigningCertificate {
   /**
    * The AWS Secrets Manager secret that holds the private key for this CSC
    */
@@ -96,15 +101,15 @@ export class CodeSigningCertificate extends cdk.Construct implements ICodeSignin
    */
   public readonly principal: ssm.IStringParameter;
 
-  constructor(parent: cdk.Construct, id: string, props: CodeSigningCertificateProps) {
+  constructor(parent: Construct, id: string, props: CodeSigningCertificateProps) {
     super(parent, id);
 
     // The construct path of this construct with respect to the containing stack, without any leading /
-    const stack = cdk.Stack.of(this);
+    const stack = Stack.of(this);
     const baseName = props.baseName ?? `${stack.stackName}${this.node.path.substr(stack.node.path.length)}`;
 
     const privateKey = new RsaPrivateKeySecret(this, 'RSAPrivateKey', {
-      removalPolicy: props.retainPrivateKey === false ? cdk.RemovalPolicy.DESTROY : cdk.RemovalPolicy.RETAIN,
+      removalPolicy: props.retainPrivateKey === false ? RemovalPolicy.DESTROY : RemovalPolicy.RETAIN,
       description: 'The PEM-encoded private key of the x509 Code-Signing Certificate',
       keySize: props.rsaKeySize || 2048,
       secretEncryptionKey: props.secretEncryptionKey,
@@ -124,7 +129,7 @@ export class CodeSigningCertificate extends cdk.Construct implements ICodeSignin
         'critical,digitalSignature',
         'critical,codeSigning');
 
-      new cdk.CfnOutput(this, 'CSR', {
+      new CfnOutput(this, 'CSR', {
         description: 'A PEM-encoded Certificate Signing Request for a Code-Signing Certificate',
         value: csr.pemRequest,
       });
@@ -155,7 +160,7 @@ export class CodeSigningCertificate extends cdk.Construct implements ICodeSignin
 
     principal.addToPolicy(new iam.PolicyStatement({
       actions: ['ssm:GetParameter'],
-      resources: [cdk.Stack.of(this).formatArn({
+      resources: [Stack.of(this).formatArn({
         // TODO: This is a workaround until https://github.com/awslabs/aws-cdk/pull/1726 is released
         service: 'ssm',
         resource: `parameter${this.principal.parameterName}`,

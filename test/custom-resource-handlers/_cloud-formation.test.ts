@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 import { EventEmitter } from 'events';
 import https = require('https');
 import cfn = require('../../custom-resource-handlers/src/_cloud-formation');

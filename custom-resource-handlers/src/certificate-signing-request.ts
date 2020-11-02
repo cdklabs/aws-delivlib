@@ -1,12 +1,14 @@
-import fs = require('fs');
-import os = require('os');
-import path = require('path');
-import util = require('util');
-import aws = require('aws-sdk');
+import * as fs from 'fs';
+import * as os from 'os';
+import * as path from 'path';
+import * as util from 'util';
+import * as aws from 'aws-sdk';
 
-import cfn = require('./_cloud-formation');
+import * as cfn from './_cloud-formation';
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 import _exec = require('./_exec');
-import lambda = require('./_lambda');
+import * as lambda from './_lambda';
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 import _rmrf = require('./_rmrf');
 
 const mkdtemp = util.promisify(fs.mkdtemp);

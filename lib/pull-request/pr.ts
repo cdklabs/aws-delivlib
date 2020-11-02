@@ -1,10 +1,10 @@
 import {
+  Construct, Duration,
   aws_cloudwatch as cloudwatch,
   aws_codebuild as cbuild,
   aws_events as events,
   aws_events_targets as events_targets,
 } from 'monocdk';
-import * as cdk from 'monocdk';
 import { BuildEnvironmentProps, createBuildEnvironment } from '../build-env';
 import * as permissions from '../permissions';
 import { WritableGitHubRepo } from '../repo';
@@ -181,7 +181,7 @@ export interface Head {
 /**
  * Creates a CodeBuild job that, when triggered, opens a GitHub Pull Request.
  */
-export class AutoPullRequest extends cdk.Construct {
+export class AutoPullRequest extends Construct {
 
   /**
    * CloudWatch alarm that will be triggered if the job fails.
@@ -199,7 +199,7 @@ export class AutoPullRequest extends cdk.Construct {
   private readonly headSource: string;
   private readonly exports: { [key: string]: string };
 
-  constructor(parent: cdk.Construct, id: string, props: AutoPullRequestProps) {
+  constructor(parent: Construct, id: string, props: AutoPullRequestProps) {
     super(parent, id);
 
     this.props = props;
@@ -287,7 +287,7 @@ export class AutoPullRequest extends cdk.Construct {
       });
     }
 
-    this.alarm = this.project.metricFailedBuilds({ period: cdk.Duration.seconds(300) }).createAlarm(this, 'AutoPullRequestFailedAlarm', {
+    this.alarm = this.project.metricFailedBuilds({ period: Duration.seconds(300) }).createAlarm(this, 'AutoPullRequestFailedAlarm', {
       threshold: 1,
       evaluationPeriods: 1,
       treatMissingData: cloudwatch.TreatMissingData.IGNORE,

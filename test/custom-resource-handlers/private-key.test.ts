@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 import fs = require('fs');
 import aws = require('aws-sdk');
 import { createMockInstance } from 'jest-create-mock-instance';

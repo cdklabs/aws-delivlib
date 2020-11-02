@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 import fs = require('fs');
 import path = require('path');
 import aws = require('aws-sdk');

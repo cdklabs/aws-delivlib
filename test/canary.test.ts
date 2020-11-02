@@ -1,7 +1,6 @@
-import path = require('path');
-import assert = require('@monocdk-experiment/assert');
-import { aws_events as events } from 'monocdk';
-import * as cdk from 'monocdk';
+import * as path from 'path';
+import * as assert from '@monocdk-experiment/assert';
+import { App, Stack, aws_events as events } from 'monocdk';
 import { Canary } from '../lib';
 
 
@@ -9,7 +8,7 @@ const testDir = path.join(__dirname, 'delivlib-tests', 'linux');
 
 test('correctly creates canary', () => {
   // GIVEN
-  const stack = new cdk.Stack(new cdk.App(), 'TestStack');
+  const stack = new Stack(new App(), 'TestStack');
   // WHEN
   new Canary(stack, 'Canary', {
     schedule: events.Schedule.expression('rate(1 minute)'),

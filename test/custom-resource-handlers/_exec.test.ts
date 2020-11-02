@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 import _exec = require('../../custom-resource-handlers/src/_exec');
 
 test('forwards stdout (single-line)', () =>

@@ -1,9 +1,12 @@
 import * as path from 'path';
 import {
-  aws_codebuild as cbuild, aws_codepipeline as cpipeline,
-  aws_codepipeline_actions as cpipeline_actions, aws_iam as iam, aws_s3 as s3,
+  Construct, SecretValue, Stack,
+  aws_codebuild as cbuild,
+  aws_codepipeline as cpipeline,
+  aws_codepipeline_actions as cpipeline_actions,
+  aws_iam as iam,
+  aws_s3 as s3,
 } from 'monocdk';
-import * as cdk from 'monocdk';
 import { ICodeSigningCertificate } from './code-signing';
 import { OpenPGPKeyPair } from './open-pgp-key-pair';
 import * as permissions from './permissions';
@@ -60,11 +63,11 @@ export interface PublishToMavenProjectProps {
 /**
  * CodeBuild project that will publish all packages in a release bundle to Maven
  */
-export class PublishToMavenProject extends cdk.Construct implements IPublisher {
+export class PublishToMavenProject extends Construct implements IPublisher {
   public readonly role: iam.IRole;
   public readonly project: cbuild.Project;
 
-  constructor(parent: cdk.Construct, id: string, props: PublishToMavenProjectProps) {
+  constructor(parent: Construct, id: string, props: PublishToMavenProjectProps) {
     super(parent, id);
 
     const forReal = props.dryRun === undefined ? 'false' : (!props.dryRun).toString();
@@ -137,11 +140,11 @@ export interface PublishToNpmProjectProps {
 /**
  * CodeBuild project that will publish all packages in a release bundle to NPM
  */
-export class PublishToNpmProject extends cdk.Construct implements IPublisher {
+export class PublishToNpmProject extends Construct implements IPublisher {
   public readonly role?: iam.IRole;
   public readonly project: cbuild.Project;
 
-  constructor(parent: cdk.Construct, id: string, props: PublishToNpmProjectProps) {
+  constructor(parent: Construct, id: string, props: PublishToNpmProjectProps) {
     super(parent, id);
 
     const forReal = props.dryRun === undefined ? 'false' : (!props.dryRun).toString();
@@ -200,11 +203,11 @@ export interface PublishToNuGetProjectProps {
 /**
  * CodeBuild project that will publish all packages in a release bundle to NuGet
  */
-export class PublishToNuGetProject extends cdk.Construct implements IPublisher {
+export class PublishToNuGetProject extends Construct implements IPublisher {
   public readonly role: iam.IRole;
   public readonly project: cbuild.Project;
 
-  constructor(parent: cdk.Construct, id: string, props: PublishToNuGetProjectProps) {
+  constructor(parent: Construct, id: string, props: PublishToNuGetProjectProps) {
     super(parent, id);
 
     const environment: { [key: string]: string } = { };
@@ -218,7 +221,7 @@ export class PublishToNuGetProject extends cdk.Construct implements IPublisher {
     if (props.nugetApiKeySecret.region) {
       environment.NUGET_SECRET_REGION = props.nugetApiKeySecret.region;
     } else {
-      environment.NUGET_SECRET_REGION = cdk.Stack.of(this).region;
+      environment.NUGET_SECRET_REGION = Stack.of(this).region;
     }
 
     environment.NUGET_SECRET_ID = props.nugetApiKeySecret.secretArn;
@@ -290,11 +293,11 @@ export interface PublishDocsToGitHubProjectProps {
 /**
  * CodeBuild project that will publish all packages in a release bundle to NuGet
  */
-export class PublishDocsToGitHubProject extends cdk.Construct implements IPublisher {
+export class PublishDocsToGitHubProject extends Construct implements IPublisher {
   public readonly role: iam.IRole;
   public readonly project: cbuild.Project;
 
-  constructor(parent: cdk.Construct, id: string, props: PublishDocsToGitHubProjectProps) {
+  constructor(parent: Construct, id: string, props: PublishDocsToGitHubProjectProps) {
     super(parent, id);
 
     const forReal = props.dryRun === undefined ? 'false' : (!props.dryRun).toString();
@@ -377,18 +380,18 @@ export interface PublishToGitHubProps {
   signAdditionalArtifacts?: boolean;
 }
 
-export class PublishToGitHub extends cdk.Construct implements IPublisher {
+export class PublishToGitHub extends Construct implements IPublisher {
   public readonly role: iam.IRole;
   public readonly project: cbuild.Project;
   private readonly additionalInputArtifacts?: cpipeline.Artifact[];
 
-  constructor(parent: cdk.Construct, id: string, props: PublishToGitHubProps) {
+  constructor(parent: Construct, id: string, props: PublishToGitHubProps) {
     super(parent, id);
 
     const forReal = props.dryRun === undefined ? 'false' : (!props.dryRun).toString();
     this.additionalInputArtifacts = props.additionalInputArtifacts;
 
-    const githubToken = cdk.SecretValue.secretsManager(props.githubRepo.tokenSecretArn);
+    const githubToken = SecretValue.secretsManager(props.githubRepo.tokenSecretArn);
 
     const shellable = new Shellable(this, 'Default', {
       platform: new LinuxPlatform(cbuild.LinuxBuildImage.UBUNTU_14_04_NODEJS_10_1_0),
@@ -445,11 +448,11 @@ export interface PublishToS3Props {
   dryRun?: boolean;
 }
 
-export class PublishToS3 extends cdk.Construct implements IPublisher {
+export class PublishToS3 extends Construct implements IPublisher {
   public readonly role?: iam.IRole;
   public readonly project: cbuild.Project;
 
-  constructor(scope: cdk.Construct, id: string, props: PublishToS3Props) {
+  constructor(scope: Construct, id: string, props: PublishToS3Props) {
     super(scope, id);
 
     const forReal = props.dryRun === undefined ? 'false' : (!props.dryRun).toString();
@@ -498,12 +501,12 @@ export interface PublishToPyPiProps {
   dryRun?: boolean;
 }
 
-export class PublishToPyPi extends cdk.Construct {
+export class PublishToPyPi extends Construct {
 
   public readonly project: cbuild.Project;
   public readonly role: iam.IRole;
 
-  constructor(scope: cdk.Construct, id: string, props: PublishToPyPiProps) {
+  constructor(scope: Construct, id: string, props: PublishToPyPiProps) {
     super(scope, id);
 
     const forReal = props.dryRun === undefined ? 'false' : (!props.dryRun).toString();
