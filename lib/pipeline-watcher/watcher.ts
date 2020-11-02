@@ -1,6 +1,6 @@
 // tslint:disable-next-line: max-line-length
-import fs = require('fs');
-import path = require('path');
+import * as fs from 'fs';
+import * as path from 'path';
 import {
   aws_cloudwatch as cloudwatch,
   aws_codepipeline as cpipeline,

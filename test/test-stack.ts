@@ -1,7 +1,7 @@
-import path = require('path');
+import * as path from 'path';
 import { aws_events as events, aws_iam as iam, aws_kms as kms } from 'monocdk';
 import * as cdk from 'monocdk';
-import delivlib = require('../lib');
+import * as delivlib from '../lib';
 
 
 const testDir = path.join(__dirname, 'delivlib-tests');

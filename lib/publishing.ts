@@ -1,4 +1,4 @@
-import path = require('path');
+import * as path from 'path';
 import {
   aws_codebuild as cbuild, aws_codepipeline as cpipeline,
   aws_codepipeline_actions as cpipeline_actions, aws_iam as iam, aws_s3 as s3,
@@ -6,7 +6,7 @@ import {
 import * as cdk from 'monocdk';
 import { ICodeSigningCertificate } from './code-signing';
 import { OpenPGPKeyPair } from './open-pgp-key-pair';
-import permissions = require('./permissions');
+import * as permissions from './permissions';
 import { AddToPipelineOptions, IPublisher } from './pipeline';
 import { WritableGitHubRepo } from './repo';
 import { LinuxPlatform, Shellable } from './shellable';

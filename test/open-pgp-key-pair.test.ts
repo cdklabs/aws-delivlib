@@ -1,4 +1,4 @@
-import assert = require('@monocdk-experiment/assert');
+import * as assert from '@monocdk-experiment/assert';
 import { aws_kms as kms } from 'monocdk';
 import * as cdk from 'monocdk';
 import { OpenPGPKeyPair } from '../lib/open-pgp-key-pair';

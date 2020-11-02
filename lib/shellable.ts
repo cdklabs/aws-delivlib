@@ -1,5 +1,5 @@
-import fs = require('fs');
-import path = require('path');
+import * as fs from 'fs';
+import * as path from 'path';
 import {
   aws_cloudwatch as cloudwatch, aws_codebuild as cbuild,
   aws_codepipeline as cpipeline, aws_codepipeline_actions as cpipeline_actions,

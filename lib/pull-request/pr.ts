@@ -6,7 +6,7 @@ import {
 } from 'monocdk';
 import * as cdk from 'monocdk';
 import { BuildEnvironmentProps, createBuildEnvironment } from '../build-env';
-import permissions = require('../permissions');
+import * as permissions from '../permissions';
 import { WritableGitHubRepo } from '../repo';
 
 /**

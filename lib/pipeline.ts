@@ -18,7 +18,7 @@ import { Canary, CanaryProps } from './canary';
 import { ChangeController } from './change-controller';
 import { ChimeNotifier } from './chime-notifier';
 import { PipelineWatcher } from './pipeline-watcher';
-import publishing = require('./publishing');
+import * as publishing from './publishing';
 import { AutoBump, AutoMergeBack, AutoMergeBackProps, AutoBumpProps } from './pull-request';
 import { IRepo, WritableGitHubRepo } from './repo';
 import { Shellable, ShellableProps } from './shellable';

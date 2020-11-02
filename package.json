@@ -6,7 +6,7 @@
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "scripts": {
-    "build": "yarn build:assets && tsc --build && eslint --ext .ts lib test",
+    "build": "yarn build:assets && tsc --build && eslint --ext .ts --ignore-pattern '/node_modules/' .",
     "build:assets": "yarn build:assets:custom-resource-handlers && yarn build:assets:lambda-handlers",
     "build:assets:custom-resource-handlers": "/bin/bash ./build-custom-resource-handlers.sh",
     "build:assets:lambda-handlers": "/bin/bash ./build-lambda-handlers.sh",

@@ -1,7 +1,7 @@
 import { aws_iam as iam, aws_kms as kms, aws_secretsmanager as secretsManager, aws_ssm as ssm } from 'monocdk';
 import * as cdk from 'monocdk';
 import { ICredentialPair } from '../credential-pair';
-import permissions = require('../permissions');
+import * as permissions from '../permissions';
 import { DistinguishedName } from './certificate-signing-request';
 import { RsaPrivateKeySecret } from './private-key';
 

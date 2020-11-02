@@ -1,4 +1,4 @@
-import path = require('path');
+import * as path from 'path';
 import { expect as cdk_expect, haveResource, haveResourceLike, SynthUtils, ABSENT } from '@monocdk-experiment/assert';
 import {
   aws_codebuild as codebuild,
@@ -7,7 +7,7 @@ import {
   aws_codepipeline_actions as cpipeline_actions,
 } from 'monocdk';
 import * as cdk from 'monocdk';
-import delivlib = require('../lib');
+import * as delivlib from '../lib';
 import { AddToPipelineOptions, IPublisher } from '../lib';
 import { determineRunOrder } from '../lib/util';
 

@@ -1,5 +1,5 @@
 // tslint:disable-next-line: max-line-length
-import path = require('path');
+import * as path from 'path';
 import { aws_cloudformation as cfn, aws_iam as iam, aws_kms as kms, aws_lambda as lambda, aws_secretsmanager as secretsManager, aws_ssm as ssm } from 'monocdk';
 import * as cdk from 'monocdk';
 import { ICredentialPair } from './credential-pair';

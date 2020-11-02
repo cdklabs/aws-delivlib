@@ -1,4 +1,4 @@
-import path = require('path');
+import * as path from 'path';
 import {
   aws_cloudwatch as cloudwatch, aws_codepipeline as cp, aws_events as
   events, aws_events_targets as events_targets, aws_iam as iam, aws_lambda as

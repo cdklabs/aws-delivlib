@@ -1,4 +1,4 @@
-import path = require('path');
+import * as path from 'path';
 import { aws_cloudformation as cfn, aws_iam as iam, aws_kms as kms, aws_lambda as lambda } from 'monocdk';
 import * as cdk from 'monocdk';
 import { hashFileOrDirectory } from '../util';
