@@ -1,4 +1,6 @@
-import { aws_cloudwatch as cloudwatch,
+import {
+  Construct, Duration, IConstruct,
+  aws_cloudwatch as cloudwatch,
   aws_codebuild as cbuild,
   aws_codepipeline as cpipeline,
   aws_codepipeline_actions as
@@ -8,10 +10,7 @@ import { aws_cloudwatch as cloudwatch,
   aws_iam as iam, aws_s3 as s3,
   aws_sns as sns,
   aws_sns_subscriptions as sns_subs,
-  Duration}
-  from "monocdk";
-
-  import * as cdk from 'monocdk';
+} from "monocdk";
 
 import { AutoBuild, AutoBuildOptions } from "./auto-build";
 import { createBuildEnvironment } from "./build-env";
@@ -161,7 +160,7 @@ export interface PipelineProps {
    *
    * @default - Duration.hours(8)
    */
-  readonly buildTimeout?: Duration;
+  buildTimeout?: Duration;
 }
 
 export interface MergeBackStage {
@@ -201,7 +200,7 @@ export interface AutoBumpOptions extends Omit<AutoBumpProps, 'repo'> {
 /**
  * Defines a delivlib CI/CD pipeline.
  */
-export class Pipeline extends cdk.Construct {
+export class Pipeline extends Construct {
   public buildRole?: iam.IRole;
   public readonly failureAlarm: cloudwatch.Alarm;
   public readonly buildOutput: cpipeline.Artifact;
@@ -223,7 +222,7 @@ export class Pipeline extends cdk.Construct {
   private readonly buildEnvironment: cbuild.BuildEnvironment;
   private readonly buildSpec?: cbuild.BuildSpec;
 
-  constructor(parent: cdk.Construct, name: string, props: PipelineProps) {
+  constructor(parent: Construct, name: string, props: PipelineProps) {
     super(parent, name);
 
     this.concurrency = props.concurrency;
@@ -503,7 +502,7 @@ export class Pipeline extends cdk.Construct {
   }
 }
 
-export interface IPublisher extends cdk.IConstruct {
+export interface IPublisher extends IConstruct {
   addToPipeline(stage: cpipeline.IStage, id: string, options: AddToPipelineOptions): void;
 }
 
