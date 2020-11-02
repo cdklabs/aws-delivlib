@@ -1346,7 +1346,7 @@ Resources:
           exports.codePipeline = new AWS.CodePipeline();
 
           exports.logger = {
-              log: (line) => process.stdout.write(line)
+              log: (line) => process.stdout.write(line),
           };
 
           /**
@@ -1362,7 +1362,7 @@ Resources:
                   throw new Error("Pipeline name expects environment variable: 'PIPELINE_NAME'");
               }
               const state = await exports.codePipeline.getPipelineState({
-                  name: pipelineName
+                  name: pipelineName,
               }).promise();
               let failedCount = 0;
               if (state.stageStates) {
@@ -1371,13 +1371,13 @@ Resources:
                       .length;
               }
               exports.logger.log(JSON.stringify({
-                  failedCount
+                  failedCount,
               }));
           }
 
           exports.handler = handler;
 
-          //# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoid2F0Y2hlci1oYW5kbGVyLmpzIiwic291cmNlUm9vdCI6IiIsInNvdXJjZXMiOlsid2F0Y2hlci1oYW5kbGVyLnRzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiI7OztBQUFBLCtCQUFnQztBQUloQyxtQkFBbUI7QUFDTixRQUFBLFlBQVksR0FBRyxJQUFJLEdBQUcsQ0FBQyxZQUFZLEVBQUUsQ0FBQztBQUN0QyxRQUFBLE1BQU0sR0FBRztJQUNwQixHQUFHLEVBQUUsQ0FBQyxJQUFZLEVBQUUsRUFBRSxDQUFDLE9BQU8sQ0FBQyxNQUFNLENBQUMsS0FBSyxDQUFDLElBQUksQ0FBQztDQUNsRCxDQUFDO0FBRUY7Ozs7OztHQU1HO0FBQ0ksS0FBSyxVQUFVLE9BQU87SUFDM0IsTUFBTSxZQUFZLEdBQUcsT0FBTyxDQUFDLEdBQUcsQ0FBQyxhQUFhLENBQUM7SUFDL0MsSUFBSSxDQUFDLFlBQVksRUFBRTtRQUNqQixNQUFNLElBQUksS0FBSyxDQUFDLDZEQUE2RCxDQUFDLENBQUM7S0FDaEY7SUFDRCxNQUFNLEtBQUssR0FBRyxNQUFNLG9CQUFZLENBQUMsZ0JBQWdCLENBQUM7UUFDaEQsSUFBSSxFQUFFLFlBQVk7S0FDbkIsQ0FBQyxDQUFDLE9BQU8sRUFBRSxDQUFDO0lBRWIsSUFBSSxXQUFXLEdBQUcsQ0FBQyxDQUFDO0lBQ3BCLElBQUksS0FBSyxDQUFDLFdBQVcsRUFBRTtRQUNyQixXQUFXLEdBQUcsS0FBSyxDQUFDLFdBQVc7YUFDNUIsTUFBTSxDQUFDLEtBQUssQ0FBQyxFQUFFLENBQUMsS0FBSyxDQUFDLGVBQWUsS0FBSyxTQUFTLElBQUksS0FBSyxDQUFDLGVBQWUsQ0FBQyxNQUFNLEtBQUssUUFBUSxDQUFDO2FBQ2pHLE1BQU0sQ0FBQztLQUNYO0lBQ0QsY0FBTSxDQUFDLEdBQUcsQ0FBQyxJQUFJLENBQUMsU0FBUyxDQUFDO1FBQ3hCLFdBQVc7S0FDWixDQUFDLENBQUMsQ0FBQztBQUNOLENBQUM7QUFsQkQsMEJBa0JDIn0=
+          //# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoid2F0Y2hlci1oYW5kbGVyLmpzIiwic291cmNlUm9vdCI6IiIsInNvdXJjZXMiOlsid2F0Y2hlci1oYW5kbGVyLnRzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiI7OztBQUFBLCtCQUErQjtBQUcvQixtQkFBbUI7QUFDTixRQUFBLFlBQVksR0FBRyxJQUFJLEdBQUcsQ0FBQyxZQUFZLEVBQUUsQ0FBQztBQUN0QyxRQUFBLE1BQU0sR0FBRztJQUNwQixHQUFHLEVBQUUsQ0FBQyxJQUFZLEVBQUUsRUFBRSxDQUFDLE9BQU8sQ0FBQyxNQUFNLENBQUMsS0FBSyxDQUFDLElBQUksQ0FBQztDQUNsRCxDQUFDO0FBRUY7Ozs7OztHQU1HO0FBQ0ksS0FBSyxVQUFVLE9BQU87SUFDM0IsTUFBTSxZQUFZLEdBQUcsT0FBTyxDQUFDLEdBQUcsQ0FBQyxhQUFhLENBQUM7SUFDL0MsSUFBSSxDQUFDLFlBQVksRUFBRTtRQUNqQixNQUFNLElBQUksS0FBSyxDQUFDLDZEQUE2RCxDQUFDLENBQUM7S0FDaEY7SUFDRCxNQUFNLEtBQUssR0FBRyxNQUFNLG9CQUFZLENBQUMsZ0JBQWdCLENBQUM7UUFDaEQsSUFBSSxFQUFFLFlBQVk7S0FDbkIsQ0FBQyxDQUFDLE9BQU8sRUFBRSxDQUFDO0lBRWIsSUFBSSxXQUFXLEdBQUcsQ0FBQyxDQUFDO0lBQ3BCLElBQUksS0FBSyxDQUFDLFdBQVcsRUFBRTtRQUNyQixXQUFXLEdBQUcsS0FBSyxDQUFDLFdBQVc7YUFDNUIsTUFBTSxDQUFDLEtBQUssQ0FBQyxFQUFFLENBQUMsS0FBSyxDQUFDLGVBQWUsS0FBSyxTQUFTLElBQUksS0FBSyxDQUFDLGVBQWUsQ0FBQyxNQUFNLEtBQUssUUFBUSxDQUFDO2FBQ2pHLE1BQU0sQ0FBQztLQUNYO0lBQ0QsY0FBTSxDQUFDLEdBQUcsQ0FBQyxJQUFJLENBQUMsU0FBUyxDQUFDO1FBQ3hCLFdBQVc7S0FDWixDQUFDLENBQUMsQ0FBQztBQUNOLENBQUM7QUFsQkQsMEJBa0JDIn0=
       Handler: index.handler
       Role:
         Fn::GetAtt:
@@ -4050,7 +4050,7 @@ Resources:
     Properties:
       Code:
         S3Bucket: cdk-hnb659fds-assets-712950704752-us-east-1
-        S3Key: 754b192f50fcd7e07ff2db430184f49d64a5b0c2e169db7cf705da7a05f80a0e.zip
+        S3Key: 068f2e1b2c971ea6085c0ca0c1588bb6769d6a8e0277084d8f66c51c6ebc7cbf.zip
       Handler: index.handler
       Role:
         Fn::GetAtt:
@@ -4158,7 +4158,7 @@ Resources:
         Fn::GetAtt:
           - RSAPrivateKey72FD327D38134632934028EC437AA486D8EE708F
           - Arn
-      ResourceVersion: 2mbfojgR+pK4iNlv89qKTUYJcAfIu5s7N1+Q4p3DDMQ=
+      ResourceVersion: Zfr5WXssaNh6eWo/E87SDXWwVoEy6SCoVckiq6r1Rjw=
       Description: The PEM-encoded private key of the x509 Code-Signing Certificate
       KeySize: 2048
       SecretName: delivlib-test/X509CodeSigningKey/RSAPrivateKey
@@ -4184,7 +4184,7 @@ Resources:
         Fn::GetAtt:
           - CreateCSR541F67826DCF49A78C5A67715ADD9E4C8F4169F6
           - Arn
-      ResourceVersion: YZYQ8k0ZkLJM/j2dkY8n9Vi4IYAOrh6yKdvmFiYilOY=
+      ResourceVersion: 9y2zz4VkrnhwUDXGGpg4s/9TXPOot/f9qEIIi63FS4Y=
       PrivateKeySecretId:
         Fn::GetAtt:
           - X509CodeSigningKeyRSAPrivateKeyE5980A70
@@ -4269,7 +4269,7 @@ Resources:
     Properties:
       Code:
         S3Bucket: cdk-hnb659fds-assets-712950704752-us-east-1
-        S3Key: 9d7be9c902a09c0172c363e6499262e2c2ab251fb92b364846b1a1359665ee93.zip
+        S3Key: acdd7ab8319551b4c9ef2e2752045839c013260d4c5fcb667e9b54b18b4db34d.zip
       Handler: index.handler
       Role:
         Fn::GetAtt:
@@ -4325,7 +4325,7 @@ Resources:
     Properties:
       Code:
         S3Bucket: cdk-hnb659fds-assets-712950704752-us-east-1
-        S3Key: 8c2896c14757ac8e1f11692f1fe9034590ef4b4b5e0a9d2900b6ae76f2d2aef8.zip
+        S3Key: b8fcf7ec21ebb2dd04e7a395ae36f93cdcb7f2d7344c68ee105de5ffa2414827.zip
       Handler: index.handler
       Role:
         Fn::GetAtt:
@@ -4420,7 +4420,7 @@ Resources:
         Fn::GetAtt:
           - SingletonLambdaf25803d3054b44fc985f4860d7d6ee746203BDE6
           - Arn
-      ResourceVersion: on4lUcbgb4Za9ejIsCqfALEhUJwniq5NelrQwZGtOxc=
+      ResourceVersion: as8Py5iKcmNOUh1pkfOoKeHLoJ8XHZi86/TXm8FsbPY=
       Identity: aws-cdk-dev
       Email: aws-cdk-dev+delivlib@amazon.com
       Expiry: 4y
@@ -4503,7 +4503,7 @@ Resources:
     Properties:
       Code:
         S3Bucket: cdk-hnb659fds-assets-712950704752-us-east-1
-        S3Key: 0a6f217c2a6c6635e7ecd47958477eaa9458e300d2e51673dbae8c4630207c01.zip
+        S3Key: 4d253620c108182e5794e071d21879793e5ef4e6bf558a5e4b0acd1f65bbf117.zip
       Handler: index.handler
       Role:
         Fn::GetAtt:
