@@ -1,9 +1,9 @@
-import aws = require('aws-sdk');
 import crypto = require('crypto');
 import fs = require('fs');
 import os = require('os');
 import path = require('path');
 import util = require('util');
+import aws = require('aws-sdk');
 
 import cfn = require('./_cloud-formation');
 import _exec = require('./_exec');
@@ -55,14 +55,14 @@ async function handleEvent(event: cfn.Event, context: lambda.Context): Promise<c
   }
 
   switch (event.RequestType) {
-  case cfn.RequestType.CREATE:
-  case cfn.RequestType.UPDATE:
+    case cfn.RequestType.CREATE:
+    case cfn.RequestType.UPDATE:
     // If we're UPDATE and get a new key, we'll issue a new Physical ID.
-    return newKey
-          ? await _createNewKey(event, context)
-          : await _updateExistingKey(event as cfn.UpdateEvent, context);
-  case cfn.RequestType.DELETE:
-    return await _deleteSecret(event);
+      return newKey
+        ? _createNewKey(event, context)
+        : _updateExistingKey(event as cfn.UpdateEvent, context);
+    case cfn.RequestType.DELETE:
+      return _deleteSecret(event);
   }
 }
 
@@ -87,24 +87,24 @@ async function _createNewKey(event: cfn.CreateEvent | cfn.UpdateEvent, context: 
     const gpgCommonArgs = [`--homedir=${tempDir}`, '--agent-program=/opt/gpg-agent'];
     await _exec('/opt/gpg', ...gpgCommonArgs, '--batch', '--gen-key', keyConfig);
     const keyMaterial = await _exec('/opt/gpg', ...gpgCommonArgs, '--batch', '--yes', '--export-secret-keys', '--armor');
-    const publicKey =   await _exec('/opt/gpg', ...gpgCommonArgs, '--batch', '--yes', '--export',             '--armor');
+    const publicKey = await _exec('/opt/gpg', ...gpgCommonArgs, '--batch', '--yes', '--export', '--armor');
     const secretOpts = {
       ClientRequestToken: context.awsRequestId,
       Description: event.ResourceProperties.Description,
       KmsKeyId: event.ResourceProperties.KeyArn,
       SecretString: JSON.stringify({
         PrivateKey: keyMaterial,
-        Passphrase: passPhrase
+        Passphrase: passPhrase,
       }),
     };
     const secret = event.RequestType === cfn.RequestType.CREATE
-                 ? await secretsManager.createSecret({ ...secretOpts, Name: event.ResourceProperties.SecretName }).promise()
-                 : await secretsManager.updateSecret({ ...secretOpts, SecretId: event.PhysicalResourceId }).promise();
+      ? await secretsManager.createSecret({ ...secretOpts, Name: event.ResourceProperties.SecretName }).promise()
+      : await secretsManager.updateSecret({ ...secretOpts, SecretId: event.PhysicalResourceId }).promise();
 
     return {
       Ref: secret.ARN!,
       SecretArn: secret.ARN!,
-      PublicKey: publicKey
+      PublicKey: publicKey,
     };
   } finally {
     await _rmrf(tempDir);
@@ -136,7 +136,7 @@ async function _updateExistingKey(event: cfn.UpdateEvent, context: lambda.Contex
   return {
     Ref: result.ARN!,
     SecretArn: result.ARN!,
-    PublicKey: publicKey
+    PublicKey: publicKey,
   };
 }
 

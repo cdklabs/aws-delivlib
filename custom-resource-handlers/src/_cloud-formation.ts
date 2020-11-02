@@ -47,10 +47,10 @@ export interface ResourceAttributes {
  * @see https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/crpg-ref-responses.html
  */
 export function sendResponse(event: Event,
-                             status: Status,
-                             physicalResourceId: string = event.PhysicalResourceId || event.LogicalResourceId,
-                             data: { [name: string]: string | undefined },
-                             reason?: string) {
+  status: Status,
+  physicalResourceId: string = event.PhysicalResourceId || event.LogicalResourceId,
+  data: { [name: string]: string | undefined },
+  reason?: string) {
   const responseBody = JSON.stringify({
     Data: data,
     LogicalResourceId: event.LogicalResourceId,

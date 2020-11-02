@@ -1,8 +1,8 @@
-import aws = require('aws-sdk');
 import fs = require('fs');
 import os = require('os');
 import path = require('path');
 import util = require('util');
+import aws = require('aws-sdk');
 
 import cfn = require('./_cloud-formation');
 import _exec = require('./_exec');
@@ -27,12 +27,12 @@ async function handleEvent(event: cfn.Event, context: lambda.Context): Promise<c
   }
 
   switch (event.RequestType) {
-  case cfn.RequestType.CREATE:
-    return await _createSecret(event, context);
-  case cfn.RequestType.UPDATE:
-    return await _updateSecret(event, context);
-  case cfn.RequestType.DELETE:
-    return await _deleteSecret(event);
+    case cfn.RequestType.CREATE:
+      return _createSecret(event, context);
+    case cfn.RequestType.UPDATE:
+      return _updateSecret(event, context);
+    case cfn.RequestType.DELETE:
+      return _deleteSecret(event);
   }
 }
 

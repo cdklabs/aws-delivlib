@@ -1,8 +1,8 @@
-import aws = require('aws-sdk');
 import fs = require('fs');
 import os = require('os');
 import path = require('path');
 import util = require('util');
+import aws = require('aws-sdk');
 
 import cfn = require('./_cloud-formation');
 import _exec = require('./_exec');
@@ -39,12 +39,12 @@ async function handleEvent(event: cfn.Event, _context: lambda.Context): Promise<
   }
 
   switch (event.RequestType) {
-  case cfn.RequestType.CREATE:
-  case cfn.RequestType.UPDATE:
-    return _createSelfSignedCertificate(event);
-  case cfn.RequestType.DELETE:
+    case cfn.RequestType.CREATE:
+    case cfn.RequestType.UPDATE:
+      return _createSelfSignedCertificate(event);
+    case cfn.RequestType.DELETE:
     // Nothing to do - this is not a "Physical" resource
-    return { Ref: event.LogicalResourceId };
+      return { Ref: event.LogicalResourceId };
   }
 }
 
@@ -55,15 +55,15 @@ async function _createSelfSignedCertificate(event: cfn.Event): Promise<ResourceA
     const pkeyFile = await _retrievePrivateKey(event, tempDir);
     const csrFile = path.join(tempDir, 'csr.pem');
     await _exec('/opt/openssl', 'req', '-config', configFile,
-                                  '-key', pkeyFile,
-                                  '-out', csrFile,
-                                  '-new');
+      '-key', pkeyFile,
+      '-out', csrFile,
+      '-new');
     const certFile = path.join(tempDir, 'cert.pem');
     await _exec('/opt/openssl', 'x509', '-in', csrFile,
-                                   '-out', certFile,
-                                   '-req',
-                                   '-signkey', pkeyFile,
-                                   '-days', '365');
+      '-out', certFile,
+      '-req',
+      '-signkey', pkeyFile,
+      '-days', '365');
     return {
       Ref: event.LogicalResourceId,
       CSR: await readFile(csrFile, { encoding: 'utf8' }),
