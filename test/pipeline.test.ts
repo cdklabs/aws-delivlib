@@ -2,6 +2,7 @@ import * as path from 'path';
 import { expect as cdk_expect, haveResource, haveResourceLike, SynthUtils, ABSENT } from '@monocdk-experiment/assert';
 import {
   App, Construct, Stack,
+  aws_chatbot as chatbot,
   aws_codebuild as codebuild,
   aws_codecommit as codecommit,
   aws_codepipeline as cpipeline,
@@ -315,6 +316,63 @@ test('CodeBuild Project name is left undefined when neither buildProjectName nor
   // THEN
   cdk_expect(stack).to(haveResourceLike('AWS::CodeBuild::Project', {
     Name: ABSENT,
+  }));
+});
+
+test('failure notification via slack is not present when not specified', () => {
+  // GIVEN
+  const stack = new Stack(new App(), 'TestStack');
+
+  // WHEN
+  new delivlib.Pipeline(stack, 'Pipeline1', {
+    repo: new delivlib.CodeCommitRepo(new codecommit.Repository(stack, 'Repo1', { repositoryName: 'test' })),
+  });
+  new delivlib.Pipeline(stack, 'Pipeline2', {
+    repo: new delivlib.CodeCommitRepo(new codecommit.Repository(stack, 'Repo2', { repositoryName: 'test' })),
+    failureNotifySlack: [],
+  });
+
+  // THEN
+  cdk_expect(stack).notTo(haveResource('AWS::CodeStarNotifications::NotificationRule'));
+});
+
+test('failure notification via slack', () => {
+  // GIVEN
+  const stack = new Stack(new App(), 'TestStack');
+  const slackChannel = new chatbot.SlackChannelConfiguration(stack, 'notify', {
+    slackChannelConfigurationName: 'test-slack-config',
+    slackChannelId: 'test-channel-id',
+    slackWorkspaceId: 'test-workspace-id',
+  });
+
+  // WHEN
+  const pipe = new delivlib.Pipeline(stack, 'Pipeline', {
+    repo: createTestRepo(stack),
+    failureNotifySlack: [slackChannel],
+  });
+
+  // THEN
+  cdk_expect(stack).to(haveResource('AWS::CodeStarNotifications::NotificationRule', {
+    DetailType: 'BASIC',
+    EventTypeIds: ['codepipeline-pipeline-action-execution-failed'],
+    Name: {
+      'Fn::Join': [
+        '',
+        [
+          {
+            Ref: 'PipelineBuildPipeline04C6628A',
+          },
+          '-failednotifications',
+        ],
+      ],
+    },
+    Resource: stack.resolve((pipe.node.findChild('BuildPipeline') as cpipeline.Pipeline).pipelineArn),
+    Targets: [
+      {
+        TargetAddress: stack.resolve(slackChannel.slackChannelConfigurationArn),
+        TargetType: 'AWSChatbotSlack',
+      },
+    ],
   }));
 });
 
