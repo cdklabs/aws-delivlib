@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [9.1.0](https://github.com/awslabs/aws-delivlib/compare/v9.0.4...v9.1.0) (2020-11-03)
+
+
+### Features
+
+* **pipeline:** notify failure on slack ([3bb46a3](https://github.com/awslabs/aws-delivlib/commit/3bb46a3d61b3187accfde7c914f04eeeae507a35))
+
 ### [9.0.4](https://github.com/awslabs/aws-delivlib/compare/v9.0.3...v9.0.4) (2020-11-02)
 
 ### [9.0.3](https://github.com/awslabs/aws-delivlib/compare/v9.0.2...v9.0.3) (2020-10-30)
