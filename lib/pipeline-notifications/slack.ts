@@ -1,3 +1,4 @@
+import * as crypto from 'crypto';
 import {
   aws_chatbot as chatbot,
   aws_codestarnotifications as starnotifs,
@@ -31,10 +32,12 @@ export class SlackNotification implements IPipelineNotification {
         targetType: 'AWSChatbotSlack',
       };
     });
-    new starnotifs.CfnNotificationRule(options.pipeline, 'PipelineNotificationSlack', {
-      name: `${options.codePipeline.pipelineName}-failednotifications`,
+    const md5 = crypto.createHash('md5');
+    md5.update(JSON.stringify(targets));
+    new starnotifs.CfnNotificationRule(options.pipeline, `PipelineNotificationSlack-${md5.digest('hex')}`, {
+      name: `${options.pipeline.pipeline.pipelineName}-failednotifications`,
       detailType: 'BASIC',
-      resource: options.codePipeline.pipelineArn,
+      resource: options.pipeline.pipeline.pipelineArn,
       targets,
       eventTypeIds: ['codepipeline-pipeline-action-execution-failed'],
     });

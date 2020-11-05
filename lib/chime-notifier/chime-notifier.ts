@@ -65,7 +65,7 @@ export class ChimeNotifier extends Construct {
         resources: [props.pipeline.pipelineArn],
       }));
 
-      props.pipeline.onStateChange('ChimeOnFailure', {
+      props.pipeline.onStateChange(`ChimeOnFailure-${JSON.stringify(props.webhookUrls)}`, {
         target: new events_targets.LambdaFunction(notifierLambda, {
           event: events.RuleTargetInput.fromObject({
             // Add parameters

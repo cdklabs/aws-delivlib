@@ -1,3 +1,4 @@
+import * as crypto from 'crypto';
 import { ChimeNotifier, ChimeNotifierOptions, IPipelineNotification, PipelineNotificationBindOptions } from '../';
 
 /**
@@ -14,9 +15,11 @@ export class ChimeNotification implements IPipelineNotification {
   }
 
   public bind(options: PipelineNotificationBindOptions): void {
-    new ChimeNotifier(options.pipeline, 'PipelineNotificationChime', {
+    const md5 = crypto.createHash('md5');
+    md5.update(JSON.stringify(this.props.webhookUrls));
+    new ChimeNotifier(options.pipeline, `PipelineNotificationChime-${md5.digest('hex')}`, {
       ...this.props,
-      pipeline: options.codePipeline,
+      pipeline: options.pipeline.pipeline,
     });
   }
 }

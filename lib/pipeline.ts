@@ -164,7 +164,6 @@ export interface PipelineProps {
 
 export interface PipelineNotificationBindOptions {
   readonly pipeline: Pipeline;
-  readonly codePipeline: cpipeline.Pipeline;
 }
 
 export interface IPipelineNotification {
@@ -219,7 +218,10 @@ export class Pipeline extends Construct {
    */
   public readonly buildProject: cbuild.IProject;
 
-  private readonly pipeline: cpipeline.Pipeline;
+  /**
+   * The underlying CodePipeline Pipeline object that models this pipeline.
+   */
+  public readonly pipeline: cpipeline.Pipeline;
   private readonly branch: string;
   private readonly notify?: sns.Topic;
   private stages: { [name: string]: cpipeline.IStage } = { };
@@ -298,7 +300,6 @@ export class Pipeline extends Construct {
 
   public notifyOnFailure(notification: IPipelineNotification) {
     notification.bind({
-      codePipeline: this.pipeline,
       pipeline: this,
     });
   }

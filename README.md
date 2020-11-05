@@ -712,7 +712,7 @@ pipeline.notifyOnFailure(PipelineNotification.slack({
 
 // Chime
 const teamRoomWebhook = 'https://hooks.chime.aws/incomingwebhooks/1c3588c7-623d-4799-af9b-8b1818fca779?token=cUMzOVA4OXl8MXxCaHJlZ0RUVm03TmZVMkpoTzlwa3NVbXJCam8tNWF3UGdzemVqZndsZERV';
-pipeline.notifyOnFailure(PipelineNotification.slack({
+pipeline.notifyOnFailure(PipelineNotification.chime({
   webhookUrl: [ teamRoomWebhook ]
 }));
 ```
