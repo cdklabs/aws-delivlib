@@ -9,10 +9,7 @@ import {
   aws_events_targets as events_targets,
 } from 'monocdk';
 
-/**
- * Properties for a ChimeNotifier
- */
-export interface ChimeNotifierProps {
+export interface ChimeNotifierOptions {
   /**
    * Chime webhook URLs to send to
    */
@@ -31,7 +28,12 @@ export interface ChimeNotifierProps {
    * @default - A default message
    */
   readonly message?: string;
+}
 
+/**
+ * Properties for a ChimeNotifier
+ */
+export interface ChimeNotifierProps extends ChimeNotifierOptions {
   /**
    * Code Pipeline to listen to
    */
