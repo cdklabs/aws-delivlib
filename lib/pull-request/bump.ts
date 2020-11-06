@@ -1,4 +1,4 @@
-import * as cdk from "monocdk";
+import * as cdk from 'monocdk';
 import { AutoPullRequest, AutoPullRequestProps } from './pr';
 
 /**
@@ -104,17 +104,17 @@ export class AutoBump extends cdk.Construct {
       ...props,
       head: {
         name: branchName,
-        source: props.head?.source
+        source: props.head?.source,
       },
       title,
       body,
       commands: [bumpCommand],
       exports: {
         ...props.exports,
-        'VERSION': versionCommand
+        VERSION: versionCommand,
       },
       // check if base is already released
-      condition: `git describe --exact-match ${baseBranch}`
+      condition: `git describe --exact-match ${baseBranch}`,
     });
 
   }

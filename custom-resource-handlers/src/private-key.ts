@@ -1,12 +1,14 @@
-import aws = require('aws-sdk');
-import fs = require('fs');
-import os = require('os');
-import path = require('path');
-import util = require('util');
+import * as fs from 'fs';
+import * as os from 'os';
+import * as path from 'path';
+import * as util from 'util';
+import * as aws from 'aws-sdk';
 
-import cfn = require('./_cloud-formation');
+import * as cfn from './_cloud-formation';
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 import _exec = require('./_exec');
-import lambda = require('./_lambda');
+import * as lambda from './_lambda';
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 import _rmrf = require('./_rmrf');
 
 const mkdtemp = util.promisify(fs.mkdtemp);
@@ -27,12 +29,12 @@ async function handleEvent(event: cfn.Event, context: lambda.Context): Promise<c
   }
 
   switch (event.RequestType) {
-  case cfn.RequestType.CREATE:
-    return await _createSecret(event, context);
-  case cfn.RequestType.UPDATE:
-    return await _updateSecret(event, context);
-  case cfn.RequestType.DELETE:
-    return await _deleteSecret(event);
+    case cfn.RequestType.CREATE:
+      return _createSecret(event, context);
+    case cfn.RequestType.UPDATE:
+      return _updateSecret(event, context);
+    case cfn.RequestType.DELETE:
+      return _deleteSecret(event);
   }
 }
 
@@ -57,7 +59,7 @@ async function _createSecret(event: cfn.CreateEvent, context: lambda.Context): P
       SecretArn: result.ARN!,
     };
   } finally {
-    _rmrf(tmpDir);
+    await _rmrf(tmpDir);
   }
 }
 

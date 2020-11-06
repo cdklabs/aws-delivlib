@@ -1,11 +1,13 @@
-import { aws_cloudformation as cfn, aws_iam as iam, aws_kms as kms, aws_lambda as lambda } from "monocdk";
-import * as cdk from 'monocdk';
-import path = require("path");
-import { hashFileOrDirectory } from "../util";
-import { CertificateSigningRequest, DistinguishedName } from "./certificate-signing-request";
-
-
-
+import * as path from 'path';
+import {
+  Construct, Duration, RemovalPolicy, Stack,
+  aws_cloudformation as cfn,
+  aws_iam as iam,
+  aws_kms as kms,
+  aws_lambda as lambda,
+} from 'monocdk';
+import { hashFileOrDirectory } from '../util';
+import { CertificateSigningRequest, DistinguishedName } from './certificate-signing-request';
 
 
 export interface RsaPrivateKeySecretProps {
@@ -39,7 +41,7 @@ export interface RsaPrivateKeySecretProps {
    *
    * @default Retain
    */
-  removalPolicy?: cdk.RemovalPolicy;
+  removalPolicy?: RemovalPolicy;
 }
 
 /**
@@ -47,7 +49,7 @@ export interface RsaPrivateKeySecretProps {
  * Authority through the use of the ``CertificateSigningRequest`` construct (or via the
  * ``#newCertificateSigningRequest``) method.
  */
-export class RsaPrivateKeySecret extends cdk.Construct {
+export class RsaPrivateKeySecret extends Construct {
   /**
    * The ARN of the secret that holds the private key.
    */
@@ -56,7 +58,7 @@ export class RsaPrivateKeySecret extends cdk.Construct {
   private secretArnLike: string;
   private masterKey?: kms.IKey;
 
-  constructor(parent: cdk.Construct, id: string, props: RsaPrivateKeySecretProps) {
+  constructor(parent: Construct, id: string, props: RsaPrivateKeySecretProps) {
     super(parent, id);
 
     const codeLocation = path.resolve(__dirname, '..', '..', 'custom-resource-handlers', 'bin', 'private-key');
@@ -67,25 +69,25 @@ export class RsaPrivateKeySecret extends cdk.Construct {
       runtime: lambda.Runtime.NODEJS_10_X,
       handler: 'index.handler',
       code: new lambda.AssetCode(codeLocation),
-      timeout: cdk.Duration.seconds(300),
+      timeout: Duration.seconds(300),
       // add the layer that contains the OpenSSL CLI binary
       layers: [new lambda.LayerVersion(this, 'OpenSslCliLayer', {
         code: lambda.Code.fromAsset(path.join(__dirname, '..', '..', 'custom-resource-handlers', 'layers', 'openssl-cli-layer.zip')),
       })],
     });
 
-    this.secretArnLike = cdk.Stack.of(this).formatArn({
+    this.secretArnLike = Stack.of(this).formatArn({
       service: 'secretsmanager',
       resource: 'secret',
       sep: ':',
       // The ARN of a secret has "-" followed by 6 random characters appended at the end
-      resourceName: `${props.secretName}-??????`
+      resourceName: `${props.secretName}-??????`,
     });
     customResource.addToRolePolicy(new iam.PolicyStatement({
       actions: [
         'secretsmanager:CreateSecret',
         'secretsmanager:DeleteSecret',
-        'secretsmanager:UpdateSecret'
+        'secretsmanager:UpdateSecret',
       ],
       resources: [this.secretArnLike],
     }));
@@ -98,7 +100,7 @@ export class RsaPrivateKeySecret extends cdk.Construct {
         resources: ['*'],
         conditions: {
           StringEquals: {
-            'kms:ViaService': `secretsmanager.${cdk.Stack.of(this).region}.amazonaws.com`,
+            'kms:ViaService': `secretsmanager.${Stack.of(this).region}.amazonaws.com`,
           },
           ArnLike: {
             'kms:EncryptionContext:SecretARN': this.secretArnLike,
@@ -117,7 +119,7 @@ export class RsaPrivateKeySecret extends cdk.Construct {
         secretName: props.secretName,
         kmsKeyId: props.secretEncryptionKey && props.secretEncryptionKey.keyArn,
       },
-      removalPolicy: props.removalPolicy || cdk.RemovalPolicy.RETAIN,
+      removalPolicy: props.removalPolicy || RemovalPolicy.RETAIN,
     });
     if (customResource.role) {
       privateKey.node.addDependency(customResource.role);
@@ -133,12 +135,12 @@ export class RsaPrivateKeySecret extends cdk.Construct {
               resources: [props.secretEncryptionKey.keyArn],
               conditions: {
                 StringEquals: {
-                  'kms:ViaService': `secretsmanager.${cdk.Stack.of(this).region}.amazonaws.com`
+                  'kms:ViaService': `secretsmanager.${Stack.of(this).region}.amazonaws.com`,
                 },
-                StringLike: { 'kms:EncryptionContext:SecretARN': [this.secretArnLike, 'RequestToValidateKeyAccess'] }
+                StringLike: { 'kms:EncryptionContext:SecretARN': [this.secretArnLike, 'RequestToValidateKeyAccess'] },
               },
             }),
-          ]
+          ],
         }));
       }
     }
@@ -160,7 +162,9 @@ export class RsaPrivateKeySecret extends cdk.Construct {
   public newCertificateSigningRequest(id: string, dn: DistinguishedName, keyUsage: string, extendedKeyUsage?: string) {
     return new CertificateSigningRequest(this, id, {
       privateKey: this,
-      dn, keyUsage, extendedKeyUsage
+      dn,
+      keyUsage,
+      extendedKeyUsage,
     });
   }
 
@@ -182,7 +186,7 @@ export class RsaPrivateKeySecret extends cdk.Construct {
         principals: [grantee.grantPrincipal],
         conditions: {
           StringEquals: {
-            'kms:ViaService': `secretsmanager.${cdk.Stack.of(this).region}.amazonaws.com`,
+            'kms:ViaService': `secretsmanager.${Stack.of(this).region}.amazonaws.com`,
           },
           ArnLike: {
             'kms:EncryptionContext:SecretARN': this.secretArnLike,
@@ -194,7 +198,7 @@ export class RsaPrivateKeySecret extends cdk.Construct {
         resources: [this.masterKey.keyArn],
         conditions: {
           StringEquals: {
-            'kms:ViaService': `secretsmanager.${cdk.Stack.of(this).region}.amazonaws.com`,
+            'kms:ViaService': `secretsmanager.${Stack.of(this).region}.amazonaws.com`,
           },
           ArnEquals: {
             'kms:EncryptionContext:SecretARN': this.secretArn,
