@@ -350,7 +350,7 @@ export abstract class ShellPlatform {
    */
   public static get LinuxUbuntu(): ShellPlatform {
     // Cannot be static member because of initialization order
-    return new LinuxPlatform(cbuild.LinuxBuildImage.UBUNTU_14_04_BASE);
+    return new LinuxPlatform(cbuild.LinuxBuildImage.STANDARD_4_0);
   }
 
   /**
@@ -358,7 +358,7 @@ export abstract class ShellPlatform {
    */
   public static get Windows(): ShellPlatform {
     // Cannot be static member because of initialization order
-    return new WindowsPlatform(cbuild.WindowsBuildImage.WIN_SERVER_CORE_2016_BASE);
+    return new WindowsPlatform(cbuild.WindowsBuildImage.WIN_SERVER_CORE_2019_BASE);
   }
 
   constructor(public readonly buildImage: cbuild.IBuildImage) {

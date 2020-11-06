@@ -58,7 +58,7 @@ test('correctly creates canary', () => {
     },
     Environment: {
       ComputeType: 'BUILD_GENERAL1_MEDIUM',
-      Image: 'aws/codebuild/ubuntu-base:14.04',
+      Image: 'aws/codebuild/standard:4.0',
       PrivilegedMode: false,
       Type: 'LINUX_CONTAINER',
       EnvironmentVariables: [

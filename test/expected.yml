@@ -1596,7 +1596,7 @@ Resources:
           - Name: SCRIPT_S3_KEY
             Type: PLAINTEXT
             Value: 3d34b07ba871989d030649c646b3096ba7c78ca531897bcdb0670774d2f9d3e4.zip
-        Image: aws/codebuild/ubuntu-base:14.04
+        Image: aws/codebuild/standard:4.0
         PrivilegedMode: false
         Type: LINUX_CONTAINER
       ServiceRole:
@@ -1796,9 +1796,9 @@ Resources:
           - Name: SCRIPT_S3_KEY
             Type: PLAINTEXT
             Value: 36b33307c18c06726950e481637d4439c34e56a89ae6e2f1725e2718095e0985.zip
-        Image: aws/codebuild/windows-base:1.0
+        Image: aws/codebuild/windows-base:2019-1.0
         PrivilegedMode: false
-        Type: WINDOWS_CONTAINER
+        Type: WINDOWS_SERVER_2019_CONTAINER
       ServiceRole:
         Fn::GetAtt:
           - CodeCommitPipelineHelloWindowsRole769C073E
@@ -2004,7 +2004,7 @@ Resources:
             Type: PLAINTEXT
             Value:
               Ref: AssumeMe924099BB
-        Image: aws/codebuild/ubuntu-base:14.04
+        Image: aws/codebuild/standard:4.0
         PrivilegedMode: false
         Type: LINUX_CONTAINER
       ServiceRole:
@@ -2217,7 +2217,7 @@ Resources:
           - Name: SCRIPT_S3_KEY
             Type: PLAINTEXT
             Value: 3d34b07ba871989d030649c646b3096ba7c78ca531897bcdb0670774d2f9d3e4.zip
-        Image: aws/codebuild/ubuntu-base:14.04
+        Image: aws/codebuild/standard:4.0
         PrivilegedMode: false
         Type: LINUX_CONTAINER
       ServiceRole:
@@ -2379,7 +2379,7 @@ Resources:
           - Name: IS_CANARY
             Type: PLAINTEXT
             Value: "true"
-        Image: aws/codebuild/ubuntu-base:14.04
+        Image: aws/codebuild/standard:4.0
         PrivilegedMode: false
         Type: LINUX_CONTAINER
       ServiceRole:
@@ -2809,7 +2809,7 @@ Resources:
             Value: cdk-hnb659fds-assets-712950704752-us-east-1
           - Name: SCRIPT_S3_KEY
             Type: PLAINTEXT
-            Value: 18b64c4ff8c34f9925c226eb6cd9693b6d9b738290d88ed58e02da3d1d6fb927.zip
+            Value: c329cbf450eec2f7a537c1d2abb7b31f4370ef5b44bcf770f68e3b251e89b754.zip
           - Name: FOR_REAL
             Type: PLAINTEXT
             Value: "true"
@@ -3639,7 +3639,7 @@ Resources:
             Value: cdk-hnb659fds-assets-712950704752-us-east-1
           - Name: SCRIPT_S3_KEY
             Type: PLAINTEXT
-            Value: dc8eddab035b83a69e3f916300dc1f93dc508e78e729182de9f019cc8ffd7e3a.zip
+            Value: ce59f620887cda617e5a0b25e86cc026b339d2976b51830b2048fde6567507ca.zip
           - Name: FOR_REAL
             Type: PLAINTEXT
             Value: "true"
@@ -4050,7 +4050,7 @@ Resources:
     Properties:
       Code:
         S3Bucket: cdk-hnb659fds-assets-712950704752-us-east-1
-        S3Key: 754b192f50fcd7e07ff2db430184f49d64a5b0c2e169db7cf705da7a05f80a0e.zip
+        S3Key: cc95c9cfd7eb7171bf3834df972a36ea35263a72715c1a6db9c61c1c864fb838.zip
       Handler: index.handler
       Role:
         Fn::GetAtt:
