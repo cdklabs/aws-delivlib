@@ -4,6 +4,17 @@ set -eu # we don't want "pipefail" to implement idempotency
 echo "Installing required CLI tools: jq, openssl..."
 yum install -y jq openssl
 
+if [[ "${FOR_REAL:-}" == "true" ]]; then
+    dotnet=dotnet
+else
+    echo "==========================================="
+    echo "            🏜️ DRY-RUN MODE 🏜️"
+    echo
+    echo "Set FOR_REAL=true to do actual publishing!"
+    echo "==========================================="
+    dotnet="echo dotnet"
+fi
+
 if [ -n "${CODE_SIGNING_SECRET_ID:-}" ]; then
     declare -a CLEANUP=()
     function cleanup() {
