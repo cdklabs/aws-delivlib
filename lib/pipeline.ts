@@ -12,6 +12,7 @@ import {
   aws_sns as sns,
   aws_sns_subscriptions as sns_subs,
 } from 'monocdk';
+import { CodeBuildAction } from 'monocdk/lib/aws-codepipeline-actions';
 
 import { AutoBuild, AutoBuildOptions } from './auto-build';
 import { createBuildEnvironment } from './build-env';
@@ -218,6 +219,11 @@ export class Pipeline extends Construct {
    */
   public readonly buildProject: cbuild.IProject;
 
+  /**
+   * The auto build project. undefined if 'autoBuild' is disabled for this pipeline.
+   */
+  public readonly autoBuildProject?: cbuild.IProject;
+
   private readonly pipeline: cpipeline.Pipeline;
   private readonly branch: string;
   private readonly notify?: sns.Topic;
@@ -291,7 +297,7 @@ export class Pipeline extends Construct {
     }
 
     if (props.autoBuild) {
-      this.autoBuild(props.autoBuildOptions);
+      this.autoBuildProject = this.autoBuild(props.autoBuildOptions).project;
     }
 
     if (props.failureNotifySlack && props.failureNotifySlack.length > 0) {
@@ -315,7 +321,7 @@ export class Pipeline extends Construct {
   /**
    * Add an action to run a shell script to the pipeline
    */
-  public addShellable(stageName: string, id: string, options: AddShellableOptions): cpipeline_actions.CodeBuildAction {
+  public addShellable(stageName: string, id: string, options: AddShellableOptions): {shellable: Shellable, action: CodeBuildAction} {
     const stage = this.getOrCreateStage(stageName);
 
     const sh = new Shellable(this, id, options);
@@ -329,11 +335,11 @@ export class Pipeline extends Construct {
       this.addBuildFailureNotification(sh.project, options.failureNotification);
     }
 
-    return action;
+    return { shellable: sh, action };
   }
 
-  public addTest(id: string, props: ShellableProps): void {
-    this.addShellable(TEST_STAGE_NAME, id, {
+  public addTest(id: string, props: ShellableProps): {shellable: Shellable, action: CodeBuildAction} {
+    return this.addShellable(TEST_STAGE_NAME, id, {
       actionName: `Test${id}`,
       failureNotification: `Test ${id} failed`,
       ...props,
@@ -475,8 +481,8 @@ export class Pipeline extends Construct {
    * Enables automatic builds of pull requests in the Github repository and posts the
    * results back as a comment with a public link to the build logs.
    */
-  public autoBuild(options: AutoBuildOptions = { }) {
-    new AutoBuild(this, 'AutoBuild', {
+  public autoBuild(options: AutoBuildOptions = { }): AutoBuild {
+    return new AutoBuild(this, 'AutoBuild', {
       environment: this.buildEnvironment,
       repo: this.repo,
       buildSpec: options.buildSpec || this.buildSpec,

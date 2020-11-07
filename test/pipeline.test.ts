@@ -142,7 +142,7 @@ test('can add arbitrary shellables with different artifacts', () => {
   const action = pipeline.addShellable('Test', 'SecondStep', {
     scriptDirectory: __dirname,
     entrypoint: 'run-test.sh',
-  });
+  }).action;
 
   pipeline.addPublish(new Pub(stack, 'Pub'), { inputArtifact: action.actionProperties.outputs![0] });
 
