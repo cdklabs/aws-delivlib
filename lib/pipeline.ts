@@ -1,11 +1,9 @@
 import {
   Construct, Duration, IConstruct,
-  aws_chatbot as chatbot,
   aws_cloudwatch as cloudwatch,
   aws_codebuild as cbuild,
   aws_codepipeline as cpipeline,
   aws_codepipeline_actions as cpipeline_actions,
-  aws_codestarnotifications as starnotifs,
   aws_events as events,
   aws_events_targets as events_targets,
   aws_iam as iam, aws_s3 as s3,
@@ -143,8 +141,8 @@ export interface PipelineProps {
 
   /**
    * Post a notification to the given Chime webhooks if the pipeline fails
-   *
    * @default - no Chime notifications on pipeline failure
+   * @deprecated - use `notifyOnFailure()` instead in combination with `PipelineNotification.chime()`.
    */
   readonly chimeFailureWebhooks?: string[];
 
@@ -163,12 +161,14 @@ export interface PipelineProps {
    * @default - Duration.hours(8)
    */
   readonly buildTimeout?: Duration;
+}
 
-  /**
-   * Slack channel configurations where failure notification
-   * in this pipeline should be sent.
-   */
-  readonly failureNotifySlack?: chatbot.SlackChannelConfiguration[];
+export interface PipelineNotificationBindOptions {
+  readonly pipeline: Pipeline;
+}
+
+export interface IPipelineNotification {
+  bind(pipeline: PipelineNotificationBindOptions): void;
 }
 
 export interface MergeBackStage {
@@ -224,7 +224,10 @@ export class Pipeline extends Construct {
    */
   public readonly autoBuildProject?: cbuild.IProject;
 
-  private readonly pipeline: cpipeline.Pipeline;
+  /*
+   * The underlying CodePipeline Pipeline object that models this pipeline.
+   */
+  public readonly pipeline: cpipeline.Pipeline;
   private readonly branch: string;
   private readonly notify?: sns.Topic;
   private stages: { [name: string]: cpipeline.IStage } = { };
@@ -299,23 +302,12 @@ export class Pipeline extends Construct {
     if (props.autoBuild) {
       this.autoBuildProject = this.autoBuild(props.autoBuildOptions).project;
     }
+  }
 
-    if (props.failureNotifySlack && props.failureNotifySlack.length > 0) {
-      props.failureNotifySlack.forEach(s => {
-        new starnotifs.CfnNotificationRule(this, `FailureSlackNotification-${s.slackChannelConfigurationName}`, {
-          name: `${this.pipeline.pipelineName}-failednotifications`,
-          detailType: 'BASIC',
-          resource: this.pipeline.pipelineArn,
-          targets: [
-            {
-              targetAddress: s.slackChannelConfigurationArn,
-              targetType: 'AWSChatbotSlack',
-            },
-          ],
-          eventTypeIds: ['codepipeline-pipeline-action-execution-failed'],
-        });
-      });
-    }
+  public notifyOnFailure(notification: IPipelineNotification) {
+    notification.bind({
+      pipeline: this,
+    });
   }
 
   /**

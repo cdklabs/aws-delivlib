@@ -51,6 +51,8 @@ available:
    - [PyPi](#pypi)
    - [GitHub Releases](#github-releases)
    - [GitHub Pages](#github-pages)
+5. [Automatic Bumps and Pull Request Builds](#automatic-bumps-and-pull-request-builds)
+6. [Failure Notifications](#failure-notifications)
 
 
 ## Installation
@@ -693,6 +695,27 @@ If a bump fails, the `bump.alarm` CloudWatch alarm will be triggered.
 NOTE: there is currently no way for the bump command to indicate to the
 system that a bump is not needed (i.e. no changes have been made to the
 library).
+
+## Failure Notifications
+
+Pipelines can be configured with notifications that will be sent on any failure in pipeline's stages. Notifications can
+be sent to either a Slack channel or a Chime room. The following code configures one of each -
+
+```ts
+// Slack
+const teamChannel = new chatbot.SlackChannelConfiguration(this, {
+  // ...
+});
+pipeline.notifyOnFailure(PipelineNotification.slack({
+  channels: [teamChannel]
+}));
+
+// Chime
+const teamRoomWebhook = 'https://hooks.chime.aws/incomingwebhooks/1c3588c7-623d-4799-af9b-8b1818fca779?token=cUMzOVA4OXl8MXxCaHJlZ0RUVm03TmZVMkpoTzlwa3NVbXJCam8tNWF3UGdzemVqZndsZERV';
+pipeline.notifyOnFailure(PipelineNotification.chime({
+  webhookUrl: [ teamRoomWebhook ]
+}));
+```
 
 ## Contributing
 

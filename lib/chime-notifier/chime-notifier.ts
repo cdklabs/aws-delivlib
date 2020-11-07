@@ -9,10 +9,7 @@ import {
   aws_events_targets as events_targets,
 } from 'monocdk';
 
-/**
- * Properties for a ChimeNotifier
- */
-export interface ChimeNotifierProps {
+export interface ChimeNotifierOptions {
   /**
    * Chime webhook URLs to send to
    */
@@ -31,7 +28,12 @@ export interface ChimeNotifierProps {
    * @default - A default message
    */
   readonly message?: string;
+}
 
+/**
+ * Properties for a ChimeNotifier
+ */
+export interface ChimeNotifierProps extends ChimeNotifierOptions {
   /**
    * Code Pipeline to listen to
    */
@@ -63,7 +65,7 @@ export class ChimeNotifier extends Construct {
         resources: [props.pipeline.pipelineArn],
       }));
 
-      props.pipeline.onStateChange('ChimeOnFailure', {
+      props.pipeline.onStateChange(`ChimeOnFailure-${JSON.stringify(props.webhookUrls)}`, {
         target: new events_targets.LambdaFunction(notifierLambda, {
           event: events.RuleTargetInput.fromObject({
             // Add parameters

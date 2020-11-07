@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [9.2.0](https://github.com/awslabs/aws-delivlib/compare/v9.1.3...v9.2.0) (2020-11-07)
+
+
+### Features
+
+* **pipeline:** allow more details from slack notifications ([#553](https://github.com/awslabs/aws-delivlib/issues/553)) ([531308c](https://github.com/awslabs/aws-delivlib/commit/531308c6407abb3180dc6e3dfb3a1e89cfbf4d64))
+
+### [9.1.3](https://github.com/awslabs/aws-delivlib/compare/v9.1.2...v9.1.3) (2020-11-06)
+
+### [9.1.2](https://github.com/awslabs/aws-delivlib/compare/v9.1.1...v9.1.2) (2020-11-05)
+
 ### [9.1.1](https://github.com/awslabs/aws-delivlib/compare/v9.1.0...v9.1.1) (2020-11-04)
 
 ## [9.1.0](https://github.com/awslabs/aws-delivlib/compare/v9.0.4...v9.1.0) (2020-11-03)
