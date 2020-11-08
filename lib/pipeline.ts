@@ -10,7 +10,6 @@ import {
   aws_sns as sns,
   aws_sns_subscriptions as sns_subs,
 } from 'monocdk';
-import { CodeBuildAction } from 'monocdk/lib/aws-codepipeline-actions';
 
 import { AutoBuild, AutoBuildOptions } from './auto-build';
 import { createBuildEnvironment } from './build-env';
@@ -313,7 +312,8 @@ export class Pipeline extends Construct {
   /**
    * Add an action to run a shell script to the pipeline
    */
-  public addShellable(stageName: string, id: string, options: AddShellableOptions): {shellable: Shellable, action: CodeBuildAction} {
+  public addShellable(stageName: string, id: string, options: AddShellableOptions): {
+    shellable: Shellable, action: cpipeline_actions.CodeBuildAction} {
     const stage = this.getOrCreateStage(stageName);
 
     const sh = new Shellable(this, id, options);
@@ -330,7 +330,7 @@ export class Pipeline extends Construct {
     return { shellable: sh, action };
   }
 
-  public addTest(id: string, props: ShellableProps): {shellable: Shellable, action: CodeBuildAction} {
+  public addTest(id: string, props: ShellableProps): {shellable: Shellable, action: cpipeline_actions.CodeBuildAction} {
     return this.addShellable(TEST_STAGE_NAME, id, {
       actionName: `Test${id}`,
       failureNotification: `Test ${id} failed`,
