@@ -13,6 +13,26 @@ export interface SlackNotificationProps {
    * The list of Chatbot registered slack channels.
    */
   readonly channels: chatbot.SlackChannelConfiguration[];
+
+  /**
+   * The level of details to be included in the notification
+   * @default SlackNotificationDetailLevel.BASIC
+   */
+  readonly detailLevel?: SlackNotificationDetailLevel;
+}
+
+/**
+ * The level of details to be included in a slack notification.
+ */
+export enum SlackNotificationDetailLevel {
+  /**
+   * Basic event details without the contents of the error message.
+   */
+  BASIC = 'BASIC',
+  /**
+   * Information included in BASIC, plus the contents of the error message.
+   */
+  FULL = 'FULL',
 }
 
 /**
@@ -36,7 +56,7 @@ export class SlackNotification implements IPipelineNotification {
     md5.update(JSON.stringify(targets));
     new starnotifs.CfnNotificationRule(options.pipeline, `PipelineNotificationSlack-${md5.digest('hex')}`, {
       name: `${options.pipeline.pipeline.pipelineName}-failednotifications`,
-      detailType: 'BASIC',
+      detailType: this.props.detailLevel ?? SlackNotificationDetailLevel.BASIC,
       resource: options.pipeline.pipeline.pipelineArn,
       targets,
       eventTypeIds: ['codepipeline-pipeline-action-execution-failed'],
