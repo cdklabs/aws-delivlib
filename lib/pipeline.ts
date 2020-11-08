@@ -221,7 +221,7 @@ export class Pipeline extends Construct {
   /**
    * The auto build project. undefined if 'autoBuild' is disabled for this pipeline.
    */
-  public readonly autoBuildProject?: cbuild.IProject;
+  public readonly autoBuildProject?: cbuild.Project;
 
   /*
    * The underlying CodePipeline Pipeline object that models this pipeline.
