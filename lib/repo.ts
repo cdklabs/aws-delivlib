@@ -1,5 +1,5 @@
 import {
-  Construct, SecretValue,
+  Construct, SecretValue, SecretsManagerSecretOptions,
   aws_codebuild as cbuild, aws_codecommit as ccommit,
   aws_codepipeline as cpipeline, aws_codepipeline_actions as cpipeline_actions,
 } from 'monocdk';
@@ -71,7 +71,7 @@ interface GitHubRepoProps {
   /**
    * Options for referencing a secret value from Secrets Manager
    */
-  tokenSecretOptions?: cdk.SecretsManagerSecretOptions;
+  tokenSecretOptions?: SecretsManagerSecretOptions;
 
   /**
    * In the form "account/repo".
@@ -84,7 +84,7 @@ export class GitHubRepo implements IRepo {
   public readonly owner: string;
   public readonly repo: string;
   public readonly tokenSecretArn: string;
-  public readonly tokenSecretOptions?: cdk.SecretsManagerSecretOptions;
+  public readonly tokenSecretOptions?: SecretsManagerSecretOptions;
 
   constructor(props: GitHubRepoProps) {
     const repository = props.repository;
