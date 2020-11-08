@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [10.0.0](https://github.com/awslabs/aws-delivlib/compare/v9.2.0...v10.0.0) (2020-11-08)
+
+
+### ⚠ BREAKING CHANGES
+
+* `pipeline.addShellable` now returns the shellable in addition to the action. Use `.action` to retrieve the action 
+
+### Features
+
+* expose underlying codebuild projects ([5e53749](https://github.com/awslabs/aws-delivlib/commit/5e537498b683442579c3925de647b3aded60ffb4))
+
 ## [9.2.0](https://github.com/awslabs/aws-delivlib/compare/v9.1.3...v9.2.0) (2020-11-07)
 
 
