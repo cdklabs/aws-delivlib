@@ -67,6 +67,9 @@ export interface AutoBuildProps extends AutoBuildOptions {
 
 export class AutoBuild extends Construct {
 
+  /**
+   * The underlying `CodeBuild` project.
+   */
   public readonly project: codebuild.Project;
 
   constructor(scope: Construct, id: string, props: AutoBuildProps) {
