@@ -91,7 +91,7 @@ export class TestStack extends Stack {
           artifact2: 'output2',
         },
       }),
-    });
+    }).action;
     const shellableArtifacts = action.actionProperties.outputs;
 
     //

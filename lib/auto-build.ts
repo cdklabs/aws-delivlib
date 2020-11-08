@@ -66,10 +66,16 @@ export interface AutoBuildProps extends AutoBuildOptions {
 }
 
 export class AutoBuild extends Construct {
+
+  /**
+   * The underlying `CodeBuild` project.
+   */
+  public readonly project: codebuild.Project;
+
   constructor(scope: Construct, id: string, props: AutoBuildProps) {
     super(scope, id);
 
-    const project = new codebuild.Project(this, 'Project', {
+    this.project = new codebuild.Project(this, 'Project', {
       projectName: props.projectName,
       source: props.repo.createBuildSource(this, true, { branch: props.branch }),
       environment: createBuildEnvironment(props.environment ?? {}),
@@ -87,7 +93,7 @@ export class AutoBuild extends Construct {
           semanticVersion: '1.3.0',
         },
         parameters: {
-          CodeBuildProjectName: project.projectName,
+          CodeBuildProjectName: this.project.projectName,
           DeletePreviousComments: (props.deletePreviousPublicLogsLinks ?? true).toString(),
           ...githubToken ? { GitHubOAuthToken: Token.asString(githubToken) } : undefined,
         },
