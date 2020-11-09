@@ -4,6 +4,17 @@ set -eu # we don't want "pipefail" to implement idempotency
 echo "Installing required CLI tools: jq, openssl..."
 yum install -y jq openssl
 
+if [[ "${FOR_REAL:-}" == "true" ]]; then
+    dotnet=dotnet
+else
+    echo "==========================================="
+    echo "            🏜️ DRY-RUN MODE 🏜️"
+    echo
+    echo "Set FOR_REAL=true to do actual publishing!"
+    echo "==========================================="
+    dotnet="echo dotnet"
+fi
+
 if [ -n "${CODE_SIGNING_SECRET_ID:-}" ]; then
     declare -a CLEANUP=()
     function cleanup() {
@@ -69,11 +80,11 @@ for NUGET_PACKAGE_PATH in $(find dotnet -name *.nupkg -not -iname *.symbols.nupk
 
         if [ -f "${NUGET_PACKAGE_BASE}.symbols.nupkg" ]; then
             # Legacy mode - there's a .symbols.nupkg file that can't go to the NuGet symbols server
-            dotnet nuget push $NUGET_PACKAGE_NAME -k $NUGET_API_KEY -s $NUGET_SOURCE -ss $NUGET_SYMBOL_SOURCE | tee ${log}
+            $dotnet nuget push $NUGET_PACKAGE_NAME -k $NUGET_API_KEY -s $NUGET_SOURCE -ss $NUGET_SYMBOL_SOURCE | tee ${log}
         else
             [ -f "${NUGET_PACKAGE_BASE}.snupkg" ] || echo "⚠️ No symbols package was found!"
             # The .snupkg will be published at the same time as the .nupkg if both are in the current folder (which is the case)
-            dotnet nuget push $NUGET_PACKAGE_NAME -k $NUGET_API_KEY -s $NUGET_SOURCE | tee ${log}
+            $dotnet nuget push $NUGET_PACKAGE_NAME -k $NUGET_API_KEY -s $NUGET_SOURCE | tee ${log}
         fi
     )
 

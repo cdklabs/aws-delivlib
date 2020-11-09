@@ -8,4 +8,14 @@ export TWINE_PASSWORD=$(python -c "import json; print(json.loads('''${credential
 
 pip install twine
 
-twine upload --skip-existing python/**
+if [[ "${FOR_REAL:-}" == "true" ]]; then
+  twine upload --skip-existing python/**
+else
+  echo "==========================================="
+  echo "            🏜️ DRY-RUN MODE 🏜️"
+  echo
+  echo "Skipping the actual publishing step."
+  echo
+  echo "Set FOR_REAL=true to do it!"
+  echo "==========================================="
+fi
