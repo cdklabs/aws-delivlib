@@ -4050,7 +4050,7 @@ Resources:
     Properties:
       Code:
         S3Bucket: cdk-hnb659fds-assets-712950704752-us-east-1
-        S3Key: eed5453c0e8c5fded25ae0d7cfebab9fcfbd10abe59f7b6c15ff8f8b8018dcc9.zip
+        S3Key: 3dfb64a1f0ebffc81c711087c9ef73c6b9b1487b86611117e2081858feac0599.zip
       Handler: index.handler
       Role:
         Fn::GetAtt:
