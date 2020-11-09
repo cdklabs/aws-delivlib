@@ -84,6 +84,7 @@ export class ChangeController extends Construct {
           '*.ts',
           'tsconfig.json',
           'yarn.lock',
+          'node_modules/.yarn-integrity',
         ],
       }),
       runtime: lambda.Runtime.NODEJS_10_X,
