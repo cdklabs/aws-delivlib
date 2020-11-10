@@ -1,9 +1,16 @@
-import { aws_cloudwatch as cloudwatch, aws_codepipeline as cp, aws_events as
-  events, aws_events_targets as events_targets, aws_iam as iam, aws_lambda as
-  lambda, aws_s3 as s3, aws_s3_notifications as s3_notifications }
-  from "monocdk";
-  import * as cdk from 'monocdk';
-import path = require("path");
+import * as path from 'path';
+import {
+  CfnOutput, Construct, Duration, RemovalPolicy,
+  aws_cloudwatch as cloudwatch,
+  aws_codepipeline as cp,
+  aws_events as events,
+  aws_events_targets as events_targets,
+  aws_iam as iam,
+  aws_lambda as lambda,
+  aws_s3 as s3,
+  aws_s3_notifications as s3_notifications,
+}
+  from 'monocdk';
 
 export interface ChangeControllerProps {
   /**
@@ -46,13 +53,13 @@ export interface ChangeControllerProps {
  * configured in an iCal document stored in an S3 bucket. If the document is not present or the bucket does not exist,
  * the transition will be disabled.
  */
-export class ChangeController extends cdk.Construct {
+export class ChangeController extends Construct {
   /**
    * The alarm that will fire in case the change controller has failed.
    */
   public readonly failureAlarm: cloudwatch.Alarm;
 
-  constructor(scope: cdk.Construct, id: string, props: ChangeControllerProps) {
+  constructor(scope: Construct, id: string, props: ChangeControllerProps) {
     super(scope, id);
 
     let changeControlBucket = props.changeControlBucket;
@@ -60,7 +67,7 @@ export class ChangeController extends cdk.Construct {
 
     if (!changeControlBucket) {
       changeControlBucket = ownBucket = new s3.Bucket(this, 'Calendar', {
-        removalPolicy: cdk.RemovalPolicy.DESTROY,
+        removalPolicy: RemovalPolicy.DESTROY,
         versioned: true,
       });
     }
@@ -77,6 +84,7 @@ export class ChangeController extends cdk.Construct {
           '*.ts',
           'tsconfig.json',
           'yarn.lock',
+          'node_modules/.yarn-integrity',
         ],
       }),
       runtime: lambda.Runtime.NODEJS_10_X,
@@ -88,7 +96,7 @@ export class ChangeController extends cdk.Construct {
         PIPELINE_NAME: props.pipelineStage.pipeline.pipelineName,
         STAGE_NAME: props.pipelineStage.stageName,
       },
-      timeout: cdk.Duration.seconds(300),
+      timeout: Duration.seconds(300),
     });
 
     fn.addToRolePolicy(new iam.PolicyStatement({
@@ -108,8 +116,8 @@ export class ChangeController extends cdk.Construct {
       metric: fn.metricErrors(),
       threshold: 1,
       datapointsToAlarm: 1,
-      period: cdk.Duration.seconds(300),
-      evaluationPeriods: 1
+      period: Duration.seconds(300),
+      evaluationPeriods: 1,
     });
 
     const schedule = props.schedule || events.Schedule.expression('rate(15 minutes)');
@@ -123,12 +131,12 @@ export class ChangeController extends cdk.Construct {
     });
 
     if (props.createOutputs !== false) {
-      new cdk.CfnOutput(this, 'ChangeControlBucketKey', {
-        value: changeControlObjectKey
+      new CfnOutput(this, 'ChangeControlBucketKey', {
+        value: changeControlObjectKey,
       });
 
-      new cdk.CfnOutput(this, 'ChangeControlBucket', {
-        value: changeControlBucket.bucketName
+      new CfnOutput(this, 'ChangeControlBucket', {
+        value: changeControlBucket.bucketName,
       });
     }
   }

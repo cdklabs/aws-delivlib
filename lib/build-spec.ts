@@ -1,6 +1,4 @@
-import { mapValues, noUndefined } from "./util";
-
-
+import { mapValues, noUndefined } from './util';
 
 
 const MAGIC_ARTIFACT_NAME = 'PRIMARY';
@@ -34,7 +32,7 @@ export class BuildSpec {
     // They will be compacted back together during rendering.
     const artifactDirectories = Object.assign({},
       props.additionalArtifactDirectories || {},
-      props.artifactDirectory ? {[MAGIC_ARTIFACT_NAME]: props.artifactDirectory} : {}
+      props.artifactDirectory ? { [MAGIC_ARTIFACT_NAME]: props.artifactDirectory } : {},
     );
 
     let artifacts: PrimaryArtifactStruct | undefined;
@@ -43,12 +41,12 @@ export class BuildSpec {
         'secondary-artifacts': mapValues(artifactDirectories!, d => ({
           'base-directory': d,
           'files': ['**/*'],
-        }))
+        })),
       };
     }
 
     return new BuildSpec({
-      version: "0.2",
+      version: '0.2',
       phases: noUndefined({
         pre_build: props.preBuild !== undefined ? { commands: props.preBuild } : undefined,
         build: props.build !== undefined ? { commands: props.build } : undefined,
@@ -59,36 +57,36 @@ export class BuildSpec {
   }
 
   public static empty() {
-    return new BuildSpec({ version: "0.2" });
+    return new BuildSpec({ version: '0.2' });
   }
 
   private constructor(private readonly spec: BuildSpecStruct) {
   }
 
   public get additionalArtifactNames(): string[] {
-    return Object.keys(this.spec.artifacts && this.spec.artifacts["secondary-artifacts"] || {}).filter(n => n !== MAGIC_ARTIFACT_NAME);
+    return Object.keys(this.spec.artifacts && this.spec.artifacts['secondary-artifacts'] || {}).filter(n => n !== MAGIC_ARTIFACT_NAME);
   }
 
   public merge(other: BuildSpec): BuildSpec {
     return new BuildSpec({
-      "version": "0.2",
-      "run-as": mergeObj(this.spec["run-as"], other.spec["run-as"], equalObjects),
-      "env": mergeObj(this.spec.env, other.spec.env, (a, b) => ({
-        "parameter-store": mergeDict(a["parameter-store"], b["parameter-store"], equalObjects),
-        "variables": mergeDict(a.variables, b.variables, equalObjects)
+      'version': '0.2',
+      'run-as': mergeObj(this.spec['run-as'], other.spec['run-as'], equalObjects),
+      'env': mergeObj(this.spec.env, other.spec.env, (a, b) => ({
+        'parameter-store': mergeDict(a['parameter-store'], b['parameter-store'], equalObjects),
+        'variables': mergeDict(a.variables, b.variables, equalObjects),
       })),
-      "phases": mergeDict(this.spec.phases, other.spec.phases, (a, b) => ({
-        "run-as": mergeObj(this.spec["run-as"], other.spec["run-as"], equalObjects),
-        "commands": mergeList(a.commands, b.commands)!,
-        "finally": mergeList(a.finally, b.finally),
+      'phases': mergeDict(this.spec.phases, other.spec.phases, (a, b) => ({
+        'run-as': mergeObj(this.spec['run-as'], other.spec['run-as'], equalObjects),
+        'commands': mergeList(a.commands, b.commands)!,
+        'finally': mergeList(a.finally, b.finally),
       })),
-      "artifacts": mergeObj(this.spec.artifacts, other.spec.artifacts, mergeArtifacts),
-      "cache": mergeObj(this.spec.cache, other.spec.cache, (a, b) => ({
-        paths: mergeList(a.paths, b.paths)!
+      'artifacts': mergeObj(this.spec.artifacts, other.spec.artifacts, mergeArtifacts),
+      'cache': mergeObj(this.spec.cache, other.spec.cache, (a, b) => ({
+        paths: mergeList(a.paths, b.paths)!,
       })),
-      "reports": mergeDict(this.spec.reports, other.spec.reports, (a, b) => {
+      'reports': mergeDict(this.spec.reports, other.spec.reports, (a, b) => {
         throw new Error(`Reports must have unique names, got ${a} and ${b}`);
-      })
+      }),
     });
 
     function mergeArtifacts(a: PrimaryArtifactStruct, b: PrimaryArtifactStruct): PrimaryArtifactStruct {
@@ -96,8 +94,8 @@ export class BuildSpec {
         throw new Error('None of the BuildSpecs may have a primary artifact.');
       }
 
-      const artifacts = Object.assign({}, a["secondary-artifacts"] || {});
-      for (const [k, v] of Object.entries(b["secondary-artifacts"] || {})) {
+      const artifacts = Object.assign({}, a['secondary-artifacts'] || {});
+      for (const [k, v] of Object.entries(b['secondary-artifacts'] || {})) {
         if (k in artifacts) {
           throw new Error(`There is already an artifact with name ${k}`);
         }

@@ -1,6 +1,6 @@
-import https = require('https');
-import url = require('url');
-import lambda = require('./_lambda');
+import * as https from 'https';
+import * as url from 'url';
+import * as lambda from './_lambda';
 
 export type LambdaHandler = (event: Event, context: lambda.Context) => Promise<void>;
 export type ResourceHandler = (event: Event, context: lambda.Context) => Promise<ResourceAttributes>;
@@ -15,17 +15,17 @@ export type ResourceHandler = (event: Event, context: lambda.Context) => Promise
 export function customResourceHandler(handleEvent: ResourceHandler): LambdaHandler {
   return async (event, context) => {
     try {
-      // tslint:disable-next-line:no-console
+      // eslint-disable-next-line no-console
       console.log(`Input event: ${JSON.stringify(event)}`);
 
       const attributes = await handleEvent(event, context);
 
-      // tslint:disable-next-line:no-console
+      // eslint-disable-next-line no-console
       console.log(`Attributes: ${JSON.stringify(attributes)}`);
 
       await exports.sendResponse(event, Status.SUCCESS, attributes.Ref, attributes);
     } catch (e) {
-      // tslint:disable-next-line:no-console
+      // eslint-disable-next-line no-console
       console.error(e);
       await exports.sendResponse(event, Status.FAILED, event.PhysicalResourceId, {}, e.message);
     }
@@ -47,10 +47,10 @@ export interface ResourceAttributes {
  * @see https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/crpg-ref-responses.html
  */
 export function sendResponse(event: Event,
-                             status: Status,
-                             physicalResourceId: string = event.PhysicalResourceId || event.LogicalResourceId,
-                             data: { [name: string]: string | undefined },
-                             reason?: string) {
+  status: Status,
+  physicalResourceId: string = event.PhysicalResourceId || event.LogicalResourceId,
+  data: { [name: string]: string | undefined },
+  reason?: string) {
   const responseBody = JSON.stringify({
     Data: data,
     LogicalResourceId: event.LogicalResourceId,
@@ -61,7 +61,7 @@ export function sendResponse(event: Event,
     Status: status,
   }, null, 2);
 
-  // tslint:disable-next-line:no-console
+  // eslint-disable-next-line no-console
   console.log(`Response body: ${responseBody}`);
 
   const parsedUrl = url.parse(event.ResponseURL);
@@ -77,11 +77,11 @@ export function sendResponse(event: Event,
   };
 
   return new Promise((ok, ko) => {
-    // tslint:disable-next-line:no-console
+    // eslint-disable-next-line no-console
     console.log('Sending response...');
 
     const req = https.request(options, resp => {
-      // tslint:disable-next-line:no-console
+      // eslint-disable-next-line no-console
       console.log(`Received HTTP ${resp.statusCode} (${resp.statusMessage})`);
       if (resp.statusCode === 200) {
         return ok();

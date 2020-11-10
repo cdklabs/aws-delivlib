@@ -1,11 +1,10 @@
-import AWS = require("aws-sdk");
-
+import * as AWS from 'aws-sdk';
 
 
 // export for tests
 export const codePipeline = new AWS.CodePipeline();
 export const logger = {
-  log: (line: string) => process.stdout.write(line)
+  log: (line: string) => process.stdout.write(line),
 };
 
 /**
@@ -21,7 +20,7 @@ export async function handler() {
     throw new Error("Pipeline name expects environment variable: 'PIPELINE_NAME'");
   }
   const state = await codePipeline.getPipelineState({
-    name: pipelineName
+    name: pipelineName,
   }).promise();
 
   let failedCount = 0;
@@ -31,6 +30,6 @@ export async function handler() {
       .length;
   }
   logger.log(JSON.stringify({
-    failedCount
+    failedCount,
   }));
 }
