@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [10.1.0](https://github.com/awslabs/aws-delivlib/compare/v10.0.7...v10.1.0) (2020-11-19)
+
+
+### Features
+
+* AutoBuild as its own feature ([b98a191](https://github.com/awslabs/aws-delivlib/commit/b98a19188032f752f03f26d9058cdea5861aa1f3))
+
 ### [10.0.7](https://github.com/awslabs/aws-delivlib/compare/v10.0.6...v10.0.7) (2020-11-18)
 
 ### [10.0.6](https://github.com/awslabs/aws-delivlib/compare/v10.0.5...v10.0.6) (2020-11-17)
