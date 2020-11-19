@@ -1,4 +1,4 @@
-import { codePipeline, handler, logger } from "../lib/pipeline-watcher/watcher-handler";
+import { codePipeline, handler, logger } from '../lib/pipeline-watcher/watcher-handler';
 
 codePipeline.getPipelineState = jest.fn();
 
@@ -8,7 +8,7 @@ test('handler should propagate error if GetPipelineState fails', async () => {
   codePipeline.getPipelineState = jest.fn(request => {
     expect(request).toEqual({ name: 'name' });
     return {
-      promise: () => new Promise((_, reject) => reject(new Error('fail')))
+      promise: () => new Promise((_, reject) => reject(new Error('fail'))),
     };
   }) as any;
   try {
@@ -35,7 +35,7 @@ function mock(response: any) {
   codePipeline.getPipelineState = jest.fn(request => {
     expect(request && request.name).toEqual(process.env.PIPELINE_NAME);
     return {
-      promise: () => new Promise((resolve) => resolve(response))
+      promise: () => new Promise((resolve) => resolve(response)),
     };
   }) as any;
 }
@@ -44,64 +44,70 @@ test('handler should log {failCount: 0} if pipeline.stageStates is undefined', a
   mock({});
   await handler();
   expect(logger.log).toBeCalledTimes(1);
-  expect(logger.log).toBeCalledWith(JSON.stringify({failedCount: 0}));
+  expect(logger.log).toBeCalledWith(JSON.stringify({ failedCount: 0 }));
 });
 
 test('handler should log {failCount: 0} if pipeline.stageStates is empty', async () => {
   mock({ stageStates: [] });
   await handler();
   expect(logger.log).toBeCalledTimes(1);
-  expect(logger.log).toBeCalledWith(JSON.stringify({failedCount: 0}));
+  expect(logger.log).toBeCalledWith(JSON.stringify({ failedCount: 0 }));
 });
 
 test('handler should log {failCount: 0} if pipeline.stageStates[:0].latestExecution are undefined', async () => {
-  mock({ stageStates: [{
-    latestExecution: undefined
-  }] });
+  mock({
+    stageStates: [{
+      latestExecution: undefined,
+    }],
+  });
   await handler();
   expect(logger.log).toBeCalledTimes(1);
-  expect(logger.log).toBeCalledWith(JSON.stringify({failedCount: 0}));
+  expect(logger.log).toBeCalledWith(JSON.stringify({ failedCount: 0 }));
 });
 
 test('handler should log {failCount: 0} if none of pipeline.stageStates[:0].latestExecution.status are Failed', async () => {
-  mock({ stageStates: [{
-    latestExecution: {
-      status: 'Success'
-    }
-  }] });
+  mock({
+    stageStates: [{
+      latestExecution: {
+        status: 'Success',
+      },
+    }],
+  });
   await handler();
   expect(logger.log).toBeCalledTimes(1);
-  expect(logger.log).toBeCalledWith(JSON.stringify({failedCount: 0}));
+  expect(logger.log).toBeCalledWith(JSON.stringify({ failedCount: 0 }));
 });
 
 test('handler should log {failCount: 1} if one of pipeline.stageStates[:0].latestExecution.status is Failed', async () => {
-  mock({ stageStates: [{
-    latestExecution: {
-      status: 'Failed'
-    }
-  }] });
+  mock({
+    stageStates: [{
+      latestExecution: {
+        status: 'Failed',
+      },
+    }],
+  });
   await handler();
   expect(logger.log).toBeCalledTimes(1);
-  expect(logger.log).toBeCalledWith(JSON.stringify({failedCount: 1}));
+  expect(logger.log).toBeCalledWith(JSON.stringify({ failedCount: 1 }));
 });
 
 test('handler should log {failCount: 2} for 2 "Failed" and 1 "Success" pipeline.stageStates[:0].latestExecution.status values', async () => {
   mock({
     stageStates: [{
       latestExecution: {
-        status: 'Failed'
-      }
+        status: 'Failed',
+      },
     }, {
       latestExecution: {
-        status: 'Sucess'
-      }
+        status: 'Sucess',
+      },
     }, {
       latestExecution: {
-        status: 'Failed'
-      }
-    }]
+        status: 'Failed',
+      },
+    }],
   });
   await handler();
   expect(logger.log).toBeCalledTimes(1);
-  expect(logger.log).toBeCalledWith(JSON.stringify({failedCount: 2}));
+  expect(logger.log).toBeCalledWith(JSON.stringify({ failedCount: 2 }));
 });

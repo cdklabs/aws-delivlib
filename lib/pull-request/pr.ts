@@ -1,11 +1,13 @@
-import { aws_cloudwatch as cloudwatch,
+import {
+  Construct, Duration,
+  aws_cloudwatch as cloudwatch,
   aws_codebuild as cbuild,
   aws_events as events,
-  aws_events_targets as events_targets } from "monocdk-experiment";
-import * as cdk from 'monocdk-experiment';
-import { BuildEnvironmentProps, createBuildEnvironment } from "../build-env";
-import { WritableGitHubRepo } from "../repo";
-import permissions = require("../permissions");
+  aws_events_targets as events_targets,
+} from 'monocdk';
+import { BuildEnvironmentProps, createBuildEnvironment } from '../build-env';
+import * as permissions from '../permissions';
+import { WritableGitHubRepo } from '../repo';
 
 /**
  * Properties for creating a Pull Request Job.
@@ -179,7 +181,7 @@ export interface Head {
 /**
  * Creates a CodeBuild job that, when triggered, opens a GitHub Pull Request.
  */
-export class AutoPullRequest extends cdk.Construct {
+export class AutoPullRequest extends Construct {
 
   /**
    * CloudWatch alarm that will be triggered if the job fails.
@@ -197,7 +199,7 @@ export class AutoPullRequest extends cdk.Construct {
   private readonly headSource: string;
   private readonly exports: { [key: string]: string };
 
-  constructor(parent: cdk.Construct, id: string, props: AutoPullRequestProps) {
+  constructor(parent: Construct, id: string, props: AutoPullRequestProps) {
     super(parent, id);
 
     this.props = props;
@@ -225,15 +227,15 @@ export class AutoPullRequest extends cdk.Construct {
       // is populated with the output artifact of the CodeCommitSourceAction, which doesn't include
       // the .git directory in the zipped s3 archive. (Yeah, fun stuff).
       // see https://itnext.io/how-to-access-git-metadata-in-codebuild-when-using-codepipeline-codecommit-ceacf2c5c1dc
-      ...this.cloneIfNeeded()
+      ...this.cloneIfNeeded(),
     ];
 
     if (this.props.condition) {
       // there's no way to stop a BuildSpec execution halfway through without throwing an error. Believe me, I
       // checked the code. Instead we define a variable that we will switch all other lines on/off.
       commands.push(`${this.props.condition} ` +
-      `&& { echo 'Skip condition is met, skipping...' && export SKIP=true; } ` +
-      `|| { echo 'Skip condition is not met, continuing...' && export SKIP=false; }`);
+      '&& { echo \'Skip condition is met, skipping...\' && export SKIP=true; } ' +
+      '|| { echo \'Skip condition is not met, continuing...\' && export SKIP=false; }');
     }
 
     commands.push(
@@ -249,7 +251,7 @@ export class AutoPullRequest extends cdk.Construct {
     commands = commands.map((command: string) => `$SKIP || { ${command} ; }`);
 
     // intially all commands are enabled.
-    commands.unshift('export SKIP=false',);
+    commands.unshift('export SKIP=false');
 
     this.project = new cbuild.Project(this, 'PullRequest', {
       source: props.repo.createBuildSource(this, false, { cloneDepth }),
@@ -261,10 +263,10 @@ export class AutoPullRequest extends cdk.Construct {
             commands: [
               `git config --global user.email "${commitEmail}"`,
               `git config --global user.name "${commitUsername}"`,
-            ]
+            ],
           },
           build: { commands },
-        }
+        },
       }),
     });
 
@@ -285,7 +287,7 @@ export class AutoPullRequest extends cdk.Construct {
       });
     }
 
-    this.alarm = this.project.metricFailedBuilds({ period: cdk.Duration.seconds(300) }).createAlarm(this, 'AutoPullRequestFailedAlarm', {
+    this.alarm = this.project.metricFailedBuilds({ period: Duration.seconds(300) }).createAlarm(this, 'AutoPullRequestFailedAlarm', {
       threshold: 1,
       evaluationPeriods: 1,
       treatMissingData: cloudwatch.TreatMissingData.IGNORE,
@@ -302,7 +304,7 @@ export class AutoPullRequest extends cdk.Construct {
       `&& { git checkout ${this.props.head.name} && git merge ${this.headSource} && ${this.runCommands()};  } ` +
 
       // create if it doesnt. we initially use 'temp' to allow using exports in the head branch name. (e.g bump/$VERSION)
-      `|| { git checkout ${this.headSource} && git checkout -b temp && ${this.runCommands()} && git branch -m ${this.props.head.name}; }`,
+      `|| { git checkout ${this.headSource} && git checkout -b temp && ${this.runCommands()} && git branch -M ${this.props.head.name}; }`,
 
     ];
 
@@ -312,13 +314,13 @@ export class AutoPullRequest extends cdk.Construct {
 
     return [
       // check if .git exist
-      `ls .git ` +
+      'ls .git ' +
 
       // all good
-      `&& { echo ".git directory exists";  } ` +
+      '&& { echo ".git directory exists";  } ' +
 
       // clone if it doesn't
-      `|| { echo ".git directory doesnot exist - cloning..." && git clone git@github.com:${this.props.repo.owner}/${this.props.repo.repo}.git /tmp/repo && mv /tmp/repo/.git . && git reset --hard ${this.baseBranch}; }`,
+      `|| { echo ".git directory doesnot exist - cloning..." && git init . && git remote add origin git@github.com:${this.props.repo.owner}/${this.props.repo.repo}.git && git fetch && git reset --hard origin/${this.baseBranch} && git branch -M ${this.baseBranch} && git clean -fqdx; }`,
 
     ];
 
@@ -337,7 +339,7 @@ export class AutoPullRequest extends cdk.Construct {
       // because they might need access to artifacts produced by them (e.g version file).
       ...exports,
 
-      'echo Finished running user commands'
+      'echo Finished running user commands',
     ].join(' && ');
 
   }
@@ -345,22 +347,24 @@ export class AutoPullRequest extends cdk.Construct {
   private configureSshAccess(): string[] {
 
     return [
-      `aws secretsmanager get-secret-value `
+      'aws secretsmanager get-secret-value '
         + `--secret-id "${this.props.repo.sshKeySecret.secretArn}" `
-        + `--output=text --query=SecretString > ~/.ssh/id_rsa`,
-      `mkdir -p ~/.ssh`,
-      `chmod 0600 ~/.ssh/id_rsa`,
-      `chmod 0600 ~/.ssh/config`,
-      `ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts`
+        + '--output=text --query=SecretString > ~/.ssh/id_rsa',
+      'mkdir -p ~/.ssh',
+      'chmod 0600 ~/.ssh/id_rsa ~/.ssh/config',
+      'ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts',
     ];
 
   }
 
   private pushHead(): string[] {
-
+    // We will do nothing and set `SKIP=true` if the head ref is an ancestor of the base branch (no PR could be created)
     return [
+      `git merge-base --is-ancestor ${this.props.head.name} origin/${this.baseBranch}`
+        + ` && { echo "Skipping: ${this.props.head.name} is an ancestor of origin/${this.baseBranch}"; export SKIP=true; }`
+        + ` || { echo "Pushing: ${this.props.head.name} is ahead of origin/${this.baseBranch}"; export SKIP=false; }`,
       `git remote add origin_ssh ${this.props.repo.repositoryUrlSsh}`,
-      `git push --follow-tags origin_ssh ${this.props.head.name}`
+      `git push --follow-tags origin_ssh ${this.props.head.name}:${this.props.head.name}`,
     ];
   }
 
@@ -381,11 +385,6 @@ export class AutoPullRequest extends cdk.Construct {
 
     const commands = [];
 
-    // don't create if head.hash == base.hash
-    commands.push(`git diff --exit-code --no-patch ${head} origin/${base} && ` +
-    '{ echo "Skipping pull request..."; export SKIP=true; } || ' +
-    '{ echo "Creating pull request..."; export SKIP=false; }');
-
     // read the token
     commands.push(`export GITHUB_TOKEN=$(aws secretsmanager get-secret-value --secret-id "${this.props.repo.tokenSecretArn}" --output=text --query=SecretString)`);
 
@@ -393,11 +392,11 @@ export class AutoPullRequest extends cdk.Construct {
     commands.push(`${this.githubCurl('/pulls', '-X POST -o pr.json', createRequest)} && export PR_NUMBER=$(node -p 'require("./pr.json").number')`);
 
     // update the body
-    commands.push(this.githubCurl(`/pulls/$PR_NUMBER`, '-X PATCH', {'body': body}));
+    commands.push(this.githubCurl('/pulls/$PR_NUMBER', '-X PATCH', { body: body }));
 
     if (this.props.labels && this.props.labels.length > 0) {
     // apply labels.
-    commands.push(this.githubCurl(`/issues/$PR_NUMBER/labels`, '-X POST', {'labels': this.props.labels}));
+      commands.push(this.githubCurl('/issues/$PR_NUMBER/labels', '-X POST', { labels: this.props.labels }));
     }
 
     return commands;
@@ -406,12 +405,12 @@ export class AutoPullRequest extends cdk.Construct {
 
   private githubCurl(uri: string, command: string, request: any): string {
     return [
-      `curl --fail`,
+      'curl --fail',
       command,
-      `--header "Authorization: token $GITHUB_TOKEN"`,
-      `--header "Content-Type: application/json"`,
-        `-d ${JSON.stringify(JSON.stringify(request))}`,
-      `https://api.github.com/repos/${this.props.repo.owner}/${this.props.repo.repo}${uri}`
+      '--header "Authorization: token $GITHUB_TOKEN"',
+      '--header "Content-Type: application/json"',
+      `-d ${JSON.stringify(JSON.stringify(request))}`,
+      `https://api.github.com/repos/${this.props.repo.owner}/${this.props.repo.repo}${uri}`,
     ].join(' ');
   }
 

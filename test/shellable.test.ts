@@ -1,7 +1,7 @@
-import * as cdk from "monocdk-experiment";
-import { expect as assert, haveResource, ResourcePart, SynthUtils } from "@monocdk-experiment/assert";
-import * as path from "path";
-import { Shellable, ShellPlatform } from "../lib";
+import * as path from 'path';
+import { expect as assert, haveResource, ResourcePart, SynthUtils } from '@monocdk-experiment/assert';
+import * as cdk from 'monocdk';
+import { Shellable, ShellPlatform } from '../lib';
 
 
 // tslint:disable:max-line-length
@@ -16,26 +16,26 @@ test('can assume a refreshable role', () => {
       profileName: 'profile',
       roleArn: 'arn',
       sessionName: 'session',
-      refresh: true
-    }
+      refresh: true,
+    },
   });
 
   const template = assert(stack).value;
 
   expect(JSON.parse(template.Resources.MyShellableB2FFD397.Properties.Source.BuildSpec).phases.pre_build.commands).toEqual([
-    "echo \"Downloading scripts from s3://${SCRIPT_S3_BUCKET}/${SCRIPT_S3_KEY}\"",
-    "aws s3 cp s3://${SCRIPT_S3_BUCKET}/${SCRIPT_S3_KEY} /tmp",
-    "mkdir -p /tmp/scriptdir",
-    "unzip /tmp/$(basename $SCRIPT_S3_KEY) -d /tmp/scriptdir",
-    "mkdir -p ~/.aws",
-    "touch ~/.aws/credentials",
-    "config=~/.aws/config",
-    "echo [profile profile]>> ${config}",
-    "echo credential_source = EcsContainer >> ${config}",
-    "echo role_session_name = session >> ${config}",
-    "echo role_arn = arn >> $config",
-    "export AWS_PROFILE=profile",
-    "export AWS_SDK_LOAD_CONFIG=1"
+    'echo "Downloading scripts from s3://${SCRIPT_S3_BUCKET}/${SCRIPT_S3_KEY}"',
+    'aws s3 cp s3://${SCRIPT_S3_BUCKET}/${SCRIPT_S3_KEY} /tmp',
+    'mkdir -p /tmp/scriptdir',
+    'unzip /tmp/$(basename $SCRIPT_S3_KEY) -d /tmp/scriptdir',
+    'mkdir -p ~/.aws',
+    'touch ~/.aws/credentials',
+    'config=~/.aws/config',
+    'echo [profile profile]>> ${config}',
+    'echo credential_source = EcsContainer >> ${config}',
+    'echo role_session_name = session >> ${config}',
+    'echo role_arn = arn >> $config',
+    'export AWS_PROFILE=profile',
+    'export AWS_SDK_LOAD_CONFIG=1',
   ]);
 });
 
@@ -44,7 +44,7 @@ test('minimal configuration', () => {
 
   new Shellable(stack, 'MyShellable', {
     scriptDirectory: path.join(__dirname, 'delivlib-tests/linux'),
-    entrypoint: 'test.sh'
+    entrypoint: 'test.sh',
   });
 
   assert(stack).to(haveResource('AWS::CodeBuild::Project'));
@@ -58,8 +58,8 @@ test('assume role', () => {
     entrypoint: 'test.sh',
     assumeRole: {
       roleArn: 'arn:aws:role:to:assume',
-      sessionName: 'my-session-name'
-    }
+      sessionName: 'my-session-name',
+    },
   });
 
   const template = SynthUtils.synthesize(stack).template;
@@ -79,7 +79,7 @@ test('assume role with external-id', () => {
       roleArn: 'arn:aws:role:to:assume',
       sessionName: 'my-session-name',
       externalId: 'my-externa-id',
-    }
+    },
   });
 
   const template = SynthUtils.synthesize(stack).template;
@@ -97,9 +97,9 @@ test('assume role with regional endpoints', () => {
     entrypoint: 'test.sh',
     assumeRole: {
       roleArn: 'arn:aws:role:to:assume',
-      sessionName: 'my-session-name'
+      sessionName: 'my-session-name',
     },
-    useRegionalStsEndpoints: true
+    useRegionalStsEndpoints: true,
   });
 
   const template = SynthUtils.synthesize(stack).template;
@@ -117,9 +117,9 @@ test('assume role with global endpoints', () => {
     entrypoint: 'test.sh',
     assumeRole: {
       roleArn: 'arn:aws:role:to:assume',
-      sessionName: 'my-session-name'
+      sessionName: 'my-session-name',
     },
-    useRegionalStsEndpoints: false
+    useRegionalStsEndpoints: false,
   });
 
   const template = SynthUtils.synthesize(stack).template;
@@ -138,8 +138,8 @@ test('assume role not supported on windows', () => {
     entrypoint: 'test.sh',
     assumeRole: {
       roleArn: 'arn:aws:role:to:assume',
-      sessionName: 'my-session-name'
-    }
+      sessionName: 'my-session-name',
+    },
   })).toThrow('assumeRole is not supported on Windows');
 });
 
@@ -154,7 +154,7 @@ test('alarm options - defaults', () => {
   assert(stack).to(haveResource('AWS::CloudWatch::Alarm', {
     EvaluationPeriods: 1,
     Threshold: 1,
-    Period: 300
+    Period: 300,
   }));
 });
 
@@ -172,7 +172,7 @@ test('alarm options - custom', () => {
   assert(stack).to(haveResource('AWS::CloudWatch::Alarm', {
     EvaluationPeriods: 2,
     Threshold: 5,
-    Period: 3600
+    Period: 3600,
   }));
 });
 
@@ -182,13 +182,13 @@ test('privileged mode', () => {
   new Shellable(stack, 'AllowDocker', {
     scriptDirectory: path.join(__dirname, 'delivlib-tests/linux'),
     entrypoint: 'test.sh',
-    privileged: true
+    privileged: true,
   });
 
   assert(stack).to(haveResource('AWS::CodeBuild::Project', {
     Environment: {
-      PrivilegedMode: true
-    }
+      PrivilegedMode: true,
+    },
   }, ResourcePart.Properties, true));
 });
 
@@ -202,10 +202,10 @@ test('environment variables', () => {
       ENV_VAR: 'env-var-value',
     },
     environmentSecrets: {
-      ENV_VAR_SECRET: 'env-var-secret-name',
+      ENV_VAR_SECRET: 'arn:test:secretsmanager:region:000000000000:secret:env-var-secret-name-abc123',
     },
     environmentParameters: {
-      ENV_VAR_PARAMETER: 'env-var-parameter-name'
+      ENV_VAR_PARAMETER: 'env-var-parameter-name',
     },
   });
 
@@ -213,215 +213,226 @@ test('environment variables', () => {
     Environment: {
       EnvironmentVariables: [
         {
-          Name: "SCRIPT_S3_BUCKET",
-          Type: "PLAINTEXT",
+          Name: 'SCRIPT_S3_BUCKET',
+          Type: 'PLAINTEXT',
           Value: {
-            Ref: "AssetParameters3d34b07ba871989d030649c646b3096ba7c78ca531897bcdb0670774d2f9d3e4S3BucketDA91EFBC"
-          }
+            Ref: 'AssetParameters3d34b07ba871989d030649c646b3096ba7c78ca531897bcdb0670774d2f9d3e4S3BucketDA91EFBC',
+          },
         },
         {
-          Name: "SCRIPT_S3_KEY",
-          Type: "PLAINTEXT",
-          Value: { "Fn::Join": [ "", [{ "Fn::Select": [ 0, { "Fn::Split": [ "||", {
-            Ref: "AssetParameters3d34b07ba871989d030649c646b3096ba7c78ca531897bcdb0670774d2f9d3e4S3VersionKeyF3F83F76"
-          }]}]}, { "Fn::Select": [ 1, { "Fn::Split": [ "||", {
-            Ref: "AssetParameters3d34b07ba871989d030649c646b3096ba7c78ca531897bcdb0670774d2f9d3e4S3VersionKeyF3F83F76"
-          }]}]}]]}
+          Name: 'SCRIPT_S3_KEY',
+          Type: 'PLAINTEXT',
+          Value: {
+            'Fn::Join': ['', [{
+              'Fn::Select': [0, {
+                'Fn::Split': ['||', {
+                  Ref: 'AssetParameters3d34b07ba871989d030649c646b3096ba7c78ca531897bcdb0670774d2f9d3e4S3VersionKeyF3F83F76',
+                }],
+              }],
+            }, {
+              'Fn::Select': [1, {
+                'Fn::Split': ['||', {
+                  Ref: 'AssetParameters3d34b07ba871989d030649c646b3096ba7c78ca531897bcdb0670774d2f9d3e4S3VersionKeyF3F83F76',
+                }],
+              }],
+            }]],
+          },
         },
         {
           Name: 'ENV_VAR',
           Type: 'PLAINTEXT',
-          Value: 'env-var-value'
+          Value: 'env-var-value',
         },
         {
           Name: 'ENV_VAR_SECRET',
           Type: 'SECRETS_MANAGER',
-          Value: 'env-var-secret-name'
+          Value: 'arn:test:secretsmanager:region:000000000000:secret:env-var-secret-name-abc123',
         },
         {
           Name: 'ENV_VAR_PARAMETER',
           Type: 'PARAMETER_STORE',
-          Value: 'env-var-parameter-name'
+          Value: 'env-var-parameter-name',
         },
-      ]
-    }
+      ],
+    },
   }, ResourcePart.Properties, true));
 
   assert(stack).to(haveResource('AWS::IAM::Policy', {
-    "PolicyDocument": {
-      "Statement": [
+    PolicyDocument: {
+      Statement: [
         {
-          "Action": [
-            "logs:CreateLogGroup",
-            "logs:CreateLogStream",
-            "logs:PutLogEvents"
+          Action: [
+            'logs:CreateLogGroup',
+            'logs:CreateLogStream',
+            'logs:PutLogEvents',
           ],
-          "Effect": "Allow",
-          "Resource": [
+          Effect: 'Allow',
+          Resource: [
             {
-              "Fn::Join": [
-                "",
+              'Fn::Join': [
+                '',
                 [
-                  "arn:",
+                  'arn:',
                   {
-                    "Ref": "AWS::Partition"
+                    Ref: 'AWS::Partition',
                   },
-                  ":logs:",
+                  ':logs:',
                   {
-                    "Ref": "AWS::Region"
+                    Ref: 'AWS::Region',
                   },
-                  ":",
+                  ':',
                   {
-                    "Ref": "AWS::AccountId"
+                    Ref: 'AWS::AccountId',
                   },
-                  ":log-group:/aws/codebuild/",
+                  ':log-group:/aws/codebuild/',
                   {
-                    "Ref": "EnvironmentVariablesD266B682"
-                  }
-                ]
-              ]
+                    Ref: 'EnvironmentVariablesD266B682',
+                  },
+                ],
+              ],
             },
             {
-              "Fn::Join": [
-                "",
+              'Fn::Join': [
+                '',
                 [
-                  "arn:",
+                  'arn:',
                   {
-                    "Ref": "AWS::Partition"
+                    Ref: 'AWS::Partition',
                   },
-                  ":logs:",
+                  ':logs:',
                   {
-                    "Ref": "AWS::Region"
+                    Ref: 'AWS::Region',
                   },
-                  ":",
+                  ':',
                   {
-                    "Ref": "AWS::AccountId"
+                    Ref: 'AWS::AccountId',
                   },
-                  ":log-group:/aws/codebuild/",
+                  ':log-group:/aws/codebuild/',
                   {
-                    "Ref": "EnvironmentVariablesD266B682"
+                    Ref: 'EnvironmentVariablesD266B682',
                   },
-                  ":*"
-                ]
-              ]
-            }
-          ]
+                  ':*',
+                ],
+              ],
+            },
+          ],
         },
         {
-          "Action": [
-            "codebuild:CreateReportGroup",
-            "codebuild:CreateReport",
-            "codebuild:UpdateReport",
-            "codebuild:BatchPutTestCases"
+          Action: [
+            'codebuild:CreateReportGroup',
+            'codebuild:CreateReport',
+            'codebuild:UpdateReport',
+            'codebuild:BatchPutTestCases',
+            'codebuild:BatchPutCodeCoverages',
           ],
-          "Effect": "Allow",
-          "Resource": {
-            "Fn::Join": [
-              "",
+          Effect: 'Allow',
+          Resource: {
+            'Fn::Join': [
+              '',
               [
-                "arn:",
+                'arn:',
                 {
-                  "Ref": "AWS::Partition"
+                  Ref: 'AWS::Partition',
                 },
-                ":codebuild:",
+                ':codebuild:',
                 {
-                  "Ref": "AWS::Region"
+                  Ref: 'AWS::Region',
                 },
-                ":",
+                ':',
                 {
-                  "Ref": "AWS::AccountId"
+                  Ref: 'AWS::AccountId',
                 },
-                ":report-group/",
+                ':report-group/',
                 {
-                  "Ref": "EnvironmentVariablesD266B682"
+                  Ref: 'EnvironmentVariablesD266B682',
                 },
-                "-*"
-              ]
-            ]
-          }
+                '-*',
+              ],
+            ],
+          },
         },
         {
-          "Action": [
-            "s3:GetObject*",
-            "s3:GetBucket*",
-            "s3:List*"
+          Action: [
+            's3:GetObject*',
+            's3:GetBucket*',
+            's3:List*',
           ],
-          "Effect": "Allow",
-          "Resource": [
+          Effect: 'Allow',
+          Resource: [
             {
-              "Fn::Join": [
-                "",
+              'Fn::Join': [
+                '',
                 [
-                  "arn:",
+                  'arn:',
                   {
-                    "Ref": "AWS::Partition"
+                    Ref: 'AWS::Partition',
                   },
-                  ":s3:::",
+                  ':s3:::',
                   {
-                    "Ref": "AssetParameters3d34b07ba871989d030649c646b3096ba7c78ca531897bcdb0670774d2f9d3e4S3BucketDA91EFBC"
-                  }
-                ]
-              ]
+                    Ref: 'AssetParameters3d34b07ba871989d030649c646b3096ba7c78ca531897bcdb0670774d2f9d3e4S3BucketDA91EFBC',
+                  },
+                ],
+              ],
             },
             {
-              "Fn::Join": [
-                "",
+              'Fn::Join': [
+                '',
                 [
-                  "arn:",
+                  'arn:',
                   {
-                    "Ref": "AWS::Partition"
+                    Ref: 'AWS::Partition',
                   },
-                  ":s3:::",
+                  ':s3:::',
                   {
-                    "Ref": "AssetParameters3d34b07ba871989d030649c646b3096ba7c78ca531897bcdb0670774d2f9d3e4S3BucketDA91EFBC"
+                    Ref: 'AssetParameters3d34b07ba871989d030649c646b3096ba7c78ca531897bcdb0670774d2f9d3e4S3BucketDA91EFBC',
                   },
-                  "/*"
-                ]
-              ]
-            }
-          ]
+                  '/*',
+                ],
+              ],
+            },
+          ],
         },
         {
-          "Action": [
-            "secretsmanager:GetSecretValue",
-            "secretsmanager:DescribeSecret"
+          Action: [
+            'secretsmanager:GetSecretValue',
+            'secretsmanager:DescribeSecret',
           ],
-          "Effect": "Allow",
-          "Resource": "env-var-secret-name"
+          Effect: 'Allow',
+          Resource: 'arn:test:secretsmanager:region:000000000000:secret:env-var-secret-name-abc123',
         },
         {
-          "Action": [
-            "ssm:DescribeParameters",
-            "ssm:GetParameters",
-            "ssm:GetParameter",
-            "ssm:GetParameterHistory"
+          Action: [
+            'ssm:DescribeParameters',
+            'ssm:GetParameters',
+            'ssm:GetParameter',
+            'ssm:GetParameterHistory',
           ],
-          "Effect": "Allow",
-          "Resource": {
-            "Fn::Join": [
-              "",
+          Effect: 'Allow',
+          Resource: {
+            'Fn::Join': [
+              '',
               [
-                "arn:",
+                'arn:',
                 {
-                  "Ref": "AWS::Partition"
+                  Ref: 'AWS::Partition',
                 },
-                ":ssm:",
+                ':ssm:',
                 {
-                  "Ref": "AWS::Region"
+                  Ref: 'AWS::Region',
                 },
-                ":",
+                ':',
                 {
-                  "Ref": "AWS::AccountId"
+                  Ref: 'AWS::AccountId',
                 },
-                ":parameter/env-var-parameter-name"
-              ]
-            ]
-          }
-        }
+                ':parameter/env-var-parameter-name',
+              ],
+            ],
+          },
+        },
       ],
-      "Version": "2012-10-17"
+      Version: '2012-10-17',
     },
-    PolicyName: "EnvironmentVariablesRoleDefaultPolicy1BCDD5D0",
-    Roles: [{ Ref: "EnvironmentVariablesRole93B5CD9F" }]
+    PolicyName: 'EnvironmentVariablesRoleDefaultPolicy1BCDD5D0',
+    Roles: [{ Ref: 'EnvironmentVariablesRole93B5CD9F' }],
   }));
 });

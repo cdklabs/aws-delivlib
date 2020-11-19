@@ -1,6 +1,9 @@
-import { aws_codebuild as codebuild, aws_sam as serverless } from "monocdk-experiment";
-import * as cdk from 'monocdk-experiment';
-import { BuildEnvironmentProps, createBuildEnvironment } from "./build-env";
+import {
+  Construct, Token, SecretValue,
+  aws_codebuild as codebuild,
+  aws_sam as serverless,
+} from 'monocdk';
+import { BuildEnvironmentProps, createBuildEnvironment } from './build-env';
 import { IRepo } from './repo';
 
 export interface AutoBuildOptions {
@@ -62,32 +65,38 @@ export interface AutoBuildProps extends AutoBuildOptions {
   readonly branch?: string;
 }
 
-export class AutoBuild extends cdk.Construct {
-  constructor(scope: cdk.Construct, id: string, props: AutoBuildProps) {
+export class AutoBuild extends Construct {
+
+  /**
+   * The underlying `CodeBuild` project.
+   */
+  public readonly project: codebuild.Project;
+
+  constructor(scope: Construct, id: string, props: AutoBuildProps) {
     super(scope, id);
 
-    const project = new codebuild.Project(this, 'Project', {
+    this.project = new codebuild.Project(this, 'Project', {
       projectName: props.projectName,
       source: props.repo.createBuildSource(this, true, { branch: props.branch }),
       environment: createBuildEnvironment(props.environment ?? {}),
       badge: props.repo.allowsBadge,
-      buildSpec: props.buildSpec
+      buildSpec: props.buildSpec,
     });
 
     const publicLogs = props.publicLogs !== undefined ? props.publicLogs : false;
-    const githubToken = props.repo.tokenSecretArn ? cdk.SecretValue.secretsManager(props.repo.tokenSecretArn) : undefined;
+    const githubToken = props.repo.tokenSecretArn ? SecretValue.secretsManager(props.repo.tokenSecretArn) : undefined;
 
     if (publicLogs) {
       new serverless.CfnApplication(this, 'GitHubCodeBuildLogsSAR', {
         location: {
           applicationId: 'arn:aws:serverlessrepo:us-east-1:277187709615:applications/github-codebuild-logs',
-          semanticVersion: '1.3.0'
+          semanticVersion: '1.3.0',
         },
         parameters: {
-          CodeBuildProjectName: project.projectName,
+          CodeBuildProjectName: this.project.projectName,
           DeletePreviousComments: (props.deletePreviousPublicLogsLinks ?? true).toString(),
-          ...githubToken ? { GitHubOAuthToken: cdk.Token.asString(githubToken)} : undefined,
-        }
+          ...githubToken ? { GitHubOAuthToken: Token.asString(githubToken) } : undefined,
+        },
       });
     }
   }

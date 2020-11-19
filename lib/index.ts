@@ -1,3 +1,4 @@
+export * from './auto-build';
 export * from './canary';
 export * from './build-spec';
 export * from './code-signing';
@@ -12,3 +13,4 @@ export * from './signing-key';
 export * from './code-signing';
 export * from './pull-request';
 export * from './chime-notifier';
+export * from './pipeline-notifications';

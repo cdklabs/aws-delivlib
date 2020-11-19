@@ -1,5 +1,5 @@
-import childProcess = require('child_process');
-import process = require('process');
+import * as childProcess from 'child_process';
+import * as process from 'process';
 
 export = function _exec(command: string, ...args: string[]): Promise<string> {
   return new Promise<string>((ok, ko) => {

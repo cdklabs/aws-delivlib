@@ -1,8 +1,5 @@
-import { aws_iam as iam, aws_kms as kms } from "monocdk-experiment";
-import * as cdk from 'monocdk-experiment';
-import { OpenPGPKeyPair } from "./open-pgp-key-pair";
-
-
+import { Construct, aws_iam as iam, aws_kms as kms } from 'monocdk';
+import { OpenPGPKeyPair } from './open-pgp-key-pair';
 
 
 /**
@@ -37,13 +34,13 @@ export interface SigningKeyProps {
  *
  * @deprecated Use the OpenPGPKeyPair class instead.
  */
-export class OpenPgpKey extends cdk.Construct {
+export class OpenPgpKey extends Construct {
   public readonly scope: string;
 
   private readonly key: kms.IKey;
   private readonly secret: OpenPGPKeyPair;
 
-  constructor(parent: cdk.Construct, name: string, props: SigningKeyProps) {
+  constructor(parent: Construct, name: string, props: SigningKeyProps) {
     super(parent, name);
 
     this.scope = props.secretName || this.node.uniqueId;
@@ -64,7 +61,7 @@ export class OpenPgpKey extends cdk.Construct {
       secretName,
       pubKeyParameterName: `/${secretName}.pub`,
       encryptionKey: this.key,
-      version: 1
+      version: 1,
     });
   }
 
