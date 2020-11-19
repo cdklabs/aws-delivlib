@@ -75,6 +75,13 @@ for NUGET_PACKAGE_PATH in $(find dotnet -name *.nupkg -not -iname *.symbols.nupk
             # The .snupkg will be published at the same time as the .nupkg if both are in the current folder (which is the case)
             dotnet nuget push $NUGET_PACKAGE_NAME -k $NUGET_API_KEY -s $NUGET_SOURCE | tee ${log}
         fi
+
+        # dotnet nuget push writes a stream of output. errors are prefixed with error:
+        # Alternatively we could check for success string "Your package was pushed."
+        if tail -n 1 ${log} | grep -q "error"; then
+            echo "❌ Error publishing ${NUGET_PACKAGE_NAME} to NuGet"
+            exit 1
+        fi
     )
 
     # If push failed, check if this was caused because we are trying to publish
