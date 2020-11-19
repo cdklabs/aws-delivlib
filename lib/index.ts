@@ -1,3 +1,4 @@
+export * from './auto-build';
 export * from './canary';
 export * from './build-spec';
 export * from './code-signing';

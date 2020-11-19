@@ -42,17 +42,18 @@ available:
 1. [Source](#source)
    - [CodeCommit](#codecommit)
    - [GitHub](#github)
-2. [Build](#build)
-3. [Tests](#tests)
-4. [Publish](#publish)
+1. [Pull Request Builds](#pull-request-builds)
+1. [Build](#build)
+1. [Tests](#tests)
+1. [Publish](#publish)
    - [npm.js](#npmjs)
    - [NuGet](#nuget)
    - [Maven Central](#maven-central)
    - [PyPi](#pypi)
    - [GitHub Releases](#github-releases)
    - [GitHub Pages](#github-pages)
-5. [Automatic Bumps and Pull Request Builds](#automatic-bumps-and-pull-request-builds)
-6. [Failure Notifications](#failure-notifications)
+1. [Automatic Bumps and Pull Request Builds](#automatic-bumps-and-pull-request-builds)
+1. [Failure Notifications](#failure-notifications)
 
 
 ## Installation
@@ -151,6 +152,35 @@ new delivlib.Pipeline(this, 'MyPipeline', {
   repo: // ...
   branch: 'dev',
 })
+```
+
+## Pull Request Builds
+
+Pull Request Builds can be used to validate if changes submitted via a pull request
+successfully build and pass tests. They are triggered automatically by GitHub or
+CodeCommit when pull requests are submitted or updated.
+
+Known in delivlib as AutoBuild, they can be enabled on the Pipeline and further
+configured -
+
+```ts
+new delivlib.Pipeline(this, 'MyPipeline', {
+  // ...
+  autoBuild: true,
+  autoBuildOptions: {
+    publicLogs: true,
+  },
+});
+```
+
+Delivlib also separately exports the `AutoBuild` construct that can be used to configure
+AutoBuild on a project that doesn't have a pipeline associated, or for jobs that can be
+run outside of a pipeline.
+
+```ts
+new delivlib.AutoBuild(this, 'MyAutoBuild', {
+  repo: // ...
+});
 ```
 
 ## Build
