@@ -157,7 +157,7 @@ new delivlib.Pipeline(this, 'MyPipeline', {
 ## Pull Request Builds
 
 Pull Request Builds can be used to validate if changes submitted via a pull request
-successfully build and pass tests. They are triggered automatically by Github or
+successfully build and pass tests. They are triggered automatically by GitHub or
 CodeCommit when pull requests are submitted or updated.
 
 Known in delivlib as AutoBuild, they can be enabled on the Pipeline and further
@@ -173,8 +173,9 @@ new delivlib.Pipeline(this, 'MyPipeline', {
 });
 ```
 
-Delivlib also seprately exports the `AutoBuild` construct that can be used to configure
-AutoBuild on a project that doesn't have a pipeline associated.
+Delivlib also separately exports the `AutoBuild` construct that can be used to configure
+AutoBuild on a project that doesn't have a pipeline associated, or for jobs that can be
+run outside of a pipeline.
 
 ```ts
 new delivlib.AutoBuild(this, 'MyAutoBuild', {
