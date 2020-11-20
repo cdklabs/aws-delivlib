@@ -1,5 +1,5 @@
 import {
-  Construct,
+  Construct, Stack,
   aws_ecr as ecr,
   aws_codebuild as codebuild,
   aws_events as events,
@@ -42,8 +42,6 @@ export interface DockerHubCredentials {
 }
 
 export interface EcrRegistrySyncProps {
-  readonly ecrRegistry: string;
-
   /**
    * The list of images to keep sync'ed.
    */
@@ -79,14 +77,14 @@ export class EcrRegistrySync extends Construct {
   constructor(scope: Construct, id: string, props: EcrRegistrySyncProps) {
     super(scope, id);
 
+    const ecrRegistry = `${Stack.of(scope).account}.dkr.ecr.${Stack.of(scope).region}.amazonaws.com`;
     const commands = [];
-
     const assets = new Array<s3Assets.Asset>();
 
     for (const image of props.images) {
       const result = image.bind({
         scope: this,
-        ecrRegistry: props.ecrRegistry,
+        ecrRegistry,
       });
       commands.push(...result.commands);
 
@@ -135,7 +133,7 @@ export class EcrRegistrySync extends Construct {
               'docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD}',
 
               // login to ecr so we can push to it
-              `aws ecr get-login-password | docker login --username AWS --password-stdin ${props.ecrRegistry}`,
+              `aws ecr get-login-password | docker login --username AWS --password-stdin ${ecrRegistry}`,
 
               ...commands,
 

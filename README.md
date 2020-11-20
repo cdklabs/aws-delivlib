@@ -753,14 +753,11 @@ pipeline.notifyOnFailure(PipelineNotification.chime({
 Builds commonly use Docker images, and these typically come from DockerHub. However, DockerHub has recently
 introduced throttles on their pulls. This causes CodeBuild jobs on high throughput repositories to be throttled.
 
-The `EcrRegistrySync` construct can be used to synchronize Docker images between DockerHub and a private ECR
+The `EcrRegistrySync` construct can be used to synchronize Docker images between DockerHub and the local ECR
 registry in the AWS account.
 
 ```ts
-const registry = `${cdk.Aws.ACCOUNT_ID}.dkr.ecr.${cdk.Aws.REGION}.amazonaws.com`;
-
 new EcrRegistrySync(this, 'RegistrySync', {
-  ecrRegistry: registry,
   images: ImageSource.fromDockerHub([
     'python:3.6',
     'jsii/superchain'
