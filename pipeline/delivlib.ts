@@ -6,13 +6,18 @@
 //
 //     npm run pipeline-update
 //
-import { aws_codebuild as codebuild, aws_ssm as ssm } from "monocdk-experiment";
-import * as cdk from 'monocdk-experiment';
-import delivlib = require("../lib");
+import {
+  App,
+  Stack,
+  StackProps,
+  aws_codebuild as codebuild,
+  aws_ssm as ssm,
+} from 'monocdk';
+import * as delivlib from '../lib';
 
 
-export class DelivLibPipelineStack extends cdk.Stack {
-  constructor(parent: cdk.App, id: string, props: cdk.StackProps = { }) {
+export class DelivLibPipelineStack extends Stack {
+  constructor(parent: App, id: string, props: StackProps = { }) {
     super(parent, id, props);
 
     const github = new delivlib.WritableGitHubRepo({
@@ -20,7 +25,7 @@ export class DelivLibPipelineStack extends cdk.Stack {
       tokenSecretArn: 'arn:aws:secretsmanager:us-east-1:712950704752:secret:github-token-nnAqfW',
       commitEmail: 'aws-cdk-dev+delivlib@amazon.com',
       commitUsername: 'aws-cdk-dev',
-      sshKeySecret: { secretArn: 'arn:aws:secretsmanager:us-east-1:712950704752:secret:awslabs/delivlib/github-ssh-UBHEyF' }
+      sshKeySecret: { secretArn: 'arn:aws:secretsmanager:us-east-1:712950704752:secret:awslabs/delivlib/github-ssh-UBHEyF' },
     });
 
     const pipeline = new delivlib.Pipeline(this, 'GitHubPipeline', {
@@ -33,22 +38,22 @@ export class DelivLibPipelineStack extends cdk.Stack {
         version: '0.2',
         phases: {
           install: {
-            commands: [ 'yarn install --frozen-lockfile' ]
+            commands: ['yarn install --frozen-lockfile'],
           },
           build: {
             commands: [
               'yarn build',
-              'yarn test'
-            ]
+              'yarn test',
+            ],
           },
           post_build: {
-            commands: [ '[ ${CODEBUILD_BUILD_SUCCEEDING:-1} != 1 ] || npm run package' ]
-          }
+            commands: ['[ ${CODEBUILD_BUILD_SUCCEEDING:-1} != 1 ] || npm run package'],
+          },
         },
         artifacts: {
-          'files': [ '**/*' ],
-          'base-directory': 'dist'
-        }
+          'files': ['**/*'],
+          'base-directory': 'dist',
+        },
       }),
       autoBuild: true,
       autoBuildOptions: { publicLogs: true },
@@ -59,28 +64,28 @@ export class DelivLibPipelineStack extends cdk.Stack {
     });
 
     pipeline.publishToNpm({
-      npmTokenSecret: { secretArn: 'arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/npm-OynG62' }
+      npmTokenSecret: { secretArn: 'arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/npm-OynG62' },
     });
 
     pipeline.autoBump({
       scheduleExpression: 'cron(0 12 * * ? *)',
       bumpCommand: 'yarn install --frozen-lockfile && yarn bump',
+      base: {
+        name: 'main',
+      },
       head: {
         name: 'main',
       },
-      base: {
-        name: 'main'
-      },
-      pushOnly: true
+      pushOnly: true,
     });
   }
 }
 
-const app = new cdk.App();
+const app = new App();
 
 // this pipeline is mastered in a specific account where all the secrets are stored
 new DelivLibPipelineStack(app, 'aws-delivlib-pipeline', {
-  env: { region: 'us-east-1', account: '712950704752' }
+  env: { region: 'us-east-1', account: '712950704752' },
 });
 
 app.synth();

@@ -2,6 +2,107 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [10.1.0](https://github.com/awslabs/aws-delivlib/compare/v10.0.7...v10.1.0) (2020-11-19)
+
+
+### Features
+
+* AutoBuild as its own feature ([b98a191](https://github.com/awslabs/aws-delivlib/commit/b98a19188032f752f03f26d9058cdea5861aa1f3))
+
+### [10.0.7](https://github.com/awslabs/aws-delivlib/compare/v10.0.6...v10.0.7) (2020-11-18)
+
+### [10.0.6](https://github.com/awslabs/aws-delivlib/compare/v10.0.5...v10.0.6) (2020-11-17)
+
+### [10.0.5](https://github.com/awslabs/aws-delivlib/compare/v10.0.4...v10.0.5) (2020-11-16)
+
+### [10.0.4](https://github.com/awslabs/aws-delivlib/compare/v10.0.3...v10.0.4) (2020-11-12)
+
+### [10.0.3](https://github.com/awslabs/aws-delivlib/compare/v10.0.2...v10.0.3) (2020-11-11)
+
+### [10.0.2](https://github.com/awslabs/aws-delivlib/compare/v10.0.1...v10.0.2) (2020-11-10)
+
+### [10.0.1](https://github.com/awslabs/aws-delivlib/compare/v10.0.0...v10.0.1) (2020-11-09)
+
+## [10.0.0](https://github.com/awslabs/aws-delivlib/compare/v9.2.0...v10.0.0) (2020-11-08)
+
+
+### ⚠ BREAKING CHANGES
+
+* `pipeline.addShellable` now returns the shellable in addition to the action. Use `.action` to retrieve the action 
+
+### Features
+
+* expose underlying codebuild projects ([5e53749](https://github.com/awslabs/aws-delivlib/commit/5e537498b683442579c3925de647b3aded60ffb4))
+
+## [9.2.0](https://github.com/awslabs/aws-delivlib/compare/v9.1.3...v9.2.0) (2020-11-07)
+
+
+### Features
+
+* **pipeline:** allow more details from slack notifications ([#553](https://github.com/awslabs/aws-delivlib/issues/553)) ([531308c](https://github.com/awslabs/aws-delivlib/commit/531308c6407abb3180dc6e3dfb3a1e89cfbf4d64))
+
+### [9.1.3](https://github.com/awslabs/aws-delivlib/compare/v9.1.2...v9.1.3) (2020-11-06)
+
+### [9.1.2](https://github.com/awslabs/aws-delivlib/compare/v9.1.1...v9.1.2) (2020-11-05)
+
+### [9.1.1](https://github.com/awslabs/aws-delivlib/compare/v9.1.0...v9.1.1) (2020-11-04)
+
+## [9.1.0](https://github.com/awslabs/aws-delivlib/compare/v9.0.4...v9.1.0) (2020-11-03)
+
+
+### Features
+
+* **pipeline:** notify failure on slack ([3bb46a3](https://github.com/awslabs/aws-delivlib/commit/3bb46a3d61b3187accfde7c914f04eeeae507a35))
+
+### [9.0.4](https://github.com/awslabs/aws-delivlib/compare/v9.0.3...v9.0.4) (2020-11-02)
+
+### [9.0.3](https://github.com/awslabs/aws-delivlib/compare/v9.0.2...v9.0.3) (2020-10-30)
+
+### [9.0.2](https://github.com/awslabs/aws-delivlib/compare/v9.0.1...v9.0.2) (2020-10-29)
+
+### [9.0.1](https://github.com/awslabs/aws-delivlib/compare/v9.0.0...v9.0.1) (2020-10-28)
+
+## [9.0.0](https://github.com/awslabs/aws-delivlib/compare/v8.6.0...v9.0.0) (2020-10-27)
+
+
+### ⚠ BREAKING CHANGES
+
+* From this release on, `aws-delivlib` has a dependency
+on `monocdk` instead of `monocdk-experiment`.
+
+### Bug Fixes
+
+* untracked files preventing checkout ([#530](https://github.com/awslabs/aws-delivlib/issues/530)) ([77a7bc2](https://github.com/awslabs/aws-delivlib/commit/77a7bc237f66ceb66244b95f20859bf25bef6b52))
+
+
+* upgrade to `monocdk` 1.70.0 ([7b7e9dd](https://github.com/awslabs/aws-delivlib/commit/7b7e9dd0a0c006f159c8cd669519c8f829d50a94))
+
+## [8.6.0](https://github.com/awslabs/aws-delivlib/compare/v8.4.8...v8.6.0) (2020-10-26)
+
+
+### Features
+
+* **bump:** skip push & PR if head is behind base ([4af1774](https://github.com/awslabs/aws-delivlib/commit/4af1774886ff05c74e8c781526f13c43665aaf24))
+
+
+### Bug Fixes
+
+* **bump:** a branch named '<branch>' already exists ([ba5e600](https://github.com/awslabs/aws-delivlib/commit/ba5e60030c6d52473db3108a3e33c4f6c6f11984))
+* **bump:** specify remote branch name in 'git push' ([53ea149](https://github.com/awslabs/aws-delivlib/commit/53ea149027c497350a91dafb0b6ea1695afafc7c))
+
+## [8.5.0](https://github.com/awslabs/aws-delivlib/compare/v8.4.8...v8.5.0) (2020-10-26)
+
+
+### Features
+
+* **bump:** skip push & PR if head is behind base ([4af1774](https://github.com/awslabs/aws-delivlib/commit/4af1774886ff05c74e8c781526f13c43665aaf24))
+
+
+### Bug Fixes
+
+* **bump:** a branch named '<branch>' already exists ([ba5e600](https://github.com/awslabs/aws-delivlib/commit/ba5e60030c6d52473db3108a3e33c4f6c6f11984))
+* **bump:** specify remote branch name in 'git push' ([53ea149](https://github.com/awslabs/aws-delivlib/commit/53ea149027c497350a91dafb0b6ea1695afafc7c))
+
 ### [8.4.8](https://github.com/awslabs/aws-delivlib/compare/v8.4.7...v8.4.8) (2020-10-22)
 
 ### [8.4.7](https://github.com/awslabs/aws-delivlib/compare/v8.4.6...v8.4.7) (2020-10-21)

@@ -1,9 +1,12 @@
-import { aws_codepipeline as aws_codepipeline, aws_codepipeline_actions as aws_codepipeline_actions } from "monocdk-experiment";
-import * as cdk from 'monocdk-experiment';
-import * as https from "https";
-import { codePipeline, handler } from "../lib/chime-notifier/notifier-handler";
-import { ChimeNotifier } from "../lib";
-import "@monocdk-experiment/assert/jest";
+import * as https from 'https';
+import {
+  App, Construct, Stack,
+  aws_codepipeline as aws_codepipeline,
+  aws_codepipeline_actions as aws_codepipeline_actions,
+} from 'monocdk';
+import { ChimeNotifier } from '../lib';
+import { codePipeline, handler } from '../lib/chime-notifier/notifier-handler';
+import '@monocdk-experiment/assert/jest';
 
 jest.mock('https');
 
@@ -18,71 +21,71 @@ const mockHttpsWrite = jest.fn();
       setEncoding: () => undefined,
       on: (event: string, listener: () => void) => {
         if (event === 'end') { listener(); }
-      }
-    })
+      },
+    }),
   };
 });
 
 test('call codepipeline and then post to webhooks', async () => {
   codePipeline.getPipelineExecution = jest.fn().mockReturnValue({
     promise: () => Promise.resolve({
-      "pipelineExecution": {
-        "pipelineExecutionId": "xyz",
-        "pipelineVersion": 1,
-        "pipelineName": "xyz",
-        "status": "Succeeded",
-        "artifactRevisions": [
+      pipelineExecution: {
+        pipelineExecutionId: 'xyz',
+        pipelineVersion: 1,
+        pipelineName: 'xyz',
+        status: 'Succeeded',
+        artifactRevisions: [
           {
-            "revisionUrl": "revision.com/url",
-            "revisionId": "1234",
-            "name": "Source",
-            "revisionSummary": "A thing happened"
-          }
-        ]
-      }
-    })
+            revisionUrl: 'revision.com/url',
+            revisionId: '1234',
+            name: 'Source',
+            revisionSummary: 'A thing happened',
+          },
+        ],
+      },
+    }),
   });
 
   codePipeline.listActionExecutions = jest.fn().mockReturnValue({
     promise: () => Promise.resolve({
-      "actionExecutionDetails": [
+      actionExecutionDetails: [
         {
-          "stageName": "Source",
-          "actionName": "Source",
-          "status": "Succeeded",
-          "output": {
-            "executionResult": {
-              "externalExecutionUrl": "https://SUCCEED"
+          stageName: 'Source',
+          actionName: 'Source',
+          status: 'Succeeded',
+          output: {
+            executionResult: {
+              externalExecutionUrl: 'https://SUCCEED',
             },
-          }
+          },
         },
         {
-          "stageName": "Build",
-          "actionName": "Build",
-          "status": "Failed",
-          "output": {
-            "executionResult": {
-              "externalExecutionUrl": "https://FAIL"
+          stageName: 'Build',
+          actionName: 'Build',
+          status: 'Failed',
+          output: {
+            executionResult: {
+              externalExecutionUrl: 'https://FAIL',
             },
-          }
+          },
         },
-      ]
-    })
+      ],
+    }),
   });
 
   await handler({
     webhookUrls: ['https://my.url/'],
-    message:"Pipeline '$PIPELINE' failed on '$REVISION' in '$ACTION' (see $URL)",
-    "detail": {
-        "pipeline": "myPipeline",
-        "version": "1",
-        "state": "FAILED",
-        "execution-id": "abcdef"
-    }
+    message: "Pipeline '$PIPELINE' failed on '$REVISION' in '$ACTION' (see $URL)",
+    detail: {
+      'pipeline': 'myPipeline',
+      'version': '1',
+      'state': 'FAILED',
+      'execution-id': 'abcdef',
+    },
   });
 
   expect(https.request).toBeCalledWith('https://my.url/', expect.objectContaining({
-    method: 'POST'
+    method: 'POST',
   }), expect.any(Function));
   expect(mockHttpsWrite).toBeCalledWith(expect.stringContaining('"Content"')); // Contains JSON
 
@@ -93,18 +96,18 @@ test('call codepipeline and then post to webhooks', async () => {
 });
 
 test('can add to stack', () => {
-  const stack = new cdk.Stack(new cdk.App(), 'TestStack');
+  const stack = new Stack(new App(), 'TestStack');
   const pipeline = new aws_codepipeline.Pipeline(stack, 'Pipe');
   pipeline.addStage({ stageName: 'Source', actions: [new FakeSourceAction()] });
   pipeline.addStage({ stageName: 'Build', actions: [new aws_codepipeline_actions.ManualApprovalAction({ actionName: 'Dummy' })] });
 
   new ChimeNotifier(stack, 'Chime', {
     pipeline,
-    webhookUrls: ['https://go/']
-   });
+    webhookUrls: ['https://go/'],
+  });
 
-   // EXPECT: no error
-   expect(stack).toHaveResource('AWS::Lambda::Function');
+  // EXPECT: no error
+  expect(stack).toHaveResource('AWS::Lambda::Function');
 });
 
 export class FakeSourceAction extends aws_codepipeline_actions.Action {
@@ -124,9 +127,9 @@ export class FakeSourceAction extends aws_codepipeline_actions.Action {
   }
 
   // tslint:disable-next-line: max-line-length
-  protected bound(_scope: cdk.Construct, _stage: aws_codepipeline.IStage, _options: aws_codepipeline.ActionBindOptions): aws_codepipeline.ActionConfig {
+  protected bound(_scope: Construct, _stage: aws_codepipeline.IStage, _options: aws_codepipeline.ActionBindOptions): aws_codepipeline.ActionConfig {
     return {
-      configuration: { }
+      configuration: { },
     };
   }
 }
