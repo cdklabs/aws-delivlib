@@ -1,5 +1,5 @@
 #!/bin/bash
-set -eu # we don't want "pipefail" to implement idempotency
+set -euo pipefail
 
 echo "Installing required CLI tools: jq, openssl..."
 yum install -y jq openssl
@@ -69,16 +69,15 @@ for NUGET_PACKAGE_PATH in $(find dotnet -name *.nupkg -not -iname *.symbols.nupk
 
         if [ -f "${NUGET_PACKAGE_BASE}.symbols.nupkg" ]; then
             # Legacy mode - there's a .symbols.nupkg file that can't go to the NuGet symbols server
-            dotnet nuget push $NUGET_PACKAGE_NAME -k $NUGET_API_KEY -s $NUGET_SOURCE -ss $NUGET_SYMBOL_SOURCE | tee ${log}
+            dotnet nuget push $NUGET_PACKAGE_NAME -k $NUGET_API_KEY -s $NUGET_SOURCE -ss $NUGET_SYMBOL_SOURCE --force-english-output --skip-duplicate| tee ${log}
         else
             [ -f "${NUGET_PACKAGE_BASE}.snupkg" ] || echo "⚠️ No symbols package was found!"
             # The .snupkg will be published at the same time as the .nupkg if both are in the current folder (which is the case)
-            dotnet nuget push $NUGET_PACKAGE_NAME -k $NUGET_API_KEY -s $NUGET_SOURCE | tee ${log}
+            dotnet nuget push $NUGET_PACKAGE_NAME -k $NUGET_API_KEY -s $NUGET_SOURCE --force-english-output --skip-duplicate | tee ${log}
         fi
-
-        # dotnet nuget push writes a stream of output. errors are prefixed with error:
-        # Alternatively we could check for success string "Your package was pushed."
-        if tail -n 1 ${log} | grep -q "error"; then
+        
+        # we need to check PIPESTATUS since "tee" is the last command which is always likely to succeed
+        if [ ${PIPESTATUS[0]} -ne 0 ]; then
             echo "❌ Error publishing ${NUGET_PACKAGE_NAME} to NuGet"
             exit 1
         fi
