@@ -80,7 +80,7 @@ for NUGET_PACKAGE_PATH in $(find dotnet -name *.nupkg -not -iname *.symbols.nupk
 
         if [ -f "${NUGET_PACKAGE_BASE}.symbols.nupkg" ]; then
             # Legacy mode - there's a .symbols.nupkg file that can't go to the NuGet symbols server
-            dotnet nuget push $NUGET_PACKAGE_NAME -k $NUGET_API_KEY -s $NUGET_SOURCE -ss $NUGET_SYMBOL_SOURCE --force-english-output --skip-duplicate| tee ${log}
+            dotnet nuget push $NUGET_PACKAGE_NAME -k $NUGET_API_KEY -s $NUGET_SOURCE -ss $NUGET_SYMBOL_SOURCE --force-english-output --skip-duplicate | tee ${log}
         else
             [ -f "${NUGET_PACKAGE_BASE}.snupkg" ] || echo "⚠️ No symbols package was found!"
             # The .snupkg will be published at the same time as the .nupkg if both are in the current folder (which is the case)
