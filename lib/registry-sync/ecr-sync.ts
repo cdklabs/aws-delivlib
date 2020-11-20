@@ -9,7 +9,7 @@ import {
   aws_secretsmanager as sm,
   custom_resources as cr,
 } from 'monocdk';
-import { ImageSource } from './image-source';
+import { RegistryImageSource } from './image-source';
 
 /**
  * Authentication details for logging in to DockerHub.
@@ -45,7 +45,7 @@ export interface EcrRegistrySyncProps {
   /**
    * The list of images to keep sync'ed.
    */
-  readonly images: ImageSource[];
+  readonly images: RegistryImageSource[];
 
   /**
    * Credentials to signing into Dockerhub.

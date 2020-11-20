@@ -758,7 +758,7 @@ registry in the AWS account.
 
 ```ts
 new EcrRegistrySync(this, 'RegistrySync', {
-  images: ImageSource.fromDockerHub([
+  images: RegistryImageSource.fromDockerHub([
     'python:3.6',
     'jsii/superchain'
   ]),

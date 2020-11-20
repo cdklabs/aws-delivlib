@@ -4,12 +4,12 @@ import {
   aws_s3_assets as s3Assets,
 } from 'monocdk';
 
-export interface ImageSourceBindOptions {
+export interface RegistryImageSourceBindOptions {
   readonly ecrRegistry: string;
   readonly scope: Construct;
 }
 
-export interface ImageSourceConfig {
+export interface RegistryImageSourceConfig {
   readonly commands: string[];
   readonly ecrImageUri: string;
   readonly repository: ecr.IRepository;
@@ -18,15 +18,15 @@ export interface ImageSourceConfig {
 /**
  * Source of the image.
  */
-export abstract class ImageSource {
+export abstract class RegistryImageSource {
 
   /**
    * Configure an image from DockerHub.
    *
    * @param image e.g jsii/superchain
    */
-  public static fromDockerHub(image: string): ImageSource {
-    class DockerHubImageSource extends ImageSource {
+  public static fromDockerHub(image: string): RegistryImageSource {
+    class DockerHubImageSource extends RegistryImageSource {
       constructor() {
         const repository = image.split(':')[0];
         const tag = image.split(':')[1];
@@ -36,7 +36,7 @@ export abstract class ImageSource {
         super(repositoryName, tag ?? 'latest', undefined);
       }
 
-      public bind(options: ImageSourceBindOptions) {
+      public bind(options: RegistryImageSourceBindOptions) {
         const ecrImageUri = `${options.ecrRegistry}/${this.repositoryName}:${this.tag}`;
         return {
           commands: [
@@ -61,13 +61,13 @@ export abstract class ImageSource {
    * @param repository Repository name of the built image.
    * @param tag Tag of the built image.
    */
-  public static fromDirectory(directory: string, repository: string, tag?: string): ImageSource {
-    class DirectoryImageSource extends ImageSource {
+  public static fromDirectory(directory: string, repository: string, tag?: string): RegistryImageSource {
+    class DirectoryImageSource extends RegistryImageSource {
       constructor() {
         super(repository, tag ?? 'latest', directory);
       }
 
-      public bind(options: ImageSourceBindOptions) {
+      public bind(options: RegistryImageSourceBindOptions) {
         const asset = new s3Assets.Asset(options.scope, `BuildContext${this.directory}`, { path: this.directory! });
         const ecrImageUri = `${options.ecrRegistry}/${this.repositoryName}:${this.tag}`;
         return {
@@ -89,5 +89,5 @@ export abstract class ImageSource {
   private constructor(private readonly repositoryName: string, private readonly tag: string, private readonly directory?: string) {
   }
 
-  public abstract bind(options: ImageSourceBindOptions): ImageSourceConfig;
+  public abstract bind(options: RegistryImageSourceBindOptions): RegistryImageSourceConfig;
 }
