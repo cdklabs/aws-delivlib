@@ -54,6 +54,7 @@ available:
    - [GitHub Pages](#github-pages)
 1. [Automatic Bumps and Pull Request Builds](#automatic-bumps-and-pull-request-builds)
 1. [Failure Notifications](#failure-notifications)
+1. [ECR Registry Sync](#ecr-registry-sync)
 
 
 ## Installation
@@ -746,6 +747,31 @@ pipeline.notifyOnFailure(PipelineNotification.chime({
   webhookUrl: [ teamRoomWebhook ]
 }));
 ```
+
+## ECR Registry Sync
+
+Builds commonly use Docker images, and these typically come from DockerHub. However, DockerHub has recently
+introduced throttles on their pulls. This causes CodeBuild jobs on high throughput repositories to be throttled.
+
+The `EcrRegistrySync` construct can be used to synchronize Docker images between DockerHub and a private ECR
+registry in the AWS account.
+
+```ts
+const registry = `${cdk.Aws.ACCOUNT_ID}.dkr.ecr.${cdk.Aws.REGION}.amazonaws.com`;
+
+new EcrRegistrySync(this, 'RegistrySync', {
+  ecrRegistry: registry,
+  images: ImageSource.fromDockerHub([
+    'python:3.6',
+    'jsii/superchain'
+  ]),
+  dockerhubCreds: // ...
+  schedule: events.Schedule.cron( ... ),
+})
+```
+
+You can also use the `ImageSource.fromDirectory()` API if you would like to build a new Docker image based on a
+Dockerfile. The Dockerfile should be placed at the top level of the specified directory.
 
 ## Contributing
 

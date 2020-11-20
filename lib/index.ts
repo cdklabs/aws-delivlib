@@ -7,6 +7,7 @@ export * from './open-pgp-key-pair';
 export * from './permissions';
 export * from './pipeline';
 export * from './publishing';
+export * from './registry-sync';
 export * from './repo';
 export * from './shellable';
 export * from './signing-key';
