@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [10.1.1](https://github.com/awslabs/aws-delivlib/compare/v10.1.0...v10.1.1) (2020-11-23)
+
+
+### Bug Fixes
+
+* **pipeline-notifications:** deployment fails to replace codestar notifications resource ([13a0e2c](https://github.com/awslabs/aws-delivlib/commit/13a0e2c1081fdc74e218aa485dea5648417a2f79))
+
 ## [10.1.0](https://github.com/awslabs/aws-delivlib/compare/v10.0.7...v10.1.0) (2020-11-19)
 
 
