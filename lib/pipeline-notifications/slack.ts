@@ -54,8 +54,9 @@ export class SlackNotification implements IPipelineNotification {
     });
     const md5 = crypto.createHash('md5');
     md5.update(JSON.stringify(targets));
-    new starnotifs.CfnNotificationRule(options.pipeline, `PipelineNotificationSlack-${md5.digest('hex')}`, {
-      name: `${options.pipeline.pipeline.pipelineName}-failednotifications`,
+    const hash = md5.digest('hex');
+    new starnotifs.CfnNotificationRule(options.pipeline, `PipelineNotificationSlack-${hash}`, {
+      name: `${options.pipeline.pipeline.pipelineName}-${hash}`,
       detailType: this.props.detailLevel ?? SlackNotificationDetailLevel.BASIC,
       resource: options.pipeline.pipeline.pipelineArn,
       targets,
