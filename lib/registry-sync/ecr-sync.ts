@@ -41,6 +41,9 @@ export interface DockerHubCredentials {
   readonly versionStage?: string;
 }
 
+/**
+ * Properties to initialize EcrRegistrySync
+ */
 export interface EcrRegistrySyncProps {
   /**
    * The list of images to keep sync'ed.
@@ -89,9 +92,12 @@ export class EcrRegistrySync extends Construct {
       commands.push(...result.commands);
 
       // remember the repos so that we can `grantPull` later on.
-      this._repos.push(result.repository);
+      this._repos.push(new ecr.Repository(this, `Repo${result.repositoryName}`, {
+        repositoryName: result.repositoryName,
+      }));
 
-      commands.push(`docker push ${result.ecrImageUri}`);
+      const ecrImageUri = `${ecrRegistry}/${result.repositoryName}:${result.tag}`;
+      commands.push(`docker push ${ecrImageUri}`);
 
       // clean after each push so that we don't fillup disk space
       // possibly failing the next pull.
@@ -181,6 +187,9 @@ export class EcrRegistrySync extends Construct {
 
   }
 
+  /**
+   * Grant the specified grantees pull privileges to the target ECR repositories.
+   */
   public grantPull(...grantees: iam.IGrantable[]) {
     for (const grantee of grantees) {
       this._grantAuthorize(grantee);

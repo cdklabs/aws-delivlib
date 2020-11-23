@@ -1,18 +1,35 @@
 import {
   Construct,
-  aws_ecr as ecr,
   aws_s3_assets as s3Assets,
 } from 'monocdk';
 
 export interface RegistryImageSourceBindOptions {
+  /**
+   * The target ECR registry
+   */
   readonly ecrRegistry: string;
+  /**
+   * The scope to attach any constructs that may also be needed.
+   */
   readonly scope: Construct;
 }
 
 export interface RegistryImageSourceConfig {
+  /**
+   * The commands to run to retrieve the docker image.
+   * e.g. ['docker pull <image-id>']
+   */
   readonly commands: string[];
-  readonly ecrImageUri: string;
-  readonly repository: ecr.IRepository;
+
+  /**
+   * The name of the target ECR repository.
+   */
+  readonly repositoryName: string;
+
+  /**
+   * The tag to be use for the target ECR image.
+   */
+  readonly tag: string;
 }
 
 /**
@@ -43,10 +60,8 @@ export abstract class RegistryImageSource {
             `docker pull ${this.repositoryName}:${this.tag}`,
             `docker tag ${this.repositoryName}:${this.tag} ${ecrImageUri}`,
           ],
-          ecrImageUri,
-          repository: new ecr.Repository(options.scope, `Repo${this.repositoryName}`, {
-            repositoryName: this.repositoryName,
-          }),
+          repositoryName: this.repositoryName,
+          tag: this.tag,
         };
       }
     }
@@ -76,10 +91,8 @@ export abstract class RegistryImageSource {
             `unzip ${this.repositoryName}.zip -d ${this.repositoryName}`,
             `docker build --pull -t ${ecrImageUri} ${this.repositoryName}`,
           ],
-          ecrImageUri,
-          repository: new ecr.Repository(options.scope, `Repo${this.repositoryName}`, {
-            repositoryName: this.repositoryName,
-          }),
+          repositoryName: this.repositoryName,
+          tag: this.tag,
         };
       }
     }

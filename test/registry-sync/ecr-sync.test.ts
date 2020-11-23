@@ -4,7 +4,7 @@ import {
   aws_events as events,
   Duration,
 } from 'monocdk';
-import { EcrRegistrySync, RegistryImageSource } from '../lib/registry-sync';
+import { EcrRegistrySync, RegistryImageSource } from '../../lib/registry-sync';
 
 describe('EcrRegistrySync', () => {
   test('default', () => {
