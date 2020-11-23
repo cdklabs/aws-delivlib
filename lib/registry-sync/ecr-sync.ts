@@ -12,24 +12,24 @@ import {
 import { RegistryImageSource } from './image-source';
 
 /**
- * Authentication details for logging in to DockerHub.
+ * Authentication details for DockerHub.
  *
  * @see https://docs.aws.amazon.com/codebuild/latest/userguide/build-spec-ref.html#build-spec.env.secrets-manager
  */
 export interface DockerHubCredentials {
 
   /**
-   * The secret arn the values are stored in.
+   * The secret that contains the username and password for Dockerhub
    */
-  readonly secretArn: string;
+  readonly secret: sm.ISecret;
 
   /**
-   * Key to retrieve the username from.
+   * The secret key that contains the username in the specified secret.
    */
   readonly usernameKey: string;
 
   /**
-   * Key to retrieve the password from.
+   * The secret key that contains the password in the specified secret.
    */
   readonly passwordKey: string;
 
@@ -104,10 +104,8 @@ export class EcrRegistrySync extends Construct {
       commands.push('docker image prune --all --force');
     }
 
-    const dockerHubSecret = sm.Secret.fromSecretArn(this, 'DockerHubSecret', props.dockerhubCreds.secretArn);
-
     const codeBuildSecretValue = (key: string, auth: DockerHubCredentials) => {
-      return `${dockerHubSecret.secretName}:${key}:${auth.versionStage ?? 'AWSCURRENT'}`;
+      return `${props.dockerhubCreds.secret.secretName}:${key}:${auth.versionStage ?? 'AWSCURRENT'}`;
     };
 
     const username = codeBuildSecretValue(props.dockerhubCreds.usernameKey, props.dockerhubCreds);
@@ -117,7 +115,7 @@ export class EcrRegistrySync extends Construct {
       environment: {
         privileged: true,
         buildImage: codebuild.LinuxBuildImage.fromDockerRegistry('jsii/superchain', {
-          secretsManagerCredentials: dockerHubSecret,
+          secretsManagerCredentials: props.dockerhubCreds.secret,
         }),
       },
       environmentVariables: {
@@ -150,7 +148,7 @@ export class EcrRegistrySync extends Construct {
     });
 
     // CodeBuild needs to read the secret to resolve environment variables
-    dockerHubSecret.grantRead(this._project);
+    props.dockerhubCreds.secret.grantRead(this._project);
 
     // this project needs push to all repos
     this._grantAuthorize(this._project);

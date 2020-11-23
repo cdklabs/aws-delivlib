@@ -1,8 +1,8 @@
 import '@monocdk-experiment/assert/jest';
 import {
-  Stack,
+  Duration, Stack,
   aws_events as events,
-  Duration,
+  aws_secretsmanager as secrets,
 } from 'monocdk';
 import { EcrRegistrySync, RegistryImageSource } from '../../lib/registry-sync';
 
@@ -14,7 +14,7 @@ describe('EcrRegistrySync', () => {
       dockerhubCreds: {
         usernameKey: 'username-key',
         passwordKey: 'password-key',
-        secretArn: 'arn:aws:secretsmanager:us-west-2:111122223333:secret:123aass',
+        secret: secrets.Secret.fromSecretArn(stack, 'DockerhubSecret', 'arn:aws:secretsmanager:us-west-2:111122223333:secret:123aass'),
       },
     });
 
@@ -86,7 +86,7 @@ describe('EcrRegistrySync', () => {
       dockerhubCreds: {
         usernameKey: 'username-key',
         passwordKey: 'password-key',
-        secretArn: 'arn:aws:secretsmanager:us-west-2:111122223333:secret:123aass',
+        secret: secrets.Secret.fromSecretArn(stack, 'DockerhubSecret', 'arn:aws:secretsmanager:us-west-2:111122223333:secret:123aass'),
       },
       autoStart: true,
     });
@@ -101,7 +101,7 @@ describe('EcrRegistrySync', () => {
       dockerhubCreds: {
         usernameKey: 'username-key',
         passwordKey: 'password-key',
-        secretArn: 'arn:aws:secretsmanager:us-west-2:111122223333:secret:123aass',
+        secret: secrets.Secret.fromSecretArn(stack, 'DockerhubSecret', 'arn:aws:secretsmanager:us-west-2:111122223333:secret:123aass'),
       },
       schedule: events.Schedule.rate(Duration.hours(1)),
     });
