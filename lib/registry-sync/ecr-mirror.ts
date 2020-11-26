@@ -185,16 +185,6 @@ export class EcrMirror extends Construct {
 
   }
 
-  /**
-   * Grant the specified grantees pull privileges to the target ECR repositories.
-   */
-  public grantPull(...grantees: iam.IGrantable[]) {
-    for (const grantee of grantees) {
-      this._grantAuthorize(grantee);
-      this._repos.forEach(p => p.grantPull(grantee));
-    }
-  }
-
   public ecrRepository(source: MirrorSource): ecr.IRepository | undefined {
     return this._repos.get(source);
   }
