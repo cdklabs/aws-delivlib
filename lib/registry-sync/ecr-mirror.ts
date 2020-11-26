@@ -9,7 +9,7 @@ import {
   aws_secretsmanager as sm,
   custom_resources as cr,
 } from 'monocdk';
-import { RegistryImageSource } from './image-source';
+import { MirrorSource } from './mirror-source';
 
 /**
  * Authentication details for DockerHub.
@@ -44,16 +44,16 @@ export interface DockerHubCredentials {
 /**
  * Properties to initialize EcrRegistrySync
  */
-export interface EcrRegistrySyncProps {
+export interface EcrMirrorProps {
   /**
    * The list of images to keep sync'ed.
    */
-  readonly images: RegistryImageSource[];
+  readonly images: MirrorSource[];
 
   /**
    * Credentials to signing into Dockerhub.
    */
-  readonly dockerhubCreds: DockerHubCredentials;
+  readonly dockerHubCreds: DockerHubCredentials;
 
   /**
    * Sync job runs on a schedule.
@@ -69,15 +69,15 @@ export interface EcrRegistrySyncProps {
 }
 
 /**
- * Synchronize images from DockerHub to a specified ECR registry.
+ * Synchronize images from DockerHub to an ECR registry in the AWS account.
  * This is particularly useful to workaround DockerHub's throttling on pulls and use ECR instead.
  */
-export class EcrRegistrySync extends Construct {
+export class EcrMirror extends Construct {
 
-  private readonly _repos: ecr.IRepository[] = [];
+  private readonly _repos: Map<MirrorSource, ecr.IRepository> = new Map();
   private readonly _project: codebuild.Project;
 
-  constructor(scope: Construct, id: string, props: EcrRegistrySyncProps) {
+  constructor(scope: Construct, id: string, props: EcrMirrorProps) {
     super(scope, id);
 
     const ecrRegistry = `${Stack.of(scope).account}.dkr.ecr.${Stack.of(scope).region}.amazonaws.com`;
@@ -92,7 +92,7 @@ export class EcrRegistrySync extends Construct {
       commands.push(...result.commands);
 
       // remember the repos so that we can `grantPull` later on.
-      this._repos.push(new ecr.Repository(this, `Repo${result.repositoryName}`, {
+      this._repos.set(image, new ecr.Repository(this, `Repo${result.repositoryName}`, {
         repositoryName: result.repositoryName,
       }));
 
@@ -105,17 +105,17 @@ export class EcrRegistrySync extends Construct {
     }
 
     const codeBuildSecretValue = (key: string, auth: DockerHubCredentials) => {
-      return `${props.dockerhubCreds.secret.secretName}:${key}:${auth.versionStage ?? 'AWSCURRENT'}`;
+      return `${props.dockerHubCreds.secret.secretName}:${key}:${auth.versionStage ?? 'AWSCURRENT'}`;
     };
 
-    const username = codeBuildSecretValue(props.dockerhubCreds.usernameKey, props.dockerhubCreds);
-    const password = codeBuildSecretValue(props.dockerhubCreds.passwordKey, props.dockerhubCreds);
+    const username = codeBuildSecretValue(props.dockerHubCreds.usernameKey, props.dockerHubCreds);
+    const password = codeBuildSecretValue(props.dockerHubCreds.passwordKey, props.dockerHubCreds);
 
     this._project = new codebuild.Project(this, 'EcrPushImages', {
       environment: {
         privileged: true,
         buildImage: codebuild.LinuxBuildImage.fromDockerRegistry('jsii/superchain', {
-          secretsManagerCredentials: props.dockerhubCreds.secret,
+          secretsManagerCredentials: props.dockerHubCreds.secret,
         }),
       },
       environmentVariables: {
@@ -148,11 +148,11 @@ export class EcrRegistrySync extends Construct {
     });
 
     // CodeBuild needs to read the secret to resolve environment variables
-    props.dockerhubCreds.secret.grantRead(this._project);
+    props.dockerHubCreds.secret.grantRead(this._project);
 
     // this project needs push to all repos
     this._grantAuthorize(this._project);
-    this._repos.forEach(r => r.grantPullPush(this._project));
+    this._repos.forEach((r, _) => r.grantPullPush(this._project));
 
     // this project needs to download the assets so it can build them
     assets.forEach(a => a.grantRead(this._project));
@@ -193,6 +193,10 @@ export class EcrRegistrySync extends Construct {
       this._grantAuthorize(grantee);
       this._repos.forEach(p => p.grantPull(grantee));
     }
+  }
+
+  public ecrRepository(source: MirrorSource): ecr.IRepository | undefined {
+    return this._repos.get(source);
   }
 
   private _grantAuthorize(grantee: iam.IGrantable) {

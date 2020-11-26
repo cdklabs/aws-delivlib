@@ -3,7 +3,7 @@ import * as path from 'path';
 import {
   Stack,
 } from 'monocdk';
-import { RegistryImageSource } from '../../lib/registry-sync';
+import { MirrorSource } from '../../lib/registry-sync';
 
 describe('RegistryImageSource', () => {
   describe('fromDockerHub', () => {
@@ -11,7 +11,7 @@ describe('RegistryImageSource', () => {
       // GIVEN
       const stack = new Stack();
       const ecrRegistry = 'myregistry';
-      const source = RegistryImageSource.fromDockerHub('jsii/superchain');
+      const source = MirrorSource.fromDockerHub('jsii/superchain');
 
       // WHEN
       const result = source.bind({
@@ -28,7 +28,7 @@ describe('RegistryImageSource', () => {
       // GIVEN
       const stack = new Stack();
       const ecrRegistry = 'myregistry';
-      const source = RegistryImageSource.fromDockerHub('jsii/superchain:mytag');
+      const source = MirrorSource.fromDockerHub('jsii/superchain:mytag');
 
       // WHEN
       const result = source.bind({
@@ -45,7 +45,7 @@ describe('RegistryImageSource', () => {
       // GIVEN
       const stack = new Stack();
       const ecrRegistry = 'myregistry';
-      const source = RegistryImageSource.fromDockerHub('superchain');
+      const source = MirrorSource.fromDockerHub('superchain');
 
       // WHEN
       const result = source.bind({
@@ -63,7 +63,7 @@ describe('RegistryImageSource', () => {
       // GIVEN
       const stack = new Stack();
       const ecrRegistry = 'myregistry';
-      const source = RegistryImageSource.fromDirectory(path.join(__dirname, 'docker-asset'), 'myrepository');
+      const source = MirrorSource.fromDirectory(path.join(__dirname, 'docker-asset'), 'myrepository');
 
       // WHEN
       const result = source.bind({
@@ -80,7 +80,7 @@ describe('RegistryImageSource', () => {
       // GIVEN
       const stack = new Stack();
       const ecrRegistry = 'myregistry';
-      const source = RegistryImageSource.fromDirectory(path.join(__dirname, 'docker-asset'), 'myrepository', 'mytag');
+      const source = MirrorSource.fromDirectory(path.join(__dirname, 'docker-asset'), 'myrepository', 'mytag');
 
       // WHEN
       const result = source.bind({

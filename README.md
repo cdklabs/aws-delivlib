@@ -54,7 +54,7 @@ available:
    - [GitHub Pages](#github-pages)
 1. [Automatic Bumps and Pull Request Builds](#automatic-bumps-and-pull-request-builds)
 1. [Failure Notifications](#failure-notifications)
-1. [ECR Registry Sync](#ecr-registry-sync)
+1. [ECR Mirror](#ecr-mirror)
 
 
 ## Installation
@@ -748,13 +748,14 @@ pipeline.notifyOnFailure(PipelineNotification.chime({
 }));
 ```
 
-## ECR Registry Sync
+## ECR Mirror
 
-Builds commonly use Docker images, and these typically come from DockerHub. However, DockerHub has recently
-introduced throttles on their pulls. This causes CodeBuild jobs on high throughput repositories to be throttled.
+Builds commonly use Docker images, and these typically come from DockerHub. In fact, delivlib defaults its build
+image to `jsii/superchain`. However, DockerHub has throttles in place for the volume of unauthenticated and
+authenticated pulls. This can cause CodeBuild jobs that run frequently to fail from DockerHub's throttling.
 
-The `EcrRegistrySync` construct can be used to synchronize Docker images between DockerHub and the local ECR
-registry in the AWS account.
+The `EcrMirror` construct can be used to synchronize, on a specific schedule, Docker images between DockerHub and
+a local ECR registry in the AWS account.
 
 ```ts
 new EcrRegistrySync(this, 'RegistrySync', {

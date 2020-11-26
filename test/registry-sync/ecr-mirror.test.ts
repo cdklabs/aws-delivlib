@@ -4,14 +4,14 @@ import {
   aws_events as events,
   aws_secretsmanager as secrets,
 } from 'monocdk';
-import { EcrRegistrySync, RegistryImageSource } from '../../lib/registry-sync';
+import { EcrMirror, MirrorSource } from '../../lib/registry-sync';
 
 describe('EcrRegistrySync', () => {
   test('default', () => {
     const stack = new Stack();
-    new EcrRegistrySync(stack, 'EcrRegistrySync', {
-      images: [RegistryImageSource.fromDockerHub('docker-image')],
-      dockerhubCreds: {
+    new EcrMirror(stack, 'EcrRegistrySync', {
+      images: [MirrorSource.fromDockerHub('docker-image')],
+      dockerHubCreds: {
         usernameKey: 'username-key',
         passwordKey: 'password-key',
         secret: secrets.Secret.fromSecretArn(stack, 'DockerhubSecret', 'arn:aws:secretsmanager:us-west-2:111122223333:secret:123aass'),
@@ -81,9 +81,9 @@ describe('EcrRegistrySync', () => {
 
   test('autoStart', () => {
     const stack = new Stack();
-    new EcrRegistrySync(stack, 'EcrRegistrySync', {
-      images: [RegistryImageSource.fromDockerHub('docker-image')],
-      dockerhubCreds: {
+    new EcrMirror(stack, 'EcrRegistrySync', {
+      images: [MirrorSource.fromDockerHub('docker-image')],
+      dockerHubCreds: {
         usernameKey: 'username-key',
         passwordKey: 'password-key',
         secret: secrets.Secret.fromSecretArn(stack, 'DockerhubSecret', 'arn:aws:secretsmanager:us-west-2:111122223333:secret:123aass'),
@@ -96,9 +96,9 @@ describe('EcrRegistrySync', () => {
 
   test('schedule', () => {
     const stack = new Stack();
-    new EcrRegistrySync(stack, 'EcrRegistrySync', {
-      images: [RegistryImageSource.fromDockerHub('docker-image')],
-      dockerhubCreds: {
+    new EcrMirror(stack, 'EcrRegistrySync', {
+      images: [MirrorSource.fromDockerHub('docker-image')],
+      dockerHubCreds: {
         usernameKey: 'username-key',
         passwordKey: 'password-key',
         secret: secrets.Secret.fromSecretArn(stack, 'DockerhubSecret', 'arn:aws:secretsmanager:us-west-2:111122223333:secret:123aass'),
@@ -108,6 +108,27 @@ describe('EcrRegistrySync', () => {
 
     expect(stack).toHaveResource('AWS::Events::Rule', {
       ScheduleExpression: 'rate(1 hour)',
+    });
+  });
+
+  describe('ecrRepository()', () => {
+    test('allowed authorization token', () => {
+      const stack = new Stack();
+      const image = MirrorSource.fromDockerHub('docker-image');
+      const registry = new EcrMirror(stack, 'EcrRegistrySync', {
+        images: [image],
+        dockerHubCreds: {
+          usernameKey: 'username-key',
+          passwordKey: 'password-key',
+          secret: secrets.Secret.fromSecretArn(stack, 'DockerhubSecret', 'arn:aws:secretsmanager:us-west-2:111122223333:secret:123aass'),
+        },
+      });
+
+      const repo = registry.ecrRepository(image);
+      expect(repo).toBeDefined();
+      expect(stack.resolve(repo!.repositoryArn)).toEqual({
+        'Fn::GetAtt': ['EcrRegistrySyncRepolibrarydockerimage1932832A', 'Arn'],
+      });
     });
   });
 });

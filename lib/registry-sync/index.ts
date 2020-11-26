@@ -1,2 +1,2 @@
-export * from './ecr-sync';
-export * from './image-source';
+export * from './ecr-mirror';
+export * from './mirror-source';

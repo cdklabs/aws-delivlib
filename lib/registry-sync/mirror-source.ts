@@ -3,7 +3,7 @@ import {
   aws_s3_assets as s3Assets,
 } from 'monocdk';
 
-export interface RegistryImageSourceBindOptions {
+export interface MirrorSourceBindOptions {
   /**
    * The target ECR registry
    */
@@ -14,7 +14,7 @@ export interface RegistryImageSourceBindOptions {
   readonly scope: Construct;
 }
 
-export interface RegistryImageSourceConfig {
+export interface MirrorSourceConfig {
   /**
    * The commands to run to retrieve the docker image.
    * e.g. ['docker pull <image-id>']
@@ -35,15 +35,15 @@ export interface RegistryImageSourceConfig {
 /**
  * Source of the image.
  */
-export abstract class RegistryImageSource {
+export abstract class MirrorSource {
 
   /**
    * Configure an image from DockerHub.
    *
    * @param image e.g jsii/superchain
    */
-  public static fromDockerHub(image: string): RegistryImageSource {
-    class DockerHubImageSource extends RegistryImageSource {
+  public static fromDockerHub(image: string): MirrorSource {
+    class DockerHubMirrorSource extends MirrorSource {
       constructor() {
         const repository = image.split(':')[0];
         const tag = image.split(':')[1];
@@ -53,7 +53,7 @@ export abstract class RegistryImageSource {
         super(repositoryName, tag ?? 'latest', undefined);
       }
 
-      public bind(options: RegistryImageSourceBindOptions) {
+      public bind(options: MirrorSourceBindOptions) {
         const ecrImageUri = `${options.ecrRegistry}/${this.repositoryName}:${this.tag}`;
         return {
           commands: [
@@ -66,7 +66,7 @@ export abstract class RegistryImageSource {
       }
     }
 
-    return new DockerHubImageSource();
+    return new DockerHubMirrorSource();
   }
 
   /**
@@ -76,13 +76,13 @@ export abstract class RegistryImageSource {
    * @param repository Repository name of the built image.
    * @param tag Tag of the built image.
    */
-  public static fromDirectory(directory: string, repository: string, tag?: string): RegistryImageSource {
-    class DirectoryImageSource extends RegistryImageSource {
+  public static fromDirectory(directory: string, repository: string, tag?: string): MirrorSource {
+    class DirectoryMirrorSource extends MirrorSource {
       constructor() {
         super(repository, tag ?? 'latest', directory);
       }
 
-      public bind(options: RegistryImageSourceBindOptions) {
+      public bind(options: MirrorSourceBindOptions) {
         const asset = new s3Assets.Asset(options.scope, `BuildContext${this.directory}`, { path: this.directory! });
         const ecrImageUri = `${options.ecrRegistry}/${this.repositoryName}:${this.tag}`;
         return {
@@ -96,11 +96,11 @@ export abstract class RegistryImageSource {
         };
       }
     }
-    return new DirectoryImageSource();
+    return new DirectoryMirrorSource();
   }
 
   private constructor(private readonly repositoryName: string, private readonly tag: string, private readonly directory?: string) {
   }
 
-  public abstract bind(options: RegistryImageSourceBindOptions): RegistryImageSourceConfig;
+  public abstract bind(options: MirrorSourceBindOptions): MirrorSourceConfig;
 }
