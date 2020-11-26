@@ -15,8 +15,6 @@ import {
 } from 'monocdk';
 import * as delivlib from '../lib';
 
-export const DOCKERHUB_SUPERCHAIN = 'jsii/superchain:latest';
-
 export class DelivLibPipelineStack extends Stack {
   constructor(parent: App, id: string, props: StackProps = { }) {
     super(parent, id, props);
@@ -84,7 +82,7 @@ export class EcrMirrorStack extends Stack {
   constructor(scope: App, id: string, props?: StackProps) {
     super(scope, id, props);
 
-    const superchainSource = delivlib.MirrorSource.fromDockerHub(DOCKERHUB_SUPERCHAIN);
+    const superchainSource = delivlib.MirrorSource.fromDockerHub('jsii/superchain:latest');
 
     const ecrMirror = new delivlib.EcrMirror(this, 'Default', {
       dockerHubCreds: {
