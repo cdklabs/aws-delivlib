@@ -759,7 +759,7 @@ a local ECR registry in the AWS account.
 
 ```ts
 new EcrRegistrySync(this, 'RegistrySync', {
-  images: RegistryImageSource.fromDockerHub([
+  images: MirrorSource.fromDockerHub([
     'python:3.6',
     'jsii/superchain'
   ]),
@@ -768,7 +768,7 @@ new EcrRegistrySync(this, 'RegistrySync', {
 })
 ```
 
-You can also use the `ImageSource.fromDirectory()` API if you would like to build a new Docker image based on a
+You can also use the `MirrorSource.fromDirectory()` API if you would like to build a new Docker image based on a
 Dockerfile. The Dockerfile should be placed at the top level of the specified directory.
 
 ## Contributing
