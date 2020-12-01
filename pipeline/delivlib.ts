@@ -7,10 +7,8 @@
 //     npm run pipeline-update
 //
 import {
-  App, Aspects, IAspect, IConstruct, Stack, StackProps, Token,
+  App, Aspects, Stack, StackProps,
   aws_codebuild as codebuild,
-  aws_iam as iam,
-  aws_ecr as ecr,
   aws_secretsmanager as secret,
 } from 'monocdk';
 import * as delivlib from '../lib';
@@ -79,14 +77,14 @@ export class DelivLibPipelineStack extends Stack {
 }
 
 export class EcrMirrorStack extends Stack {
-  public readonly superchainRepo: ecr.IRepository;
+  public readonly mirror: delivlib.EcrMirror;
 
   constructor(scope: App, id: string, props?: StackProps) {
     super(scope, id, props);
 
     const superchainSource = delivlib.MirrorSource.fromDockerHub(SUPERCHAIN);
 
-    const ecrMirror = new delivlib.EcrMirror(this, 'Default', {
+    this.mirror = new delivlib.EcrMirror(this, 'Default', {
       dockerHubCreds: {
         secret: secret.Secret.fromSecretArn(this, 'DockerHubCreds', 'arn:aws:secretsmanager:us-east-1:712950704752:secret:dockerhub/ReadOnly-VXZo5Z'),
         usernameKey: 'username',
@@ -96,38 +94,6 @@ export class EcrMirrorStack extends Stack {
         superchainSource,
       ],
     });
-
-    const repo = ecrMirror.ecrRepository(SUPERCHAIN);
-    if (!repo) {
-      throw new Error(`Cannot find ECR mirror repository for "${SUPERCHAIN}"`);
-    }
-    this.superchainRepo = repo;
-  }
-}
-
-export class EcrMirrorAspect implements IAspect {
-  constructor(private readonly superchainRepo: ecr.IRepository) {}
-
-  public visit(construct: IConstruct) {
-    if (construct instanceof codebuild.Project) {
-      const cfnproject = construct.node.defaultChild as codebuild.CfnProject;
-      if (!Token.isUnresolved(cfnproject.environment)) {
-        const env = cfnproject.environment as codebuild.CfnProject.EnvironmentProperty;
-        if (env.image.startsWith(SUPERCHAIN)) {
-          cfnproject.environment = {
-            ...env,
-            image: codebuild.LinuxBuildImage.fromEcrRepository(this.superchainRepo).imageId,
-          };
-          this.superchainRepo.grantPull(construct);
-          construct.grantPrincipal.addToPrincipalPolicy(new iam.PolicyStatement({
-            // TODO: Switch to using AuthToken.grantPull() - https://github.com/aws/aws-cdk/commit/c072981c175bf0509e9c606ff9ed441a0c7aef31
-            // Awaiting next CDK release.
-            actions: ['ecr:GetAuthorizationToken'],
-            resources: ['*'],
-          }));
-        }
-      }
-    }
   }
 }
 
@@ -140,6 +106,6 @@ const ecrMirrorStack = new EcrMirrorStack(app, 'aws-delivlib-ecr-mirror', {
 const pipelineStack = new DelivLibPipelineStack(app, 'aws-delivlib-pipeline', {
   env: { region: 'us-east-1', account: '712950704752' },
 });
-Aspects.of(pipelineStack).add(new EcrMirrorAspect(ecrMirrorStack.superchainRepo));
+Aspects.of(pipelineStack).add(new delivlib.EcrMirrorAspect(ecrMirrorStack.mirror));
 
 app.synth();

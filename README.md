@@ -771,6 +771,16 @@ new EcrMirror(this, 'RegistrySync', {
 You can also use the `MirrorSource.fromDirectory()` API if you would like to build a new Docker image based on a
 Dockerfile. The Dockerfile should be placed at the top level of the specified directory.
 
+In addition to this, an `EcrMirrorAspect` is available that can walk the construct tree and replace all occurrences
+of Docker images in CodeBuild projects with ECR equivalents if they are found in the provided `EcrMirror` construct.
+This can be applied to an entire stack as so -
+
+```ts
+const stack = new MyStack(...);
+// ...
+Aspects.of(stack).add(new EcrMirrorAspect(ecrMirrorStack.mirror));
+```
+
 ## Contributing
 
 See the [contribution guide](./CONTRIBUTING.md) for details on how to submit

@@ -1,5 +1,5 @@
 import {
-  Construct, Stack,
+  Construct, IAspect, IConstruct, Stack, Token,
   aws_ecr as ecr,
   aws_codebuild as codebuild,
   aws_events as events,
@@ -204,3 +204,36 @@ export class EcrMirror extends Construct {
     }));
   }
 };
+
+/**
+ * An aspect that walks through the construct tree and replaces CodeBuild jobs with Docker images
+ * with ECR equivalents found in the EcrMirror.
+ */
+export class EcrMirrorAspect implements IAspect {
+  constructor(private readonly mirror: EcrMirror) {}
+
+  public visit(construct: IConstruct) {
+    if (construct instanceof codebuild.Project) {
+      const cfnproject = construct.node.defaultChild as codebuild.CfnProject;
+      if (!Token.isUnresolved(cfnproject.environment)) {
+        const env = cfnproject.environment as codebuild.CfnProject.EnvironmentProperty;
+        const imageName = env.image.split(':')[0];
+        const tag = env.image.split(':')[1];
+        const replacement = this.mirror.ecrRepository(imageName, tag);
+        if (replacement) {
+          cfnproject.environment = {
+            ...env,
+            image: codebuild.LinuxBuildImage.fromEcrRepository(replacement).imageId,
+          };
+          replacement.grantPull(construct);
+          construct.grantPrincipal.addToPrincipalPolicy(new iam.PolicyStatement({
+            // TODO: Switch to using AuthToken.grantPull() - https://github.com/aws/aws-cdk/commit/c072981c175bf0509e9c606ff9ed441a0c7aef31
+            // Awaiting next CDK release.
+            actions: ['ecr:GetAuthorizationToken'],
+            resources: ['*'],
+          }));
+        }
+      }
+    }
+  }
+}
