@@ -1,12 +1,13 @@
 import '@monocdk-experiment/assert/jest';
 import {
-  Duration, Stack,
+  Aspects, Duration, Stack,
+  aws_codebuild as codebuild,
   aws_events as events,
   aws_secretsmanager as secrets,
 } from 'monocdk';
-import { EcrMirror, MirrorSource } from '../../lib/registry-sync';
+import { EcrMirror, EcrMirrorAspect, MirrorSource } from '../../lib/registry-sync';
 
-describe('EcrRegistrySync', () => {
+describe('EcrMirror', () => {
   test('default', () => {
     const stack = new Stack();
     new EcrMirror(stack, 'EcrRegistrySync', {
@@ -160,6 +161,100 @@ describe('EcrRegistrySync', () => {
 
       expect(registry.ecrRepository('my/docker-image', 'mytag')).toBeDefined();
       expect(registry.ecrRepository('my/docker-image')).toBeUndefined();
+    });
+  });
+});
+
+describe('EcrMirrorAspect', () => {
+  test('applies to relevant codebuild projects', () => {
+    // GIVEN
+    const stack = new Stack();
+    const mirror = new EcrMirror(stack, 'Mirror', {
+      images: [MirrorSource.fromDockerHub('my/docker-image')],
+      dockerHubCreds: {
+        usernameKey: 'username-key',
+        passwordKey: 'password-key',
+        secret: secrets.Secret.fromSecretArn(stack, 'DockerhubSecret', 'arn:aws:secretsmanager:us-west-2:111122223333:secret:123aass'),
+      },
+    });
+    new codebuild.Project(stack, 'MyDockerImageProject', {
+      buildSpec: codebuild.BuildSpec.fromObject({}),
+      environment: {
+        buildImage: codebuild.LinuxBuildImage.fromDockerRegistry('my/docker-image'),
+      },
+    });
+
+    // WHEN
+    Aspects.of(stack).add(new EcrMirrorAspect(mirror));
+
+    // THEN
+    expect(stack).toHaveResourceLike('AWS::CodeBuild::Project', {
+      Environment: {
+        Image: {
+          'Fn::Join': [
+            '',
+            [
+              {
+                'Fn::Select': [
+                  4,
+                  {
+                    'Fn::Split': [
+                      ':',
+                      { 'Fn::GetAtt': ['MirrorRepomydockerimageE8DCCA4F', 'Arn'] },
+                    ],
+                  },
+                ],
+              },
+              '.dkr.ecr.',
+              {
+                'Fn::Select': [
+                  3,
+                  {
+                    'Fn::Split': [
+                      ':',
+                      { 'Fn::GetAtt': ['MirrorRepomydockerimageE8DCCA4F', 'Arn'] },
+                    ],
+                  },
+                ],
+              },
+              '.',
+              { Ref: 'AWS::URLSuffix' },
+              '/',
+              { Ref: 'MirrorRepomydockerimageE8DCCA4F' },
+              ':latest',
+            ],
+          ],
+        },
+      },
+    });
+  });
+
+  test('does not affect unrelated codebuild projects', () => {
+    // GIVEN
+    const stack = new Stack();
+    const mirror = new EcrMirror(stack, 'Mirror', {
+      images: [MirrorSource.fromDockerHub('my/docker-image')],
+      dockerHubCreds: {
+        usernameKey: 'username-key',
+        passwordKey: 'password-key',
+        secret: secrets.Secret.fromSecretArn(stack, 'DockerhubSecret', 'arn:aws:secretsmanager:us-west-2:111122223333:secret:123aass'),
+      },
+    });
+    new codebuild.Project(stack, 'UnrelatedProject', {
+      buildSpec: codebuild.BuildSpec.fromObject({}),
+      environment: {
+        buildImage: codebuild.LinuxBuildImage.fromDockerRegistry('unrelated/image'),
+      },
+    });
+
+    // WHEN
+    Aspects.of(stack).add(new EcrMirrorAspect(mirror));
+
+    // THEN
+    expect(stack).toHaveResourceLike('AWS::CodeBuild::Project', {
+      Environment: {
+        Image: 'unrelated/image',
+      },
     });
   });
 });
