@@ -74,7 +74,7 @@ export interface EcrMirrorProps {
  */
 export class EcrMirror extends Construct {
 
-  private readonly _repos: Map<MirrorSource, ecr.IRepository> = new Map();
+  private readonly _repos: Map<string, ecr.IRepository> = new Map();
   private readonly _project: codebuild.Project;
 
   constructor(scope: Construct, id: string, props: EcrMirrorProps) {
@@ -92,7 +92,7 @@ export class EcrMirror extends Construct {
       commands.push(...result.commands);
 
       // remember the repos so that we can `grantPull` later on.
-      this._repos.set(image, new ecr.Repository(this, `Repo${result.repositoryName}`, {
+      this._repos.set(`${result.repositoryName}@${result.tag}`, new ecr.Repository(this, `Repo${result.repositoryName}`, {
         repositoryName: result.repositoryName,
       }));
 
@@ -151,6 +151,8 @@ export class EcrMirror extends Construct {
     props.dockerHubCreds.secret.grantRead(this._project);
 
     // this project needs push to all repos
+    // TODO: Switch to using AuthToken.grantPull() - https://github.com/aws/aws-cdk/commit/c072981c175bf0509e9c606ff9ed441a0c7aef31
+    // Awaiting next CDK release.
     this._grantAuthorize(this._project);
     this._repos.forEach((r, _) => r.grantPullPush(this._project));
 
@@ -185,8 +187,13 @@ export class EcrMirror extends Construct {
 
   }
 
-  public ecrRepository(source: MirrorSource): ecr.IRepository | undefined {
-    return this._repos.get(source);
+  /**
+   * Get the target ECR repository for the given repository name and tag.
+   * @param repositoryName The ECR repository with this name
+   * @param tag the tag for the repository, defaults to 'latest'
+   */
+  public ecrRepository(repositoryName: string, tag: string = 'latest'): ecr.IRepository | undefined {
+    return this._repos.get(`${repositoryName}@${tag}`);
   }
 
   private _grantAuthorize(grantee: iam.IGrantable) {

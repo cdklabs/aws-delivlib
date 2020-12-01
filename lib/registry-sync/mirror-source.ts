@@ -41,16 +41,17 @@ export abstract class MirrorSource {
    * Configure an image from DockerHub.
    *
    * @param image e.g jsii/superchain
+   * @param tag optional, defaults to 'latest'
    */
-  public static fromDockerHub(image: string): MirrorSource {
+  public static fromDockerHub(image: string, tag: string = 'latest'): MirrorSource {
     class DockerHubMirrorSource extends MirrorSource {
       constructor() {
-        const repository = image.split(':')[0];
-        const tag = image.split(':')[1];
-
+        if (image.includes(':')) {
+          throw new Error('image must not include tag');
+        }
         // simulates DockerHub by perfixing library/ to official images
-        const repositoryName = repository.includes('/') ? repository : `library/${repository}`;
-        super(repositoryName, tag ?? 'latest', undefined);
+        const repositoryName = image.includes('/') ? image : `library/${image}`;
+        super(repositoryName, tag, undefined);
       }
 
       public bind(options: MirrorSourceBindOptions) {
@@ -73,13 +74,13 @@ export abstract class MirrorSource {
    * Configure an image from a local directory.
    *
    * @param directory Path to directory containing the Dockerfile.
-   * @param repository Repository name of the built image.
+   * @param repositoryName Repository name of the built image.
    * @param tag Tag of the built image.
    */
-  public static fromDirectory(directory: string, repository: string, tag?: string): MirrorSource {
+  public static fromDirectory(directory: string, repositoryName: string, tag?: string): MirrorSource {
     class DirectoryMirrorSource extends MirrorSource {
       constructor() {
-        super(repository, tag ?? 'latest', directory);
+        super(repositoryName, tag ?? 'latest', directory);
       }
 
       public bind(options: MirrorSourceBindOptions) {
@@ -102,5 +103,8 @@ export abstract class MirrorSource {
   private constructor(private readonly repositoryName: string, private readonly tag: string, private readonly directory?: string) {
   }
 
+  /**
+   * Bind the source with the EcrMirror construct.
+   */
   public abstract bind(options: MirrorSourceBindOptions): MirrorSourceConfig;
 }

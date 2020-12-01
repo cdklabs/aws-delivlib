@@ -758,11 +758,11 @@ The `EcrMirror` construct can be used to synchronize, on a specific schedule, Do
 a local ECR registry in the AWS account.
 
 ```ts
-new EcrRegistrySync(this, 'RegistrySync', {
-  images: MirrorSource.fromDockerHub([
-    'python:3.6',
-    'jsii/superchain'
-  ]),
+new EcrMirror(this, 'RegistrySync', {
+  images: [
+    MirrorSource.fromDockerHub('jsii/superchain'),
+    MirrorSource.fromDockerHub('python:3.6'),
+  ],
   dockerhubCreds: // ...
   schedule: events.Schedule.cron( ... ),
 })

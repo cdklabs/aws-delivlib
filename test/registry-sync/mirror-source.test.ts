@@ -6,7 +6,7 @@ import {
 import { MirrorSource } from '../../lib/registry-sync';
 
 describe('RegistryImageSource', () => {
-  describe('fromDockerHub', () => {
+  describe('fromDockerHub()', () => {
     test('default', () => {
       // GIVEN
       const stack = new Stack();
@@ -28,7 +28,7 @@ describe('RegistryImageSource', () => {
       // GIVEN
       const stack = new Stack();
       const ecrRegistry = 'myregistry';
-      const source = MirrorSource.fromDockerHub('jsii/superchain:mytag');
+      const source = MirrorSource.fromDockerHub('jsii/superchain', 'mytag');
 
       // WHEN
       const result = source.bind({
@@ -56,9 +56,13 @@ describe('RegistryImageSource', () => {
       // THEN
       expect(result.repositoryName).toEqual('library/superchain');
     });
+
+    test('fails if image includes tag', () => {
+      expect(() => MirrorSource.fromDockerHub('superchain:latest')).toThrow(/image must not include tag/);
+    });
   });
 
-  describe('fromDirectory', () => {
+  describe('fromDirectory()', () => {
     test('default', () => {
       // GIVEN
       const stack = new Stack();

@@ -112,9 +112,9 @@ describe('EcrRegistrySync', () => {
   });
 
   describe('ecrRepository()', () => {
-    test('allowed authorization token', () => {
+    test('default', () => {
       const stack = new Stack();
-      const image = MirrorSource.fromDockerHub('docker-image');
+      const image = MirrorSource.fromDockerHub('my/docker-image');
       const registry = new EcrMirror(stack, 'EcrRegistrySync', {
         images: [image],
         dockerHubCreds: {
@@ -124,11 +124,42 @@ describe('EcrRegistrySync', () => {
         },
       });
 
-      const repo = registry.ecrRepository(image);
+      const repo = registry.ecrRepository('my/docker-image');
       expect(repo).toBeDefined();
       expect(stack.resolve(repo!.repositoryArn)).toEqual({
-        'Fn::GetAtt': ['EcrRegistrySyncRepolibrarydockerimage1932832A', 'Arn'],
+        'Fn::GetAtt': ['EcrRegistrySyncRepomydockerimageCE3ABCA6', 'Arn'],
       });
+    });
+
+    test('undefined when image is not recognized', () => {
+      const stack = new Stack();
+      const image = MirrorSource.fromDockerHub('my/docker-image');
+      const registry = new EcrMirror(stack, 'EcrRegistrySync', {
+        images: [image],
+        dockerHubCreds: {
+          usernameKey: 'username-key',
+          passwordKey: 'password-key',
+          secret: secrets.Secret.fromSecretArn(stack, 'DockerhubSecret', 'arn:aws:secretsmanager:us-west-2:111122223333:secret:123aass'),
+        },
+      });
+
+      expect(registry.ecrRepository('my/docker-image', 'mytag')).toBeUndefined();
+    });
+
+    test('tag is recognized', () => {
+      const stack = new Stack();
+      const image = MirrorSource.fromDockerHub('my/docker-image', 'mytag');
+      const registry = new EcrMirror(stack, 'EcrRegistrySync', {
+        images: [image],
+        dockerHubCreds: {
+          usernameKey: 'username-key',
+          passwordKey: 'password-key',
+          secret: secrets.Secret.fromSecretArn(stack, 'DockerhubSecret', 'arn:aws:secretsmanager:us-west-2:111122223333:secret:123aass'),
+        },
+      });
+
+      expect(registry.ecrRepository('my/docker-image', 'mytag')).toBeDefined();
+      expect(registry.ecrRepository('my/docker-image')).toBeUndefined();
     });
   });
 });

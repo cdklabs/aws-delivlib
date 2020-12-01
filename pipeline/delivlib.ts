@@ -15,6 +15,8 @@ import {
 } from 'monocdk';
 import * as delivlib from '../lib';
 
+const SUPERCHAIN = 'jsii/superchain';
+
 export class DelivLibPipelineStack extends Stack {
   constructor(parent: App, id: string, props: StackProps = { }) {
     super(parent, id, props);
@@ -82,7 +84,7 @@ export class EcrMirrorStack extends Stack {
   constructor(scope: App, id: string, props?: StackProps) {
     super(scope, id, props);
 
-    const superchainSource = delivlib.MirrorSource.fromDockerHub('jsii/superchain:latest');
+    const superchainSource = delivlib.MirrorSource.fromDockerHub(SUPERCHAIN);
 
     const ecrMirror = new delivlib.EcrMirror(this, 'Default', {
       dockerHubCreds: {
@@ -95,9 +97,9 @@ export class EcrMirrorStack extends Stack {
       ],
     });
 
-    const repo = ecrMirror.ecrRepository(superchainSource);
+    const repo = ecrMirror.ecrRepository(SUPERCHAIN);
     if (!repo) {
-      throw new Error('Cannot find ECR mirror repository for "jsii/superchain"');
+      throw new Error(`Cannot find ECR mirror repository for "${SUPERCHAIN}"`);
     }
     this.superchainRepo = repo;
   }
@@ -111,13 +113,15 @@ export class EcrMirrorAspect implements IAspect {
       const cfnproject = construct.node.defaultChild as codebuild.CfnProject;
       if (!Token.isUnresolved(cfnproject.environment)) {
         const env = cfnproject.environment as codebuild.CfnProject.EnvironmentProperty;
-        if (env.image === 'jsii/superchain' || env.image === 'jsii/superchain:latest') {
+        if (env.image.startsWith(SUPERCHAIN)) {
           cfnproject.environment = {
             ...env,
             image: codebuild.LinuxBuildImage.fromEcrRepository(this.superchainRepo).imageId,
           };
           this.superchainRepo.grantPull(construct);
           construct.grantPrincipal.addToPrincipalPolicy(new iam.PolicyStatement({
+            // TODO: Switch to using AuthToken.grantPull() - https://github.com/aws/aws-cdk/commit/c072981c175bf0509e9c606ff9ed441a0c7aef31
+            // Awaiting next CDK release.
             actions: ['ecr:GetAuthorizationToken'],
             resources: ['*'],
           }));
