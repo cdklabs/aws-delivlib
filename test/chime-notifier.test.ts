@@ -1,6 +1,6 @@
 import * as https from 'https';
 import {
-  App, Construct, Stack,
+  App, Construct, Lazy, Stack,
   aws_codepipeline as aws_codepipeline,
   aws_codepipeline_actions as aws_codepipeline_actions,
 } from 'monocdk';
@@ -107,6 +107,20 @@ test('can add to stack', () => {
   });
 
   // EXPECT: no error
+  expect(stack).toHaveResource('AWS::Lambda::Function');
+});
+
+test('webhook url can be a token', () => {
+  const stack = new Stack(new App(), 'TestStack');
+  const pipeline = new aws_codepipeline.Pipeline(stack, 'Pipe');
+  pipeline.addStage({ stageName: 'Source', actions: [new FakeSourceAction()] });
+  pipeline.addStage({ stageName: 'Build', actions: [new aws_codepipeline_actions.ManualApprovalAction({ actionName: 'Dummy' })] });
+
+  new ChimeNotifier(stack, 'Chime', {
+    pipeline,
+    webhookUrls: [Lazy.stringValue({ produce: () => 'https://go/' })],
+  });
+
   expect(stack).toHaveResource('AWS::Lambda::Function');
 });
 
