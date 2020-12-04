@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [10.1.6](https://github.com/awslabs/aws-delivlib/compare/v10.1.5...v10.1.6) (2020-12-04)
+
+
+### Bug Fixes
+
+* **chime-notifier:** synthesis fails when webhook url is a token ([3e6e185](https://github.com/awslabs/aws-delivlib/commit/3e6e1853a9f99e427d2a471c0d0c2da8110eee3d))
+
 ### [10.1.5](https://github.com/awslabs/aws-delivlib/compare/v10.1.4...v10.1.5) (2020-12-02)
 
 ### [10.1.4](https://github.com/awslabs/aws-delivlib/compare/v10.1.3...v10.1.4) (2020-12-01)
