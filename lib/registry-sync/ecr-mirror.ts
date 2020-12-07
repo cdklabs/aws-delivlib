@@ -150,10 +150,7 @@ export class EcrMirror extends Construct {
     // CodeBuild needs to read the secret to resolve environment variables
     props.dockerHubCreds.secret.grantRead(this._project);
 
-    // this project needs push to all repos
-    // TODO: Switch to using AuthToken.grantPull() - https://github.com/aws/aws-cdk/commit/c072981c175bf0509e9c606ff9ed441a0c7aef31
-    // Awaiting next CDK release.
-    this._grantAuthorize(this._project);
+    ecr.AuthorizationToken.grantRead(this._project);
     this._repos.forEach((r, _) => r.grantPullPush(this._project));
 
     // this project needs to download the assets so it can build them
@@ -195,14 +192,6 @@ export class EcrMirror extends Construct {
   public ecrRepository(repositoryName: string, tag: string = 'latest'): ecr.IRepository | undefined {
     return this._repos.get(`${repositoryName}@${tag}`);
   }
-
-  private _grantAuthorize(grantee: iam.IGrantable) {
-    // see https://docs.aws.amazon.com/AmazonECR/latest/userguide/Registries.html#registry_auth
-    grantee.grantPrincipal.addToPrincipalPolicy(new iam.PolicyStatement({
-      actions: ['ecr:GetAuthorizationToken'],
-      resources: ['*'],
-    }));
-  }
 };
 
 /**
@@ -226,12 +215,7 @@ export class EcrMirrorAspect implements IAspect {
             image: codebuild.LinuxBuildImage.fromEcrRepository(replacement).imageId,
           };
           replacement.grantPull(construct);
-          construct.grantPrincipal.addToPrincipalPolicy(new iam.PolicyStatement({
-            // TODO: Switch to using AuthToken.grantPull() - https://github.com/aws/aws-cdk/commit/c072981c175bf0509e9c606ff9ed441a0c7aef31
-            // Awaiting next CDK release.
-            actions: ['ecr:GetAuthorizationToken'],
-            resources: ['*'],
-          }));
+          ecr.AuthorizationToken.grantRead(construct);
         }
       }
     }
