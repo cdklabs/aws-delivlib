@@ -11,8 +11,8 @@ describe('EcrMirror', () => {
   test('default', () => {
     const stack = new Stack();
     new EcrMirror(stack, 'EcrRegistrySync', {
-      images: [MirrorSource.fromDockerHub('docker-image')],
-      dockerHubCreds: {
+      sources: [MirrorSource.fromDockerHub('docker-image')],
+      dockerHubCredentials: {
         usernameKey: 'username-key',
         passwordKey: 'password-key',
         secret: secrets.Secret.fromSecretArn(stack, 'DockerhubSecret', 'arn:aws:secretsmanager:us-west-2:111122223333:secret:123aass'),
@@ -83,8 +83,8 @@ describe('EcrMirror', () => {
   test('autoStart', () => {
     const stack = new Stack();
     new EcrMirror(stack, 'EcrRegistrySync', {
-      images: [MirrorSource.fromDockerHub('docker-image')],
-      dockerHubCreds: {
+      sources: [MirrorSource.fromDockerHub('docker-image')],
+      dockerHubCredentials: {
         usernameKey: 'username-key',
         passwordKey: 'password-key',
         secret: secrets.Secret.fromSecretArn(stack, 'DockerhubSecret', 'arn:aws:secretsmanager:us-west-2:111122223333:secret:123aass'),
@@ -98,8 +98,8 @@ describe('EcrMirror', () => {
   test('schedule', () => {
     const stack = new Stack();
     new EcrMirror(stack, 'EcrRegistrySync', {
-      images: [MirrorSource.fromDockerHub('docker-image')],
-      dockerHubCreds: {
+      sources: [MirrorSource.fromDockerHub('docker-image')],
+      dockerHubCredentials: {
         usernameKey: 'username-key',
         passwordKey: 'password-key',
         secret: secrets.Secret.fromSecretArn(stack, 'DockerhubSecret', 'arn:aws:secretsmanager:us-west-2:111122223333:secret:123aass'),
@@ -117,8 +117,8 @@ describe('EcrMirror', () => {
       const stack = new Stack();
       const image = MirrorSource.fromDockerHub('my/docker-image');
       const registry = new EcrMirror(stack, 'EcrRegistrySync', {
-        images: [image],
-        dockerHubCreds: {
+        sources: [image],
+        dockerHubCredentials: {
           usernameKey: 'username-key',
           passwordKey: 'password-key',
           secret: secrets.Secret.fromSecretArn(stack, 'DockerhubSecret', 'arn:aws:secretsmanager:us-west-2:111122223333:secret:123aass'),
@@ -136,8 +136,8 @@ describe('EcrMirror', () => {
       const stack = new Stack();
       const image = MirrorSource.fromDockerHub('my/docker-image');
       const registry = new EcrMirror(stack, 'EcrRegistrySync', {
-        images: [image],
-        dockerHubCreds: {
+        sources: [image],
+        dockerHubCredentials: {
           usernameKey: 'username-key',
           passwordKey: 'password-key',
           secret: secrets.Secret.fromSecretArn(stack, 'DockerhubSecret', 'arn:aws:secretsmanager:us-west-2:111122223333:secret:123aass'),
@@ -151,8 +151,8 @@ describe('EcrMirror', () => {
       const stack = new Stack();
       const image = MirrorSource.fromDockerHub('my/docker-image', 'mytag');
       const registry = new EcrMirror(stack, 'EcrRegistrySync', {
-        images: [image],
-        dockerHubCreds: {
+        sources: [image],
+        dockerHubCredentials: {
           usernameKey: 'username-key',
           passwordKey: 'password-key',
           secret: secrets.Secret.fromSecretArn(stack, 'DockerhubSecret', 'arn:aws:secretsmanager:us-west-2:111122223333:secret:123aass'),
@@ -170,8 +170,8 @@ describe('EcrMirrorAspect', () => {
     // GIVEN
     const stack = new Stack();
     const mirror = new EcrMirror(stack, 'Mirror', {
-      images: [MirrorSource.fromDockerHub('my/docker-image')],
-      dockerHubCreds: {
+      sources: [MirrorSource.fromDockerHub('my/docker-image')],
+      dockerHubCredentials: {
         usernameKey: 'username-key',
         passwordKey: 'password-key',
         secret: secrets.Secret.fromSecretArn(stack, 'DockerhubSecret', 'arn:aws:secretsmanager:us-west-2:111122223333:secret:123aass'),
@@ -233,8 +233,8 @@ describe('EcrMirrorAspect', () => {
     // GIVEN
     const stack = new Stack();
     const mirror = new EcrMirror(stack, 'Mirror', {
-      images: [MirrorSource.fromDockerHub('my/docker-image')],
-      dockerHubCreds: {
+      sources: [MirrorSource.fromDockerHub('my/docker-image')],
+      dockerHubCredentials: {
         usernameKey: 'username-key',
         passwordKey: 'password-key',
         secret: secrets.Secret.fromSecretArn(stack, 'DockerhubSecret', 'arn:aws:secretsmanager:us-west-2:111122223333:secret:123aass'),

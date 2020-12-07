@@ -750,7 +750,7 @@ pipeline.notifyOnFailure(PipelineNotification.chime({
 
 ## ECR Mirror
 
-Builds commonly use Docker images, and these typically come from DockerHub. In fact, delivlib defaults its build
+Builds commonly use Docker images from DockerHub as their base image. In fact, delivlib defaults its build
 image to `jsii/superchain`. However, DockerHub has throttles in place for the volume of unauthenticated and
 authenticated pulls. This can cause CodeBuild jobs that run frequently to fail from DockerHub's throttling.
 
@@ -759,11 +759,11 @@ a local ECR registry in the AWS account.
 
 ```ts
 new EcrMirror(this, 'RegistrySync', {
-  images: [
+  sources: [
     MirrorSource.fromDockerHub('jsii/superchain'),
     MirrorSource.fromDockerHub('python:3.6'),
   ],
-  dockerhubCreds: // ...
+  dockerhubCredentials: // ...
   schedule: events.Schedule.cron( ... ),
 })
 ```

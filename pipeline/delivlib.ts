@@ -85,12 +85,12 @@ export class EcrMirrorStack extends Stack {
     const superchainSource = delivlib.MirrorSource.fromDockerHub(SUPERCHAIN);
 
     this.mirror = new delivlib.EcrMirror(this, 'Default', {
-      dockerHubCreds: {
+      dockerHubCredentials: {
         secret: secret.Secret.fromSecretArn(this, 'DockerHubCreds', 'arn:aws:secretsmanager:us-east-1:712950704752:secret:dockerhub/ReadOnly-VXZo5Z'),
         usernameKey: 'username',
         passwordKey: 'password',
       },
-      images: [
+      sources: [
         superchainSource,
       ],
     });

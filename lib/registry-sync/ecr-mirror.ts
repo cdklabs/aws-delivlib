@@ -47,12 +47,12 @@ export interface EcrMirrorProps {
   /**
    * The list of images to keep sync'ed.
    */
-  readonly images: MirrorSource[];
+  readonly sources: MirrorSource[];
 
   /**
    * Credentials to signing into Dockerhub.
    */
-  readonly dockerHubCreds: DockerHubCredentials;
+  readonly dockerHubCredentials: DockerHubCredentials;
 
   /**
    * Sync job runs on a schedule.
@@ -62,6 +62,7 @@ export interface EcrMirrorProps {
 
   /**
    * Start the sync job immediately after the deployment.
+   * This injects a custom resource that is executed as part of the deployment.
    * @default false
    */
   readonly autoStart?: boolean;
@@ -80,10 +81,10 @@ export class EcrMirror extends Construct {
     super(scope, id);
 
     const ecrRegistry = `${Stack.of(scope).account}.dkr.ecr.${Stack.of(scope).region}.amazonaws.com`;
-    const commands = [];
+    const commands: string[] = [];
     const assets = new Array<s3Assets.Asset>();
 
-    for (const image of props.images) {
+    for (const image of props.sources) {
       const result = image.bind({
         scope: this,
         ecrRegistry,
@@ -104,17 +105,17 @@ export class EcrMirror extends Construct {
     }
 
     const codeBuildSecretValue = (key: string, auth: DockerHubCredentials) => {
-      return `${props.dockerHubCreds.secret.secretName}:${key}:${auth.versionStage ?? 'AWSCURRENT'}`;
+      return `${props.dockerHubCredentials.secret.secretName}:${key}:${auth.versionStage ?? 'AWSCURRENT'}`;
     };
 
-    const username = codeBuildSecretValue(props.dockerHubCreds.usernameKey, props.dockerHubCreds);
-    const password = codeBuildSecretValue(props.dockerHubCreds.passwordKey, props.dockerHubCreds);
+    const username = codeBuildSecretValue(props.dockerHubCredentials.usernameKey, props.dockerHubCredentials);
+    const password = codeBuildSecretValue(props.dockerHubCredentials.passwordKey, props.dockerHubCredentials);
 
     this._project = new codebuild.Project(this, 'EcrPushImages', {
       environment: {
         privileged: true,
         buildImage: codebuild.LinuxBuildImage.fromDockerRegistry('jsii/superchain', {
-          secretsManagerCredentials: props.dockerHubCreds.secret,
+          secretsManagerCredentials: props.dockerHubCredentials.secret,
         }),
       },
       environmentVariables: {
@@ -147,7 +148,7 @@ export class EcrMirror extends Construct {
     });
 
     // CodeBuild needs to read the secret to resolve environment variables
-    props.dockerHubCreds.secret.grantRead(this._project);
+    props.dockerHubCredentials.secret.grantRead(this._project);
 
     ecr.AuthorizationToken.grantRead(this._project);
     this._repos.forEach((r, _) => r.grantPullPush(this._project));
