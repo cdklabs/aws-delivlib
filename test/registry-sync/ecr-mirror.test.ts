@@ -35,7 +35,7 @@ describe('EcrMirror', () => {
         ],
         Image: 'jsii/superchain',
         RegistryCredential: {
-          Credential: 'arn:aws:secretsmanager:us-west-2:111122223333:secret:123aass',
+          Credential: '123aass',
           CredentialProvider: 'SECRETS_MANAGER',
         },
       },

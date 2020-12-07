@@ -318,6 +318,30 @@ test('environment variables', () => {
           ],
         },
         {
+          Action: 'ssm:GetParameters',
+          Effect: 'Allow',
+          Resource: {
+            'Fn::Join': [
+              '',
+              [
+                'arn:',
+                {
+                  Ref: 'AWS::Partition',
+                },
+                ':ssm:',
+                {
+                  Ref: 'AWS::Region',
+                },
+                ':',
+                {
+                  Ref: 'AWS::AccountId',
+                },
+                ':parameter:env-var-parameter-name',
+              ],
+            ],
+          },
+        },
+        {
           Action: [
             'codebuild:CreateReportGroup',
             'codebuild:CreateReport',
@@ -433,6 +457,10 @@ test('environment variables', () => {
       Version: '2012-10-17',
     },
     PolicyName: 'EnvironmentVariablesRoleDefaultPolicy1BCDD5D0',
-    Roles: [{ Ref: 'EnvironmentVariablesRole93B5CD9F' }],
+    Roles: [
+      {
+        Ref: 'EnvironmentVariablesRole93B5CD9F',
+      },
+    ],
   }));
 });

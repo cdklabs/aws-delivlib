@@ -4,7 +4,6 @@ import {
   aws_codebuild as codebuild,
   aws_events as events,
   aws_events_targets as targets,
-  aws_iam as iam,
   aws_s3_assets as s3Assets,
   aws_secretsmanager as sm,
   custom_resources as cr,
@@ -74,7 +73,7 @@ export interface EcrMirrorProps {
  */
 export class EcrMirror extends Construct {
 
-  private readonly _repos: Map<string, ecr.IRepository> = new Map();
+  private readonly _repos: Map<string, ecr.Repository> = new Map();
   private readonly _project: codebuild.Project;
 
   constructor(scope: Construct, id: string, props: EcrMirrorProps) {
