@@ -331,6 +331,11 @@
     lodash "^4.17.19"
     to-fast-properties "^2.0.0"
 
+"@balena/dockerignore@^1.0.2":
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@balena/dockerignore/-/dockerignore-1.0.2.tgz#9ffe4726915251e8eb69f44ef3547e0da2c03e0d"
+  integrity sha512-wMue2Sy4GAVTk6Ic4tJVcnfdau+gx2EnG7S+uAEe+TWJFqE4YoWN4/H8MSLj4eYJKxGg26lZwboEniNiNwZQ6Q==
+
 "@bcoe/v8-coverage@^0.2.3":
   version "0.2.3"
   resolved "https://registry.yarnpkg.com/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz#75a2e8b51cb758a7553d6804a5932d7aace75c39"
@@ -3011,7 +3016,7 @@ ignore@^4.0.6:
   resolved "https://registry.yarnpkg.com/ignore/-/ignore-4.0.6.tgz#750e3db5862087b4737ebac8207ffd1ef27b25fc"
   integrity sha512-cyFDKrqc/YdcWFniJhzI42+AzS+gNwmUzOSFcRCQYwySuBBBy/KjuxWLZ/FHEH6Moq1NizMOBWyTcv8O4OZIMg==
 
-ignore@^5.1.4:
+ignore@^5.1.4, ignore@^5.1.8:
   version "5.1.8"
   resolved "https://registry.yarnpkg.com/ignore/-/ignore-5.1.8.tgz#f150a8b50a34289b33e22f5889abd4d8016f0e57"
   integrity sha512-BMpfD7PpiETpBl/A6S498BaIJ6Y/ABT93ETbby2fP00v4EbvPBXWEoaR1UBPKs3iR53pJY7EtZk5KACI57i1Uw==
@@ -4333,15 +4338,18 @@ modify-values@^1.0.0:
   resolved "https://registry.yarnpkg.com/modify-values/-/modify-values-1.0.1.tgz#b3939fa605546474e3e3e3c63d64bd43b4ee6022"
   integrity sha512-xV2bxeN6F7oYjZWTe/YPAy6MN2M+sL4u/Rlm2AHCIVGfo2p1yGmBHQ6vHehl4bRTZBdHu3TSkWdYgkwpYzAGSw==
 
-monocdk@1.71.0:
-  version "1.71.0"
-  resolved "https://registry.yarnpkg.com/monocdk/-/monocdk-1.71.0.tgz#657869907abe5daf96bfd91e2656f41b6414eef4"
-  integrity sha512-Xrz8ACee7+Aea6IWuFWj5dv22/VQVo+E4My8WifuEfbO76nmESmsjVChR9to4mVsDZMTGpDpBo0zqkApmG6kvw==
+monocdk@1.76.0:
+  version "1.76.0"
+  resolved "https://registry.yarnpkg.com/monocdk/-/monocdk-1.76.0.tgz#bbe4f04c9966e4169aad8fd90157e26ef8176ffc"
+  integrity sha512-+RqMuNAGv2F/VoVWXOgyy9S+GdVAc4VVTdfr9bqSx2HbrS1KtJjP91F5uKdQO/dC7Bpj+rRwQTZNBxpq0I2bpA==
   dependencies:
+    "@balena/dockerignore" "^1.0.2"
     case "1.6.3"
     fs-extra "^9.0.1"
+    ignore "^5.1.8"
     jsonschema "^1.4.0"
     minimatch "^3.0.4"
+    punycode "^2.1.1"
     semver "^7.3.2"
     yaml "1.10.0"
 
