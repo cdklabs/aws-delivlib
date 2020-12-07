@@ -54,6 +54,7 @@ available:
    - [GitHub Pages](#github-pages)
 1. [Automatic Bumps and Pull Request Builds](#automatic-bumps-and-pull-request-builds)
 1. [Failure Notifications](#failure-notifications)
+1. [ECR Mirror](#ecr-mirror)
 
 
 ## Installation
@@ -745,6 +746,39 @@ const teamRoomWebhook = 'https://hooks.chime.aws/incomingwebhooks/1c3588c7-623d-
 pipeline.notifyOnFailure(PipelineNotification.chime({
   webhookUrl: [ teamRoomWebhook ]
 }));
+```
+
+## ECR Mirror
+
+Builds commonly use Docker images from DockerHub as their base image. In fact, delivlib defaults its build
+image to `jsii/superchain`. However, DockerHub has throttles in place for the volume of unauthenticated and
+authenticated pulls. This can cause CodeBuild jobs that run frequently to fail from DockerHub's throttling.
+
+The `EcrMirror` construct can be used to synchronize, on a specific schedule, Docker images between DockerHub and
+a local ECR registry in the AWS account.
+
+```ts
+new EcrMirror(this, 'RegistrySync', {
+  sources: [
+    MirrorSource.fromDockerHub('jsii/superchain'),
+    MirrorSource.fromDockerHub('python:3.6'),
+  ],
+  dockerhubCredentials: // ...
+  schedule: events.Schedule.cron( ... ),
+})
+```
+
+You can also use the `MirrorSource.fromDirectory()` API if you would like to build a new Docker image based on a
+Dockerfile. The Dockerfile should be placed at the top level of the specified directory.
+
+In addition to this, an `EcrMirrorAspect` is available that can walk the construct tree and replace all occurrences
+of Docker images in CodeBuild projects with ECR equivalents if they are found in the provided `EcrMirror` construct.
+This can be applied to an entire stack as so -
+
+```ts
+const stack = new MyStack(...);
+// ...
+Aspects.of(stack).add(new EcrMirrorAspect(ecrMirrorStack.mirror));
 ```
 
 ## Contributing

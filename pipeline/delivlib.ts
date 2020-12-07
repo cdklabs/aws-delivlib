@@ -7,14 +7,13 @@
 //     npm run pipeline-update
 //
 import {
-  App,
-  Stack,
-  StackProps,
+  App, Aspects, Stack, StackProps,
   aws_codebuild as codebuild,
-  aws_ssm as ssm,
+  aws_secretsmanager as secret,
 } from 'monocdk';
 import * as delivlib from '../lib';
 
+const SUPERCHAIN = 'jsii/superchain';
 
 export class DelivLibPipelineStack extends Stack {
   constructor(parent: App, id: string, props: StackProps = { }) {
@@ -57,10 +56,6 @@ export class DelivLibPipelineStack extends Stack {
       }),
       autoBuild: true,
       autoBuildOptions: { publicLogs: true },
-
-      // We can't put the list of webhook URLs directly in here since this repository is open source and
-      // the list of URLs would be enough to spam us. Import from an SSM parameter.
-      chimeFailureWebhooks: [ssm.StringParameter.fromStringParameterName(this, 'WebhookList', 'BuildWebhook').stringValue],
     });
 
     pipeline.publishToNpm({
@@ -81,11 +76,36 @@ export class DelivLibPipelineStack extends Stack {
   }
 }
 
+export class EcrMirrorStack extends Stack {
+  public readonly mirror: delivlib.EcrMirror;
+
+  constructor(scope: App, id: string, props?: StackProps) {
+    super(scope, id, props);
+
+    const superchainSource = delivlib.MirrorSource.fromDockerHub(SUPERCHAIN);
+
+    this.mirror = new delivlib.EcrMirror(this, 'Default', {
+      dockerHubCredentials: {
+        secret: secret.Secret.fromSecretArn(this, 'DockerHubCreds', 'arn:aws:secretsmanager:us-east-1:712950704752:secret:dockerhub/ReadOnly-VXZo5Z'),
+        usernameKey: 'username',
+        passwordKey: 'password',
+      },
+      sources: [
+        superchainSource,
+      ],
+    });
+  }
+}
+
 const app = new App();
 
 // this pipeline is mastered in a specific account where all the secrets are stored
-new DelivLibPipelineStack(app, 'aws-delivlib-pipeline', {
+const ecrMirrorStack = new EcrMirrorStack(app, 'aws-delivlib-ecr-mirror', {
   env: { region: 'us-east-1', account: '712950704752' },
 });
+const pipelineStack = new DelivLibPipelineStack(app, 'aws-delivlib-pipeline', {
+  env: { region: 'us-east-1', account: '712950704752' },
+});
+Aspects.of(pipelineStack).add(new delivlib.EcrMirrorAspect(ecrMirrorStack.mirror));
 
 app.synth();
