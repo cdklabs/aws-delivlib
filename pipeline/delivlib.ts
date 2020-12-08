@@ -9,6 +9,7 @@
 import {
   App, Aspects, Stack, StackProps,
   aws_codebuild as codebuild,
+  aws_events as events,
   aws_secretsmanager as secret,
 } from 'monocdk';
 import * as delivlib from '../lib';
@@ -93,6 +94,10 @@ export class EcrMirrorStack extends Stack {
       sources: [
         superchainSource,
       ],
+      schedule: events.Schedule.cron({
+        hour: '9',
+        minute: '0',
+      }),
     });
   }
 }

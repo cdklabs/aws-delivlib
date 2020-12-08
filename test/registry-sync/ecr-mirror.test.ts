@@ -17,6 +17,7 @@ describe('EcrMirror', () => {
         passwordKey: 'password-key',
         secret: secrets.Secret.fromSecretArn(stack, 'DockerhubSecret', 'arn:aws:secretsmanager:us-west-2:111122223333:secret:123aass'),
       },
+      schedule: events.Schedule.cron({}),
     });
 
     expect(stack).toHaveResourceLike('AWS::CodeBuild::Project', {
@@ -74,10 +75,6 @@ describe('EcrMirror', () => {
         },
       },
     });
-
-    expect(stack).not.toHaveResource('Custom::AWS');
-    expect(stack).not.toHaveResource('AWS::Lambda::Function');
-    expect(stack).not.toHaveResource('AWS::Events::Rule');
   });
 
   test('autoStart', () => {
@@ -93,6 +90,7 @@ describe('EcrMirror', () => {
     });
 
     expect(stack).toHaveResource('Custom::AWS');
+    expect(stack).not.toHaveResource('AWS::Events::Rule');
   });
 
   test('schedule', () => {
@@ -110,6 +108,9 @@ describe('EcrMirror', () => {
     expect(stack).toHaveResource('AWS::Events::Rule', {
       ScheduleExpression: 'rate(1 hour)',
     });
+
+    expect(stack).not.toHaveResource('Custom::AWS');
+    expect(stack).not.toHaveResource('AWS::Lambda::Function');
   });
 
   describe('ecrRepository()', () => {
@@ -123,6 +124,7 @@ describe('EcrMirror', () => {
           passwordKey: 'password-key',
           secret: secrets.Secret.fromSecretArn(stack, 'DockerhubSecret', 'arn:aws:secretsmanager:us-west-2:111122223333:secret:123aass'),
         },
+        schedule: events.Schedule.cron({}),
       });
 
       const repo = registry.ecrRepository('my/docker-image');
@@ -142,6 +144,7 @@ describe('EcrMirror', () => {
           passwordKey: 'password-key',
           secret: secrets.Secret.fromSecretArn(stack, 'DockerhubSecret', 'arn:aws:secretsmanager:us-west-2:111122223333:secret:123aass'),
         },
+        schedule: events.Schedule.cron({}),
       });
 
       expect(registry.ecrRepository('my/docker-image', 'mytag')).toBeUndefined();
@@ -157,11 +160,25 @@ describe('EcrMirror', () => {
           passwordKey: 'password-key',
           secret: secrets.Secret.fromSecretArn(stack, 'DockerhubSecret', 'arn:aws:secretsmanager:us-west-2:111122223333:secret:123aass'),
         },
+        schedule: events.Schedule.cron({}),
       });
 
       expect(registry.ecrRepository('my/docker-image', 'mytag')).toBeDefined();
       expect(registry.ecrRepository('my/docker-image')).toBeUndefined();
     });
+  });
+
+  test('schedule and/or autoStart', () => {
+    const stack = new Stack();
+    const image = MirrorSource.fromDockerHub('my/docker-image');
+    expect(() => new EcrMirror(stack, 'EcrRegistrySync', {
+      sources: [image],
+      dockerHubCredentials: {
+        usernameKey: 'username-key',
+        passwordKey: 'password-key',
+        secret: secrets.Secret.fromSecretArn(stack, 'DockerhubSecret', 'arn:aws:secretsmanager:us-west-2:111122223333:secret:123aass'),
+      },
+    })).toThrow(/schedule or autoStart/);
   });
 });
 
@@ -176,6 +193,7 @@ describe('EcrMirrorAspect', () => {
         passwordKey: 'password-key',
         secret: secrets.Secret.fromSecretArn(stack, 'DockerhubSecret', 'arn:aws:secretsmanager:us-west-2:111122223333:secret:123aass'),
       },
+      schedule: events.Schedule.cron({}),
     });
     new codebuild.Project(stack, 'MyDockerImageProject', {
       buildSpec: codebuild.BuildSpec.fromObject({}),
@@ -239,6 +257,7 @@ describe('EcrMirrorAspect', () => {
         passwordKey: 'password-key',
         secret: secrets.Secret.fromSecretArn(stack, 'DockerhubSecret', 'arn:aws:secretsmanager:us-west-2:111122223333:secret:123aass'),
       },
+      schedule: events.Schedule.cron({}),
     });
     new codebuild.Project(stack, 'UnrelatedProject', {
       buildSpec: codebuild.BuildSpec.fromObject({}),
