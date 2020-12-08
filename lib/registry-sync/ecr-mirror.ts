@@ -56,6 +56,7 @@ export interface EcrMirrorProps {
 
   /**
    * Sync job runs on a schedule.
+   * Throws an error if neither this nor `autoStart` are specified.
    * @default - does not run on schedule
    */
   readonly schedule?: events.Schedule;
@@ -63,6 +64,7 @@ export interface EcrMirrorProps {
   /**
    * Start the sync job immediately after the deployment.
    * This injects a custom resource that is executed as part of the deployment.
+   * Throws an error if neither this nor `schedule` are specified.
    * @default false
    */
   readonly autoStart?: boolean;
@@ -79,6 +81,10 @@ export class EcrMirror extends Construct {
 
   constructor(scope: Construct, id: string, props: EcrMirrorProps) {
     super(scope, id);
+
+    if (!props.schedule && !props.autoStart) {
+      throw new Error('Either schedule or autoStart must be provided');
+    }
 
     const ecrRegistry = `${Stack.of(scope).account}.dkr.ecr.${Stack.of(scope).region}.amazonaws.com`;
     const commands: string[] = [];
