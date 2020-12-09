@@ -1,6 +1,6 @@
 {
   "name": "aws-delivlib",
-  "version": "10.2.0",
+  "version": "10.2.1",
   "homepage": "https://github.com/awslabs/aws-delivlib",
   "description": "A fabulous library for defining continuous pipelines for building, testing and releasing code libraries.",
   "main": "lib/index.js",
