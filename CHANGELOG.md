@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [10.2.1](https://github.com/awslabs/aws-delivlib/compare/v10.2.0...v10.2.1) (2020-12-09)
+
+## [10.2.0](https://github.com/awslabs/aws-delivlib/compare/v10.1.6...v10.2.0) (2020-12-08)
+
+
+### Features
+
+* synchronize docker images to a local ECR repository ([e2fec0a](https://github.com/awslabs/aws-delivlib/commit/e2fec0a5a60211723b4b9317ecaef8ef00926003))
+
 ### [10.1.6](https://github.com/awslabs/aws-delivlib/compare/v10.1.5...v10.1.6) (2020-12-04)
 
 
