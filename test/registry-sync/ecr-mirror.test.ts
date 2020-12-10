@@ -1,4 +1,5 @@
 import '@monocdk-experiment/assert/jest';
+import * as path from 'path';
 import {
   Aspects, Duration, Stack,
   aws_codebuild as codebuild,
@@ -111,6 +112,22 @@ describe('EcrMirror', () => {
 
     expect(stack).not.toHaveResource('Custom::AWS');
     expect(stack).not.toHaveResource('AWS::Lambda::Function');
+  });
+
+  test('errors on duplicate repository', () => {
+    const stack = new Stack();
+    expect(() => new EcrMirror(stack, 'EcrRegistrySync', {
+      sources: [
+        MirrorSource.fromDockerHub('my/docker-image'),
+        MirrorSource.fromDirectory(path.join(__dirname, 'docker-asset'), 'my/docker-image'),
+      ],
+      dockerHubCredentials: {
+        usernameKey: 'username-key',
+        passwordKey: 'password-key',
+        secret: secrets.Secret.fromSecretArn(stack, 'DockerhubSecret', 'arn:aws:secretsmanager:us-west-2:111122223333:secret:123aass'),
+      },
+      schedule: events.Schedule.rate(Duration.hours(1)),
+    })).toThrow(/Mirror source.*already exists/);
   });
 
   describe('ecrRepository()', () => {
