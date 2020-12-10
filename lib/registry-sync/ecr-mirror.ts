@@ -97,10 +97,7 @@ export class EcrMirror extends Construct {
       });
       commands.push(...result.commands);
 
-      // remember the repos so that we can `grantPull` later on.
-      this._repos.set(`${result.repositoryName}@${result.tag}`, new ecr.Repository(this, `Repo${result.repositoryName}`, {
-        repositoryName: result.repositoryName,
-      }));
+      this.memoizeRepo(result.repositoryName, result.tag);
 
       const ecrImageUri = `${ecrRegistry}/${result.repositoryName}:${result.tag}`;
       commands.push(`docker push ${ecrImageUri}`);
@@ -187,7 +184,15 @@ export class EcrMirror extends Construct {
         targets: [new targets.CodeBuildProject(this._project)],
       });
     }
+  }
 
+  private memoizeRepo(repositoryName: string, tag: string) {
+    if (this._repos.get(`${repositoryName}:${tag}`)) {
+      throw new Error(`Mirror source with repository name [${repositoryName}] and tag [${tag}] already exists.`);
+    }
+    this._repos.set(`${repositoryName}:${tag}`, new ecr.Repository(this, `Repo${repositoryName}`, {
+      repositoryName,
+    }));
   }
 
   /**
@@ -196,7 +201,7 @@ export class EcrMirror extends Construct {
    * @param tag the tag for the repository, defaults to 'latest'
    */
   public ecrRepository(repositoryName: string, tag: string = 'latest'): ecr.IRepository | undefined {
-    return this._repos.get(`${repositoryName}@${tag}`);
+    return this._repos.get(`${repositoryName}:${tag}`);
   }
 };
 
