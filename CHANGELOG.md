@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [10.2.3](https://github.com/awslabs/aws-delivlib/compare/v10.2.2...v10.2.3) (2020-12-11)
+
+
+### Bug Fixes
+
+* **ecr-mirror:** duplicate repository names get overwritten. ([1e15730](https://github.com/awslabs/aws-delivlib/commit/1e15730800883457142ba6f58bdcc497e6f1fd85))
+
 ### [10.2.2](https://github.com/awslabs/aws-delivlib/compare/v10.2.1...v10.2.2) (2020-12-10)
 
 ### [10.2.1](https://github.com/awslabs/aws-delivlib/compare/v10.2.0...v10.2.1) (2020-12-09)
