@@ -30,6 +30,15 @@ export interface AutoBuildOptions {
   readonly publicLogs?: boolean;
 
   /**
+   * Whether to publish a link to build logs when build is successful.
+   *
+   * @see https://github.com/jlhood/github-codebuild-logs#app-parameters
+   *
+   * @default false
+   */
+  readonly publicLogsOnSuccess?: boolean;
+
+  /**
    * Whether to delete previously published links to build logs
    * before posting a new one.
    *
@@ -90,11 +99,12 @@ export class AutoBuild extends Construct {
       new serverless.CfnApplication(this, 'GitHubCodeBuildLogsSAR', {
         location: {
           applicationId: 'arn:aws:serverlessrepo:us-east-1:277187709615:applications/github-codebuild-logs',
-          semanticVersion: '1.3.0',
+          semanticVersion: '1.4.0',
         },
         parameters: {
           CodeBuildProjectName: this.project.projectName,
           DeletePreviousComments: (props.deletePreviousPublicLogsLinks ?? true).toString(),
+          CommentOnSuccess: (props.publicLogsOnSuccess ?? false).toString(),
           ...githubToken ? { GitHubOAuthToken: Token.asString(githubToken) } : undefined,
         },
       });
