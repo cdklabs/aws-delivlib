@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [10.2.7](https://github.com/awslabs/aws-delivlib/compare/v10.2.6...v10.2.7) (2020-12-17)
+
+
+### Bug Fixes
+
+* **ecr-mirror:** sync job fails when using MirrorSource.fromDirectory() ([3c96b03](https://github.com/awslabs/aws-delivlib/commit/3c96b03012bc5521c656b3f07eb12fd0abc11ed1))
+
 ### [10.2.6](https://github.com/awslabs/aws-delivlib/compare/v10.2.5...v10.2.6) (2020-12-17)
 
 ### [10.2.5](https://github.com/awslabs/aws-delivlib/compare/v10.2.4...v10.2.5) (2020-12-15)
