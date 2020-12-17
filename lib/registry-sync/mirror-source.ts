@@ -1,5 +1,6 @@
 import {
   Construct,
+  aws_codebuild as codebuild,
   aws_s3_assets as s3Assets,
 } from 'monocdk';
 
@@ -12,6 +13,12 @@ export interface MirrorSourceBindOptions {
    * The scope to attach any constructs that may also be needed.
    */
   readonly scope: Construct;
+
+  /**
+   * The CodeBuild project that will run the synchronization between DockerHub and ECR.
+   * @default - either no sync job is present or it's not defined yet.
+   */
+  readonly syncJob?: codebuild.IProject;
 }
 
 export interface MirrorSourceConfig {
@@ -85,6 +92,9 @@ export abstract class MirrorSource {
 
       public bind(options: MirrorSourceBindOptions) {
         const asset = new s3Assets.Asset(options.scope, `BuildContext${this.directory}`, { path: this.directory! });
+        if (options.syncJob) {
+          asset.grantRead(options.syncJob);
+        }
         const ecrImageUri = `${options.ecrRegistry}/${this.repositoryName}:${this.tag}`;
         return {
           commands: [

@@ -1,5 +1,5 @@
 import {
-  Construct, IAspect, IConstruct, Stack, Token,
+  Construct, IAspect, IConstruct, Lazy, Stack, Token,
   aws_ecr as ecr,
   aws_codebuild as codebuild,
   aws_events as events,
@@ -90,23 +90,6 @@ export class EcrMirror extends Construct {
     const commands: string[] = [];
     const assets = new Array<s3Assets.Asset>();
 
-    for (const image of props.sources) {
-      const result = image.bind({
-        scope: this,
-        ecrRegistry,
-      });
-      commands.push(...result.commands);
-
-      this.memoizeRepo(result.repositoryName, result.tag);
-
-      const ecrImageUri = `${ecrRegistry}/${result.repositoryName}:${result.tag}`;
-      commands.push(`docker push ${ecrImageUri}`);
-
-      // clean after each push so that we don't fillup disk space
-      // possibly failing the next pull.
-      commands.push('docker image prune --all --force');
-    }
-
     const codeBuildSecretValue = (key: string, auth: DockerHubCredentials) => {
       return `${props.dockerHubCredentials.secret.secretName}:${key}:${auth.versionStage ?? 'AWSCURRENT'}`;
     };
@@ -126,29 +109,50 @@ export class EcrMirror extends Construct {
         DOCKERHUB_USERNAME: { value: username, type: codebuild.BuildEnvironmentVariableType.SECRETS_MANAGER },
         DOCKERHUB_PASSWORD: { value: password, type: codebuild.BuildEnvironmentVariableType.SECRETS_MANAGER },
       },
-      buildSpec: codebuild.BuildSpec.fromObject({
-        version: '0.2',
-        phases: {
-          build: {
-            commands: [
+      buildSpec: codebuild.BuildSpec.fromObject(Lazy.any({
+        produce: () => {
+          return {
+            version: '0.2',
+            phases: {
+              build: {
+                commands: [
 
-              // start the docker daemon
-              'nohup /usr/bin/dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2&',
-              'timeout 15 sh -c "until docker info; do echo .; sleep 1; done"',
+                  // start the docker daemon
+                  'nohup /usr/bin/dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2&',
+                  'timeout 15 sh -c "until docker info; do echo .; sleep 1; done"',
 
-              // login to dockerhub so we won't get throttled
-              'docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD}',
+                  // login to dockerhub so we won't get throttled
+                  'docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD}',
 
-              // login to ecr so we can push to it
-              `aws ecr get-login-password | docker login --username AWS --password-stdin ${ecrRegistry}`,
+                  // login to ecr so we can push to it
+                  `aws ecr get-login-password | docker login --username AWS --password-stdin ${ecrRegistry}`,
 
-              ...commands,
-
-            ],
-          },
+                  ...commands,
+                ],
+              },
+            },
+          };
         },
-      }),
+      })),
     });
+
+    for (const image of props.sources) {
+      const result = image.bind({
+        scope: this,
+        ecrRegistry,
+        syncJob: this._project,
+      });
+      commands.push(...result.commands);
+
+      this.memoizeRepo(result.repositoryName, result.tag);
+
+      const ecrImageUri = `${ecrRegistry}/${result.repositoryName}:${result.tag}`;
+      commands.push(`docker push ${ecrImageUri}`);
+
+      // clean after each push so that we don't fillup disk space
+      // possibly failing the next pull.
+      commands.push('docker image prune --all --force');
+    }
 
     // CodeBuild needs to read the secret to resolve environment variables
     props.dockerHubCredentials.secret.grantRead(this._project);
