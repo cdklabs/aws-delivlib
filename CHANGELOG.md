@@ -2,6 +2,31 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [10.2.15](https://github.com/awslabs/aws-delivlib/compare/v10.2.14...v10.2.15) (2020-12-29)
+
+### [10.2.14](https://github.com/awslabs/aws-delivlib/compare/v10.2.13...v10.2.14) (2020-12-28)
+
+### [10.2.13](https://github.com/awslabs/aws-delivlib/compare/v10.2.12...v10.2.13) (2020-12-25)
+
+### [10.2.12](https://github.com/awslabs/aws-delivlib/compare/v10.2.11...v10.2.12) (2020-12-24)
+
+### [10.2.11](https://github.com/awslabs/aws-delivlib/compare/v10.2.10...v10.2.11) (2020-12-23)
+
+### [10.2.10](https://github.com/awslabs/aws-delivlib/compare/v10.2.9...v10.2.10) (2020-12-22)
+
+### [10.2.9](https://github.com/awslabs/aws-delivlib/compare/v10.2.8...v10.2.9) (2020-12-21)
+
+### [10.2.8](https://github.com/awslabs/aws-delivlib/compare/v10.2.7...v10.2.8) (2020-12-18)
+
+### [10.2.7](https://github.com/awslabs/aws-delivlib/compare/v10.2.6...v10.2.7) (2020-12-17)
+
+
+### Bug Fixes
+
+* **ecr-mirror:** sync job fails when using MirrorSource.fromDirectory() ([3c96b03](https://github.com/awslabs/aws-delivlib/commit/3c96b03012bc5521c656b3f07eb12fd0abc11ed1))
+
+### [10.2.6](https://github.com/awslabs/aws-delivlib/compare/v10.2.5...v10.2.6) (2020-12-17)
+
 ### [10.2.5](https://github.com/awslabs/aws-delivlib/compare/v10.2.4...v10.2.5) (2020-12-15)
 
 ### [10.2.4](https://github.com/awslabs/aws-delivlib/compare/v10.2.3...v10.2.4) (2020-12-14)
