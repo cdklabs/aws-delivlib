@@ -34,7 +34,7 @@ export interface AutoBuildOptions {
    *
    * @see https://github.com/jlhood/github-codebuild-logs#app-parameters
    *
-   * @default false
+   * @default true
    */
   readonly publicLogsOnSuccess?: boolean;
 
@@ -104,7 +104,7 @@ export class AutoBuild extends Construct {
         parameters: {
           CodeBuildProjectName: this.project.projectName,
           DeletePreviousComments: (props.deletePreviousPublicLogsLinks ?? true).toString(),
-          CommentOnSuccess: (props.publicLogsOnSuccess ?? false).toString(),
+          CommentOnSuccess: (props.publicLogsOnSuccess ?? true).toString(),
           ...githubToken ? { GitHubOAuthToken: Token.asString(githubToken) } : undefined,
         },
       });

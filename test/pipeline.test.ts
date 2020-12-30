@@ -242,7 +242,7 @@ test('autoBuild() can be configured to publish logs publically', () => {
         Ref: 'PipelineAutoBuildProjectB97B4446',
       },
       DeletePreviousComments: 'true',
-      CommentOnSuccess: 'false',
+      CommentOnSuccess: 'true',
     },
   }));
 });
