@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [10.3.0](https://github.com/awslabs/aws-delivlib/compare/v10.2.16...v10.3.0) (2020-12-30)
+
+
+### Features
+
+* **auto-build:** option to not publish build logs when build is successful ([#633](https://github.com/awslabs/aws-delivlib/issues/633)) ([0026760](https://github.com/awslabs/aws-delivlib/commit/00267602e1c14013f653b1dfb486d2a2a355027c)), closes [jlhood/github-codebuild-logs#29](https://github.com/jlhood/github-codebuild-logs/issues/29)
+
 ### [10.2.16](https://github.com/awslabs/aws-delivlib/compare/v10.2.15...v10.2.16) (2020-12-30)
 
 ### [10.2.15](https://github.com/awslabs/aws-delivlib/compare/v10.2.14...v10.2.15) (2020-12-29)
