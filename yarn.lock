@@ -1599,10 +1599,10 @@ concat-stream@^2.0.0:
     readable-stream "^3.0.2"
     typedarray "^0.0.6"
 
-constructs@^3.2.92:
-  version "3.2.92"
-  resolved "https://registry.yarnpkg.com/constructs/-/constructs-3.2.92.tgz#1169ed562814f5983ad4d51165bcd422e5c335b4"
-  integrity sha512-yvg9wc0U0648upYfN8p+lka3LBpmfFdTGSpGFLS0yWwwFNVIBk5jdmsuITH9tJWUVtbVJzsl+6XhmWb0q2USBQ==
+constructs@^3.2.94:
+  version "3.2.94"
+  resolved "https://registry.yarnpkg.com/constructs/-/constructs-3.2.94.tgz#f0759a0c5b9e1378b23952eeba94622c66939c9e"
+  integrity sha512-yK4FKT+hONiC0ebCM0Ln3xuLPF4WPyZSQ8Sl/ZOTTFUI+/csBBxGy7TkY2ZVTbOi7MCHUatZgW2ANsYRaaxoOQ==
 
 contains-path@^0.1.0:
   version "0.1.0"
