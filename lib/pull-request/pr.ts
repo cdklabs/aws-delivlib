@@ -12,17 +12,12 @@ import { WritableGitHubRepo } from '../repo';
 /**
  * Properties for creating a Pull Request Job.
  */
-export interface AutoPullRequestProps {
+export interface AutoPullRequestOptions {
 
   /**
    * The repository to create a PR in.
    */
   repo: WritableGitHubRepo;
-
-  /**
-   * The head branch of the PR.
-   */
-  head: Head;
 
   /**
    * The base branch of the PR.
@@ -71,27 +66,6 @@ export interface AutoPullRequestProps {
   build?: BuildEnvironmentProps;
 
   /**
-   * A set of commands to run against the head branch.
-   * Useful for things like version bumps or any auto-generated commits.
-   *
-   * Note that you cannot use export keys in these commands (See `exports` property)
-   *
-   * @default - no commands.
-   */
-  commands?: string[];
-
-  /**
-   * The exit code of this command determines whether or not to proceed with the
-   * PR creation. If configured, this command is the first one to run, and if it fails, all
-   * other commands will be skipped.
-   *
-   * This command is the first to execute, and should not assume any pre-existing state.
-   *
-   * @default - no condition
-   */
-  condition?: string;
-
-  /**
    * Git clone depth.
    *
    * @default 0 (clones the entire repository revisions)
@@ -134,6 +108,34 @@ export interface AutoPullRequestProps {
    */
   scheduleExpression?: string;
 
+}
+
+export interface AutoPullRequestProps extends AutoPullRequestOptions {
+  /**
+   * A set of commands to run against the head branch.
+   * Useful for things like version bumps or any auto-generated commits.
+   *
+   * Note that you cannot use export keys in these commands (See `exports` property)
+   *
+   * @default - no commands.
+   */
+  commands?: string[];
+
+  /**
+   * The head branch of the PR.
+   */
+  head: Head;
+
+  /**
+   * The exit code of this command determines whether or not to proceed with the
+   * PR creation. If configured, this command is the first one to run, and if it fails, all
+   * other commands will be skipped.
+   *
+   * This command is the first to execute, and should not assume any pre-existing state.
+   *
+   * @default - no condition
+   */
+  condition?: string;
 }
 
 /**

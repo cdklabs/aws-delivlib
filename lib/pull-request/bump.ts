@@ -1,15 +1,5 @@
 import * as cdk from 'monocdk';
-import { AutoPullRequest, AutoPullRequestProps } from './pr';
-
-/**
- *
- * We want to expose most of the AutoPullRequestOptions, but not all:
- *
- *  - commands: In this context, it is provided by the 'bumpCommand' property, which is clearer to reason about and provide a sane default.
- *  - condition: We choose not to expose at the moment and use a hardcoded one.
- *  - head: We want to provide a default value for the head branch name.
- */
-type Omitted = Omit<AutoPullRequestProps, 'commands' | 'condition' | 'head'>;
+import { AutoPullRequest, AutoPullRequestOptions } from './pr';
 
 /**
  * Properties for configuring the head branch of the bump PR.
@@ -34,7 +24,7 @@ export interface AutoBumpHead {
 /**
  * Options for configuring an Auto Bump project.
  */
-export interface AutoBumpProps extends Omitted {
+export interface AutoBumpProps extends AutoPullRequestOptions {
 
   /**
    * The command to execute in order to bump the repo.

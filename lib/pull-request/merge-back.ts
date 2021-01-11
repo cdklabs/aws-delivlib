@@ -3,15 +3,6 @@ import { WritableGitHubRepo } from '../repo';
 import * as pr from './pr';
 
 /**
- *
- * We want to expose most of the AutoPullRequestOptions, but not all:
- *
- *  - commands: We don't allow any commands on the head branch. The point is to merge back existing commits.
- *  - head: We want to provide a default value for the head branch name.
- */
-type Omitted = Omit<pr.AutoPullRequestProps, 'commands' | 'head'>;
-
-/**
  * Properties for configuring the head branch of the bump PR.
  * (The branch the PR will be merged from)
  */
@@ -31,13 +22,22 @@ export interface AutoMergeBackHead {
   readonly source?: string
 }
 
-export interface AutoMergeBackProps extends Omitted {
+export interface MergeBackStage {
 
   /**
-   * The repository to bump.
+   * Which stage should the merge back be part of. (Created if missing)
+   *
+   * @default 'MergeBack'
    */
-  repo: WritableGitHubRepo;
+  readonly name?: string
 
+  /**
+   * The name of the stage that the merge back stage should go after of. (Must exist)
+   */
+  readonly after: string;
+}
+
+export interface AutoMergeBackOptions extends pr.AutoPullRequestOptions {
   /**
    * The command to determine the current version.
    *
@@ -71,6 +71,30 @@ export interface AutoMergeBackProps extends Omitted {
    */
   head?: AutoMergeBackHead
 
+  /**
+   * The exit code of this command determines whether or not to proceed with the
+   * PR creation. If configured, this command is the first one to run, and if it fails, all
+   * other commands will be skipped.
+   *
+   * This command is the first to execute, and should not assume any pre-existing state.
+   *
+   * @default - no condition
+   */
+  condition?: string;
+
+  /**
+   * Specify stage options to create the merge back inside a stage of the pipeline.
+   *
+   * @default - The CodeBuild project will be created indepdent of any stage.
+   */
+  readonly stage?: MergeBackStage
+}
+
+export interface AutoMergeBackProps extends AutoMergeBackOptions {
+  /**
+   * The repository to bump.
+   */
+  repo: WritableGitHubRepo;
 }
 
 export class AutoMergeBack extends cdk.Construct {
