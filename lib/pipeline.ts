@@ -18,7 +18,8 @@ import { ChangeController } from './change-controller';
 import { ChimeNotifier } from './chime-notifier';
 import { PipelineWatcher } from './pipeline-watcher';
 import * as publishing from './publishing';
-import { AutoBump, AutoMergeBack, AutoMergeBackProps, AutoBumpProps } from './pull-request';
+import { AutoBump, AutoMergeBack, AutoBumpProps } from './pull-request';
+import { AutoMergeBackOptions } from './pull-request/merge-back';
 import { IRepo, WritableGitHubRepo } from './repo';
 import { Shellable, ShellableProps } from './shellable';
 import { determineRunOrder } from './util';
@@ -168,34 +169,6 @@ export interface PipelineNotificationBindOptions {
 
 export interface IPipelineNotification {
   bind(pipeline: PipelineNotificationBindOptions): void;
-}
-
-export interface MergeBackStage {
-
-  /**
-   * Which stage should the merge back be part of. (Created if missing)
-   *
-   * @default 'MergeBack'
-   */
-  readonly name?: string
-
-  /**
-   * The name of the stage that the merge back stage should go after of. (Must exist)
-   */
-  readonly after: string;
-}
-
-/**
- * Options for configuring an auto merge-back for this pipeline.
- */
-export interface AutoMergeBackOptions extends Omit<AutoMergeBackProps, 'repo'> {
-
-  /**
-   * Specify stage options to create the merge back inside a stage of the pipeline.
-   *
-   * @default - The CodeBuild project will be created indepdent of any stage.
-   */
-  readonly stage?: MergeBackStage
 }
 
 /**
