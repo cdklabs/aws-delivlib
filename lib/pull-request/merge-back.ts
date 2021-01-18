@@ -39,9 +39,8 @@ export interface MergeBackStage {
 
 /**
  * AutoMergeBackOptions and AutoMergeBackProps both share all of these options,
- * but AutoMergeBackProps can't extend AutoMergeBackOptions, as the 'stage' prop of AutoMergeBackOptions
- * is only applicable to the AutoMergeBackOptions interface. This interface instead captures all of the
- * common props between the two.
+ * but AutoMergeBackProps can't extend AutoMergeBackOptions; the latter has a 'stage' prop the former doesn't have.
+ * This interface instead captures all of the common props between the two.
  */
 interface CommonMergeOptions extends pr.AutoPullRequestOptions {
   /**
@@ -89,7 +88,7 @@ interface CommonMergeOptions extends pr.AutoPullRequestOptions {
   condition?: string;
 }
 
-export interface AutoMergeBackOptions extends pr.AutoPullRequestOptions, CommonMergeOptions {
+export interface AutoMergeBackOptions extends CommonMergeOptions {
   /**
    * Specify stage options to create the merge back inside a stage of the pipeline.
    *
@@ -98,7 +97,7 @@ export interface AutoMergeBackOptions extends pr.AutoPullRequestOptions, CommonM
   readonly stage?: MergeBackStage
 }
 
-export interface AutoMergeBackProps extends pr.AutoPullRequestOptions, CommonMergeOptions {
+export interface AutoMergeBackProps extends CommonMergeOptions {
   /**
    * The repository to bump.
    */
