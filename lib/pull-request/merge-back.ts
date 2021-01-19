@@ -83,7 +83,7 @@ export interface AutoMergeBackOptions extends pr.AutoPullRequestOptions {
   condition?: string;
 }
 
-export interface AutoMergeBackOptionsWithStage extends AutoMergeBackOptions {
+export interface AutoMergeBackPipelineOptions extends AutoMergeBackOptions {
   /**
    * Specify stage options to create the merge back inside a stage of the pipeline.
    *

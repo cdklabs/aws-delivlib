@@ -19,7 +19,7 @@ import { ChimeNotifier } from './chime-notifier';
 import { PipelineWatcher } from './pipeline-watcher';
 import * as publishing from './publishing';
 import { AutoBump, AutoMergeBack, AutoBumpProps } from './pull-request';
-import { AutoMergeBackOptionsWithStage } from './pull-request/merge-back';
+import { AutoMergeBackPipelineOptions } from './pull-request/merge-back';
 import { IRepo, WritableGitHubRepo } from './repo';
 import { Shellable, ShellableProps } from './shellable';
 import { determineRunOrder } from './util';
@@ -415,9 +415,9 @@ export class Pipeline extends Construct {
 
   /**
    * Enables automatic merge backs for the source repo.
-   * @param options Options for auto bump (see AutoMergeBackOptionsWithStage for description of defaults)
+   * @param options Options for auto bump (see AutoMergeBackPipelineOptions for description of defaults)
    */
-  public autoMergeBack(options?: AutoMergeBackOptionsWithStage) {
+  public autoMergeBack(options?: AutoMergeBackPipelineOptions) {
     if (!WritableGitHubRepo.isWritableGitHubRepo(this.repo)) {
       throw new Error('"repo" must be a WritableGitHubRepo in order to enable auto-merge-back');
     }
