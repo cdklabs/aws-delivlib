@@ -33,7 +33,7 @@ describe('slack notifications', () => {
             {
               Ref: 'PipelineBuildPipeline04C6628A',
             },
-            '-beb6680d34d5dbfb12e6eb02068c0d2e',
+            '-5bac75362e4849c15355cd1c2ada6310',
           ],
         ],
       },
