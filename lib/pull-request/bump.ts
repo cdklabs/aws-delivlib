@@ -1,4 +1,5 @@
 import * as cdk from 'monocdk';
+import { WritableGitHubRepo } from '../repo';
 import { AutoPullRequest, AutoPullRequestOptions } from './pr';
 
 /**
@@ -25,6 +26,10 @@ export interface AutoBumpHead {
  * Options for configuring an Auto Bump project.
  */
 export interface AutoBumpProps extends AutoPullRequestOptions {
+  /**
+   * The repository to create a PR in.
+   */
+  repo: WritableGitHubRepo;
 
   /**
    * The command to execute in order to bump the repo.

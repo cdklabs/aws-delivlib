@@ -13,12 +13,6 @@ import { WritableGitHubRepo } from '../repo';
  * Properties for creating a Pull Request Job.
  */
 export interface AutoPullRequestOptions {
-
-  /**
-   * The repository to create a PR in.
-   */
-  repo: WritableGitHubRepo;
-
   /**
    * The base branch of the PR.
    *
@@ -111,6 +105,11 @@ export interface AutoPullRequestOptions {
 }
 
 export interface AutoPullRequestProps extends AutoPullRequestOptions {
+  /**
+   * The repository to create a PR in.
+   */
+  repo: WritableGitHubRepo;
+
   /**
    * A set of commands to run against the head branch.
    * Useful for things like version bumps or any auto-generated commits.
