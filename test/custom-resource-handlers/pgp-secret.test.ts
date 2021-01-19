@@ -73,7 +73,7 @@ jest.mock('../../custom-resource-handlers/src/_exec', () => async (cmd: string, 
 const mockSecretsManager = createMockInstance(aws.SecretsManager);
 aws.SecretsManager = jest.fn().mockName('SecretsManager')
   .mockImplementation(() => mockSecretsManager) as any;
-const mockSendResponse = jest.spyOn(cfn, 'sendResponse').mockName('cfn.sendResponse').mockResolvedValue(Promise.resolve({}));
+const mockSendResponse = jest.spyOn(cfn, 'sendResponse').mockName('cfn.sendResponse').mockResolvedValue(Promise.resolve());
 const mockRmrf = jest.fn().mockName('_rmrf').mockResolvedValue(undefined);
 jest.mock('../../custom-resource-handlers/src/_rmrf', () => mockRmrf);
 
