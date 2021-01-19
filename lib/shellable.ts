@@ -36,7 +36,7 @@ export interface ShellableOptions {
   environment?: { [key: string]: string };
 
   /**
-   * Environment variables with secrets manager values.
+   * Environment variables with secrets manager values. The values must be complete Secret Manager ARNs.
    *
    * @default no additional environment variables
    */
@@ -268,6 +268,8 @@ export class Shellable extends Construct {
       build: this.platform.buildCommands(props.entrypoint),
     }).merge(props.buildSpec || BuildSpec.empty());
 
+    const environmentSecretsAsSecretNames = this.convertEnvironmentSecretArnsToSecretNames(props.environmentSecrets);
+
     this.project = new cbuild.Project(this, 'Resource', {
       projectName: props.buildProjectName,
       source: props.source,
@@ -280,7 +282,7 @@ export class Shellable extends Construct {
         [S3_BUCKET_ENV]: { value: asset.s3BucketName },
         [S3_KEY_ENV]: { value: asset.s3ObjectKey },
         ...renderEnvironmentVariables(props.environment),
-        ...renderEnvironmentVariables(props.environmentSecrets, cbuild.BuildEnvironmentVariableType.SECRETS_MANAGER),
+        ...renderEnvironmentVariables(environmentSecretsAsSecretNames, cbuild.BuildEnvironmentVariableType.SECRETS_MANAGER),
         ...renderEnvironmentVariables(props.environmentParameters, cbuild.BuildEnvironmentVariableType.PARAMETER_STORE),
       },
       timeout: props.timeout,
@@ -292,7 +294,7 @@ export class Shellable extends Construct {
 
     // Grant read access to secrets
     Object.entries(props.environmentSecrets ?? {}).forEach(([name, secretArn]) => {
-      const secret = aws_secretsmanager.Secret.fromSecretArn(this, `${name}Secret`, secretArn);
+      const secret = aws_secretsmanager.Secret.fromSecretCompleteArn(this, `${name}Secret`, secretArn);
       secret.grantRead(this.role);
     });
 
@@ -330,6 +332,24 @@ export class Shellable extends Construct {
     });
     stage.addAction(codeBuildAction);
     return codeBuildAction;
+  }
+
+  /**
+   * The contract of `environmentSecrets` is that the values are complete Secret ARNs;
+   * however, the CodeBuild construct expects secret names as the inputs for environment variables.
+   * This method converts the environment secrets from ARNs to names.
+   */
+  private convertEnvironmentSecretArnsToSecretNames(environmentSecrets?: { [key: string]: string }) {
+    if (!environmentSecrets) {
+      return undefined;
+    }
+
+    const out: { [key: string]: string } = { };
+    Object.entries(environmentSecrets ?? {}).forEach(([name, secretArn]) => {
+      const secret = aws_secretsmanager.Secret.fromSecretCompleteArn(this, `${name}SecretFromArn`, secretArn);
+      out[name] = secret.secretName;
+    });
+    return out;
   }
 }
 

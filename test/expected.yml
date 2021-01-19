@@ -1378,16 +1378,16 @@ Resources:
           exports.handler = handler;
 
           //# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoid2F0Y2hlci1oYW5kbGVyLmpzIiwic291cmNlUm9vdCI6IiIsInNvdXJjZXMiOlsid2F0Y2hlci1oYW5kbGVyLnRzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiI7OztBQUFBLCtCQUErQjtBQUcvQixtQkFBbUI7QUFDTixRQUFBLFlBQVksR0FBRyxJQUFJLEdBQUcsQ0FBQyxZQUFZLEVBQUUsQ0FBQztBQUN0QyxRQUFBLE1BQU0sR0FBRztJQUNwQixHQUFHLEVBQUUsQ0FBQyxJQUFZLEVBQUUsRUFBRSxDQUFDLE9BQU8sQ0FBQyxNQUFNLENBQUMsS0FBSyxDQUFDLElBQUksQ0FBQztDQUNsRCxDQUFDO0FBRUY7Ozs7OztHQU1HO0FBQ0ksS0FBSyxVQUFVLE9BQU87SUFDM0IsTUFBTSxZQUFZLEdBQUcsT0FBTyxDQUFDLEdBQUcsQ0FBQyxhQUFhLENBQUM7SUFDL0MsSUFBSSxDQUFDLFlBQVksRUFBRTtRQUNqQixNQUFNLElBQUksS0FBSyxDQUFDLDZEQUE2RCxDQUFDLENBQUM7S0FDaEY7SUFDRCxNQUFNLEtBQUssR0FBRyxNQUFNLG9CQUFZLENBQUMsZ0JBQWdCLENBQUM7UUFDaEQsSUFBSSxFQUFFLFlBQVk7S0FDbkIsQ0FBQyxDQUFDLE9BQU8sRUFBRSxDQUFDO0lBRWIsSUFBSSxXQUFXLEdBQUcsQ0FBQyxDQUFDO0lBQ3BCLElBQUksS0FBSyxDQUFDLFdBQVcsRUFBRTtRQUNyQixXQUFXLEdBQUcsS0FBSyxDQUFDLFdBQVc7YUFDNUIsTUFBTSxDQUFDLEtBQUssQ0FBQyxFQUFFLENBQUMsS0FBSyxDQUFDLGVBQWUsS0FBSyxTQUFTLElBQUksS0FBSyxDQUFDLGVBQWUsQ0FBQyxNQUFNLEtBQUssUUFBUSxDQUFDO2FBQ2pHLE1BQU0sQ0FBQztLQUNYO0lBQ0QsY0FBTSxDQUFDLEdBQUcsQ0FBQyxJQUFJLENBQUMsU0FBUyxDQUFDO1FBQ3hCLFdBQVc7S0FDWixDQUFDLENBQUMsQ0FBQztBQUNOLENBQUM7QUFsQkQsMEJBa0JDIn0=
-      Handler: index.handler
       Role:
         Fn::GetAtt:
           - CodeCommitPipelinePipelineWatcherPollerServiceRole0A1D8005
           - Arn
-      Runtime: nodejs10.x
       Environment:
         Variables:
           PIPELINE_NAME:
             Ref: CodeCommitPipelineBuildPipeline656B8CCB
+      Handler: index.handler
+      Runtime: nodejs10.x
     DependsOn:
       - CodeCommitPipelinePipelineWatcherPollerServiceRoleDefaultPolicyE2104AD1
       - CodeCommitPipelinePipelineWatcherPollerServiceRole0A1D8005
@@ -3138,6 +3138,14 @@ Resources:
                     - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelineGitHub0797840C
                     - :*
+          - Action: secretsmanager:GetSecretValue
+            Effect: Allow
+            Resource:
+              Fn::Join:
+                - ""
+                - - "arn:"
+                  - Ref: AWS::Partition
+                  - :secretsmanager:us-east-1:712950704752:secret:github-token-??????
           - Action:
               - codebuild:CreateReportGroup
               - codebuild:CreateReport
@@ -3169,6 +3177,11 @@ Resources:
                   - - "arn:"
                     - Ref: AWS::Partition
                     - :s3:::cdk-hnb659fds-assets-712950704752-us-east-1/*
+          - Action:
+              - secretsmanager:GetSecretValue
+              - secretsmanager:DescribeSecret
+            Effect: Allow
+            Resource: arn:aws:secretsmanager:us-east-1:712950704752:secret:github-token-nnAqfW
           - Action:
               - secretsmanager:ListSecrets
               - secretsmanager:DescribeSecret
@@ -3249,9 +3262,6 @@ Resources:
               Fn::GetAtt:
                 - CodeSign52FB6674
                 - SecretArn
-          - Name: GITHUB_TOKEN
-            Type: PLAINTEXT
-            Value: "{{resolve:secretsmanager:arn:aws:secretsmanager:us-east-1:712950704752:secret:github-token-nnAqfW:SecretString:::}}"
           - Name: GITHUB_OWNER
             Type: PLAINTEXT
             Value: awslabs
@@ -3267,6 +3277,9 @@ Resources:
           - Name: SIGN_ADDITIONAL_ARTIFACTS
             Type: PLAINTEXT
             Value: "true"
+          - Name: GITHUB_TOKEN
+            Type: SECRETS_MANAGER
+            Value: github-token
         Image: aws/codebuild/nodejs:10.1.0
         ImagePullCredentialsType: CODEBUILD
         PrivilegedMode: false
@@ -4061,12 +4074,10 @@ Resources:
       Code:
         S3Bucket: cdk-hnb659fds-assets-712950704752-us-east-1
         S3Key: a23c7b170335a5e6c472d8452f3d532337b63d89a4c9464e658d99122cfe3ed4.zip
-      Handler: index.handler
       Role:
         Fn::GetAtt:
           - CodeCommitPipelineChangeControllerFunctionServiceRoleF02841DB
           - Arn
-      Runtime: nodejs10.x
       Description: Enforces a Change Control Policy into CodePipeline's Publish stage
       Environment:
         Variables:
@@ -4076,6 +4087,8 @@ Resources:
           PIPELINE_NAME:
             Ref: CodeCommitPipelineBuildPipeline656B8CCB
           STAGE_NAME: Publish
+      Handler: index.handler
+      Runtime: nodejs10.x
       Timeout: 300
     DependsOn:
       - CodeCommitPipelineChangeControllerFunctionServiceRoleDefaultPolicy315F7AF5
@@ -4280,15 +4293,15 @@ Resources:
       Code:
         S3Bucket: cdk-hnb659fds-assets-712950704752-us-east-1
         S3Key: acdd7ab8319551b4c9ef2e2752045839c013260d4c5fcb667e9b54b18b4db34d.zip
-      Handler: index.handler
       Role:
         Fn::GetAtt:
           - RSAPrivateKey72FD327D38134632934028EC437AA486ServiceRole76094455
           - Arn
-      Runtime: nodejs10.x
       Description: Generates an RSA Private Key and stores it in AWS Secrets Manager
+      Handler: index.handler
       Layers:
         - Ref: X509CodeSigningKeyRSAPrivateKeyOpenSslCliLayer3F0C7B04
+      Runtime: nodejs10.x
       Timeout: 300
     DependsOn:
       - RSAPrivateKey72FD327D38134632934028EC437AA486ServiceRoleDefaultPolicy487DB1EA
@@ -4336,15 +4349,15 @@ Resources:
       Code:
         S3Bucket: cdk-hnb659fds-assets-712950704752-us-east-1
         S3Key: b8fcf7ec21ebb2dd04e7a395ae36f93cdcb7f2d7344c68ee105de5ffa2414827.zip
-      Handler: index.handler
       Role:
         Fn::GetAtt:
           - CreateCSR541F67826DCF49A78C5A67715ADD9E4CServiceRoleD2990C92
           - Arn
-      Runtime: nodejs10.x
       Description: Creates a Certificate Signing Request document for an x509 certificate
+      Handler: index.handler
       Layers:
         - Ref: X509CodeSigningKeyRSAPrivateKeyCertificateSigningRequestOpenSslCliLayer61AF8E77
+      Runtime: nodejs10.x
       Timeout: 300
     DependsOn:
       - CreateCSR541F67826DCF49A78C5A67715ADD9E4CServiceRoleDefaultPolicyC0800208
@@ -4514,15 +4527,15 @@ Resources:
       Code:
         S3Bucket: cdk-hnb659fds-assets-712950704752-us-east-1
         S3Key: 4d253620c108182e5794e071d21879793e5ef4e6bf558a5e4b0acd1f65bbf117.zip
-      Handler: index.handler
       Role:
         Fn::GetAtt:
           - SingletonLambdaf25803d3054b44fc985f4860d7d6ee74ServiceRole410148CF
           - Arn
-      Runtime: nodejs10.x
       Description: Generates an OpenPGP Key and stores the private key in Secrets Manager and the public key in an SSM Parameter
+      Handler: index.handler
       Layers:
         - Ref: CodeSignGpgLayer4D38F47B
+      Runtime: nodejs10.x
       Timeout: 300
     DependsOn:
       - SingletonLambdaf25803d3054b44fc985f4860d7d6ee74ServiceRoleDefaultPolicyA8FDF5BD
