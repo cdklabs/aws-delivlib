@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [11.0.0](https://github.com/awslabs/aws-delivlib/compare/v10.3.12...v11.0.0) (2021-01-19)
+
+
+### ⚠ BREAKING CHANGES
+
+* **bump:** the 'stage' prop of AutoMergeBackOptions has been moved to a
+new AutoMergeBackPipelineOptions interface.
+
+### Bug Fixes
+
+* remove repo as required property of AutoMergeBackOptions ([7eb7991](https://github.com/awslabs/aws-delivlib/commit/7eb7991171ccd64d49e3e7123cc68c3dca3d104a)), closes [#671](https://github.com/awslabs/aws-delivlib/issues/671)
+
+
+* **bump:** refactor AutoMergeBackOptions ([0700bcc](https://github.com/awslabs/aws-delivlib/commit/0700bccc5cd469688ace57856086c02a6f605a94)), closes [#684](https://github.com/awslabs/aws-delivlib/issues/684)
+
 ### [10.3.12](https://github.com/awslabs/aws-delivlib/compare/v10.3.11...v10.3.12) (2021-01-18)
 
 ### [10.3.11](https://github.com/awslabs/aws-delivlib/compare/v10.3.10...v10.3.11) (2021-01-15)
