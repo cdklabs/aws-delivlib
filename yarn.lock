@@ -4347,10 +4347,10 @@ modify-values@^1.0.0:
   resolved "https://registry.yarnpkg.com/modify-values/-/modify-values-1.0.1.tgz#b3939fa605546474e3e3e3c63d64bd43b4ee6022"
   integrity sha512-xV2bxeN6F7oYjZWTe/YPAy6MN2M+sL4u/Rlm2AHCIVGfo2p1yGmBHQ6vHehl4bRTZBdHu3TSkWdYgkwpYzAGSw==
 
-monocdk@1.85.0:
-  version "1.85.0"
-  resolved "https://registry.yarnpkg.com/monocdk/-/monocdk-1.85.0.tgz#93c836a742cc27de306a287fbd909a0168a221e6"
-  integrity sha512-XCNQa0rGHcFr5nYS4HYE2LXne/aWg4tYn6SWSehjB6kh1KkMmTYCL/v0okHfNRD6jtphGQtQj4lKsdKC8RU5fw==
+monocdk@1.86.0:
+  version "1.86.0"
+  resolved "https://registry.yarnpkg.com/monocdk/-/monocdk-1.86.0.tgz#f7e4f83d1b0214e036e3bf64a2caabc84225a829"
+  integrity sha512-N9zZcg+VKqLRtO+N4a2+tSTbKUTqtl8OwhDx7nxYMHjD98fdalqtmwzf8/1ldibNEjgt7wkenpeyn1MMiwUrQQ==
   dependencies:
     "@balena/dockerignore" "^1.0.2"
     case "1.6.3"
