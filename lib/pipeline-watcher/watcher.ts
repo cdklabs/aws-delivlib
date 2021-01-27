@@ -1,4 +1,3 @@
-import * as fs from 'fs';
 import * as path from 'path';
 import {
   Construct,
@@ -48,7 +47,7 @@ export class PipelineWatcher extends Construct {
     const pipelineWatcher = new lambda.Function(this, 'Poller', {
       handler: 'index.handler',
       runtime: lambda.Runtime.NODEJS_12_X,
-      code: lambda.Code.fromInline(fs.readFileSync(path.join(__dirname, 'watcher-handler.js')).toString('utf8')),
+      code: lambda.Code.fromAsset(path.join(__dirname, 'handler')),
       environment: {
         METRIC_NAMESPACE: metricNamespace,
         METRIC_NAME: metricName,

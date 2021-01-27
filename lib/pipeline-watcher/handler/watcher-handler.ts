@@ -2,7 +2,7 @@ import * as AWS from 'aws-sdk';
 
 // Partial type for the 'detail' section of an event from Amazon EventBridge for 'CodePipeline Action Execution State Change'
 // See https://docs.aws.amazon.com/eventbridge/latest/userguide/event-types.html#codepipeline-event-type
-interface CodePipelineActionStateChangeEvent {
+export interface CodePipelineActionStateChangeEvent {
   readonly pipeline: string;
   readonly action: string;
   readonly state: 'STARTED' | 'CANCELED' | 'FAILED' | 'SUCCEEDED';
@@ -10,7 +10,7 @@ interface CodePipelineActionStateChangeEvent {
 
 // export for tests
 export const cloudwatch = new AWS.CloudWatch();
-export const logger = {
+const logger = {
   log: (line: string) => process.stdout.write(line),
 };
 
@@ -39,7 +39,8 @@ export async function handler(event: AWSLambda.EventBridgeEvent<'CodePipeline Ac
   switch (state) {
     case 'FAILED': value = 1; break;
     case 'SUCCEEDED': value = 0; break;
-    default: throw new Error('Only FAILED and SUCCEEDED states are supported. Others must be filtered out prior to this function.');
+    default: throw new Error(`Unsupported state: ${state}. Only FAILED and SUCCEEDED states are supported. ` +
+    'Others must be filtered out prior to this function.');
   }
 
   logger.log(`Calling PutMetricData with payload: ${JSON.stringify(event)}`);
