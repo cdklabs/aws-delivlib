@@ -1,8 +1,15 @@
 import * as AWS from 'aws-sdk';
 
+// Partial type for the 'detail' section of an event from Amazon EventBridge for 'CodePipeline Action Execution State Change'
+// See https://docs.aws.amazon.com/eventbridge/latest/userguide/event-types.html#codepipeline-event-type
+interface CodePipelineActionStateChangeEvent {
+  readonly pipeline: string;
+  readonly action: string;
+  readonly state: 'STARTED' | 'CANCELED' | 'FAILED' | 'SUCCEEDED';
+}
 
 // export for tests
-export const codePipeline = new AWS.CodePipeline();
+export const cloudwatch = new AWS.CloudWatch();
 export const logger = {
   log: (line: string) => process.stdout.write(line),
 };
@@ -14,22 +21,49 @@ export const logger = {
  *
  * It requires the pipeline's name be set as the 'PIPELINE_NAME' environment variable.
  */
-export async function handler() {
-  const pipelineName = process.env.PIPELINE_NAME;
-  if (!pipelineName) {
-    throw new Error("Pipeline name expects environment variable: 'PIPELINE_NAME'");
-  }
-  const state = await codePipeline.getPipelineState({
-    name: pipelineName,
-  }).promise();
+export async function handler(event: AWSLambda.EventBridgeEvent<'CodePipeline Action Execution State Change', CodePipelineActionStateChangeEvent>) {
+  logger.log(`Received event: ${JSON.stringify(event)}`);
 
-  let failedCount = 0;
-  if (state.stageStates) {
-    failedCount = state.stageStates
-      .filter(stage => stage.latestExecution !== undefined && stage.latestExecution.status === 'Failed')
-      .length;
+  const metricNamespace = process.env.METRIC_NAMESPACE;
+  const metricName = process.env.METRIC_NAME;
+  const pipelineName = event.detail.pipeline;
+  const action = event.detail.action;
+  const state = event.detail.state;
+  const time = new Date(event.time);
+
+  if (!metricNamespace || !metricName) {
+    throw new Error('Both METRIC_NAMESPACE and METRIC_NAME environment variables must be set.');
   }
-  logger.log(JSON.stringify({
-    failedCount,
-  }));
+
+  let value: number;
+  switch (state) {
+    case 'FAILED': value = 1; break;
+    case 'SUCCEEDED': value = 0; break;
+    default: throw new Error('Only FAILED and SUCCEEDED states are supported. Others must be filtered out prior to this function.');
+  }
+
+  logger.log(`Calling PutMetricData with payload: ${JSON.stringify(event)}`);
+  const input: AWS.CloudWatch.PutMetricDataInput = {
+    Namespace: metricNamespace,
+    MetricData: [
+      {
+        MetricName: metricName,
+        Value: value,
+        Dimensions: [
+          {
+            Name: 'Pipeline',
+            Value: pipelineName,
+          },
+          {
+            Name: 'Action',
+            Value: action,
+          },
+        ],
+        Timestamp: time,
+      },
+    ],
+  };
+
+  await cloudwatch.putMetricData(input).promise();
+  logger.log('Done');
 }
