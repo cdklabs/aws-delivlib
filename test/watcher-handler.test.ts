@@ -1,113 +1,133 @@
-import { codePipeline, handler, logger } from '../lib/pipeline-watcher/watcher-handler';
+import { CodePipelineActionStateChangeEvent, cloudwatch, handler } from '../lib/pipeline-watcher/handler/watcher-handler';
 
-codePipeline.getPipelineState = jest.fn();
+cloudwatch.putMetricData = jest.fn();
 
-test('handler should propagate error if GetPipelineState fails', async () => {
-  process.env.PIPELINE_NAME = 'name';
-  expect.assertions(2);
-  codePipeline.getPipelineState = jest.fn(request => {
-    expect(request).toEqual({ name: 'name' });
-    return {
-      promise: () => new Promise((_, reject) => reject(new Error('fail'))),
-    };
-  }) as any;
-  try {
-    await handler();
-  } catch (err) {
-    expect(err.message).toEqual('fail');
-  }
-});
-
-test('handler should throw error if process.env.PIPELINE_NAME is undefined', async () => {
-  delete process.env.PIPELINE_NAME;
-  expect.assertions(1);
-  try {
-    await handler();
-  } catch (err) {
-    expect(err.message).toEqual("Pipeline name expects environment variable: 'PIPELINE_NAME'");
-  }
-});
-
-// prepare log with a new mock, set the name env variable and mock the getPipelineState fn.
-function mock(response: any) {
-  logger.log = jest.fn();
-  process.env.PIPELINE_NAME = 'name';
-  codePipeline.getPipelineState = jest.fn(request => {
-    expect(request && request.name).toEqual(process.env.PIPELINE_NAME);
-    return {
-      promise: () => new Promise((resolve) => resolve(response)),
-    };
-  }) as any;
+function event(
+  state: 'STARTED' | 'CANCELED' | 'FAILED' | 'SUCCEEDED' = 'SUCCEEDED',
+): AWSLambda.EventBridgeEvent<'CodePipeline Action Execution State Change', CodePipelineActionStateChangeEvent> {
+  return {
+    'id': 'some-id',
+    'version': '1',
+    'account': '0123456789',
+    'resources': ['some-resource'],
+    'time': '2021-01-27T12:44:00Z',
+    'detail-type': 'CodePipeline Action Execution State Change',
+    'region': 'us-east-1',
+    'source': 'aws.codepipeline',
+    'detail': {
+      action: 'some-action',
+      pipeline: 'some-pipeline',
+      state,
+    },
+  };
 }
 
-test('handler should log {failCount: 0} if pipeline.stageStates is undefined', async () => {
-  mock({});
-  await handler();
-  expect(logger.log).toBeCalledTimes(1);
-  expect(logger.log).toBeCalledWith(JSON.stringify({ failedCount: 0 }));
-});
-
-test('handler should log {failCount: 0} if pipeline.stageStates is empty', async () => {
-  mock({ stageStates: [] });
-  await handler();
-  expect(logger.log).toBeCalledTimes(1);
-  expect(logger.log).toBeCalledWith(JSON.stringify({ failedCount: 0 }));
-});
-
-test('handler should log {failCount: 0} if pipeline.stageStates[:0].latestExecution are undefined', async () => {
-  mock({
-    stageStates: [{
-      latestExecution: undefined,
-    }],
+describe('watcher-handler', () => {
+  beforeEach(() => {
+    process.env.METRIC_NAME = 'metricName';
+    process.env.METRIC_NAMESPACE = 'metricNamespace';
   });
-  await handler();
-  expect(logger.log).toBeCalledTimes(1);
-  expect(logger.log).toBeCalledWith(JSON.stringify({ failedCount: 0 }));
-});
 
-test('handler should log {failCount: 0} if none of pipeline.stageStates[:0].latestExecution.status are Failed', async () => {
-  mock({
-    stageStates: [{
-      latestExecution: {
-        status: 'Success',
-      },
-    }],
+  test('throws an error if PutMetricData fails', async () => {
+    expect.assertions(1);
+    cloudwatch.putMetricData = jest.fn(_request => {
+      return {
+        promise: () => new Promise((_, reject) => reject(new Error('fail'))),
+      };
+    }) as any;
+    try {
+      await handler(event());
+    } catch (err) {
+      expect(err.message).toEqual('fail');
+    }
   });
-  await handler();
-  expect(logger.log).toBeCalledTimes(1);
-  expect(logger.log).toBeCalledWith(JSON.stringify({ failedCount: 0 }));
-});
 
-test('handler should log {failCount: 1} if one of pipeline.stageStates[:0].latestExecution.status is Failed', async () => {
-  mock({
-    stageStates: [{
-      latestExecution: {
-        status: 'Failed',
-      },
-    }],
+  test('throws an error if METRIC_NAME is undefined', async () => {
+    delete process.env.METRIC_NAME;
+    expect.assertions(1);
+    try {
+      await handler(event());
+    } catch (err) {
+      expect(err.message).toMatch(/environment variables must be set/);
+    }
   });
-  await handler();
-  expect(logger.log).toBeCalledTimes(1);
-  expect(logger.log).toBeCalledWith(JSON.stringify({ failedCount: 1 }));
-});
 
-test('handler should log {failCount: 2} for 2 "Failed" and 1 "Success" pipeline.stageStates[:0].latestExecution.status values', async () => {
-  mock({
-    stageStates: [{
-      latestExecution: {
-        status: 'Failed',
-      },
-    }, {
-      latestExecution: {
-        status: 'Sucess',
-      },
-    }, {
-      latestExecution: {
-        status: 'Failed',
-      },
-    }],
+  test('throws an error if METRIC_NAMESPACE is undefined', async () => {
+    delete process.env.METRIC_NAMESPACE;
+    expect.assertions(1);
+    try {
+      await handler(event());
+    } catch (err) {
+      expect(err.message).toMatch(/environment variables must be set/);
+    }
   });
-  await handler();
-  expect(logger.log).toBeCalledTimes(1);
-  expect(logger.log).toBeCalledWith(JSON.stringify({ failedCount: 2 }));
+
+  test('throws an error if state is not SUCCEEDED or FAILED', async () => {
+    expect.assertions(1);
+    try {
+      await handler(event('STARTED'));
+    } catch (err) {
+      expect(err.message).toMatch(/Unsupported/);
+    }
+  });
+
+  test('reports FAILED state metrics', async () => {
+    expect.assertions(1);
+    cloudwatch.putMetricData = jest.fn(request => {
+      expect(request).toEqual({
+        Namespace: 'metricNamespace',
+        MetricData: [
+          {
+            MetricName: 'metricName',
+            Value: 1,
+            Dimensions: [
+              {
+                Name: 'Pipeline',
+                Value: 'some-pipeline',
+              },
+              {
+                Name: 'Action',
+                Value: 'some-action',
+              },
+            ],
+            Timestamp: new Date(1611751440000),
+          },
+        ],
+      });
+      return {
+        promise: () => new Promise((resolve, _) => resolve({})),
+      };
+    }) as any;
+    await handler(event('FAILED'));
+  });
+
+  test('reports SUCCEEDED state metrics', async () => {
+    expect.assertions(1);
+    cloudwatch.putMetricData = jest.fn(request => {
+      expect(request).toEqual({
+        Namespace: 'metricNamespace',
+        MetricData: [
+          {
+            MetricName: 'metricName',
+            Value: 0,
+            Dimensions: [
+              {
+                Name: 'Pipeline',
+                Value: 'some-pipeline',
+              },
+              {
+                Name: 'Action',
+                Value: 'some-action',
+              },
+            ],
+            Timestamp: new Date(1611751440000),
+          },
+        ],
+      });
+      return {
+        promise: () => new Promise((resolve, _) => resolve({})),
+      };
+    }) as any;
+    await handler(event('SUCCEEDED'));
+  });
 });
