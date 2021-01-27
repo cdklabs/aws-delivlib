@@ -15,11 +15,8 @@ const logger = {
 };
 
 /**
- * Lambda function for checking the stages of a CodePipeline and emitting log
- * entries with { failedCount = <no. of failed stages> } for async metric
- * aggregation via metric filters.
- *
- * It requires the pipeline's name be set as the 'PIPELINE_NAME' environment variable.
+ * Lambda function that reacts to an Amazon EventBridge event triggered by a 'CodePipeline Action Execution State Change'.
+ * The handler reads the event and sends off metrics to CloudWatch.
  */
 export async function handler(event: AWSLambda.EventBridgeEvent<'CodePipeline Action Execution State Change', CodePipelineActionStateChangeEvent>) {
   logger.log(`Received event: ${JSON.stringify(event)}`);
