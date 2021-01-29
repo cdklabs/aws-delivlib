@@ -42,10 +42,10 @@ export class PipelineWatcher extends Construct {
     super(parent, name);
 
     const metricNamespace = 'CDK/Delivlib';
-    const metricName = 'PipelineActionFailures';
+    const metricName = 'Failures';
 
     const pipelineWatcher = new lambda.Function(this, 'Poller', {
-      handler: 'index.handler',
+      handler: 'watcher-handler.handler',
       runtime: lambda.Runtime.NODEJS_12_X,
       code: lambda.Code.fromAsset(path.join(__dirname, 'handler')),
       environment: {
@@ -68,7 +68,10 @@ export class PipelineWatcher extends Construct {
       eventPattern: {
         source: ['aws.codepipeline'],
         resources: [props.pipeline.pipelineArn],
-        detailType: ['CodePipeline Action Execution State Change'],
+        detailType: [
+          'CodePipeline Action Execution State Change',
+          'CodePipeline Pipeline Execution State Change',
+        ],
         detail: {
           state: ['FAILED', 'SUCCEEDED'],
         },
