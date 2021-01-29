@@ -11,6 +11,16 @@ import {
 
 export interface PipelineWatcherProps {
   /**
+   * The CloudWatch metric namespace to which metrics should be sent
+   */
+  metricNamespace: string;
+
+  /**
+   * The CloudWatch metric name for failures.
+   */
+  failureMetricName: string;
+
+  /**
    * Code Pipeline to monitor for failed stages
    */
   pipeline: cpipeline.IPipeline;
@@ -41,16 +51,13 @@ export class PipelineWatcher extends Construct {
   constructor(parent: Construct, name: string, props: PipelineWatcherProps) {
     super(parent, name);
 
-    const metricNamespace = 'CDK/Delivlib';
-    const metricName = 'Failures';
-
     const pipelineWatcher = new lambda.Function(this, 'Poller', {
       handler: 'watcher-handler.handler',
       runtime: lambda.Runtime.NODEJS_12_X,
       code: lambda.Code.fromAsset(path.join(__dirname, 'handler')),
       environment: {
-        METRIC_NAMESPACE: metricNamespace,
-        METRIC_NAME: metricName,
+        METRIC_NAMESPACE: props.metricNamespace,
+        METRIC_NAME: props.failureMetricName,
       },
     });
 
@@ -59,7 +66,7 @@ export class PipelineWatcher extends Construct {
       actions: ['cloudwatch:PutMetricData'],
       conditions: {
         StringEquals: {
-          'cloudwatch:namespace': metricNamespace,
+          'cloudwatch:namespace': props.metricNamespace,
         },
       },
     }));
@@ -82,8 +89,8 @@ export class PipelineWatcher extends Construct {
     this.alarm = new cloudwatch.Alarm(this, 'Alarm', {
       alarmDescription: `Pipeline ${props.title || props.pipeline.pipelineName} has failed stages`,
       metric: new cloudwatch.Metric({
-        metricName,
-        namespace: metricNamespace,
+        metricName: props.failureMetricName,
+        namespace: props.metricNamespace,
         statistic: cloudwatch.Statistic.MAXIMUM,
         dimensions: {
           Pipeline: props.pipeline.pipelineName,

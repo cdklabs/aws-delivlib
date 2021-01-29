@@ -674,11 +674,21 @@ To create an ssh deploy key for your repository:
 The `Pipeline` construct automatically creates the following metrics in CloudWatch
 for the configured pipelines. These are published under the namespace 'CDK/Delivlib'.
 
-- *PipelineActionFailures:* For every failed action in the pipeline, a '1' is
-  published to the metric, and for every successful action, sa '0' is published.
+- Execution Failures: The number of failures of the pipeline execution.
+  When a pipeline execution fails, a '1' is recorded and forevery success, a '0' is
+  recorded.
 
-  This metric has the following dimensions:
-  - *Pipeline*: The pipeline name in CodePipeline,
+  Metric Name: *Failures*
+  Dimensions:
+  - *Pipeline*: The pipeline name in CodePipeline.
+
+- Action Failures: The number of failures per action per pipeline. An execution
+  failure can be due to multiple actions failing.
+  For every action failure, a '1' is recorded and for every success, a '0' is recorded.
+
+  Metric Name: *Failures*
+  Dimensions:
+  - *Pipeline*: The pipeline name in CodePipeline.
   - *Action*: THe name of the action that succeeded or failed.
 
 ## Automatic Bumps and Pull Request Builds
