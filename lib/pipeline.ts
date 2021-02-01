@@ -26,6 +26,8 @@ import { determineRunOrder } from './util';
 
 const PUBLISH_STAGE_NAME = 'Publish';
 const TEST_STAGE_NAME = 'Test';
+const METRIC_NAMESPACE = 'CDK/Delivlib';
+const FAILURE_METRIC_NAME = 'Failures';
 
 export interface PipelineProps {
   /**
@@ -457,9 +459,26 @@ export class Pipeline extends Construct {
     });
   }
 
+  /**
+   * The metrics that tracks pipeline failures.
+   */
+  public metricFailures(options: cloudwatch.MetricOptions): cloudwatch.IMetric {
+    return new cloudwatch.Metric({
+      namespace: METRIC_NAMESPACE,
+      metricName: FAILURE_METRIC_NAME,
+      dimensions: {
+        Pipeline: this.pipeline.pipelineName,
+      },
+      statistic: 'Sum',
+      ...options,
+    });
+  }
+
   private addFailureAlarm(title?: string): cloudwatch.Alarm {
     return new PipelineWatcher(this, 'PipelineWatcher', {
       pipeline: this.pipeline,
+      metricNamespace: METRIC_NAMESPACE,
+      failureMetricName: FAILURE_METRIC_NAME,
       title,
     }).alarm;
   }

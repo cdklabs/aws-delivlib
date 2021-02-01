@@ -52,6 +52,7 @@ available:
    - [PyPi](#pypi)
    - [GitHub Releases](#github-releases)
    - [GitHub Pages](#github-pages)
+1. [Metrics](#metrics)
 1. [Automatic Bumps and Pull Request Builds](#automatic-bumps-and-pull-request-builds)
 1. [Failure Notifications](#failure-notifications)
 1. [ECR Mirror](#ecr-mirror)
@@ -667,6 +668,28 @@ To create an ssh deploy key for your repository:
 1. Create an AWS Secrets Manager secret and paste the private key as plaintext
    (not key/value).
 1. Use the name of the AWS Secrets Manager secret in the `sshKeySecret` option.
+
+## Metrics
+
+The `Pipeline` construct automatically creates the following metrics in CloudWatch
+for the configured pipelines. These are published under the namespace 'CDK/Delivlib'.
+
+- Execution Failures: The number of failures of the pipeline execution.
+  When a pipeline execution fails, a '1' is recorded and forevery success, a '0' is
+  recorded.
+
+  Metric Name: *Failures*
+  Dimensions:
+  - *Pipeline*: The pipeline name in CodePipeline.
+
+- Action Failures: The number of failures per action per pipeline. An execution
+  failure can be due to multiple actions failing.
+  For every action failure, a '1' is recorded and for every success, a '0' is recorded.
+
+  Metric Name: *Failures*
+  Dimensions:
+  - *Pipeline*: The pipeline name in CodePipeline.
+  - *Action*: THe name of the action that succeeded or failed.
 
 ## Automatic Bumps and Pull Request Builds
 

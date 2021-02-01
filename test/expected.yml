@@ -1313,15 +1313,12 @@ Resources:
     Properties:
       PolicyDocument:
         Statement:
-          - Action: codepipeline:GetPipelineState
+          - Action: cloudwatch:PutMetricData
+            Condition:
+              StringEquals:
+                cloudwatch:namespace: CDK/Delivlib
             Effect: Allow
-            Resource:
-              Fn::Join:
-                - ""
-                - - "arn:"
-                  - Ref: AWS::Partition
-                  - ":codepipeline:us-east-1:712950704752:"
-                  - Ref: CodeCommitPipelineBuildPipeline656B8CCB
+            Resource: "*"
         Version: "2012-10-17"
       PolicyName: CodeCommitPipelinePipelineWatcherPollerServiceRoleDefaultPolicyE2104AD1
       Roles:
@@ -1332,84 +1329,43 @@ Resources:
     Type: AWS::Lambda::Function
     Properties:
       Code:
-        ZipFile: >-
-          "use strict";
-
-          Object.defineProperty(exports, "__esModule", { value: true });
-
-          exports.handler = exports.logger = exports.codePipeline = void 0;
-
-          const AWS = require("aws-sdk");
-
-          // export for tests
-
-          exports.codePipeline = new AWS.CodePipeline();
-
-          exports.logger = {
-              log: (line) => process.stdout.write(line),
-          };
-
-          /**
-           * Lambda function for checking the stages of a CodePipeline and emitting log
-           * entries with { failedCount = <no. of failed stages> } for async metric
-           * aggregation via metric filters.
-           *
-           * It requires the pipeline's name be set as the 'PIPELINE_NAME' environment variable.
-           */
-          async function handler() {
-              const pipelineName = process.env.PIPELINE_NAME;
-              if (!pipelineName) {
-                  throw new Error("Pipeline name expects environment variable: 'PIPELINE_NAME'");
-              }
-              const state = await exports.codePipeline.getPipelineState({
-                  name: pipelineName,
-              }).promise();
-              let failedCount = 0;
-              if (state.stageStates) {
-                  failedCount = state.stageStates
-                      .filter(stage => stage.latestExecution !== undefined && stage.latestExecution.status === 'Failed')
-                      .length;
-              }
-              exports.logger.log(JSON.stringify({
-                  failedCount,
-              }));
-          }
-
-          exports.handler = handler;
-
-          //# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoid2F0Y2hlci1oYW5kbGVyLmpzIiwic291cmNlUm9vdCI6IiIsInNvdXJjZXMiOlsid2F0Y2hlci1oYW5kbGVyLnRzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiI7OztBQUFBLCtCQUErQjtBQUcvQixtQkFBbUI7QUFDTixRQUFBLFlBQVksR0FBRyxJQUFJLEdBQUcsQ0FBQyxZQUFZLEVBQUUsQ0FBQztBQUN0QyxRQUFBLE1BQU0sR0FBRztJQUNwQixHQUFHLEVBQUUsQ0FBQyxJQUFZLEVBQUUsRUFBRSxDQUFDLE9BQU8sQ0FBQyxNQUFNLENBQUMsS0FBSyxDQUFDLElBQUksQ0FBQztDQUNsRCxDQUFDO0FBRUY7Ozs7OztHQU1HO0FBQ0ksS0FBSyxVQUFVLE9BQU87SUFDM0IsTUFBTSxZQUFZLEdBQUcsT0FBTyxDQUFDLEdBQUcsQ0FBQyxhQUFhLENBQUM7SUFDL0MsSUFBSSxDQUFDLFlBQVksRUFBRTtRQUNqQixNQUFNLElBQUksS0FBSyxDQUFDLDZEQUE2RCxDQUFDLENBQUM7S0FDaEY7SUFDRCxNQUFNLEtBQUssR0FBRyxNQUFNLG9CQUFZLENBQUMsZ0JBQWdCLENBQUM7UUFDaEQsSUFBSSxFQUFFLFlBQVk7S0FDbkIsQ0FBQyxDQUFDLE9BQU8sRUFBRSxDQUFDO0lBRWIsSUFBSSxXQUFXLEdBQUcsQ0FBQyxDQUFDO0lBQ3BCLElBQUksS0FBSyxDQUFDLFdBQVcsRUFBRTtRQUNyQixXQUFXLEdBQUcsS0FBSyxDQUFDLFdBQVc7YUFDNUIsTUFBTSxDQUFDLEtBQUssQ0FBQyxFQUFFLENBQUMsS0FBSyxDQUFDLGVBQWUsS0FBSyxTQUFTLElBQUksS0FBSyxDQUFDLGVBQWUsQ0FBQyxNQUFNLEtBQUssUUFBUSxDQUFDO2FBQ2pHLE1BQU0sQ0FBQztLQUNYO0lBQ0QsY0FBTSxDQUFDLEdBQUcsQ0FBQyxJQUFJLENBQUMsU0FBUyxDQUFDO1FBQ3hCLFdBQVc7S0FDWixDQUFDLENBQUMsQ0FBQztBQUNOLENBQUM7QUFsQkQsMEJBa0JDIn0=
+        S3Bucket: cdk-hnb659fds-assets-712950704752-us-east-1
+        S3Key: 077dea6c9f77124778ba0adb7d6d1033dd99be515bf0395ba94cb9734c71eff7.zip
       Role:
         Fn::GetAtt:
           - CodeCommitPipelinePipelineWatcherPollerServiceRole0A1D8005
           - Arn
       Environment:
         Variables:
-          PIPELINE_NAME:
-            Ref: CodeCommitPipelineBuildPipeline656B8CCB
-      Handler: index.handler
-      Runtime: nodejs10.x
+          METRIC_NAMESPACE: CDK/Delivlib
+          METRIC_NAME: Failures
+      Handler: watcher-handler.handler
+      Runtime: nodejs12.x
     DependsOn:
       - CodeCommitPipelinePipelineWatcherPollerServiceRoleDefaultPolicyE2104AD1
       - CodeCommitPipelinePipelineWatcherPollerServiceRole0A1D8005
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/PipelineWatcher/Poller/Resource
-  CodeCommitPipelinePipelineWatcherLogs5DE54482:
-    Type: AWS::Logs::LogGroup
-    Properties:
-      LogGroupName:
-        Fn::Join:
-          - ""
-          - - /aws/lambda/
-            - Ref: CodeCommitPipelinePipelineWatcherPoller5C65ACDE
-      RetentionInDays: 731
-    UpdateReplacePolicy: Retain
-    DeletionPolicy: Retain
-    Metadata:
-      aws:cdk:path: delivlib-test/CodeCommitPipeline/PipelineWatcher/Logs/Resource
   CodeCommitPipelinePipelineWatcherTriggerA38A4AD0:
     Type: AWS::Events::Rule
     Properties:
-      ScheduleExpression: rate(1 minute)
+      EventPattern:
+        source:
+          - aws.codepipeline
+        resources:
+          - Fn::Join:
+              - ""
+              - - "arn:"
+                - Ref: AWS::Partition
+                - ":codepipeline:us-east-1:712950704752:"
+                - Ref: CodeCommitPipelineBuildPipeline656B8CCB
+        detail-type:
+          - CodePipeline Action Execution State Change
+          - CodePipeline Pipeline Execution State Change
+        detail:
+          state:
+            - FAILED
+            - SUCCEEDED
       State: ENABLED
       Targets:
         - Arn:
@@ -1417,8 +1373,6 @@ Resources:
               - CodeCommitPipelinePipelineWatcherPoller5C65ACDE
               - Arn
           Id: Target0
-    DependsOn:
-      - CodeCommitPipelinePipelineWatcherLogs5DE54482
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/PipelineWatcher/Trigger/Resource
   CodeCommitPipelinePipelineWatcherTriggerAllowEventRuledelivlibtestCodeCommitPipelinePipelineWatcherTrigger0F55C264308E3E05:
@@ -1436,33 +1390,17 @@ Resources:
           - Arn
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/PipelineWatcher/Trigger/AllowEventRuledelivlibtestCodeCommitPipelinePipelineWatcherTrigger0F55C264
-  CodeCommitPipelinePipelineWatcherMetricFilter1D1A0C4D:
-    Type: AWS::Logs::MetricFilter
-    Properties:
-      FilterPattern: '{ $.failedCount = "*" }'
-      LogGroupName:
-        Ref: CodeCommitPipelinePipelineWatcherLogs5DE54482
-      MetricTransformations:
-        - MetricName:
-            Fn::Join:
-              - ""
-              - - Ref: CodeCommitPipelineBuildPipeline656B8CCB
-                - _FailedStages
-          MetricNamespace: CDK/Delivlib
-          MetricValue: $.failedCount
-    Metadata:
-      aws:cdk:path: delivlib-test/CodeCommitPipeline/PipelineWatcher/MetricFilter/Resource
   CodeCommitPipelinePipelineWatcherAlarm73779F48:
     Type: AWS::CloudWatch::Alarm
     Properties:
       ComparisonOperator: GreaterThanOrEqualToThreshold
       EvaluationPeriods: 1
       AlarmDescription: Pipeline aws-delivlib test pipeline has failed stages
-      MetricName:
-        Fn::Join:
-          - ""
-          - - Ref: CodeCommitPipelineBuildPipeline656B8CCB
-            - _FailedStages
+      Dimensions:
+        - Name: Pipeline
+          Value:
+            Ref: CodeCommitPipelineBuildPipeline656B8CCB
+      MetricName: Failures
       Namespace: CDK/Delivlib
       Period: 300
       Statistic: Maximum
