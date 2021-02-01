@@ -31,7 +31,6 @@ describe('PipelineWatcher', () => {
       Period: 300,
       Statistic: 'Maximum',
       Threshold: 1,
-      TreatMissingData: 'ignore',
     });
   });
 
@@ -70,6 +69,16 @@ describe('PipelineWatcher', () => {
           Ref: 'WatcherPollerServiceRole04A8CDED',
         },
       ],
+    });
+  });
+
+  test('missing data should be treated as ignore', () => {
+    const stack = new Stack();
+    const pipeline = Pipeline.fromPipelineArn(stack, 'Pipeline', 'arn:aws:codepipeline:us-east-1:012345789:MyPipeline');
+    new PipelineWatcher(stack, 'Watcher', { pipeline, ...props });
+
+    expect(stack).toHaveResource('AWS::CloudWatch::Alarm', {
+      TreatMissingData: 'ignore',
     });
   });
 });

@@ -99,6 +99,7 @@ export class PipelineWatcher extends Construct {
       threshold: 1,
       comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
       evaluationPeriods: 1,
+      // IGNORE missing data, so the alarm stays in its current state, until the next data point.
       treatMissingData: cloudwatch.TreatMissingData.IGNORE,
     });
   }
