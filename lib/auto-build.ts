@@ -30,6 +30,13 @@ export interface AutoBuildOptions {
   readonly publicLogs?: boolean;
 
   /**
+   * Configure the project to respond to webhooks.
+   *
+   * @default true
+   */
+  readonly webhook?: boolean;
+
+  /**
    * Whether to publish a link to build logs when build is successful.
    *
    * @see https://github.com/jlhood/github-codebuild-logs#app-parameters
@@ -86,7 +93,7 @@ export class AutoBuild extends Construct {
 
     this.project = new codebuild.Project(this, 'Project', {
       projectName: props.projectName,
-      source: props.repo.createBuildSource(this, true, { branch: props.branch }),
+      source: props.repo.createBuildSource(this, props.webhook ?? true, { branch: props.branch }),
       environment: createBuildEnvironment(props.environment ?? {}),
       badge: props.repo.allowsBadge,
       buildSpec: props.buildSpec,
