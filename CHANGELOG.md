@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [12.1.0](https://github.com/awslabs/aws-delivlib/compare/v12.0.0...v12.1.0) (2021-02-02)
+
+
+### Features
+
+* **autobuild:** Option to disable webhooks ([969759d](https://github.com/awslabs/aws-delivlib/commit/969759d406cbea50921d3f8c1336ed5321ce78a2))
+
 ## [12.0.0](https://github.com/awslabs/aws-delivlib/compare/v11.0.8...v12.0.0) (2021-02-02)
 
 
