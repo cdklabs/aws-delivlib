@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [12.0.0](https://github.com/awslabs/aws-delivlib/compare/v11.0.8...v12.0.0) (2021-02-02)
+
+
+### ⚠ BREAKING CHANGES
+
+* **pipeline:** delivlib `Pipeline` construct no longer produces
+the `<pipelineName>_FailedStages` metric. It instead produces the
+metric `PipelineActionFailures` with the pipeline name as a dimension.
+
+### Features
+
+* **pipeline:** improved pipeline failure metrics ([5c30ada](https://github.com/awslabs/aws-delivlib/commit/5c30adafd594ae139f9cccbeb4d0fd8c417a9c6f))
+
 ### [11.0.8](https://github.com/awslabs/aws-delivlib/compare/v11.0.7...v11.0.8) (2021-02-01)
 
 ### [11.0.7](https://github.com/awslabs/aws-delivlib/compare/v11.0.6...v11.0.7) (2021-01-29)
