@@ -6,6 +6,10 @@ credentials=$(aws secretsmanager get-secret-value --secret-id ${PYPI_CREDENTIALS
 export TWINE_USERNAME=$(python -c "import json; print(json.loads('''${credentials}''')['username'])")
 export TWINE_PASSWORD=$(python -c "import json; print(json.loads('''${credentials}''')['password'])")
 
+# make sure we use the latest pip
+# see https://cryptography.io/en/latest/faq.html#installing-cryptography-fails-with-error-can-not-find-rust-compiler
+pip install --upgrade pip
+
 pip install twine
 
 if [[ "${FOR_REAL:-}" == "true" ]]; then
