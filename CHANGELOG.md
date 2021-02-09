@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [12.1.4](https://github.com/awslabs/aws-delivlib/compare/v12.1.3...v12.1.4) (2021-02-09)
+
+
+### Bug Fixes
+
+* **pypi:** cryptography >= 3.4 is not supported by older pip ([4ff8cfb](https://github.com/awslabs/aws-delivlib/commit/4ff8cfbd6d9e337e39d2906b959bb064549cb887)), closes [/cryptography.io/en/3.4/changelog.html#v3-4](https://github.com/awslabs//cryptography.io/en/3.4/changelog.html/issues/v3-4)
+
 ### [12.1.3](https://github.com/awslabs/aws-delivlib/compare/v12.1.2...v12.1.3) (2021-02-09)
 
 ### [12.1.2](https://github.com/awslabs/aws-delivlib/compare/v12.1.1...v12.1.2) (2021-02-05)
