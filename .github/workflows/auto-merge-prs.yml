@@ -27,7 +27,7 @@ jobs:
     steps:
       - name: automerge
         if: github.event.pull_request.user.login != 'dependabot[bot]' && github.event.pull_request.user.login != 'dependabot-preview[bot]'
-        uses: "pascalgn/automerge-action@v0.13.0"
+        uses: "pascalgn/automerge-action@v0.13.1"
         env:
           MERGE_COMMIT_MESSAGE: "pull-request-title-and-description"
           UPDATE_LABELS: "!do-not-merge"
@@ -37,7 +37,7 @@ jobs:
     steps:
       - name: automerge
         if: github.event.pull_request.user.login == 'dependabot[bot]' || github.event.pull_request.user.login == 'dependabot-preview[bot]'
-        uses: "pascalgn/automerge-action@v0.13.0"
+        uses: "pascalgn/automerge-action@v0.13.1"
         env:
           # Don't merge from master (Dependabot will do that itself)
           UPDATE_LABELS: "NEVER_MATCHES"
