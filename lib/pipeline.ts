@@ -398,6 +398,9 @@ export class Pipeline extends Construct {
     }), options);
   }
 
+  /**
+   * Publish Golang code from `go` directory in build artifact to a GitHub repository.
+   */
   public publishToGolang(options: publishing.PublishToGolangProps) {
     this.addPublish(new publishing.PublishToGolang(this, 'Golang', {
       dryRun: this.dryRun,
