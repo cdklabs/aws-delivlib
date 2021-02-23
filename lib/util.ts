@@ -47,7 +47,7 @@ export function renderEnvironmentVariables(env?: { [key: string]: string | undef
 
   const out: { [key: string]: cbuild.BuildEnvironmentVariable } = { };
   for (const [key, value] of Object.entries(env)) {
-    if (value) {
+    if (value !== undefined) {
       out[key] = { value, type };
     }
   }
