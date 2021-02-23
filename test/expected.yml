@@ -2631,6 +2631,9 @@ Resources:
           - Name: NPM_TOKEN_SECRET
             Type: PLAINTEXT
             Value: arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/npm-OynG62
+          - Name: DISTTAG
+            Type: PLAINTEXT
+            Value: ""
           - Name: ACCESS
             Type: PLAINTEXT
             Value: restricted
