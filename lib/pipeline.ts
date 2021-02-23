@@ -398,6 +398,13 @@ export class Pipeline extends Construct {
     }), options);
   }
 
+  public publishToGolang(options: publishing.PublishToGolangProps) {
+    this.addPublish(new publishing.PublishToGolang(this, 'Golang', {
+      dryRun: this.dryRun,
+      ...options,
+    }));
+  }
+
   /**
    * Enables automatic bumps for the source repo.
    * @param options Options for auto bump (see AutoBumpOptions for description of defaults)

@@ -33,7 +33,7 @@ export interface ShellableOptions {
    *
    * @default No additional environment variables
    */
-  environment?: { [key: string]: string };
+  environment?: { [key: string]: string | undefined };
 
   /**
    * Environment variables with secrets manager values. The values must be complete Secret Manager ARNs.
