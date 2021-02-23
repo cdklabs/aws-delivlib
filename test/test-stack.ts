@@ -165,6 +165,15 @@ export class TestStack extends Stack {
       loginSecret: { secretArn: 'arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/pypi-tOhH6X' },
     });
 
+    // publish go bindings to awslabs/aws-delivlib-sample under the "golang"
+    // branch (repository is derived from "go.moduleName" in package.json)
+    pipeline.publishToGolang({
+      githubTokenSecret: { secretArn: githubRepo.tokenSecretArn },
+      gitBranch: 'golang',
+      gitUserEmail: 'aws-cdk-dev+delivlib@amazon.com',
+      gitUserName: 'Delivlib Tests',
+    });
+
     //
     // BUMP
 

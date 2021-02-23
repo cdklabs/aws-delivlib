@@ -300,6 +300,28 @@ Resources:
                   - CodeCommitPipelinePyPIRole30E20A9B
                   - Arn
             Resource: "*"
+          - Action:
+              - kms:Decrypt
+              - kms:DescribeKey
+            Effect: Allow
+            Principal:
+              AWS:
+                Fn::GetAtt:
+                  - CodeCommitPipelineGolangRole46DA8D4C
+                  - Arn
+            Resource: "*"
+          - Action:
+              - kms:Decrypt
+              - kms:Encrypt
+              - kms:ReEncrypt*
+              - kms:GenerateDataKey*
+            Effect: Allow
+            Principal:
+              AWS:
+                Fn::GetAtt:
+                  - CodeCommitPipelineGolangRole46DA8D4C
+                  - Arn
+            Resource: "*"
         Version: "2012-10-17"
     UpdateReplacePolicy: Delete
     DeletionPolicy: Delete
@@ -448,6 +470,12 @@ Resources:
             Resource:
               Fn::GetAtt:
                 - CodeCommitPipelineBuildPipelinePublishPyPIPublishCodePipelineActionRole05AF99D5
+                - Arn
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Resource:
+              Fn::GetAtt:
+                - CodeCommitPipelineBuildPipelinePublishGolangPublishCodePipelineActionRole365FF3C7
                 - Arn
         Version: "2012-10-17"
       PolicyName: CodeCommitPipelineBuildPipelineRoleDefaultPolicy94C30F44
@@ -673,6 +701,22 @@ Resources:
               RoleArn:
                 Fn::GetAtt:
                   - CodeCommitPipelineBuildPipelinePublishPyPIPublishCodePipelineActionRole05AF99D5
+                  - Arn
+              RunOrder: 1
+            - ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Provider: CodeBuild
+                Version: "1"
+              Configuration:
+                ProjectName:
+                  Ref: CodeCommitPipelineGolangBDFA17A1
+              InputArtifacts:
+                - Name: Artifact_Build_Build
+              Name: GolangPublish
+              RoleArn:
+                Fn::GetAtt:
+                  - CodeCommitPipelineBuildPipelinePublishGolangPublishCodePipelineActionRole365FF3C7
                   - Arn
               RunOrder: 1
           Name: Publish
@@ -1115,6 +1159,43 @@ Resources:
         - Ref: CodeCommitPipelineBuildPipelinePublishPyPIPublishCodePipelineActionRole05AF99D5
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/BuildPipeline/Publish/PyPIPublish/CodePipelineActionRole/DefaultPolicy/Resource
+  CodeCommitPipelineBuildPipelinePublishGolangPublishCodePipelineActionRole365FF3C7:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              AWS:
+                Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - :iam::712950704752:root
+        Version: "2012-10-17"
+    Metadata:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/BuildPipeline/Publish/GolangPublish/CodePipelineActionRole/Resource
+  CodeCommitPipelineBuildPipelinePublishGolangPublishCodePipelineActionRoleDefaultPolicyED342278:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - codebuild:BatchGetBuilds
+              - codebuild:StartBuild
+              - codebuild:StopBuild
+            Effect: Allow
+            Resource:
+              Fn::GetAtt:
+                - CodeCommitPipelineGolangBDFA17A1
+                - Arn
+        Version: "2012-10-17"
+      PolicyName: CodeCommitPipelineBuildPipelinePublishGolangPublishCodePipelineActionRoleDefaultPolicyED342278
+      Roles:
+        - Ref: CodeCommitPipelineBuildPipelinePublishGolangPublishCodePipelineActionRole365FF3C7
+    Metadata:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/BuildPipeline/Publish/GolangPublish/CodePipelineActionRole/DefaultPolicy/Resource
   CodeCommitPipelineBuildProjectRoleC6347B6E:
     Type: AWS::IAM::Role
     Properties:
@@ -3659,6 +3740,198 @@ Resources:
       TreatMissingData: ignore
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/PyPI/Default/Alarm/Resource
+  CodeCommitPipelineGolangRole46DA8D4C:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: codebuild.amazonaws.com
+        Version: "2012-10-17"
+    Metadata:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/Golang/Default/Resource/Role/Resource
+  CodeCommitPipelineGolangRoleDefaultPolicy189AF9A0:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - logs:CreateLogGroup
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+            Effect: Allow
+            Resource:
+              - Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
+                    - Ref: CodeCommitPipelineGolangBDFA17A1
+              - Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
+                    - Ref: CodeCommitPipelineGolangBDFA17A1
+                    - :*
+          - Action:
+              - codebuild:CreateReportGroup
+              - codebuild:CreateReport
+              - codebuild:UpdateReport
+              - codebuild:BatchPutTestCases
+              - codebuild:BatchPutCodeCoverages
+            Effect: Allow
+            Resource:
+              Fn::Join:
+                - ""
+                - - "arn:"
+                  - Ref: AWS::Partition
+                  - :codebuild:us-east-1:712950704752:report-group/
+                  - Ref: CodeCommitPipelineGolangBDFA17A1
+                  - -*
+          - Action:
+              - s3:GetObject*
+              - s3:GetBucket*
+              - s3:List*
+            Effect: Allow
+            Resource:
+              - Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - :s3:::cdk-hnb659fds-assets-712950704752-us-east-1
+              - Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - :s3:::cdk-hnb659fds-assets-712950704752-us-east-1/*
+          - Action:
+              - secretsmanager:ListSecrets
+              - secretsmanager:DescribeSecret
+              - secretsmanager:GetSecretValue
+            Effect: Allow
+            Resource: arn:aws:secretsmanager:us-east-1:712950704752:secret:github-token-nnAqfW
+          - Action:
+              - s3:GetObject*
+              - s3:GetBucket*
+              - s3:List*
+            Effect: Allow
+            Resource:
+              - Fn::GetAtt:
+                  - CodeCommitPipelineBuildPipelineArtifactsBucketED2813B3
+                  - Arn
+              - Fn::Join:
+                  - ""
+                  - - Fn::GetAtt:
+                        - CodeCommitPipelineBuildPipelineArtifactsBucketED2813B3
+                        - Arn
+                    - /*
+          - Action:
+              - kms:Decrypt
+              - kms:DescribeKey
+            Effect: Allow
+            Resource:
+              Fn::GetAtt:
+                - CodeCommitPipelineBuildPipelineArtifactsBucketEncryptionKey05A62A83
+                - Arn
+          - Action:
+              - kms:Decrypt
+              - kms:Encrypt
+              - kms:ReEncrypt*
+              - kms:GenerateDataKey*
+            Effect: Allow
+            Resource:
+              Fn::GetAtt:
+                - CodeCommitPipelineBuildPipelineArtifactsBucketEncryptionKey05A62A83
+                - Arn
+        Version: "2012-10-17"
+      PolicyName: CodeCommitPipelineGolangRoleDefaultPolicy189AF9A0
+      Roles:
+        - Ref: CodeCommitPipelineGolangRole46DA8D4C
+    Metadata:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/Golang/Default/Resource/Role/DefaultPolicy/Resource
+  CodeCommitPipelineGolangBDFA17A1:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Artifacts:
+        Type: NO_ARTIFACTS
+      Environment:
+        ComputeType: BUILD_GENERAL1_MEDIUM
+        EnvironmentVariables:
+          - Name: SCRIPT_S3_BUCKET
+            Type: PLAINTEXT
+            Value: cdk-hnb659fds-assets-712950704752-us-east-1
+          - Name: SCRIPT_S3_KEY
+            Type: PLAINTEXT
+            Value: d51656c063a0eef8e6e43eebc868209915793a138eb4a16217cb8d51583f6424.zip
+          - Name: GITHUB_TOKEN_SECRET
+            Type: PLAINTEXT
+            Value: arn:aws:secretsmanager:us-east-1:712950704752:secret:github-token-nnAqfW
+          - Name: GIT_BRANCH
+            Type: PLAINTEXT
+            Value: golang
+          - Name: GIT_USER_NAME
+            Type: PLAINTEXT
+            Value: Delivlib Tests
+          - Name: GIT_USER_EMAIL
+            Type: PLAINTEXT
+            Value: aws-cdk-dev+delivlib@amazon.com
+        Image: aws/codebuild/standard:5.0
+        ImagePullCredentialsType: CODEBUILD
+        PrivilegedMode: false
+        Type: LINUX_CONTAINER
+      ServiceRole:
+        Fn::GetAtt:
+          - CodeCommitPipelineGolangRole46DA8D4C
+          - Arn
+      Source:
+        BuildSpec: >-
+          {
+            "version": "0.2",
+            "phases": {
+              "pre_build": {
+                "commands": [
+                  "echo \"Downloading scripts from s3://${SCRIPT_S3_BUCKET}/${SCRIPT_S3_KEY}\"",
+                  "aws s3 cp s3://${SCRIPT_S3_BUCKET}/${SCRIPT_S3_KEY} /tmp",
+                  "mkdir -p /tmp/scriptdir",
+                  "unzip /tmp/$(basename $SCRIPT_S3_KEY) -d /tmp/scriptdir"
+                ]
+              },
+              "build": {
+                "commands": [
+                  "export SCRIPT_DIR=/tmp/scriptdir",
+                  "echo \"Running publish.sh\"",
+                  "/bin/bash /tmp/scriptdir/publish.sh"
+                ]
+              }
+            }
+          }
+        Type: NO_SOURCE
+      EncryptionKey:
+        Fn::GetAtt:
+          - CodeCommitPipelineBuildPipelineArtifactsBucketEncryptionKey05A62A83
+          - Arn
+    Metadata:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/Golang/Default/Resource/Resource
+  CodeCommitPipelineGolangAlarmF9F61D0D:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      EvaluationPeriods: 1
+      Dimensions:
+        - Name: ProjectName
+          Value:
+            Ref: CodeCommitPipelineGolangBDFA17A1
+      MetricName: FailedBuilds
+      Namespace: AWS/CodeBuild
+      Period: 300
+      Statistic: Sum
+      Threshold: 1
+      TreatMissingData: ignore
+    Metadata:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/Golang/Default/Alarm/Resource
   CodeCommitPipelineAutoBumpAutoPullRequestRoleE7E0E388:
     Type: AWS::IAM::Role
     Properties:

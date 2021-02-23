@@ -200,6 +200,8 @@ test('environment variables', () => {
     entrypoint: 'test.sh',
     environment: {
       ENV_VAR: 'env-var-value',
+      UNDEFINED_VAR: undefined,
+      EMPTY_STRING: '',
     },
     environmentSecrets: {
       ENV_VAR_SECRET: 'arn:test:secretsmanager:region:000000000000:secret:env-var-secret-name-abc123',
@@ -242,6 +244,11 @@ test('environment variables', () => {
           Name: 'ENV_VAR',
           Type: 'PLAINTEXT',
           Value: 'env-var-value',
+        },
+        {
+          Name: 'EMPTY_STRING',
+          Type: 'PLAINTEXT',
+          Value: '',
         },
         {
           Name: 'ENV_VAR_SECRET',

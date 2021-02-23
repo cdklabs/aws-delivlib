@@ -399,6 +399,16 @@ export class Pipeline extends Construct {
   }
 
   /**
+   * Publish Golang code from `go` directory in build artifact to a GitHub repository.
+   */
+  public publishToGolang(options: publishing.PublishToGolangProps) {
+    this.addPublish(new publishing.PublishToGolang(this, 'Golang', {
+      dryRun: this.dryRun,
+      ...options,
+    }));
+  }
+
+  /**
    * Enables automatic bumps for the source repo.
    * @param options Options for auto bump (see AutoBumpOptions for description of defaults)
    */

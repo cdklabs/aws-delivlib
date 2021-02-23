@@ -538,3 +538,99 @@ export class PublishToPyPi extends Construct {
     }));
   }
 }
+
+/**
+ * Props for Go publishing.
+ */
+export interface PublishToGolangProps {
+  /**
+   * Identifier of the secret that contains the GitHub personal access token
+   * used to push the go code to the github repository defined by it's name.
+   *
+   * @see https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token
+   */
+  readonly githubTokenSecret: permissions.ExternalSecret;
+
+  /**
+   * Username to perform the commit with.
+   */
+  readonly gitUserName: string;
+
+  /**
+   * Email to perform the commit with.
+   */
+  readonly gitUserEmail: string;
+
+  /**
+   * Set to "true" for a dry run.
+   * @default false
+   */
+  readonly dryRun?: boolean;
+
+  /**
+   * Module version.
+   *
+   * @default - Defaults to the value in the 'version' file of the module
+   * directory. Fails if it doesn't exist.
+   */
+  readonly version?: string;
+
+  /**
+   * Branch to push to.
+   *
+   * @default "main"
+   */
+  readonly gitBranch?: string;
+
+  /**
+   * The commit message.
+   *
+   * @default "chore(release): $VERSION"
+   */
+  readonly gitCommitMessage?: string;
+}
+
+/**
+ * Pushes a directory of golang modules to a GitHub repository.
+ */
+export class PublishToGolang extends Construct {
+  public readonly project: cbuild.Project;
+  public readonly role: iam.IRole;
+
+  constructor(scope: Construct, id: string, props: PublishToGolangProps) {
+    super(scope, id);
+
+    const dryRun = props.dryRun ?? false;
+
+    const shellable = new Shellable(this, 'Default', {
+      platform: new LinuxPlatform(cbuild.LinuxBuildImage.STANDARD_5_0),
+      scriptDirectory: path.join(__dirname, 'publishing', 'golang'),
+      entrypoint: 'publish.sh',
+      environment: {
+        DRYRUN: dryRun ? 'true' : undefined,
+        GITHUB_TOKEN_SECRET: props.githubTokenSecret.secretArn,
+        VERSION: props.version,
+        GIT_BRANCH: props.gitBranch,
+        GIT_USER_NAME: props.gitUserName,
+        GIT_USER_EMAIL: props.gitUserEmail,
+        GIT_COMMIT_MESSAGE: props.gitCommitMessage,
+      },
+    });
+
+    if (shellable.role) {
+      permissions.grantSecretRead(props.githubTokenSecret, shellable.role);
+    }
+
+    this.role = shellable.role;
+    this.project = shellable.project;
+  }
+
+  public addToPipeline(stage: cpipeline.IStage, id: string, options: AddToPipelineOptions): void {
+    stage.addAction(new cpipeline_actions.CodeBuildAction({
+      actionName: id,
+      input: options.inputArtifact || new cpipeline.Artifact(),
+      runOrder: options.runOrder,
+      project: this.project,
+    }));
+  }
+}
