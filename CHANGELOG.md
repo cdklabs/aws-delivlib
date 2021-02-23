@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [12.2.0](https://github.com/awslabs/aws-delivlib/compare/v12.1.13...v12.2.0) (2021-02-23)
+
+
+### Features
+
+* golang publishing ([96150d8](https://github.com/awslabs/aws-delivlib/commit/96150d80f5f6ff50a9ebd235d4a0127595aa6929)), closes [aws/jsii#2562](https://github.com/aws/jsii/issues/2562)
+
 ### [12.1.13](https://github.com/awslabs/aws-delivlib/compare/v12.1.12...v12.1.13) (2021-02-23)
 
 ### [12.1.12](https://github.com/awslabs/aws-delivlib/compare/v12.1.11...v12.1.12) (2021-02-22)
