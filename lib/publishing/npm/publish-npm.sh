@@ -40,8 +40,20 @@ if echo ${TOKENS} | grep 'EAUTHUNKNOWN' > /dev/null; then
     npm login
 fi
 
+# Get a list of tarballs to publish, in order:
+# 1. Print the 'js/npm-publish-order.txt' file if it exists;
+# 2. List all tarballs in the js/ directory (strip leading './')
+# 3. Retain only unique lines from both of these (with awk magic: https://stackoverflow.com/a/11532197).
+#
+# Result is that the js/npm-publish-order.txt files are published in indicated
+# order, and all remaining tarballs not in that file afterwards.
+list_of_tarballs=$(cd ${PWD}/js && { \
+    [[ ! -f npm-publish-order.txt ]] || cat npm-publish-order.txt && \
+    find . -iname '*.tgz' | sed 's/^\.\///'; } | awk '!x[$0]++')
+
 found=false
-for TGZ in $(find ${PWD}/js -iname '*.tgz'); do
+for filename in $list_of_tarballs; do
+    TGZ=${PWD}/js/${filename}
     found=true
 
     # extract module name and version from the tarball (via package/package.json)
