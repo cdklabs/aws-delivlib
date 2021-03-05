@@ -3,8 +3,8 @@ import {
   aws_codecommit as codecommit,
   aws_codepipeline as cpipeline,
   aws_codepipeline_actions as cpipeline_actions
-} from "monocdk-experiment";
-import * as cdk from 'monocdk-experiment';
+} from "monocdk";
+import * as cdk from 'monocdk';
 import { expect as cdk_expect, haveResource, haveResourceLike, SynthUtils, ABSENT } from "@monocdk-experiment/assert";
 import path = require("path");
 import delivlib = require("../lib");

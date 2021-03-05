@@ -1,4 +1,4 @@
-import * as cdk from "monocdk-experiment";
+import * as cdk from "monocdk";
 import { WritableGitHubRepo } from "../repo";
 import * as pr from './pr';
 import { AutoPullRequestProps } from "./pr";

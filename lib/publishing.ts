@@ -1,6 +1,6 @@
 import { aws_codebuild as cbuild, aws_codepipeline as cpipeline,
-  aws_codepipeline_actions as cpipeline_actions, aws_iam as iam, aws_s3 as s3 } from "monocdk-experiment";
-  import * as cdk from 'monocdk-experiment';
+  aws_codepipeline_actions as cpipeline_actions, aws_iam as iam, aws_s3 as s3 } from "monocdk";
+  import * as cdk from 'monocdk';
 import path = require("path");
 import { ICodeSigningCertificate } from "./code-signing";
 import { OpenPGPKeyPair } from "./open-pgp-key-pair";
@@ -358,8 +358,6 @@ export class PublishToGitHub extends cdk.Construct implements IPublisher {
     const forReal = props.dryRun === undefined ? 'false' : (!props.dryRun).toString();
     this.additionalInputArtifacts = props.additionalInputArtifacts;
 
-    const githubToken = cdk.SecretValue.secretsManager(props.githubRepo.tokenSecretArn);
-
     const shellable = new Shellable(this, 'Default', {
       platform: new LinuxPlatform(cbuild.LinuxBuildImage.UBUNTU_14_04_NODEJS_10_1_0),
       scriptDirectory: path.join(__dirname, 'publishing', 'github'),
@@ -368,14 +366,16 @@ export class PublishToGitHub extends cdk.Construct implements IPublisher {
         BUILD_MANIFEST: props.buildManifestFileName || './build.json',
         CHANGELOG: props.changelogFileName || './CHANGELOG.md',
         SIGNING_KEY_ARN: props.signingKey.credential.secretArn,
-        GITHUB_TOKEN: githubToken.toString(),
         GITHUB_OWNER: props.githubRepo.owner,
         GITHUB_REPO: props.githubRepo.repo,
         FOR_REAL: forReal,
         // Transmit the names of the secondary sources to the shell script (for easier iteration)
         SECONDARY_SOURCE_NAMES: props.additionalInputArtifacts ? props.additionalInputArtifacts.map(a => a.artifactName).join(' ') : undefined,
         SIGN_ADDITIONAL_ARTIFACTS: props.additionalInputArtifacts && props.signAdditionalArtifacts !== false ? 'true' : undefined,
-      })
+      }),
+      environmentSecrets: {
+        GITHUB_TOKEN: props.githubRepo.tokenSecretArn,
+      }
     });
 
     // allow script to read the signing key

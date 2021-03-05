@@ -1,8 +1,8 @@
 import { aws_cloudwatch as cloudwatch, aws_codepipeline as cp, aws_events as
   events, aws_events_targets as events_targets, aws_iam as iam, aws_lambda as
   lambda, aws_s3 as s3, aws_s3_notifications as s3_notifications }
-  from "monocdk-experiment";
-  import * as cdk from 'monocdk-experiment';
+  from "monocdk";
+  import * as cdk from 'monocdk';
 import path = require("path");
 
 export interface ChangeControllerProps {

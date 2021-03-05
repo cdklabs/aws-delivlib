@@ -1,5 +1,5 @@
-import { aws_kms as kms } from "monocdk-experiment";
-import * as cdk from 'monocdk-experiment';
+import { aws_kms as kms } from "monocdk";
+import * as cdk from 'monocdk';
 import "@monocdk-experiment/assert/jest";
 import * as delivlib from '../lib';
 

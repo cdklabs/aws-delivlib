@@ -1,8 +1,8 @@
 import { aws_cloudwatch as cloudwatch, aws_codebuild as cbuild,
   aws_codepipeline as cpipeline, aws_codepipeline_actions as cpipeline_actions,
   aws_iam as iam, aws_s3_assets as assets, aws_secretsmanager, aws_ssm } from
-  "monocdk-experiment";
-  import * as cdk from 'monocdk-experiment';
+  "monocdk";
+  import * as cdk from 'monocdk';
 import fs = require("fs");
 import path = require("path");
 import { BuildSpec } from "./build-spec";
@@ -329,7 +329,7 @@ export abstract class ShellPlatform {
    */
   public static get Windows(): ShellPlatform {
     // Cannot be static member because of initialization order
-    return new WindowsPlatform(cbuild.WindowsBuildImage.WIN_SERVER_CORE_2016_BASE);
+    return new WindowsPlatform(cbuild.WindowsBuildImage.WIN_SERVER_CORE_2019_BASE);
   }
 
   constructor(public readonly buildImage: cbuild.IBuildImage) {

@@ -76,7 +76,7 @@ export function sendResponse(event: Event,
     port: parsedUrl.port || 443,
   };
 
-  return new Promise((ok, ko) => {
+  return new Promise<void>((ok, ko) => {
     // tslint:disable-next-line:no-console
     console.log('Sending response...');
 

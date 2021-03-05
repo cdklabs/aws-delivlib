@@ -6,8 +6,8 @@
 //
 //     npm run pipeline-update
 //
-import { aws_codebuild as codebuild, aws_ssm as ssm } from "monocdk-experiment";
-import * as cdk from 'monocdk-experiment';
+import { aws_codebuild as codebuild, aws_ssm as ssm } from "monocdk";
+import * as cdk from 'monocdk';
 import delivlib = require("../lib");
 
 

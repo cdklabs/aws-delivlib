@@ -1,4 +1,4 @@
-import * as cdk from "monocdk-experiment";
+import * as cdk from "monocdk";
 import { expect as assert, haveResource, ResourcePart, SynthUtils } from "@monocdk-experiment/assert";
 import path = require("path");
 import { Shellable, ShellPlatform } from "../lib";
@@ -170,7 +170,7 @@ test('environment variables', () => {
       ENV_VAR: 'env-var-value',
     },
     environmentSecrets: {
-      ENV_VAR_SECRET: 'env-var-secret-name',
+      ENV_VAR_SECRET: 'arn:aws:secretsmanager:us-west-2:111122223333:secret:aes128-1a2b3c',
     },
     environmentParameters: {
       ENV_VAR_PARAMETER: 'env-var-parameter-name'
@@ -204,7 +204,7 @@ test('environment variables', () => {
         {
           Name: 'ENV_VAR_SECRET',
           Type: 'SECRETS_MANAGER',
-          Value: 'env-var-secret-name'
+          Value: 'arn:aws:secretsmanager:us-west-2:111122223333:secret:aes128-1a2b3c'
         },
         {
           Name: 'ENV_VAR_PARAMETER',
@@ -218,6 +218,54 @@ test('environment variables', () => {
   assert(stack).to(haveResource('AWS::IAM::Policy', {
     "PolicyDocument": {
       "Statement": [
+        {
+          "Action": "ssm:GetParameters",
+          "Effect": "Allow",
+          "Resource": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":ssm:",
+                {
+                  "Ref": "AWS::Region"
+                },
+                ":",
+                {
+                  "Ref": "AWS::AccountId"
+                },
+                ":parameter/env-var-parameter-name"
+              ]
+            ]
+          }
+        },
+        {
+          "Action": "secretsmanager:GetSecretValue",
+          "Effect": "Allow",
+          "Resource": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":secretsmanager:",
+                {
+                  "Ref": "AWS::Region"
+                },
+                ":",
+                {
+                  "Ref": "AWS::AccountId"
+                },
+                ":secret:arn:aws:secretsmanager:us-west-2:111122223333:secret:aes128-1a2b3c-??????"
+              ]
+            ]
+          }
+        },
         {
           "Action": [
             "logs:CreateLogGroup",
@@ -280,7 +328,8 @@ test('environment variables', () => {
             "codebuild:CreateReportGroup",
             "codebuild:CreateReport",
             "codebuild:UpdateReport",
-            "codebuild:BatchPutTestCases"
+            "codebuild:BatchPutTestCases",
+            "codebuild:BatchPutCodeCoverages"
           ],
           "Effect": "Allow",
           "Resource": {
@@ -355,7 +404,7 @@ test('environment variables', () => {
             "secretsmanager:DescribeSecret"
           ],
           "Effect": "Allow",
-          "Resource": "env-var-secret-name"
+          "Resource": "arn:aws:secretsmanager:us-west-2:111122223333:secret:aes128-1a2b3c"
         },
         {
           "Action": [
