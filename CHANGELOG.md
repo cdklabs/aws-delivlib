@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [12.3.0](https://github.com/awslabs/aws-delivlib/compare/v12.2.5...v12.3.0) (2021-03-08)
+
+
+### Features
+
+* support NPM publishing order ([d106fbd](https://github.com/awslabs/aws-delivlib/commit/d106fbd6b10e572aeb2e873035da5ced21bffa14))
+
 ### [12.2.5](https://github.com/awslabs/aws-delivlib/compare/v12.2.4...v12.2.5) (2021-03-08)
 
 ### [12.2.4](https://github.com/awslabs/aws-delivlib/compare/v12.2.3...v12.2.4) (2021-03-05)
