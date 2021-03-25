@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [12.3.1](https://github.com/awslabs/aws-delivlib/compare/v12.3.0...v12.3.1) (2021-03-25)
+
+
+### Bug Fixes
+
+* idempotencyToken is expected to be a string ([c70c50a](https://github.com/awslabs/aws-delivlib/commit/c70c50a6c68d86a8a2e87599fa65cd46e0193f7d))
+
 ## [12.3.0](https://github.com/awslabs/aws-delivlib/compare/v12.2.5...v12.3.0) (2021-03-08)
 
 
