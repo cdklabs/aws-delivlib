@@ -172,7 +172,7 @@ export class EcrMirror extends Construct {
           parameters: {
             projectName: this._project.projectName,
             // to tigger the build on every update
-            idempotencyToken: Date.now(),
+            idempotencyToken: `${Date.now()}`,
           },
           physicalResourceId: cr.PhysicalResourceId.of('EcrRegistryExecution'),
 
