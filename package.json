@@ -39,7 +39,7 @@
   "devDependencies": {
     "@monocdk-experiment/assert": "1.87.1",
     "@types/aws-lambda": "^8.10.72",
-    "@types/jest": "^26.0.20",
+    "@types/jest": "^26.0.21",
     "@types/node": "^10.17.55",
     "@typescript-eslint/eslint-plugin": "^4.8.1",
     "@typescript-eslint/parser": "^4.16.1",
