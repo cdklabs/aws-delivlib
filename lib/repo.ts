@@ -16,7 +16,23 @@ export interface IRepo {
 }
 
 export interface BuildSourceOptions {
+  /**
+   * Single branch
+   *
+   * Cannot be specified together with `branches`.
+   *
+   * @default - All branches
+   */
   branch?: string;
+
+  /**
+   * Multiple branches
+   *
+   * Cannot be specified together with `branch`.
+   *
+   * @default - All branches
+   */
+  branches?: string[];
   cloneDepth?: number;
 }
 
@@ -120,6 +136,11 @@ export class GitHubRepo implements IRepo {
   }
 
   public createBuildSource(_: Construct, webhook: boolean, options: BuildSourceOptions = { }): cbuild.ISource {
+    if (options.branch && options.branches) {
+      throw new Error('Specify at most one of \'branch\' and \'branches\'');
+    }
+    const branches = options.branches ?? (options.branch ? [options.branch] : []);
+
     return cbuild.Source.gitHub({
       owner: this.owner,
       repo: this.repo,
@@ -127,7 +148,7 @@ export class GitHubRepo implements IRepo {
       cloneDepth: options.cloneDepth,
       reportBuildStatus: webhook,
       webhookFilters: webhook
-        ? this.createWebhookFilters(options.branch)
+        ? this.createWebhookFilters(branches)
         : undefined,
     });
   }
@@ -136,13 +157,16 @@ export class GitHubRepo implements IRepo {
     return `${this.owner}/${this.repo}`;
   }
 
-  private createWebhookFilters(branch?: string) {
-    if (branch) {
+  private createWebhookFilters(branches: string[]) {
+    if (branches.length > 0) {
+      // Turn the list of branches into a regex
+      const branchExpr = branches.map(b => `^refs/heads/${b}$`).join('|');
+
       return [
         cbuild.FilterGroup.inEventOf(cbuild.EventAction.PUSH)
-          .andBranchIs(branch),
+          .andHeadRefIs(branchExpr),
         cbuild.FilterGroup.inEventOf(cbuild.EventAction.PULL_REQUEST_CREATED, cbuild.EventAction.PULL_REQUEST_UPDATED)
-          .andBaseBranchIs(branch),
+          .andBaseRefIs(branchExpr),
       ];
     }
     return [

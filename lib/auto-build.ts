@@ -76,9 +76,20 @@ export interface AutoBuildProps extends AutoBuildOptions {
   /**
    * The specific branch to be considered for auto-builds.
    *
+   * Specify at most one of `branch` and `branches`.
+   *
    * @default - any & all branches.
    */
   readonly branch?: string;
+
+  /**
+   * The specific branch to be considered for auto-builds.
+   *
+   * Specify at most one of `branch` and `branches`.
+   *
+   * @default - any & all branches.
+   */
+  readonly branches?: string[];
 }
 
 export class AutoBuild extends Construct {
@@ -93,7 +104,7 @@ export class AutoBuild extends Construct {
 
     this.project = new codebuild.Project(this, 'Project', {
       projectName: props.projectName,
-      source: props.repo.createBuildSource(this, props.webhook ?? true, { branch: props.branch }),
+      source: props.repo.createBuildSource(this, props.webhook ?? true, { branch: props.branch, branches: props.branches }),
       environment: createBuildEnvironment(props.environment ?? {}),
       badge: props.repo.allowsBadge,
       buildSpec: props.buildSpec,
