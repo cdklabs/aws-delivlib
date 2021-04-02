@@ -79,6 +79,7 @@ export interface AutoBuildProps extends AutoBuildOptions {
    * Specify at most one of `branch` and `branches`.
    *
    * @default - any & all branches.
+   * @deprecated Use `branches` instead.
    */
   readonly branch?: string;
 

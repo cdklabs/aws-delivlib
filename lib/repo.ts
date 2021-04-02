@@ -22,6 +22,7 @@ export interface BuildSourceOptions {
    * Cannot be specified together with `branches`.
    *
    * @default - All branches
+   * @deprecated Use `branches` instead.
    */
   branch?: string;
 
