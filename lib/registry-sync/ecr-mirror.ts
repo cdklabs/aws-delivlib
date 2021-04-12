@@ -194,7 +194,7 @@ export class EcrMirror extends Construct {
     if (this._repos.get(`${repositoryName}:${tag}`)) {
       throw new Error(`Mirror source with repository name [${repositoryName}] and tag [${tag}] already exists.`);
     }
-    this._repos.set(`${repositoryName}:${tag}`, new ecr.Repository(this, `Repo${repositoryName}`, {
+    this._repos.set(`${repositoryName}:${tag}`, new ecr.Repository(this, `Repo${repositoryName}:${tag}`, {
       repositoryName,
     }));
   }
