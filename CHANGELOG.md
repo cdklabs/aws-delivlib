@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [12.4.1](https://github.com/awslabs/aws-delivlib/compare/v12.4.0...v12.4.1) (2021-04-12)
+
+
+### Bug Fixes
+
+* use an atomic push when pushing bumps ([90de8cd](https://github.com/awslabs/aws-delivlib/commit/90de8cd1e12923f5cfcb877dc17ea1c0c2b30596))
+
 ## [12.4.0](https://github.com/awslabs/aws-delivlib/compare/v12.3.2...v12.4.0) (2021-04-12)
 
 
