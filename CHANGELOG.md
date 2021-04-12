@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [12.4.0](https://github.com/awslabs/aws-delivlib/compare/v12.3.2...v12.4.0) (2021-04-12)
+
+
+### Features
+
+* **autobuild:** autobuild multiple branches ([125d792](https://github.com/awslabs/aws-delivlib/commit/125d7928ed70856b54d1522772300efc164b35c2))
+
 ### [12.3.2](https://github.com/awslabs/aws-delivlib/compare/v12.3.0...v12.3.2) (2021-03-25)
 
 
