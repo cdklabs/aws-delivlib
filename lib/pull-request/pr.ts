@@ -365,7 +365,8 @@ export class AutoPullRequest extends Construct {
         + ` && { echo "Skipping: ${this.props.head.name} is an ancestor of origin/${this.baseBranch}"; export SKIP=true; }`
         + ` || { echo "Pushing: ${this.props.head.name} is ahead of origin/${this.baseBranch}"; export SKIP=false; }`,
       `git remote add origin_ssh ${this.props.repo.repositoryUrlSsh}`,
-      `git push --follow-tags origin_ssh ${this.props.head.name}:${this.props.head.name}`,
+      // Need `--atomic`, otherwise `git push` might successfully push the tags but not to `main`.
+      `git push --atomic --follow-tags origin_ssh ${this.props.head.name}:${this.props.head.name}`,
     ];
   }
 
