@@ -147,7 +147,7 @@ describe('EcrMirror', () => {
       const repo = registry.ecrRepository('my/docker-image');
       expect(repo).toBeDefined();
       expect(stack.resolve(repo!.repositoryArn)).toEqual({
-        'Fn::GetAtt': ['EcrRegistrySyncRepomydockerimageCE3ABCA6', 'Arn'],
+        'Fn::GetAtt': ['EcrRegistrySyncRepomydockerimagelatestA86E2755', 'Arn'],
       });
     });
 
@@ -235,7 +235,7 @@ describe('EcrMirrorAspect', () => {
                   {
                     'Fn::Split': [
                       ':',
-                      { 'Fn::GetAtt': ['MirrorRepomydockerimageE8DCCA4F', 'Arn'] },
+                      { 'Fn::GetAtt': ['MirrorRepomydockerimagelatestE01D7FA1', 'Arn'] },
                     ],
                   },
                 ],
@@ -247,7 +247,7 @@ describe('EcrMirrorAspect', () => {
                   {
                     'Fn::Split': [
                       ':',
-                      { 'Fn::GetAtt': ['MirrorRepomydockerimageE8DCCA4F', 'Arn'] },
+                      { 'Fn::GetAtt': ['MirrorRepomydockerimagelatestE01D7FA1', 'Arn'] },
                     ],
                   },
                 ],
@@ -255,7 +255,7 @@ describe('EcrMirrorAspect', () => {
               '.',
               { Ref: 'AWS::URLSuffix' },
               '/',
-              { Ref: 'MirrorRepomydockerimageE8DCCA4F' },
+              { Ref: 'MirrorRepomydockerimagelatestE01D7FA1' },
               ':latest',
             ],
           ],
@@ -292,5 +292,25 @@ describe('EcrMirrorAspect', () => {
         Image: 'unrelated/image',
       },
     });
+  });
+
+  test('can mirror multiple tags from same repository', () => {
+    // GIVEN
+    const stack = new Stack();
+    new EcrMirror(stack, 'Mirror', {
+      sources: [
+        MirrorSource.fromDockerHub('my/docker-image'),
+        MirrorSource.fromDockerHub('my/docker-image', 'some_tag'),
+      ],
+      dockerHubCredentials: {
+        usernameKey: 'username-key',
+        passwordKey: 'password-key',
+        secret: secrets.Secret.fromSecretArn(stack, 'DockerhubSecret', 'arn:aws:secretsmanager:us-west-2:111122223333:secret:123aass'),
+      },
+      schedule: events.Schedule.cron({}),
+    });
+
+    // THEN: did not throw
+    expect(true).toBeTruthy();
   });
 });
