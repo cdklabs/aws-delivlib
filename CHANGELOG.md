@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [12.4.2](https://github.com/awslabs/aws-delivlib/compare/v12.4.1...v12.4.2) (2021-04-14)
+
+
+### Bug Fixes
+
+* **ecr-mirror:** unable to mirror multiple tags from same repository ([89f3b1a](https://github.com/awslabs/aws-delivlib/commit/89f3b1a8b16843987464ac4a85f23021602dd7f7))
+
 ### [12.4.1](https://github.com/awslabs/aws-delivlib/compare/v12.4.0...v12.4.1) (2021-04-12)
 
 
