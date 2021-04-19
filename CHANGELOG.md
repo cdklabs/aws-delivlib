@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [12.4.3](https://github.com/awslabs/aws-delivlib/compare/v12.4.2...v12.4.3) (2021-04-19)
+
+
+### Bug Fixes
+
+* **ecr-mirror:** only represent non-`latest` tags in construct IDs ([6282a0c](https://github.com/awslabs/aws-delivlib/commit/6282a0ccc8f02f1c6b7a54bc0840b4d26061f27e))
+
 ### [12.4.2](https://github.com/awslabs/aws-delivlib/compare/v12.4.1...v12.4.2) (2021-04-14)
 
 
