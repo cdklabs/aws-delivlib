@@ -147,7 +147,7 @@ describe('EcrMirror', () => {
       const repo = registry.ecrRepository('my/docker-image');
       expect(repo).toBeDefined();
       expect(stack.resolve(repo!.repositoryArn)).toEqual({
-        'Fn::GetAtt': ['EcrRegistrySyncRepomydockerimagelatestA86E2755', 'Arn'],
+        'Fn::GetAtt': ['EcrRegistrySyncRepomydockerimageCE3ABCA6', 'Arn'],
       });
     });
 
@@ -235,7 +235,7 @@ describe('EcrMirrorAspect', () => {
                   {
                     'Fn::Split': [
                       ':',
-                      { 'Fn::GetAtt': ['MirrorRepomydockerimagelatestE01D7FA1', 'Arn'] },
+                      { 'Fn::GetAtt': ['MirrorRepomydockerimageE8DCCA4F', 'Arn'] },
                     ],
                   },
                 ],
@@ -247,7 +247,7 @@ describe('EcrMirrorAspect', () => {
                   {
                     'Fn::Split': [
                       ':',
-                      { 'Fn::GetAtt': ['MirrorRepomydockerimagelatestE01D7FA1', 'Arn'] },
+                      { 'Fn::GetAtt': ['MirrorRepomydockerimageE8DCCA4F', 'Arn'] },
                     ],
                   },
                 ],
@@ -255,7 +255,7 @@ describe('EcrMirrorAspect', () => {
               '.',
               { Ref: 'AWS::URLSuffix' },
               '/',
-              { Ref: 'MirrorRepomydockerimagelatestE01D7FA1' },
+              { Ref: 'MirrorRepomydockerimageE8DCCA4F' },
               ':latest',
             ],
           ],

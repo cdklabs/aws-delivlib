@@ -194,7 +194,12 @@ export class EcrMirror extends Construct {
     if (this._repos.get(`${repositoryName}:${tag}`)) {
       throw new Error(`Mirror source with repository name [${repositoryName}] and tag [${tag}] already exists.`);
     }
-    this._repos.set(`${repositoryName}:${tag}`, new ecr.Repository(this, `Repo${repositoryName}:${tag}`, {
+
+    // Backwards compatibility: can't have this name contain the tag for backwards compatibility. We assume
+    // the tag was always 'latest' before (which might not have been true but that's the best we can do).
+    const constructId = `Repo${repositoryName}${tag !== 'latest' ? `:${tag}` : ''}`;
+
+    this._repos.set(`${repositoryName}:${tag}`, new ecr.Repository(this, constructId, {
       repositoryName,
     }));
   }
