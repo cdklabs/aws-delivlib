@@ -1624,7 +1624,7 @@ Resources:
           - CodeCommitPipelineHelloLinuxRole97734933
           - Arn
       Source:
-        BuildSpec: >-
+        BuildSpec: |-
           {
             "version": "0.2",
             "phases": {
@@ -1825,7 +1825,7 @@ Resources:
           - CodeCommitPipelineHelloWindowsRole769C073E
           - Arn
       Source:
-        BuildSpec: >-
+        BuildSpec: |-
           {
             "version": "0.2",
             "phases": {
@@ -2037,7 +2037,7 @@ Resources:
         BuildSpec:
           Fn::Join:
             - ""
-            - - >-
+            - - |-
                 {
                   "version": "0.2",
                   "phases": {
@@ -2052,7 +2052,7 @@ Resources:
               - Fn::GetAtt:
                   - AssumeMe924099BB
                   - Arn
-              - >-
+              - |-
                 \" --role-session-name \"assume-role-test\" --external-id \"require-me-please\" > $creds",
                         "export AWS_ACCESS_KEY_ID=\"$(cat ${creds} | grep \"AccessKeyId\" | cut -d'\"' -f 4)\"",
                         "export AWS_SECRET_ACCESS_KEY=\"$(cat ${creds} | grep \"SecretAccessKey\" | cut -d'\"' -f 4)\"",
@@ -2248,7 +2248,7 @@ Resources:
           - CodeCommitPipelineGenerateTwoArtifactsRole91D2CDCA
           - Arn
       Source:
-        BuildSpec: >-
+        BuildSpec: |-
           {
             "version": "0.2",
             "phases": {
@@ -2411,7 +2411,7 @@ Resources:
           - CodeCommitPipelineCanaryHelloCanaryShellableRole65D634EB
           - Arn
       Source:
-        BuildSpec: >-
+        BuildSpec: |-
           {
             "version": "0.2",
             "phases": {
@@ -2646,7 +2646,7 @@ Resources:
           - CodeCommitPipelineNpmRole219D5F49
           - Arn
       Source:
-        BuildSpec: >-
+        BuildSpec: |-
           {
             "version": "0.2",
             "phases": {
@@ -2863,7 +2863,7 @@ Resources:
           - CodeCommitPipelineNuGetRole488DA302
           - Arn
       Source:
-        BuildSpec: >-
+        BuildSpec: |-
           {
             "version": "0.2",
             "phases": {
@@ -3076,7 +3076,7 @@ Resources:
           - CodeCommitPipelineMavenRoleC3A7769B
           - Arn
       Source:
-        BuildSpec: >-
+        BuildSpec: |-
           {
             "version": "0.2",
             "phases": {
@@ -3308,7 +3308,7 @@ Resources:
           - CodeCommitPipelineGitHubRole77F2217D
           - Arn
       Source:
-        BuildSpec: >-
+        BuildSpec: |-
           {
             "version": "0.2",
             "phases": {
@@ -3509,7 +3509,7 @@ Resources:
           - CodeCommitPipelineGitHubPagesRole10784D1D
           - Arn
       Source:
-        BuildSpec: >-
+        BuildSpec: |-
           {
             "version": "0.2",
             "phases": {
@@ -3695,7 +3695,7 @@ Resources:
           - CodeCommitPipelinePyPIRole30E20A9B
           - Arn
       Source:
-        BuildSpec: >-
+        BuildSpec: |-
           {
             "version": "0.2",
             "phases": {
@@ -3887,7 +3887,7 @@ Resources:
           - CodeCommitPipelineGolangRole46DA8D4C
           - Arn
       Source:
-        BuildSpec: >-
+        BuildSpec: |-
           {
             "version": "0.2",
             "phases": {
@@ -4017,7 +4017,7 @@ Resources:
           - CodeCommitPipelineAutoBumpAutoPullRequestRoleE7E0E388
           - Arn
       Source:
-        BuildSpec: >-
+        BuildSpec: |-
           {
             "version": "0.2",
             "phases": {
@@ -4790,7 +4790,7 @@ Resources:
     Properties:
       Description: AWS CloudFormation handler for "Custom::S3BucketNotifications" resources (@aws-cdk/aws-s3)
       Code:
-        ZipFile: >-
+        ZipFile: |-
           exports.handler = (event, context) => {
               // eslint-disable-next-line @typescript-eslint/no-require-imports, import/no-extraneous-dependencies
               const s3 = new (require('aws-sdk').S3)();
