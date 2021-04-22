@@ -21,7 +21,7 @@ export class DelivLibPipelineStack extends Stack {
     super(parent, id, props);
 
     const github = new delivlib.WritableGitHubRepo({
-      repository: 'awslabs/aws-delivlib',
+      repository: 'cdklabs/aws-delivlib',
       tokenSecretArn: 'arn:aws:secretsmanager:us-east-1:712950704752:secret:github-token-nnAqfW',
       commitEmail: 'aws-cdk-dev+delivlib@amazon.com',
       commitUsername: 'aws-cdk-dev',
