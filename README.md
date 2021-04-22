@@ -39,23 +39,34 @@ execute all tasks concurrently:
 The following sections describe each stage and the configuration options
 available:
 
-1. [Source](#source)
-   - [CodeCommit](#codecommit)
-   - [GitHub](#github)
-1. [Pull Request Builds](#pull-request-builds)
-1. [Build](#build)
-1. [Tests](#tests)
-1. [Publish](#publish)
-   - [npm.js](#npmjs)
-   - [NuGet](#nuget)
-   - [Maven Central](#maven-central)
-   - [PyPi](#pypi)
-   - [GitHub Releases](#github-releases)
-   - [GitHub Pages](#github-pages)
-1. [Metrics](#metrics)
-1. [Automatic Bumps and Pull Request Builds](#automatic-bumps-and-pull-request-builds)
-1. [Failure Notifications](#failure-notifications)
-1. [ECR Mirror](#ecr-mirror)
+- [aws-delivlib](#aws-delivlib)
+- [Pipeline Structure](#pipeline-structure)
+- [Installation](#installation)
+- [Source](#source)
+  - [`repo`: Source Repository (required)](#repo-source-repository-required)
+  - [`branch`: Source Control Branch (optional)](#branch-source-control-branch-optional)
+- [Pull Request Builds](#pull-request-builds)
+- [Build](#build)
+  - [`buildSpec`: Build Script (optional)](#buildspec-build-script-optional)
+  - [`buildImage`: Build container image (optional)](#buildimage-build-container-image-optional)
+  - [`env`: Build environment variables (optional)](#env-build-environment-variables-optional)
+  - [Other Build Options](#other-build-options)
+- [Tests](#tests)
+- [Publish](#publish)
+  - [npm.js (JavaScript)](#npmjs-javascript)
+  - [NuGet (.NET)](#nuget-net)
+  - [Maven Central (Java)](#maven-central-java)
+  - [PyPI (Python)](#pypi-python)
+  - [GitHub Releases](#github-releases)
+  - [GitHub Pages](#github-pages)
+- [Metrics](#metrics)
+- [Automatic Bumps and Pull Request Builds](#automatic-bumps-and-pull-request-builds)
+  - [GitHub Access](#github-access)
+  - [Automatic Bumps](#automatic-bumps)
+- [Failure Notifications](#failure-notifications)
+- [ECR Mirror](#ecr-mirror)
+- [Contributing](#contributing)
+- [License](#license)
 
 
 ## Installation
@@ -137,7 +148,7 @@ import cdk = require('@aws-cdk/core');
 
 new delivlib.Pipeline(this, 'MyPipeline', {
   repo: new delivlib.GitHubRepo({
-    repository: 'awslabs/aws-delivlib',
+    repository: 'cdklabs/aws-delivlib',
     token: cdk.SecretValue.secretsManager('my-github-token'),
   }),
   // ...

@@ -476,7 +476,7 @@ export class WindowsPlatform extends ShellPlatform {
 
   public prebuildCommands(assumeRole?: AssumeRole, _useRegionalStsEndpoints?: boolean): string[] {
     if (assumeRole) {
-      throw new Error('assumeRole is not supported on Windows: https://github.com/awslabs/aws-delivlib/issues/57');
+      throw new Error('assumeRole is not supported on Windows: https://github.com/cdklabs/aws-delivlib/issues/57');
     }
 
     return [
