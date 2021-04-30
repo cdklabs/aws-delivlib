@@ -141,7 +141,7 @@ export interface AutoPullRequestProps extends AutoPullRequestOptions {
    *
    * @default - don't look at open PRs
    */
-  readonly notIfLabeledPrOpen?: string[];
+  readonly skipIfOpenPrsWithLabels?: string[];
 }
 
 /**
@@ -227,7 +227,7 @@ export class AutoPullRequest extends Construct {
     const commitUsername = props.repo.commitUsername;
     const cloneDepth = props.cloneDepth === undefined ? 0 : props.cloneDepth;
 
-    const needsGitHubTokenSecret = !this.props.pushOnly || !!this.props.notIfLabeledPrOpen;
+    const needsGitHubTokenSecret = !this.props.pushOnly || !!this.props.skipIfOpenPrsWithLabels;
 
     let commands: string[] = [
 
@@ -253,8 +253,8 @@ export class AutoPullRequest extends Construct {
       commands.push(`export GITHUB_TOKEN=$(aws secretsmanager get-secret-value --secret-id "${this.props.repo.tokenSecretArn}" --output=text --query=SecretString)`);
     }
 
-    if (this.props.notIfLabeledPrOpen) {
-      commands.push(...this.skipIfOpenPrs(this.props.notIfLabeledPrOpen));
+    if (this.props.skipIfOpenPrsWithLabels) {
+      commands.push(...this.skipIfOpenPrs(this.props.skipIfOpenPrsWithLabels));
     }
 
     commands.push(

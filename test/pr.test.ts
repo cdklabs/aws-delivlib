@@ -26,7 +26,7 @@ test('skip PR if still open', () => {
   new AutoPullRequest(stack, 'AutoPull', {
     repo: MOCK_REPO,
     head: { name: 'new-feature' },
-    notIfLabeledPrOpen: ['asdf'],
+    skipIfOpenPrsWithLabels: ['asdf'],
   });
 
   // THEN
