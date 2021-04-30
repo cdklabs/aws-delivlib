@@ -135,6 +135,13 @@ export interface AutoPullRequestProps extends AutoPullRequestOptions {
    * @default - no condition
    */
   condition?: string;
+
+  /**
+   * If any PR labeled with the given labels is still open, no new PR will be created
+   *
+   * @default - don't look at open PRs
+   */
+  readonly skipIfOpenPrsWithLabels?: string[];
 }
 
 /**
@@ -220,6 +227,8 @@ export class AutoPullRequest extends Construct {
     const commitUsername = props.repo.commitUsername;
     const cloneDepth = props.cloneDepth === undefined ? 0 : props.cloneDepth;
 
+    const needsGitHubTokenSecret = !this.props.pushOnly || !!this.props.skipIfOpenPrsWithLabels;
+
     let commands: string[] = [
 
       ...this.configureSshAccess(),
@@ -237,6 +246,15 @@ export class AutoPullRequest extends Construct {
       commands.push(`${this.props.condition} ` +
       '&& { echo \'Skip condition is met, skipping...\' && export SKIP=true; } ' +
       '|| { echo \'Skip condition is not met, continuing...\' && export SKIP=false; }');
+    }
+
+    // read the token
+    if (needsGitHubTokenSecret) {
+      commands.push(`export GITHUB_TOKEN=$(aws secretsmanager get-secret-value --secret-id "${this.props.repo.tokenSecretArn}" --output=text --query=SecretString)`);
+    }
+
+    if (this.props.skipIfOpenPrsWithLabels) {
+      commands.push(...this.skipIfOpenPrs(this.props.skipIfOpenPrsWithLabels));
     }
 
     commands.push(
@@ -274,7 +292,7 @@ export class AutoPullRequest extends Construct {
     if (this.project.role) {
       permissions.grantSecretRead(sshKeySecret, this.project.role);
 
-      if (!this.props.pushOnly) {
+      if (needsGitHubTokenSecret) {
         permissions.grantSecretRead({ secretArn: props.repo.tokenSecretArn }, this.project.role);
       }
     }
@@ -294,7 +312,6 @@ export class AutoPullRequest extends Construct {
       treatMissingData: cloudwatch.TreatMissingData.IGNORE,
     });
   }
-
   private createHead(): string[] {
 
     return [
@@ -370,6 +387,22 @@ export class AutoPullRequest extends Construct {
     ];
   }
 
+  private skipIfOpenPrs(labels: string[]): string[] {
+    const filters = [
+      `repo:${this.props.repo.owner}/${this.props.repo.repo}`,
+      'is:pr',
+      'is:open',
+      ...labels.map(l => `label:${l}`),
+    ];
+
+    return [
+      `${this.githubCurlGet(`/search/issues?q=${encodeURIComponent(filters.join(' '))}`, '-o search.json')}`,
+      'node -e \'process.exitCode = require("./search.json").total_count\''
+        + ` || { echo "Found open PRs with label ${labels}, skipping PR."; export SKIP=true; }`,
+    ];
+  }
+
+
   private createPullRequest(): string[] {
 
     const head = this.props.head.name;
@@ -386,9 +419,6 @@ export class AutoPullRequest extends Construct {
     const createRequest = { title, base, head };
 
     const commands = [];
-
-    // read the token
-    commands.push(`export GITHUB_TOKEN=$(aws secretsmanager get-secret-value --secret-id "${this.props.repo.tokenSecretArn}" --output=text --query=SecretString)`);
 
     // create the PR
     commands.push(`${this.githubCurl('/pulls', '-X POST -o pr.json', createRequest)} && export PR_NUMBER=$(node -p 'require("./pr.json").number')`);
@@ -413,6 +443,16 @@ export class AutoPullRequest extends Construct {
       '--header "Content-Type: application/json"',
       `-d ${JSON.stringify(JSON.stringify(request))}`,
       `https://api.github.com/repos/${this.props.repo.owner}/${this.props.repo.repo}${uri}`,
+    ].join(' ');
+  }
+
+  private githubCurlGet(uri: string, command: string): string {
+    return [
+      'curl --fail',
+      command,
+      '--header "Authorization: token $GITHUB_TOKEN"',
+      '--header "Content-Type: application/json"',
+      `'https://api.github.com${uri}'`,
     ].join(' ');
   }
 
