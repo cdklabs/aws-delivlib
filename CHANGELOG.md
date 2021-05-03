@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [12.5.0](https://github.com/cdklabs/aws-delivlib/compare/v12.4.3...v12.5.0) (2021-05-03)
+
+
+### Features
+
+* **auto-pr:** skip creating PR if open PR still exists ([#797](https://github.com/cdklabs/aws-delivlib/issues/797)) ([c58ded9](https://github.com/cdklabs/aws-delivlib/commit/c58ded9f3c9e7f585f53953dfaf8829f6eb38093))
+
+
+### Bug Fixes
+
+* reuse same repository for multiple tags ([194ec3a](https://github.com/cdklabs/aws-delivlib/commit/194ec3a1870d0e954616f3aa22065ddd4622682d))
+
 ### [12.4.3](https://github.com/awslabs/aws-delivlib/compare/v12.4.2...v12.4.3) (2021-04-19)
 
 
