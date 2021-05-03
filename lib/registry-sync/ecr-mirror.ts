@@ -77,6 +77,7 @@ export interface EcrMirrorProps {
 export class EcrMirror extends Construct {
 
   private readonly _repos: Map<string, ecr.Repository> = new Map();
+  private readonly _repoTagsSeen = new Set<string>();
   private readonly _project: codebuild.Project;
 
   constructor(scope: Construct, id: string, props: EcrMirrorProps) {
@@ -144,7 +145,13 @@ export class EcrMirror extends Construct {
       });
       commands.push(...result.commands);
 
-      this.memoizeRepo(result.repositoryName, result.tag);
+      const repoTag = `${result.repositoryName}:${result.tag}`;
+      if (this._repoTagsSeen.has(repoTag)) {
+        throw new Error(`Mirror source with repository name [${result.repositoryName}] and tag [${result.tag}] already exists.`);
+      }
+      this._repoTagsSeen.add(repoTag);
+
+      this.createMirrorRepo(result.repositoryName);
 
       const ecrImageUri = `${ecrRegistry}/${result.repositoryName}:${result.tag}`;
       commands.push(`docker push ${ecrImageUri}`);
@@ -190,18 +197,15 @@ export class EcrMirror extends Construct {
     }
   }
 
-  private memoizeRepo(repositoryName: string, tag: string) {
-    if (this._repos.get(`${repositoryName}:${tag}`)) {
-      throw new Error(`Mirror source with repository name [${repositoryName}] and tag [${tag}] already exists.`);
+  private createMirrorRepo(repositoryName: string) {
+    if (this._repos.get(repositoryName)) {
+      return;
     }
 
-    // Backwards compatibility: can't have this name contain the tag for backwards compatibility. We assume
-    // the tag was always 'latest' before (which might not have been true but that's the best we can do).
-    const constructId = `Repo${repositoryName}${tag !== 'latest' ? `:${tag}` : ''}`;
-
-    this._repos.set(`${repositoryName}:${tag}`, new ecr.Repository(this, constructId, {
-      repositoryName,
-    }));
+    const repository = new ecr.Repository(this, `Repo${repositoryName}`, {
+      repositoryName: repositoryName,
+    });
+    this._repos.set(repositoryName, repository);
   }
 
   /**
@@ -209,8 +213,8 @@ export class EcrMirror extends Construct {
    * @param repositoryName The ECR repository with this name
    * @param tag the tag for the repository, defaults to 'latest'
    */
-  public ecrRepository(repositoryName: string, tag: string = 'latest'): ecr.IRepository | undefined {
-    return this._repos.get(`${repositoryName}:${tag}`);
+  public ecrRepository(repositoryName: string): ecr.IRepository | undefined {
+    return this._repos.get(repositoryName);
   }
 };
 
@@ -228,11 +232,11 @@ export class EcrMirrorAspect implements IAspect {
         const env = cfnproject.environment as codebuild.CfnProject.EnvironmentProperty;
         const imageName = env.image.split(':')[0];
         const tag = env.image.split(':')[1];
-        const replacement = this.mirror.ecrRepository(imageName, tag);
+        const replacement = this.mirror.ecrRepository(imageName);
         if (replacement) {
           cfnproject.environment = {
             ...env,
-            image: codebuild.LinuxBuildImage.fromEcrRepository(replacement).imageId,
+            image: codebuild.LinuxBuildImage.fromEcrRepository(replacement, tag).imageId,
           };
           replacement.grantPull(construct);
           ecr.AuthorizationToken.grantRead(construct);

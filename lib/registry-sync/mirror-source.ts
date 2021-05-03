@@ -110,7 +110,7 @@ export abstract class MirrorSource {
     return new DirectoryMirrorSource();
   }
 
-  private constructor(private readonly repositoryName: string, private readonly tag: string, private readonly directory?: string) {
+  private constructor(protected readonly repositoryName: string, protected readonly tag: string, protected readonly directory?: string) {
   }
 
   /**
