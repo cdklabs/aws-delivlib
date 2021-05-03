@@ -1,5 +1,6 @@
 import '@monocdk-experiment/assert/jest';
 import * as path from 'path';
+import { arrayWith, countResources, encodedJson, expect as cdkExpect, objectLike } from '@monocdk-experiment/assert';
 import {
   Aspects, Duration, Stack,
   aws_codebuild as codebuild,
@@ -151,23 +152,7 @@ describe('EcrMirror', () => {
       });
     });
 
-    test('undefined when image is not recognized', () => {
-      const stack = new Stack();
-      const image = MirrorSource.fromDockerHub('my/docker-image');
-      const registry = new EcrMirror(stack, 'EcrRegistrySync', {
-        sources: [image],
-        dockerHubCredentials: {
-          usernameKey: 'username-key',
-          passwordKey: 'password-key',
-          secret: secrets.Secret.fromSecretArn(stack, 'DockerhubSecret', 'arn:aws:secretsmanager:us-west-2:111122223333:secret:123aass'),
-        },
-        schedule: events.Schedule.cron({}),
-      });
-
-      expect(registry.ecrRepository('my/docker-image', 'mytag')).toBeUndefined();
-    });
-
-    test('tag is recognized', () => {
+    test('returning a mirrored repository does not depend on the tag', () => {
       const stack = new Stack();
       const image = MirrorSource.fromDockerHub('my/docker-image', 'mytag');
       const registry = new EcrMirror(stack, 'EcrRegistrySync', {
@@ -180,8 +165,7 @@ describe('EcrMirror', () => {
         schedule: events.Schedule.cron({}),
       });
 
-      expect(registry.ecrRepository('my/docker-image', 'mytag')).toBeDefined();
-      expect(registry.ecrRepository('my/docker-image')).toBeUndefined();
+      expect(registry.ecrRepository('my/docker-image')).toBeDefined();
     });
   });
 
@@ -296,7 +280,9 @@ describe('EcrMirrorAspect', () => {
 
   test('can mirror multiple tags from same repository', () => {
     // GIVEN
-    const stack = new Stack();
+    const stack = new Stack(undefined, 'Stack', {
+      env: { account: 'account', region: 'region' },
+    });
     new EcrMirror(stack, 'Mirror', {
       sources: [
         MirrorSource.fromDockerHub('my/docker-image'),
@@ -310,7 +296,26 @@ describe('EcrMirrorAspect', () => {
       schedule: events.Schedule.cron({}),
     });
 
-    // THEN: did not throw
-    expect(true).toBeTruthy();
+    // THEN: one repo that mirrors both tags
+    expect(stack).toHaveResource('AWS::ECR::Repository', {
+      RepositoryName: 'my/docker-image',
+    });
+    cdkExpect(stack).to(countResources('AWS::ECR::Repository', 1));
+
+    // Have both pushes in the project buildspec
+    expect(stack).toHaveResourceLike('AWS::CodeBuild::Project', {
+      Source: {
+        BuildSpec: encodedJson(objectLike({
+          phases: {
+            build: {
+              commands: arrayWith(
+                'docker push account.dkr.ecr.region.amazonaws.com/my/docker-image:latest',
+                'docker push account.dkr.ecr.region.amazonaws.com/my/docker-image:some_tag',
+              ),
+            },
+          },
+        })),
+      },
+    });
   });
 });
