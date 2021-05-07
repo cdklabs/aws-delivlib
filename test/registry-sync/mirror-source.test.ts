@@ -173,5 +173,31 @@ describe('RegistryImageSource', () => {
         },
       });
     });
+
+    test('build args', () => {
+      // GIVEN
+      const stack = new Stack();
+      const ecrRegistry = 'myregistry';
+      const source = MirrorSource.fromDir(path.join(__dirname, 'docker-asset'), 'myrepository', {
+        buildArgs: {
+          arg1: 'val1',
+          arg2: 'val2',
+        },
+      });
+      const syncJob = new codebuild.Project(stack, 'SyncJob', {
+        buildSpec: codebuild.BuildSpec.fromObject({}),
+      });
+
+      // WHEN
+      const result = source.bind({
+        scope: stack,
+        ecrRegistry,
+        syncJob,
+      });
+
+      // THEN
+      const expected = 'docker build --pull -t myregistry/myrepository:latest --build-arg arg1=val1 --build-arg arg2=val2 myrepository';
+      expect(result.commands[2]).toEqual(expected);
+    });
   });
 });
