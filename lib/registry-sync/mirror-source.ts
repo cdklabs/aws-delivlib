@@ -39,6 +39,22 @@ export interface MirrorSourceConfig {
   readonly tag: string;
 }
 
+/** Additional options when configuring a Mirror Source from a local directory */
+export interface MirrorSourceDirectoryOptions {
+  /**
+   * Tag of the built image.
+   * @default 'latest'
+   */
+  readonly tag?: string;
+
+  /**
+   * Build args to pass to the `docker build` command.
+   *
+   * @default - no build args are passed
+   */
+  readonly buildArgs?: { [key: string]: string };
+}
+
 /**
  * Source of the image.
  */
@@ -78,16 +94,24 @@ export abstract class MirrorSource {
   }
 
   /**
+   * DEPRECATED
+   * @deprecated use fromDir()
+   */
+  public static fromDirectory(directory: string, repositoryName: string, tag?: string): MirrorSource {
+    return this.fromDir(directory, repositoryName, { tag });
+  }
+
+  /**
    * Configure an image from a local directory.
    *
    * @param directory Path to directory containing the Dockerfile.
    * @param repositoryName Repository name of the built image.
-   * @param tag Tag of the built image.
+   * @param options additional configuration options
    */
-  public static fromDirectory(directory: string, repositoryName: string, tag?: string): MirrorSource {
+  public static fromDir(directory: string, repositoryName: string, opts: MirrorSourceDirectoryOptions = {}): MirrorSource {
     class DirectoryMirrorSource extends MirrorSource {
       constructor() {
-        super(repositoryName, tag ?? 'latest', directory);
+        super(repositoryName, opts.tag ?? 'latest', directory);
       }
 
       public bind(options: MirrorSourceBindOptions) {
@@ -96,11 +120,19 @@ export abstract class MirrorSource {
           asset.grantRead(options.syncJob);
         }
         const ecrImageUri = `${options.ecrRegistry}/${this.repositoryName}:${this.tag}`;
+        const cmdFlags = [];
+        cmdFlags.push('--pull');
+        cmdFlags.push('-t', ecrImageUri);
+
+        if (opts.buildArgs) {
+          Object.entries(opts.buildArgs).forEach(([k, v]) => cmdFlags.push('--build-arg', `${k}=${v}`));
+        }
+
         return {
           commands: [
             `aws s3 cp ${asset.s3ObjectUrl} ${this.repositoryName}.zip`,
             `unzip ${this.repositoryName}.zip -d ${this.repositoryName}`,
-            `docker build --pull -t ${ecrImageUri} ${this.repositoryName}`,
+            `docker build ${cmdFlags.join(' ')} ${this.repositoryName}`,
           ],
           repositoryName: this.repositoryName,
           tag: this.tag,
