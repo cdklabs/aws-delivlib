@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [12.6.0](https://github.com/cdklabs/aws-delivlib/compare/v12.5.0...v12.6.0) (2021-05-08)
+
+
+### Features
+
+* **registry-sync:** docker build time variables ([a04cb1e](https://github.com/cdklabs/aws-delivlib/commit/a04cb1e8cc16a5c6176c92c555e116652bcc7efe))
+
 ## [12.5.0](https://github.com/cdklabs/aws-delivlib/compare/v12.4.3...v12.5.0) (2021-05-03)
 
 
