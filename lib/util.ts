@@ -71,3 +71,11 @@ export function mapValues<T, U>(xs: {[key: string]: T}, fn: (x: T) => U): {[key:
   }
   return ret;
 }
+
+export function flatMap<T, U>(xs: T[], fn: (x: T) => U[]): U[] {
+  const ret = new Array<U>();
+  for (const x of xs) {
+    ret.push(...fn(x));
+  }
+  return ret;
+}

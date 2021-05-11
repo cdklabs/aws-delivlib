@@ -22,7 +22,7 @@ import { AutoBump, AutoMergeBack, AutoBumpProps } from './pull-request';
 import { AutoMergeBackPipelineOptions } from './pull-request/merge-back';
 import { IRepo, WritableGitHubRepo } from './repo';
 import { Shellable, ShellableProps } from './shellable';
-import { determineRunOrder } from './util';
+import { determineRunOrder, flatMap } from './util';
 
 const PUBLISH_STAGE_NAME = 'Publish';
 const TEST_STAGE_NAME = 'Test';
@@ -470,7 +470,7 @@ export class Pipeline extends Construct {
   }
 
   /**
-   * The metrics that tracks pipeline failures.
+   * The metric that tracks pipeline failures.
    */
   public metricFailures(options: cloudwatch.MetricOptions): cloudwatch.IMetric {
     return new cloudwatch.Metric({
@@ -482,6 +482,24 @@ export class Pipeline extends Construct {
       statistic: 'Sum',
       ...options,
     });
+  }
+
+  /**
+   * The metrics that track failure of each action within the pipeline.
+   */
+  public metricActionFailures(options: cloudwatch.MetricOptions): cloudwatch.IMetric[] {
+    return flatMap(this.pipeline.stages, stage => stage.actions.map(action => {
+      return new cloudwatch.Metric({
+        namespace: METRIC_NAMESPACE,
+        metricName: FAILURE_METRIC_NAME,
+        dimensions: {
+          Pipeline: this.pipeline.pipelineName,
+          Action: action.actionProperties.actionName,
+        },
+        statistic: 'Sum',
+        ...options,
+      });
+    }));
   }
 
   private addFailureAlarm(title?: string): cloudwatch.Alarm {
