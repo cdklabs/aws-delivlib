@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [12.7.0](https://github.com/cdklabs/aws-delivlib/compare/v12.6.0...v12.7.0) (2021-05-12)
+
+
+### Features
+
+* **pipeline:** improved pipeline action failure metrics ([8f3783b](https://github.com/cdklabs/aws-delivlib/commit/8f3783b8a0e71542485ef91bcc281daf3c9ecb7e)), closes [#696](https://github.com/cdklabs/aws-delivlib/issues/696)
+
 ## [12.6.0](https://github.com/cdklabs/aws-delivlib/compare/v12.5.0...v12.6.0) (2021-05-08)
 
 
