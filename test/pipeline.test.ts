@@ -1,7 +1,7 @@
 import * as path from 'path';
 import { expect as cdk_expect, haveResource, haveResourceLike, SynthUtils, ABSENT } from '@monocdk-experiment/assert';
 import {
-  App, Construct, Stack,
+  App, Construct, Duration, Stack,
   aws_codebuild as codebuild,
   aws_codecommit as codecommit,
   aws_codepipeline as cpipeline,
@@ -77,57 +77,6 @@ test('determineRunOrder: creates groups of up to "concurrency" actions', async (
     expect(total).toBe(actionCount); // sanity
   }
 });
-
-function createTestPipelineForConcurrencyTests(stack: Stack, props?: delivlib.PipelineProps) {
-  const pipeline = new delivlib.Pipeline(stack, 'Pipeline', {
-    repo: createTestRepo(stack),
-    ...props,
-  });
-
-  const project = new codebuild.Project(stack, 'publish', {
-    buildSpec: codebuild.BuildSpec.fromObject({ version: '0.2' }),
-  });
-
-  const scriptDirectory = path.join(__dirname, 'delivlib-tests', 'linux');
-  const entrypoint = 'test.sh';
-  pipeline.addTest('test1', { scriptDirectory, entrypoint, platform: delivlib.ShellPlatform.LinuxUbuntu });
-  pipeline.addTest('test2', { scriptDirectory, entrypoint, platform: delivlib.ShellPlatform.LinuxUbuntu });
-  pipeline.addTest('test3', { scriptDirectory, entrypoint, platform: delivlib.ShellPlatform.LinuxUbuntu });
-  pipeline.addTest('test4', { scriptDirectory, entrypoint, platform: delivlib.ShellPlatform.LinuxUbuntu });
-  pipeline.addTest('test5', { scriptDirectory, entrypoint, platform: delivlib.ShellPlatform.LinuxUbuntu });
-  pipeline.addPublish(new TestPublishable(stack, 'pub1', { project }));
-  pipeline.addPublish(new TestPublishable(stack, 'pub2', { project }));
-  pipeline.addPublish(new TestPublishable(stack, 'pub3', { project }));
-  pipeline.addPublish(new TestPublishable(stack, 'pub4', { project }));
-  pipeline.addPublish(new TestPublishable(stack, 'pub5', { project }));
-  pipeline.addPublish(new TestPublishable(stack, 'pub6', { project }));
-
-  const template = SynthUtils.synthesize(stack).template;
-  return template.Resources.PipelineBuildPipeline04C6628A.Properties.Stages;
-}
-
-function createTestRepo(stack: Stack) {
-  return new delivlib.CodeCommitRepo(new codecommit.Repository(stack, 'Repo', { repositoryName: 'test' }));
-}
-
-class TestPublishable extends Construct implements delivlib.IPublisher {
-  public readonly project: codebuild.IProject;
-
-  constructor(scope: Construct, id: string, props: { project: codebuild.IProject }) {
-    super(scope, id);
-
-    this.project = props.project;
-  }
-
-  public addToPipeline(stage: cpipeline.IStage, id: string, options: delivlib.AddToPipelineOptions): void {
-    stage.addAction(new cpipeline_actions.CodeBuildAction({
-      actionName: id,
-      input: options.inputArtifact || new cpipeline.Artifact(),
-      project: this.project,
-      runOrder: options.runOrder,
-    }));
-  }
-}
 
 test('can add arbitrary shellables with different artifacts', () => {
   const stack = new Stack(new App(), 'TestStack');
@@ -324,6 +273,115 @@ test('CodeBuild Project name is left undefined when neither buildProjectName nor
   }));
 });
 
+test('metricFailures', () => {
+  const stack = new Stack(new App(), 'TestStack');
+  const pipeline = new delivlib.Pipeline(stack, 'Pipeline', {
+    repo: createTestRepo(stack),
+    pipelineName: 'HelloPipeline',
+  });
+
+  expect(stack.resolve(pipeline.metricFailures({}))).toEqual({
+    dimensions: { Pipeline: { Ref: 'PipelineBuildPipeline04C6628A' } },
+    namespace: 'CDK/Delivlib',
+    metricName: 'Failures',
+    period: Duration.minutes(5),
+    statistic: 'Sum',
+  });
+});
+
+test('metricActionFailures', () => {
+  const stack = new Stack(new App(), 'TestStack');
+  const pipeline = new delivlib.Pipeline(stack, 'Pipeline', {
+    repo: createTestRepo(stack),
+    pipelineName: 'HelloPipeline',
+  });
+  const project = new codebuild.Project(stack, 'publish', {
+    buildSpec: codebuild.BuildSpec.fromObject({ version: '0.2' }),
+  });
+  const scriptDirectory = __dirname;
+  const entrypoint = 'run-test.sh';
+
+  pipeline.addShellable('PreBuild', 'FirstStep', { scriptDirectory, entrypoint });
+  pipeline.addShellable('PreBuild', 'SecondStep', { scriptDirectory, entrypoint });
+  pipeline.addPublish(new TestPublishable(stack, 'Publish1', { project }));
+  pipeline.addPublish(new TestPublishable(stack, 'Publish2', { project }));
+  pipeline.addTest('Test1', { scriptDirectory, entrypoint, platform: delivlib.ShellPlatform.LinuxUbuntu });
+  pipeline.addTest('Test2', { scriptDirectory, entrypoint, platform: delivlib.ShellPlatform.LinuxUbuntu });
+
+  const expectedMetricNames = [
+    'Pull',
+    'Build',
+    'ActionFirstStep',
+    'ActionSecondStep',
+    'Publish1Publish',
+    'Publish2Publish',
+    'TestTest1',
+    'TestTest2',
+  ];
+  const expectedMetrics = expectedMetricNames.map(name => {
+    return {
+      dimensions: { Pipeline: { Ref: 'PipelineBuildPipeline04C6628A' }, Action: name },
+      namespace: 'CDK/Delivlib',
+      metricName: 'Failures',
+      period: Duration.minutes(5),
+      statistic: 'Sum',
+    };
+  });
+
+  expect(stack.resolve(pipeline.metricActionFailures({}))).toEqual(expectedMetrics);
+});
+
+function createTestPipelineForConcurrencyTests(stack: Stack, props?: delivlib.PipelineProps) {
+  const pipeline = new delivlib.Pipeline(stack, 'Pipeline', {
+    repo: createTestRepo(stack),
+    ...props,
+  });
+
+  const project = new codebuild.Project(stack, 'publish', {
+    buildSpec: codebuild.BuildSpec.fromObject({ version: '0.2' }),
+  });
+
+  const scriptDirectory = path.join(__dirname, 'delivlib-tests', 'linux');
+  const entrypoint = 'test.sh';
+  pipeline.addTest('test1', { scriptDirectory, entrypoint, platform: delivlib.ShellPlatform.LinuxUbuntu });
+  pipeline.addTest('test2', { scriptDirectory, entrypoint, platform: delivlib.ShellPlatform.LinuxUbuntu });
+  pipeline.addTest('test3', { scriptDirectory, entrypoint, platform: delivlib.ShellPlatform.LinuxUbuntu });
+  pipeline.addTest('test4', { scriptDirectory, entrypoint, platform: delivlib.ShellPlatform.LinuxUbuntu });
+  pipeline.addTest('test5', { scriptDirectory, entrypoint, platform: delivlib.ShellPlatform.LinuxUbuntu });
+  pipeline.addPublish(new TestPublishable(stack, 'pub1', { project }));
+  pipeline.addPublish(new TestPublishable(stack, 'pub2', { project }));
+  pipeline.addPublish(new TestPublishable(stack, 'pub3', { project }));
+  pipeline.addPublish(new TestPublishable(stack, 'pub4', { project }));
+  pipeline.addPublish(new TestPublishable(stack, 'pub5', { project }));
+  pipeline.addPublish(new TestPublishable(stack, 'pub6', { project }));
+
+  const template = SynthUtils.synthesize(stack).template;
+  return template.Resources.PipelineBuildPipeline04C6628A.Properties.Stages;
+}
+
+function createTestRepo(stack: Stack) {
+  return new delivlib.CodeCommitRepo(new codecommit.Repository(stack, 'Repo', { repositoryName: 'test' }));
+}
+
+class TestPublishable extends Construct implements delivlib.IPublisher {
+  public readonly project: codebuild.IProject;
+
+  constructor(scope: Construct, id: string, props: { project: codebuild.IProject }) {
+    super(scope, id);
+
+    this.project = props.project;
+  }
+
+  public addToPipeline(stage: cpipeline.IStage, id: string, options: delivlib.AddToPipelineOptions): void {
+    stage.addAction(new cpipeline_actions.CodeBuildAction({
+      actionName: id,
+      input: options.inputArtifact || new cpipeline.Artifact(),
+      project: this.project,
+      runOrder: options.runOrder,
+    }));
+  }
+}
+
 class Pub extends Construct implements delivlib.IPublisher {
   public readonly project: codebuild.IProject;
 
@@ -342,3 +400,4 @@ class Pub extends Construct implements delivlib.IPublisher {
     }));
   }
 }
+

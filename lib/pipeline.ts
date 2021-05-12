@@ -472,7 +472,7 @@ export class Pipeline extends Construct {
   /**
    * The metric that tracks pipeline failures.
    */
-  public metricFailures(options: cloudwatch.MetricOptions): cloudwatch.IMetric {
+  public metricFailures(options: cloudwatch.MetricOptions): cloudwatch.Metric {
     return new cloudwatch.Metric({
       namespace: METRIC_NAMESPACE,
       metricName: FAILURE_METRIC_NAME,
@@ -487,7 +487,7 @@ export class Pipeline extends Construct {
   /**
    * The metrics that track failure of each action within the pipeline.
    */
-  public metricActionFailures(options: cloudwatch.MetricOptions): cloudwatch.IMetric[] {
+  public metricActionFailures(options: cloudwatch.MetricOptions): cloudwatch.Metric[] {
     return flatMap(this.pipeline.stages, stage => stage.actions.map(action => {
       return new cloudwatch.Metric({
         namespace: METRIC_NAMESPACE,
