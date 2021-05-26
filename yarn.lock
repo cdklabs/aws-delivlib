@@ -4293,10 +4293,10 @@ modify-values@^1.0.0:
   resolved "https://registry.yarnpkg.com/modify-values/-/modify-values-1.0.1.tgz#b3939fa605546474e3e3e3c63d64bd43b4ee6022"
   integrity sha512-xV2bxeN6F7oYjZWTe/YPAy6MN2M+sL4u/Rlm2AHCIVGfo2p1yGmBHQ6vHehl4bRTZBdHu3TSkWdYgkwpYzAGSw==
 
-monocdk@1.87.1:
-  version "1.87.1"
-  resolved "https://registry.yarnpkg.com/monocdk/-/monocdk-1.87.1.tgz#d69de857db2f5730b8aaf6530b746b7a6ad257ad"
-  integrity sha512-uwP6O1XZo2DWVwnmPrw+enlxxGNEezy4sBlw//Hiod66SxjRdgshtJsDauTgnFFAvV8NjEunXVjjWlVWi3crYQ==
+monocdk@1.106.0:
+  version "1.106.0"
+  resolved "https://registry.yarnpkg.com/monocdk/-/monocdk-1.106.0.tgz#05e91c6d9e84d9654c699af9f9663e49ca987167"
+  integrity sha512-uk4zGdQZpA8RJmQeZ2UOIVkb+Go/BJErkD65X2b6t9N1qVn4VcrWU9ld55ewRY1u3f17OeWouugDLcvwz6eaeg==
   dependencies:
     "@balena/dockerignore" "^1.0.2"
     case "1.6.3"
@@ -4305,8 +4305,8 @@ monocdk@1.87.1:
     jsonschema "^1.4.0"
     minimatch "^3.0.4"
     punycode "^2.1.1"
-    semver "^7.3.2"
-    yaml "1.10.0"
+    semver "^7.3.5"
+    yaml "1.10.2"
 
 ms@2.0.0:
   version "2.0.0"
@@ -6314,11 +6314,6 @@ yallist@^4.0.0:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/yallist/-/yallist-4.0.0.tgz#9bb92790d9c0effec63be73519e11a35019a3a72"
   integrity sha512-3wdGidZyq5PB084XLES5TpOSRA3wjXAlIWMhum2kRcv/41Sn2emQ0dycQW4uZXLejwKvg6EsvbdlVL+FYEct7A==
-
-yaml@1.10.0:
-  version "1.10.0"
-  resolved "https://registry.yarnpkg.com/yaml/-/yaml-1.10.0.tgz#3b593add944876077d4d683fee01081bd9fff31e"
-  integrity sha512-yr2icI4glYaNG+KWONODapy2/jDdMSDnrONSjblABjD9B4Z5LgiircSt8m8sRZFNi08kG9Sm0uSHtEmP3zaEGg==
 
 yaml@1.10.2:
   version "1.10.2"
