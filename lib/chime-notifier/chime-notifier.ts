@@ -56,7 +56,7 @@ export class ChimeNotifier extends Construct {
         handler: 'index.handler',
         uuid: '0f4a3ee0-692e-4249-932f-a46a833886d8',
         code: lambda.Code.inline(stripComments(fs.readFileSync(path.join(__dirname, 'notifier-handler.js')).toString('utf8'))),
-        runtime: lambda.Runtime.NODEJS_10_X,
+        runtime: lambda.Runtime.NODEJS_12_X,
         timeout: Duration.minutes(5),
       });
 
