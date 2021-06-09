@@ -1,3 +1,4 @@
+// eslint-disable-next-line import/no-extraneous-dependencies
 import * as AWS from 'aws-sdk';
 
 // Partial type for the 'detail' section of an event from Amazon EventBridge for 'CodePipeline Execution State Change'

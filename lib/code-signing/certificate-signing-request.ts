@@ -50,7 +50,7 @@ export class CertificateSigningRequest extends Construct {
   constructor(parent: Construct, id: string, props: CertificateSigningRequestProps) {
     super(parent, id);
 
-    const codeLocation = path.resolve(__dirname, '..', '..', 'custom-resource-handlers', 'bin', 'certificate-signing-request');
+    const codeLocation = path.resolve(__dirname, '..', 'custom-resource-handlers', 'bin', 'certificate-signing-request');
     const customResource = new lambda.SingletonFunction(this, 'ResourceHandler', {
       uuid: '541F6782-6DCF-49A7-8C5A-67715ADD9E4C',
       lambdaPurpose: 'CreateCSR',
@@ -61,7 +61,7 @@ export class CertificateSigningRequest extends Construct {
       timeout: Duration.seconds(300),
       // add the layer that contains the OpenSSL CLI binary
       layers: [new lambda.LayerVersion(this, 'OpenSslCliLayer', {
-        code: lambda.Code.fromAsset(path.join(__dirname, '..', '..', 'custom-resource-handlers', 'layers', 'openssl-cli-layer.zip')),
+        code: lambda.Code.fromAsset(path.join(__dirname, '..', 'custom-resource-handlers', 'layers', 'openssl-cli-layer.zip')),
       })],
     });
 

@@ -14,12 +14,12 @@ export interface AutoBumpHead {
    *
    * @default 'bump/$VERSION'
    */
-  readonly name?: string
+  readonly name?: string;
 
   /**
    * @see 'source' property in AutoPullRequest.Head
    */
-  readonly source?: string
+  readonly source?: string;
 }
 
 /**
@@ -74,7 +74,7 @@ export interface AutoBumpProps extends AutoPullRequestOptions {
    *
    * @default - Wil be created from master and named 'bump/$VERSION'
    */
-  head?: AutoBumpHead
+  head?: AutoBumpHead;
 
 }
 

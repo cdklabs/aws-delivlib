@@ -61,7 +61,7 @@ export class RsaPrivateKeySecret extends Construct {
   constructor(parent: Construct, id: string, props: RsaPrivateKeySecretProps) {
     super(parent, id);
 
-    const codeLocation = path.resolve(__dirname, '..', '..', 'custom-resource-handlers', 'bin', 'private-key');
+    const codeLocation = path.resolve(__dirname, '..', 'custom-resource-handlers', 'bin', 'private-key');
     const customResource = new lambda.SingletonFunction(this, 'ResourceHandler', {
       lambdaPurpose: 'RSAPrivate-Key',
       uuid: '72FD327D-3813-4632-9340-28EC437AA486',
@@ -72,7 +72,7 @@ export class RsaPrivateKeySecret extends Construct {
       timeout: Duration.seconds(300),
       // add the layer that contains the OpenSSL CLI binary
       layers: [new lambda.LayerVersion(this, 'OpenSslCliLayer', {
-        code: lambda.Code.fromAsset(path.join(__dirname, '..', '..', 'custom-resource-handlers', 'layers', 'openssl-cli-layer.zip')),
+        code: lambda.Code.fromAsset(path.join(__dirname, '..', 'custom-resource-handlers', 'layers', 'openssl-cli-layer.zip')),
       })],
     });
 

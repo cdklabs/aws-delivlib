@@ -22,9 +22,9 @@ do
   echo "Building CustomResource handler ${handler}"
   ${compile}                                                                    \
     --incremental                                                               \
-    --tsBuildInfoFile "./custom-resource-handlers/src/${handler}.tsbuildinfo"   \
-    --outDir "./custom-resource-handlers/bin/${handler}"                        \
-    "./custom-resource-handlers/src/${handler}.ts"                              \
-    ./custom-resource-handlers/src/_*.ts
-  cp "./custom-resource-handlers/bin/${handler}/${handler}.js" "./custom-resource-handlers/bin/${handler}/index.js"
+    --tsBuildInfoFile "./lib/custom-resource-handlers/src/${handler}.tsbuildinfo"   \
+    --outDir "./lib/custom-resource-handlers/bin/${handler}"                        \
+    "./lib/custom-resource-handlers/src/${handler}.ts"                              \
+    ./lib/custom-resource-handlers/src/_*.ts
+  cp "./lib/custom-resource-handlers/bin/${handler}/${handler}.js" "./lib/custom-resource-handlers/bin/${handler}/index.js"
 done

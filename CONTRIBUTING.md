@@ -67,7 +67,7 @@ The build & release pipeline is defined in [`pipeline/delivlib.ts`](./pipeline/d
 
 You can use the following npm scripts to manage the pipeline:
 
-* Make sure to `yarn build` (or `yarn watch`) to compile the pipeline code
+* Make sure to `yarn compile` (or `yarn watch`) to compile the pipeline code
 * `yarn pipeline-diff` - runs `cdk diff` against the deployed pipeline
 * `yarn pipeline-update` - runs `cdk deploy` to update the pipeline
 

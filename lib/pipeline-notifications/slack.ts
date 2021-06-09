@@ -2,6 +2,7 @@ import * as crypto from 'crypto';
 import {
   aws_chatbot as chatbot,
   aws_codestarnotifications as starnotifs,
+  Stack,
 } from 'monocdk';
 import { IPipelineNotification, PipelineNotificationBindOptions } from '../';
 
@@ -48,7 +49,7 @@ export class SlackNotification implements IPipelineNotification {
   public bind(options: PipelineNotificationBindOptions): void {
     const targets: starnotifs.CfnNotificationRule.TargetProperty[] = this.props.channels.map(c => {
       return {
-        targetAddress: c.slackChannelConfigurationArn,
+        targetAddress: Stack.of(options.pipeline).resolve(c.slackChannelConfigurationArn),
         targetType: 'AWSChatbotSlack',
       };
     });
