@@ -156,7 +156,7 @@ export interface Base {
    *
    * @default 'master'
    */
-  readonly name?: string
+  readonly name?: string;
 }
 
 /**
@@ -169,7 +169,7 @@ export interface Head {
    *
    * This branch will be created if it doesn't exist.
    */
-  readonly name: string
+  readonly name: string;
 
   /**
    * The source sha of the branch.
@@ -183,7 +183,7 @@ export interface Head {
    *
    * @default - the base branch of the pr.
    */
-  readonly source?: string
+  readonly source?: string;
 }
 
 /**

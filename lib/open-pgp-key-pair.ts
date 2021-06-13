@@ -111,7 +111,7 @@ export class OpenPGPKeyPair extends Construct implements ICredentialPair {
   constructor(parent: Construct, name: string, props: OpenPGPKeyPairProps) {
     super(parent, name);
 
-    const codeLocation = path.resolve(__dirname, '..', 'custom-resource-handlers', 'bin', 'pgp-secret');
+    const codeLocation = path.resolve(__dirname, 'custom-resource-handlers', 'bin', 'pgp-secret');
 
     const fn = new lambda.SingletonFunction(this, 'Lambda', {
       uuid: 'f25803d3-054b-44fc-985f-4860d7d6ee74',
@@ -122,7 +122,7 @@ export class OpenPGPKeyPair extends Construct implements ICredentialPair {
       runtime: lambda.Runtime.NODEJS_10_X,
       // add the layer that contains the GPG binary (+ shared libraries)
       layers: [new lambda.LayerVersion(this, 'GpgLayer', {
-        code: lambda.Code.fromAsset(path.join(__dirname, '..', 'custom-resource-handlers', 'layers', 'gpg-layer.zip')),
+        code: lambda.Code.fromAsset(path.join(__dirname, 'custom-resource-handlers', 'layers', 'gpg-layer.zip')),
       })],
     });
 

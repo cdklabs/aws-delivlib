@@ -42,12 +42,12 @@ export class DelivLibPipelineStack extends Stack {
           },
           build: {
             commands: [
-              'yarn build',
+              'yarn compile',
               'yarn test',
             ],
           },
           post_build: {
-            commands: ['[ ${CODEBUILD_BUILD_SUCCEEDING:-1} != 1 ] || npm run package'],
+            commands: ['[ ${CODEBUILD_BUILD_SUCCEEDING:-1} != 1 ] || yarn package'],
           },
         },
         artifacts: {

@@ -14,12 +14,12 @@ export interface AutoMergeBackHead {
    *
    * @default 'merge-back/$VERSION'
    */
-  readonly name?: string
+  readonly name?: string;
 
   /**
    * @see 'source' property in AutoPullRequest.Head
    */
-  readonly source?: string
+  readonly source?: string;
 }
 
 export interface MergeBackStage {
@@ -29,7 +29,7 @@ export interface MergeBackStage {
    *
    * @default 'MergeBack'
    */
-  readonly name?: string
+  readonly name?: string;
 
   /**
    * The name of the stage that the merge back stage should go after of. (Must exist)
@@ -69,7 +69,7 @@ export interface AutoMergeBackOptions extends pr.AutoPullRequestOptions {
    *
    * @default - Will be created from release and named 'merge-back/$VERSION'
    */
-  head?: AutoMergeBackHead
+  head?: AutoMergeBackHead;
 
   /**
    * The exit code of this command determines whether or not to proceed with the
@@ -89,7 +89,7 @@ export interface AutoMergeBackPipelineOptions extends AutoMergeBackOptions {
    *
    * @default - The CodeBuild project will be created indepdent of any stage.
    */
-  readonly stage?: MergeBackStage
+  readonly stage?: MergeBackStage;
 }
 
 export interface AutoMergeBackProps extends AutoMergeBackOptions {

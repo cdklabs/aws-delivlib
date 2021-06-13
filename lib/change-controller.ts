@@ -9,6 +9,7 @@ import {
   aws_lambda as lambda,
   aws_s3 as s3,
   aws_s3_notifications as s3_notifications,
+  aws_lambda_nodejs as nodejs,
 }
   from 'monocdk';
 
@@ -75,20 +76,10 @@ export class ChangeController extends Construct {
     // const changeControlBucket = props.changeControlBucket || new s3.Bucket(this, 'Bucket', { versioned: true });
     const changeControlObjectKey = props.changeControlObjectKey || 'change-control.ics';
 
-    const fn = new lambda.Function(this, 'Function', {
+    const fn = new nodejs.NodejsFunction(this, 'Function', {
       description: `Enforces a Change Control Policy into CodePipeline's ${props.pipelineStage.stageName} stage`,
-      code: lambda.Code.fromAsset(path.join(__dirname, '../change-control-lambda'), {
-        exclude: [
-          '**/.DS_Store',
-          '*.tsbuildinfo',
-          '*.ts',
-          'tsconfig.json',
-          'yarn.lock',
-          'node_modules/.yarn-integrity',
-        ],
-      }),
+      entry: path.join(__dirname, 'change-control-lambda', 'index.ts'),
       runtime: lambda.Runtime.NODEJS_10_X,
-      handler: 'index.handler',
       environment: {
         // CAPITAL punishment 👌🏻
         CHANGE_CONTROL_BUCKET_NAME: changeControlBucket.bucketName,

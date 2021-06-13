@@ -1,4 +1,5 @@
 import * as https from 'https';
+// eslint-disable-next-line import/no-extraneous-dependencies
 import * as AWS from 'aws-sdk';
 
 
