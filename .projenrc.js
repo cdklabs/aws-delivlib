@@ -5,6 +5,7 @@ const project = new TypeScriptProject({
   description: 'A fabulous library for defining continuous pipelines for building, testing and releasing code libraries.',
   repository: 'https://github.com/cdklabs/aws-delivlib.git',
   defaultReleaseBranch: 'main',
+  projenUpgradeSecret: 'PROJEN_GITHUB_TOKEN',
   authorName: 'Amazon Web Services',
   authorUrl: 'https://aws.amazon.com',
   keywords: [
@@ -39,6 +40,11 @@ const project = new TypeScriptProject({
   // releases are handled by pipeline/delivlib.ts
   release: false,
   pullRequestTemplate: false,
+  autoApproveOptions: {
+    allowedUsernames: ['aws-cdk-automation'],
+    secret: 'GITHUB_TOKEN',
+  },
+  autoApproveUpgrades: true,
 });
 
 // trick projen so that it doesn't override the version in package.json
