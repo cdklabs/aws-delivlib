@@ -37,6 +37,7 @@ const project = new TypeScriptProject({
 
   // releases are handled by pipeline/delivlib.ts
   release: false,
+  pullRequestTemplate: false,
 });
 
 // trick projen so that it doesn't override the version in package.json
