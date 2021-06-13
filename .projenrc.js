@@ -27,6 +27,7 @@ const project = new TypeScriptProject({
     'aws-sdk',
     'node-ical',
     'rrule',
+    'esbuild',
   ],
   peerDeps: [
     'constructs',
