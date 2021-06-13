@@ -76,7 +76,7 @@ You can use the following npm scripts to manage the pipeline:
 We have good coverage of unit tests that should be testing the bulk of the logic in delivlib. For every contribution and change,
 we expect them to be covered by unit tests, where appropriate.
 
-You can run the by executing:
+You can run the tests by executing:
 
 ```console
 yarn compile
