@@ -1411,7 +1411,7 @@ Resources:
     Properties:
       Code:
         S3Bucket: cdk-hnb659fds-assets-712950704752-us-east-1
-        S3Key: 077dea6c9f77124778ba0adb7d6d1033dd99be515bf0395ba94cb9734c71eff7.zip
+        S3Key: 663163693e04179c71265b44a325be7e6b8c4e90b081883a1b3f3393de2546ea.zip
       Role:
         Fn::GetAtt:
           - CodeCommitPipelinePipelineWatcherPollerServiceRole0A1D8005
@@ -1456,7 +1456,7 @@ Resources:
           Id: Target0
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/PipelineWatcher/Trigger/Resource
-  CodeCommitPipelinePipelineWatcherTriggerAllowEventRuledelivlibtestCodeCommitPipelinePipelineWatcherTrigger0F55C264308E3E05:
+  CodeCommitPipelinePipelineWatcherTriggerAllowEventRuledelivlibtestCodeCommitPipelinePipelineWatcherPoller7862623143029B4E:
     Type: AWS::Lambda::Permission
     Properties:
       Action: lambda:InvokeFunction
@@ -1470,7 +1470,7 @@ Resources:
           - CodeCommitPipelinePipelineWatcherTriggerA38A4AD0
           - Arn
     Metadata:
-      aws:cdk:path: delivlib-test/CodeCommitPipeline/PipelineWatcher/Trigger/AllowEventRuledelivlibtestCodeCommitPipelinePipelineWatcherTrigger0F55C264
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/PipelineWatcher/Trigger/AllowEventRuledelivlibtestCodeCommitPipelinePipelineWatcherPoller78626231
   CodeCommitPipelinePipelineWatcherAlarm73779F48:
     Type: AWS::CloudWatch::Alarm
     Properties:
@@ -3138,6 +3138,14 @@ Resources:
     Properties:
       PolicyDocument:
         Statement:
+          - Action: secretsmanager:GetSecretValue
+            Effect: Allow
+            Resource:
+              Fn::Join:
+                - ""
+                - - "arn:"
+                  - Ref: AWS::Partition
+                  - :secretsmanager:us-east-1:712950704752:secret:github-token-??????
           - Action:
               - logs:CreateLogGroup
               - logs:CreateLogStream
@@ -3157,14 +3165,6 @@ Resources:
                     - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelineGitHub0797840C
                     - :*
-          - Action: secretsmanager:GetSecretValue
-            Effect: Allow
-            Resource:
-              Fn::Join:
-                - ""
-                - - "arn:"
-                  - Ref: AWS::Partition
-                  - :secretsmanager:us-east-1:712950704752:secret:github-token-??????
           - Action:
               - codebuild:CreateReportGroup
               - codebuild:CreateReport
@@ -4284,7 +4284,7 @@ Resources:
     Properties:
       Code:
         S3Bucket: cdk-hnb659fds-assets-712950704752-us-east-1
-        S3Key: a23c7b170335a5e6c472d8452f3d532337b63d89a4c9464e658d99122cfe3ed4.zip
+        S3Key: 6156c590d9b28cc2c97ecdf991399082a46f8e995cb2dbcb970aa9c81e70a7c3.zip
       Role:
         Fn::GetAtt:
           - CodeCommitPipelineChangeControllerFunctionServiceRoleF02841DB
@@ -4298,6 +4298,7 @@ Resources:
           PIPELINE_NAME:
             Ref: CodeCommitPipelineBuildPipeline656B8CCB
           STAGE_NAME: Publish
+          AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
       Handler: index.handler
       Runtime: nodejs10.x
       Timeout: 300
@@ -4342,7 +4343,7 @@ Resources:
           Id: Target0
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/ChangeController/Rule/Resource
-  CodeCommitPipelineChangeControllerRuleAllowEventRuledelivlibtestCodeCommitPipelineChangeControllerRule9C4D9DE846BF6114:
+  CodeCommitPipelineChangeControllerRuleAllowEventRuledelivlibtestCodeCommitPipelineChangeControllerFunction83CC56EB9365DB12:
     Type: AWS::Lambda::Permission
     Properties:
       Action: lambda:InvokeFunction
@@ -4356,7 +4357,7 @@ Resources:
           - CodeCommitPipelineChangeControllerRuleAEEA7A52
           - Arn
     Metadata:
-      aws:cdk:path: delivlib-test/CodeCommitPipeline/ChangeController/Rule/AllowEventRuledelivlibtestCodeCommitPipelineChangeControllerRule9C4D9DE8
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/ChangeController/Rule/AllowEventRuledelivlibtestCodeCommitPipelineChangeControllerFunction83CC56EB
   AssumeMe924099BB:
     Type: AWS::IAM::Role
     Properties:
@@ -4382,7 +4383,7 @@ Resources:
     Properties:
       Content:
         S3Bucket: cdk-hnb659fds-assets-712950704752-us-east-1
-        S3Key: 3484e3af42fdf9fe20bc76b3aa0b74c59f8ffe2e6aa726d82b5fb8fed9b91889
+        S3Key: 3484e3af42fdf9fe20bc76b3aa0b74c59f8ffe2e6aa726d82b5fb8fed9b91889.zip
     Metadata:
       aws:cdk:path: delivlib-test/X509CodeSigningKey/RSAPrivateKey/OpenSslCliLayer/Resource
   X509CodeSigningKeyRSAPrivateKeyE5980A70:
@@ -4392,7 +4393,7 @@ Resources:
         Fn::GetAtt:
           - RSAPrivateKey72FD327D38134632934028EC437AA486D8EE708F
           - Arn
-      ResourceVersion: DLwt0wsyo2UdHfkbRIPFdUSxjMwDSCUNM62ns6oFQIU=
+      ResourceVersion: k+XzV9My4f3O+69O2UDNMNX9YMcmUeczesvs/hHzupc=
       Description: The PEM-encoded private key of the x509 Code-Signing Certificate
       KeySize: 2048
       SecretName: delivlib-test/X509CodeSigningKey/RSAPrivateKey
@@ -4408,7 +4409,7 @@ Resources:
     Properties:
       Content:
         S3Bucket: cdk-hnb659fds-assets-712950704752-us-east-1
-        S3Key: 3484e3af42fdf9fe20bc76b3aa0b74c59f8ffe2e6aa726d82b5fb8fed9b91889
+        S3Key: 3484e3af42fdf9fe20bc76b3aa0b74c59f8ffe2e6aa726d82b5fb8fed9b91889.zip
     Metadata:
       aws:cdk:path: delivlib-test/X509CodeSigningKey/RSAPrivateKey/CertificateSigningRequest/OpenSslCliLayer/Resource
   X509CodeSigningKeyRSAPrivateKeyCertificateSigningRequest7F706C9D:
@@ -4418,7 +4419,7 @@ Resources:
         Fn::GetAtt:
           - CreateCSR541F67826DCF49A78C5A67715ADD9E4C8F4169F6
           - Arn
-      ResourceVersion: pHHcSAGoaO6EbbCjMr++9jazzciqOCkPyNcJthLAhr4=
+      ResourceVersion: 5ZpWsJ6Wx4LK79/pZuctClYmYHQaTdnMuSINo67q/Gc=
       PrivateKeySecretId:
         Fn::GetAtt:
           - X509CodeSigningKeyRSAPrivateKeyE5980A70
@@ -4503,7 +4504,7 @@ Resources:
     Properties:
       Code:
         S3Bucket: cdk-hnb659fds-assets-712950704752-us-east-1
-        S3Key: b73a0d9f436dddc1f9fa002afd71d488816efc2abb291fce0dc84c22884d1b37.zip
+        S3Key: 6d314b8c54d84f9b34f72e857a651d81638a6e9fc926d4a99a79b9cc6a513865.zip
       Role:
         Fn::GetAtt:
           - RSAPrivateKey72FD327D38134632934028EC437AA486ServiceRole76094455
@@ -4559,7 +4560,7 @@ Resources:
     Properties:
       Code:
         S3Bucket: cdk-hnb659fds-assets-712950704752-us-east-1
-        S3Key: e0c7190ea1c5f8d6d5e6892d16926b052eb2bd41edb557383bd29fe7eb63ffae.zip
+        S3Key: bae86479c6d3856eb3a32180d0139e75f9f9cb9b40a8c3de664fd30180e24a45.zip
       Role:
         Fn::GetAtt:
           - CreateCSR541F67826DCF49A78C5A67715ADD9E4CServiceRoleD2990C92
@@ -4644,7 +4645,7 @@ Resources:
     Properties:
       Content:
         S3Bucket: cdk-hnb659fds-assets-712950704752-us-east-1
-        S3Key: 69a776bec2bf25cc316055ac300a38998a429f41c98f76ef762e1aacb23488fe
+        S3Key: 69a776bec2bf25cc316055ac300a38998a429f41c98f76ef762e1aacb23488fe.zip
     Metadata:
       aws:cdk:path: delivlib-test/CodeSign/GpgLayer/Resource
   CodeSign52FB6674:
@@ -4654,7 +4655,7 @@ Resources:
         Fn::GetAtt:
           - SingletonLambdaf25803d3054b44fc985f4860d7d6ee746203BDE6
           - Arn
-      ResourceVersion: uvYIMo2ZZ2RowRq8GhO0v38Rkmt4behuWkFJ/cL9pR0=
+      ResourceVersion: 34JXGd2/n3sfINSa/ZlEshDzyFJiiRwKxbXfKiFqhuY=
       Identity: aws-cdk-dev
       Email: aws-cdk-dev+delivlib@amazon.com
       Expiry: 4y
@@ -4737,7 +4738,7 @@ Resources:
     Properties:
       Code:
         S3Bucket: cdk-hnb659fds-assets-712950704752-us-east-1
-        S3Key: f0079abedc01597850a249aa2e6ff84d8ed5be5c03476e968ab825c72502d1ef.zip
+        S3Key: 11c8424a516b0024d4c3fe3d52291fab0f0a94823345a1e45009a41f3f6d89c5.zip
       Role:
         Fn::GetAtt:
           - SingletonLambdaf25803d3054b44fc985f4860d7d6ee74ServiceRole410148CF
@@ -4821,7 +4822,7 @@ Resources:
               }
               // eslint-disable-next-line max-len
               // adapted from https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-lambda-function-code.html#cfn-lambda-function-code-cfnresponsemodule
-              // to allow sending an error messge as a reason.
+              // to allow sending an error message as a reason.
               function submitResponse(responseStatus, reason) {
                   const responseBody = JSON.stringify({
                       Status: responseStatus,
@@ -4861,7 +4862,7 @@ Resources:
         Fn::GetAtt:
           - BucketNotificationsHandler050a0587b7544547bf325f094a3db834RoleB6FB88EC
           - Arn
-      Runtime: nodejs10.x
+      Runtime: nodejs12.x
       Timeout: 300
     DependsOn:
       - BucketNotificationsHandler050a0587b7544547bf325f094a3db834RoleDefaultPolicy2CF63D36

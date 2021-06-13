@@ -19,6 +19,8 @@
     "watch": "npx projen watch",
     "package": "npx projen package",
     "eslint": "npx projen eslint",
+    "integ:diff": "npx projen integ:diff",
+    "integ:update": "npx projen integ:update",
     "compile:custom-resource-handlers": "npx projen compile:custom-resource-handlers",
     "compile:pipeline": "npx projen compile:pipeline",
     "bump": "npx projen bump",

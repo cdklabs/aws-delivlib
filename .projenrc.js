@@ -47,6 +47,14 @@ project.gitignore.exclude('pipeline/*.js');
 project.gitignore.exclude('pipeline/*.d.ts');
 project.setScript('cdk', 'npx cdk');
 
+const integDiff = project.addTask('integ:diff');
+integDiff.exec('/bin/bash ./lib/__tests__/run-test.sh');
+
+const integUpdate = project.addTask('integ:update');
+integUpdate.exec('/bin/bash ./lib/__tests__/run-test.sh update');
+
+project.testTask.spawn(integDiff);
+
 const compileCustomResourceHandlers = project.addTask('compile:custom-resource-handlers');
 compileCustomResourceHandlers.exec('/bin/bash ./build-custom-resource-handlers.sh');
 

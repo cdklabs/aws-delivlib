@@ -1,12 +1,9 @@
 #!/bin/bash
 set -euo pipefail
-if [ ! -f package.json ]; then
-  echo "Expected to run from pacakge root"
-  exit 1
-fi
+scriptdir=$(cd $(dirname $0) && pwd)
 
-cdk_app="test/integ.delivlib.js"
-expected="test/expected.yml"
+cdk_app="${scriptdir}/integ.delivlib.js"
+expected="${scriptdir}/expected.yml"
 actual="/tmp/actual.json"
 
 custom_stack_name="${TEST_STACK_NAME:-}"

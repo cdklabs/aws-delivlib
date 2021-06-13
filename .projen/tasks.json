@@ -67,6 +67,9 @@
         },
         {
           "spawn": "eslint"
+        },
+        {
+          "spawn": "integ:diff"
         }
       ]
     },
@@ -186,6 +189,22 @@
       "steps": [
         {
           "exec": "eslint --ext .ts,.tsx --fix --no-error-on-unmatched-pattern lib lib/__tests__ build-tools .projenrc.js"
+        }
+      ]
+    },
+    "integ:diff": {
+      "name": "integ:diff",
+      "steps": [
+        {
+          "exec": "/bin/bash ./lib/__tests__/run-test.sh"
+        }
+      ]
+    },
+    "integ:update": {
+      "name": "integ:update",
+      "steps": [
+        {
+          "exec": "/bin/bash ./lib/__tests__/run-test.sh update"
         }
       ]
     },
