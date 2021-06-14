@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [13.0.0](https://github.com/cdklabs/aws-delivlib/compare/v12.7.2...v13.0.0) (2021-06-14)
+
+
+### ⚠ BREAKING CHANGES
+
+* `esbuild` or `docker` is required in order to bundle the change-control-lambda
+
+* change-control-lambda migrated to `NodeJsFunction` ([#844](https://github.com/cdklabs/aws-delivlib/issues/844)) ([715446d](https://github.com/cdklabs/aws-delivlib/commit/715446d7296f3f6e2fa6172f0e73bcf012193467))
+
 ### [12.7.2](https://github.com/cdklabs/aws-delivlib/compare/v12.7.1...v12.7.2) (2021-06-07)
 
 ### [12.7.1](https://github.com/cdklabs/aws-delivlib/compare/v12.7.0...v12.7.1) (2021-05-29)
