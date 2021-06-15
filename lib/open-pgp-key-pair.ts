@@ -119,7 +119,7 @@ export class OpenPGPKeyPair extends Construct implements ICredentialPair {
       code: new lambda.AssetCode(codeLocation),
       handler: 'index.handler',
       timeout: Duration.seconds(300),
-      runtime: lambda.Runtime.NODEJS_10_X,
+      runtime: lambda.Runtime.NODEJS_12_X,
       // add the layer that contains the GPG binary (+ shared libraries)
       layers: [new lambda.LayerVersion(this, 'GpgLayer', {
         code: lambda.Code.fromAsset(path.join(__dirname, 'custom-resource-handlers', 'layers', 'gpg-layer.zip')),
