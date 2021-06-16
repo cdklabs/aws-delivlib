@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [13.0.2](https://github.com/cdklabs/aws-delivlib/compare/v13.0.1...v13.0.2) (2021-06-16)
+
+
+### Bug Fixes
+
+* Custom Resources use end-of-life Lambda Node 10 runtime ([#834](https://github.com/cdklabs/aws-delivlib/issues/834)) ([6590e7d](https://github.com/cdklabs/aws-delivlib/commit/6590e7dd7d19c1f32b4516a45d34420cd4fe30b7))
+
 ### [13.0.1](https://github.com/cdklabs/aws-delivlib/compare/v13.0.0...v13.0.1) (2021-06-15)
 
 ## [13.0.0](https://github.com/cdklabs/aws-delivlib/compare/v12.7.2...v13.0.0) (2021-06-14)
