@@ -42,9 +42,9 @@
     "@typescript-eslint/eslint-plugin": "^4.27.0",
     "@typescript-eslint/parser": "^4.27.0",
     "aws-cdk": "^1.108.1",
-    "aws-sdk": "^2.929.0",
-    "constructs": "^3.3.81",
-    "esbuild": "^0.12.8",
+    "aws-sdk": "^2.930.0",
+    "constructs": "^3.3.82",
+    "esbuild": "^0.12.9",
     "eslint": "^7.28.0",
     "eslint-import-resolver-node": "^0.3.4",
     "eslint-import-resolver-typescript": "^2.4.0",
@@ -56,14 +56,14 @@
     "monocdk": "^1.108.1",
     "node-ical": "^0.13.0",
     "npm-check-updates": "^11",
-    "projen": "^0.24.7",
+    "projen": "^0.24.8",
     "rrule": "^2.6.8",
     "standard-version": "^9",
     "ts-jest": "^26.5.6",
-    "typescript": "^4.3.2"
+    "typescript": "^4.3.3"
   },
   "peerDependencies": {
-    "constructs": "^3.3.81",
+    "constructs": "^3.3.82",
     "monocdk": "^1.108.1"
   },
   "dependencies": {
