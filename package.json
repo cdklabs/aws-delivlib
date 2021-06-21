@@ -45,7 +45,7 @@
     "aws-sdk": "^2.930.0",
     "constructs": "^3.3.82",
     "esbuild": "^0.12.9",
-    "eslint": "^7.28.0",
+    "eslint": "^7.29.0",
     "eslint-import-resolver-node": "^0.3.4",
     "eslint-import-resolver-typescript": "^2.4.0",
     "eslint-plugin-import": "^2.23.4",
