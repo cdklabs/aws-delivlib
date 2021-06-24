@@ -5031,19 +5031,24 @@ moment-timezone@^0.5.31:
   resolved "https://registry.yarnpkg.com/moment/-/moment-2.29.1.tgz#b2be769fa31940be9eeea6469c075e35006fa3d3"
   integrity sha512-kHmoybcPV8Sqy59DwNDY3Jefr64lK/by/da0ViFcuA4DH0vQg5Q6Ze5VimxkfQNSC+Mls/Kx53s7TjP1RhFEDQ==
 
-monocdk@^1.108.1:
-  version "1.108.1"
-  resolved "https://registry.yarnpkg.com/monocdk/-/monocdk-1.108.1.tgz#91bcbc8b15f33d15d2010b355770e7051a0e3b30"
-  integrity sha512-YHsYy64Ot++FQwAVL5jgW3QgevSS8ee5REOj0V8viFI0bXWZcq8d0tnc/2aess88qIrgFemnx7FqCHXptGhG5Q==
+monocdk@^1.110.0:
+  version "1.110.0"
+  resolved "https://registry.yarnpkg.com/monocdk/-/monocdk-1.110.0.tgz#4d76926bd53a209e6ac97eb88dd286e35e825dbe"
+  integrity sha512-PObOHC5MjfO2Bsaw0iJri+U8F7pIZ1rdgwW7m+f7diuyzL89RH2vSiArGB4fR5w8fwC0X0ig1gFf1IiUbgaGsQ==
   dependencies:
     "@balena/dockerignore" "^1.0.2"
     case "1.6.3"
+    colors "^1.4.0"
+    diff "^5.0.0"
+    fast-deep-equal "^3.1.3"
     fs-extra "^9.1.0"
     ignore "^5.1.8"
     jsonschema "^1.4.0"
     minimatch "^3.0.4"
     punycode "^2.1.1"
     semver "^7.3.5"
+    string-width "^4.2.2"
+    table "^6.7.1"
     yaml "1.10.2"
 
 ms@2.0.0:
