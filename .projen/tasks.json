@@ -42,7 +42,7 @@
           "spawn": "compile:custom-resource-handlers"
         },
         {
-          "exec": "tsc"
+          "exec": "tsc --build"
         },
         {
           "spawn": "compile:pipeline"
@@ -147,7 +147,7 @@
       "description": "Watch & compile in the background",
       "steps": [
         {
-          "exec": "tsc -w"
+          "exec": "tsc --build -w"
         }
       ]
     },
