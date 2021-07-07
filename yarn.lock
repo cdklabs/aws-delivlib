@@ -5171,9 +5171,9 @@ npm-bundled@^1.1.1:
     npm-normalize-package-bin "^1.0.1"
 
 npm-check-updates@^11:
-  version "11.8.1"
-  resolved "https://registry.yarnpkg.com/npm-check-updates/-/npm-check-updates-11.8.1.tgz#58ce3b0a6346d23a56815ed24ddfbac5c55ee35c"
-  integrity sha512-EaKm356SXQ8vZtaFlhkNAUk5vQbILCh09RkpIkxyqHG1bh4roAyUVa+tgPuHi4o+TW7809G5mwxzlQuGXSQGjw==
+  version "11.8.2"
+  resolved "https://registry.yarnpkg.com/npm-check-updates/-/npm-check-updates-11.8.2.tgz#940812ae837cc96d7a975a9e5073a9dca824cd4c"
+  integrity sha512-+TWwhsFUJrar3z1KdCdwNLW6VQkqbU6pBZQtUVMfoAaeHq/L5SAnF6CwIzE/8hmKMNvxFAEe5Ow41ibhLa2iIg==
   dependencies:
     chalk "^4.1.1"
     cint "^8.2.1"
