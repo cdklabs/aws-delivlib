@@ -42,8 +42,8 @@
     "@typescript-eslint/eslint-plugin": "^4.28.4",
     "@typescript-eslint/parser": "^4.28.4",
     "aws-cdk": "^1.115.0",
-    "aws-sdk": "^2.952.0",
-    "constructs": "^3.3.100",
+    "aws-sdk": "^2.953.0",
+    "constructs": "^3.3.101",
     "esbuild": "^0.12.15",
     "eslint": "^7.31.0",
     "eslint-import-resolver-node": "^0.3.4",
@@ -63,7 +63,7 @@
     "typescript": "^4.3.5"
   },
   "peerDependencies": {
-    "constructs": "^3.3.100",
+    "constructs": "^3.3.101",
     "monocdk": "^1.115.0"
   },
   "dependencies": {
