@@ -1626,10 +1626,10 @@ chalk@^2.0.0, chalk@^2.4.2:
     escape-string-regexp "^1.0.5"
     supports-color "^5.3.0"
 
-chalk@^4.0.0, chalk@^4.1.0, chalk@^4.1.1:
-  version "4.1.1"
-  resolved "https://registry.yarnpkg.com/chalk/-/chalk-4.1.1.tgz#c80b3fab28bf6371e6863325eee67e618b77e6ad"
-  integrity sha512-diHzdDKxcU+bAsUboHLPEDQiw0qEe0qd7SYUn3HgcFlWgbDcfLGswOHYeGrHKzG9z6UYf01d9VFMfZxPM1xZSg==
+chalk@^4.0.0, chalk@^4.1.0, chalk@^4.1.1, chalk@^4.1.2:
+  version "4.1.2"
+  resolved "https://registry.yarnpkg.com/chalk/-/chalk-4.1.2.tgz#aac4e2b7734a740867aeb16bf02aad556a1e7a01"
+  integrity sha512-oKnbhFyRIXpUuez8iBMmyEa4nbj4IOQyuhc/wy9kY7/WVPcwIO9VA668Pu8RkO7+0G76SLROeyw9CpQ061i4mA==
   dependencies:
     ansi-styles "^4.1.0"
     supports-color "^7.1.0"
@@ -5683,13 +5683,13 @@ progress@^2.0.0, progress@^2.0.3:
   resolved "https://registry.yarnpkg.com/progress/-/progress-2.0.3.tgz#7e8cf8d8f5b8f239c1bc68beb4eb78567d572ef8"
   integrity sha512-7PiHtLll5LdnKIMw100I+8xJXR5gW2QwWYkT6iJva0bXitZKa/XMrSbdmg3r2Xnaidz9Qumd0VPaMrZlF9V9sA==
 
-projen@^0.27.9:
-  version "0.27.9"
-  resolved "https://registry.yarnpkg.com/projen/-/projen-0.27.9.tgz#14fee7460784ded33052d3b28f64d5e87332614b"
-  integrity sha512-IqkGhXfUd7XlUKvrhCoAczHS2k2Rrxbn/tUPBBvQzMD7eHe56TPYyhpI15QhTSbY9VkoilpA375UpJfCAy5nKw==
+projen@^0.27.15:
+  version "0.27.15"
+  resolved "https://registry.yarnpkg.com/projen/-/projen-0.27.15.tgz#5dafa38e3be9ebeb8b28780249e4f0e0900c53cb"
+  integrity sha512-PkQ8dgD50yquEGsRlBNZWWGBMRx0234ykeIQMjCyJfHnPVOH/53UkeRn1a+oJFZ6CN7NVSIDeJ9Il9Ha6TKYhA==
   dependencies:
     "@iarna/toml" "^2.2.5"
-    chalk "^4.1.1"
+    chalk "^4.1.2"
     decamelize "^4.0.0"
     fs-extra "^9.1.0"
     glob "^7"
