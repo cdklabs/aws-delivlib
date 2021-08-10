@@ -30,6 +30,6 @@ fi
 
 diff ${actual} ${expected} || {
   echo "Expected test stack template does not match synthesized output"
-  echo "To update expectations: 'npm test update'"
+  echo "To update expectations: 'npx projen integ:update'"
   exit 1
 }
