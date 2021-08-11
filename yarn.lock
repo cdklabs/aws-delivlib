@@ -4976,10 +4976,10 @@ moment-timezone@^0.5.31:
   resolved "https://registry.yarnpkg.com/moment/-/moment-2.29.1.tgz#b2be769fa31940be9eeea6469c075e35006fa3d3"
   integrity sha512-kHmoybcPV8Sqy59DwNDY3Jefr64lK/by/da0ViFcuA4DH0vQg5Q6Ze5VimxkfQNSC+Mls/Kx53s7TjP1RhFEDQ==
 
-monocdk@^1.117.0:
-  version "1.117.0"
-  resolved "https://registry.yarnpkg.com/monocdk/-/monocdk-1.117.0.tgz#7944ff6537439a2c40a6c9a86b3ae04b2d1c49bb"
-  integrity sha512-tIDY/FfDVIyd16JDPbzsF02+nVmNAD0YD/Tp/n4lbZq39pwInwIesUCCWEv5I1l2UdwJ2VOVfsU4MSVb3kstAw==
+monocdk@^1.118.0:
+  version "1.118.0"
+  resolved "https://registry.yarnpkg.com/monocdk/-/monocdk-1.118.0.tgz#e9d1309d6ec2822809f9f75b589be5f30c349a92"
+  integrity sha512-qe9T7H/gtO+7eaTWCpIKpemngztVuwnpgF+JfHapoEbGVpL3eotHV2+Sy09FAF2YQpM62LcCx9Z5ICh35jkctg==
   dependencies:
     "@balena/dockerignore" "^1.0.2"
     case "1.6.3"

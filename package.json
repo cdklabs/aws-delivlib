@@ -52,7 +52,7 @@
     "jest-create-mock-instance": "^1.1.0",
     "jest-junit": "^12",
     "json-schema": "^0.3.0",
-    "monocdk": "^1.117.0",
+    "monocdk": "^1.118.0",
     "node-ical": "^0.13.0",
     "npm-check-updates": "^11",
     "projen": "^0.27.27",
@@ -63,7 +63,7 @@
   },
   "peerDependencies": {
     "constructs": "^3.3.118",
-    "monocdk": "^1.117.0"
+    "monocdk": "^1.118.0"
   },
   "dependencies": {
     "changelog-parser": "^2.8.0"
