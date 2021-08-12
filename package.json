@@ -55,7 +55,7 @@
     "monocdk": "^1.118.0",
     "node-ical": "^0.13.0",
     "npm-check-updates": "^11",
-    "projen": "^0.27.27",
+    "projen": "^0.27.28",
     "rrule": "^2.6.8",
     "standard-version": "^9",
     "ts-jest": "^26.5.6",
