@@ -1859,10 +1859,10 @@ console-control-strings@^1.0.0, console-control-strings@~1.1.0:
   resolved "https://registry.yarnpkg.com/console-control-strings/-/console-control-strings-1.1.0.tgz#3d7cf4464db6446ea644bf4b39507f9851008e8e"
   integrity sha1-PXz0Rk22RG6mRL9LOVB/mFEAjo4=
 
-constructs@^3.3.128:
-  version "3.3.128"
-  resolved "https://registry.yarnpkg.com/constructs/-/constructs-3.3.128.tgz#f003bd0626c2ca811db79d0bd74c8746fcaffc83"
-  integrity sha512-rTU6aYZf0EZHpoMQ4mU23zZQAVYwmBPC/78w75diEmBs9DN4VSQ2tXm2um4OwpPUCu5jLMkhcdsRwdFpAlQdxQ==
+constructs@^3.3.129:
+  version "3.3.129"
+  resolved "https://registry.yarnpkg.com/constructs/-/constructs-3.3.129.tgz#18394f480fc2362f01ec1c800f640d415e4175ad"
+  integrity sha512-XSQ/TTinb25oA8KxlPXbAIo3SnkIRdgl6lX8qTze2cKrxdTtmjgaapO7fdv7bVj+Sd0v5ld9dE2K8P+j3b8z/g==
 
 conventional-changelog-angular@^5.0.12:
   version "5.0.12"
@@ -2467,10 +2467,10 @@ es5-ext@0.8.x:
   resolved "https://registry.yarnpkg.com/es5-ext/-/es5-ext-0.8.2.tgz#aba8d9e1943a895ac96837a62a39b3f55ecd94ab"
   integrity sha1-q6jZ4ZQ6iVrJaDemKjmz9V7NlKs=
 
-esbuild@^0.12.21:
-  version "0.12.21"
-  resolved "https://registry.yarnpkg.com/esbuild/-/esbuild-0.12.21.tgz#7ff32a9ac73ce4310f9cb61ea4c3da9756570d46"
-  integrity sha512-7hyXbU3g94aREufI/5nls7Xcc+RGQeZWZApm6hoBaFvt2BPtpT4TjFMQ9Tb1jU8XyBGz00ShmiyflCogphMHFQ==
+esbuild@^0.12.22:
+  version "0.12.22"
+  resolved "https://registry.yarnpkg.com/esbuild/-/esbuild-0.12.22.tgz#6031a1257b8d0307d306bed673b79c3668607f51"
+  integrity sha512-yWCr9RoFehpqoe/+MwZXJpYOEIt7KOEvNnjIeMZpMSyQt+KCBASM3y7yViiN5dJRphf1wGdUz1+M4rTtWd/ulA==
 
 escalade@^3.1.1:
   version "3.1.1"
