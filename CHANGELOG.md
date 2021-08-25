@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [13.0.30](https://github.com/cdklabs/aws-delivlib/compare/v13.0.29...v13.0.30) (2021-08-25)
+
 ### [13.0.29](https://github.com/cdklabs/aws-delivlib/compare/v13.0.28...v13.0.29) (2021-08-24)
 
 ### [13.0.28](https://github.com/cdklabs/aws-delivlib/compare/v13.0.27...v13.0.28) (2021-08-23)
