@@ -4394,7 +4394,7 @@ Resources:
         Fn::GetAtt:
           - RSAPrivateKey72FD327D38134632934028EC437AA486D8EE708F
           - Arn
-      ResourceVersion: k+XzV9My4f3O+69O2UDNMNX9YMcmUeczesvs/hHzupc=
+      ResourceVersion: 9SSpvWpv9ZgC52WHzM5Je6Ju9ZoJHVALR5VlJhROwgs=
       Description: The PEM-encoded private key of the x509 Code-Signing Certificate
       KeySize: 2048
       SecretName: delivlib-test/X509CodeSigningKey/RSAPrivateKey
@@ -4420,7 +4420,7 @@ Resources:
         Fn::GetAtt:
           - CreateCSR541F67826DCF49A78C5A67715ADD9E4C8F4169F6
           - Arn
-      ResourceVersion: 5ZpWsJ6Wx4LK79/pZuctClYmYHQaTdnMuSINo67q/Gc=
+      ResourceVersion: 0iNb/IhC8/vyyIyiktjSz6maP//45F9xl6pxQRtkscE=
       PrivateKeySecretId:
         Fn::GetAtt:
           - X509CodeSigningKeyRSAPrivateKeyE5980A70
@@ -4505,7 +4505,7 @@ Resources:
     Properties:
       Code:
         S3Bucket: cdk-hnb659fds-assets-712950704752-us-east-1
-        S3Key: 6d314b8c54d84f9b34f72e857a651d81638a6e9fc926d4a99a79b9cc6a513865.zip
+        S3Key: 49ad3cae9aedaa06b54a5997b18d3545de801b45c7dfb05a5354a03aec399460.zip
       Role:
         Fn::GetAtt:
           - RSAPrivateKey72FD327D38134632934028EC437AA486ServiceRole76094455
@@ -4561,7 +4561,7 @@ Resources:
     Properties:
       Code:
         S3Bucket: cdk-hnb659fds-assets-712950704752-us-east-1
-        S3Key: bae86479c6d3856eb3a32180d0139e75f9f9cb9b40a8c3de664fd30180e24a45.zip
+        S3Key: 70d613312145b8280d33a47035cc5be2a9bd0e5069705e39f83b14cd1f720e99.zip
       Role:
         Fn::GetAtt:
           - CreateCSR541F67826DCF49A78C5A67715ADD9E4CServiceRoleD2990C92
@@ -4656,7 +4656,7 @@ Resources:
         Fn::GetAtt:
           - SingletonLambdaf25803d3054b44fc985f4860d7d6ee746203BDE6
           - Arn
-      ResourceVersion: 34JXGd2/n3sfINSa/ZlEshDzyFJiiRwKxbXfKiFqhuY=
+      ResourceVersion: x9okTy8d1Bkcfmthe30NhD2o1N8snoz7uTlyrP9I6eA=
       Identity: aws-cdk-dev
       Email: aws-cdk-dev+delivlib@amazon.com
       Expiry: 4y
@@ -4739,7 +4739,7 @@ Resources:
     Properties:
       Code:
         S3Bucket: cdk-hnb659fds-assets-712950704752-us-east-1
-        S3Key: 11c8424a516b0024d4c3fe3d52291fab0f0a94823345a1e45009a41f3f6d89c5.zip
+        S3Key: 82a7500f96ba72e7bb0d262fe02e5a925b0801f0a77474de466ad2818fdbeea4.zip
       Role:
         Fn::GetAtt:
           - SingletonLambdaf25803d3054b44fc985f4860d7d6ee74ServiceRole410148CF

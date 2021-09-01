@@ -24,7 +24,7 @@ export function customResourceHandler(handleEvent: ResourceHandler): LambdaHandl
       console.log(`Attributes: ${JSON.stringify(attributes)}`);
 
       await exports.sendResponse(event, Status.SUCCESS, attributes.Ref, attributes);
-    } catch (e) {
+    } catch (e: any) {
       // eslint-disable-next-line no-console
       console.error(e);
       await exports.sendResponse(event, Status.FAILED, event.PhysicalResourceId, {}, e.message);

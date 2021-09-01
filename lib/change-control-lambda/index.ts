@@ -37,7 +37,7 @@ export async function handler(/*_event: any, _context: any*/) {
       await enableTransition(pipelineName, stageName);
     }
     console.log('All Done!');
-  } catch (e) {
+  } catch (e: any) {
     console.log(`Error: ${e.message} - ${e.stack}`);
     throw e;
   }
@@ -56,7 +56,7 @@ async function tryGetCalendarData(Bucket: string, Key: string) {
     const icsFile = await s3.getObject({ Bucket, Key }).promise();
     console.log(`Calendar object version ID: ${icsFile.VersionId || '<unversioned>'}`);
     return icsFile.Body!.toString('utf8');
-  } catch (e) {
+  } catch (e: any) {
     // If the bucket or key don't exist, default to closed all the time!
     if (e.code === 'NoSuchBucket' || e.code === 'NoSuchKey') {
       console.log(`Calendar object could not be found (${e.message}), defaulting to closed.`);

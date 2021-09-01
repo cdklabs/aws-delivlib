@@ -17,7 +17,7 @@ describe('watcher-handler', () => {
     }) as any;
     try {
       await handler(actionExecutionEvent());
-    } catch (err) {
+    } catch (err: any) {
       expect(err.message).toEqual('fail');
     }
   });
@@ -27,7 +27,7 @@ describe('watcher-handler', () => {
     expect.assertions(1);
     try {
       await handler(actionExecutionEvent());
-    } catch (err) {
+    } catch (err: any) {
       expect(err.message).toMatch(/environment variables must be set/);
     }
   });
@@ -37,7 +37,7 @@ describe('watcher-handler', () => {
     expect.assertions(1);
     try {
       await handler(actionExecutionEvent());
-    } catch (err) {
+    } catch (err: any) {
       expect(err.message).toMatch(/environment variables must be set/);
     }
   });
@@ -47,7 +47,7 @@ describe('watcher-handler', () => {
       expect.assertions(1);
       try {
         await handler(actionExecutionEvent('STARTED'));
-      } catch (err) {
+      } catch (err: any) {
         expect(err.message).toMatch(/Unsupported/);
       }
     });
@@ -106,7 +106,7 @@ describe('watcher-handler', () => {
       expect.assertions(1);
       try {
         await handler(pipelineExecutionEvent('STARTED'));
-      } catch (err) {
+      } catch (err: any) {
         expect(err.message).toMatch(/Unsupported/);
       }
     });

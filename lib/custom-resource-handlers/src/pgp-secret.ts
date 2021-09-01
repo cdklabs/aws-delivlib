@@ -128,7 +128,7 @@ async function _updateExistingKey(event: cfn.UpdateEvent, context: lambda.Contex
     // order to allow the "external" creation to happen without problems...
     try {
       await ssm.deleteParameter({ Name: event.OldResourceProperties.ParameterName }).promise();
-    } catch (e) {
+    } catch (e: any) {
       // Allow the parameter to already not exist, just in case!
       if (e.code !== 'ParameterNotFound') {
         throw e;
