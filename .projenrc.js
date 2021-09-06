@@ -68,7 +68,4 @@ compileCustomResourceHandlers.exec('/bin/bash ./build-custom-resource-handlers.s
 
 project.compileTask.prependSpawn(compileCustomResourceHandlers);
 
-project.packageTask.reset();
-project.packageTask.exec('/bin/bash ./package.sh');
-
 project.synth();

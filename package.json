@@ -16,6 +16,7 @@
     "bump": "npx projen bump",
     "unbump": "npx projen unbump",
     "publish:github": "npx projen publish:github",
+    "publish:npm": "npx projen publish:npm",
     "upgrade": "npx projen upgrade",
     "default": "npx projen default",
     "watch": "npx projen watch",
