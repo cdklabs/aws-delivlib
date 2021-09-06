@@ -41,9 +41,6 @@
         },
         {
           "exec": "tsc --build"
-        },
-        {
-          "spawn": "compile:pipeline"
         }
       ]
     },
@@ -102,6 +99,47 @@
       "steps": [
         {
           "exec": "jest --updateSnapshot"
+        }
+      ]
+    },
+    "bump": {
+      "name": "bump",
+      "description": "Bumps version based on latest git tag and generates a changelog entry",
+      "env": {
+        "OUTFILE": "package.json",
+        "CHANGELOG": "dist/changelog.md",
+        "BUMPFILE": "dist/version.txt"
+      },
+      "steps": [
+        {
+          "builtin": "release/bump-version"
+        }
+      ],
+      "condition": "! git log --oneline -1 | grep -q \"chore(release):\""
+    },
+    "unbump": {
+      "name": "unbump",
+      "description": "Restores version to 0.0.0",
+      "env": {
+        "OUTFILE": "package.json",
+        "CHANGELOG": "dist/changelog.md",
+        "BUMPFILE": "dist/version.txt"
+      },
+      "steps": [
+        {
+          "builtin": "release/reset-version"
+        }
+      ]
+    },
+    "publish:github": {
+      "name": "publish:github",
+      "description": "Publish this package to GitHub Releases",
+      "requiredEnv": [
+        "GITHUB_TOKEN"
+      ],
+      "steps": [
+        {
+          "exec": "gh release create v$(cat dist/version.txt) -R ${{ github.repository }} -F dist/changelog.md -t v$(cat dist/version.txt)"
         }
       ]
     },
@@ -185,41 +223,27 @@
         }
       ]
     },
-    "compile:pipeline": {
-      "name": "compile:pipeline",
+    "release": {
+      "name": "release",
+      "description": "Prepare a release from \"main\" branch",
+      "env": {
+        "RELEASE": "true"
+      },
       "steps": [
         {
-          "exec": "/bin/bash ./build-pipeline.sh"
-        }
-      ]
-    },
-    "bump": {
-      "name": "bump",
-      "steps": [
+          "exec": "rm -fr dist"
+        },
         {
-          "exec": "standard-version"
-        }
-      ]
-    },
-    "pipeline-update": {
-      "name": "pipeline-update",
-      "steps": [
+          "spawn": "bump"
+        },
         {
           "spawn": "build"
         },
         {
-          "exec": "cdk -a pipeline/delivlib.js deploy"
-        }
-      ]
-    },
-    "pipeline-diff": {
-      "name": "pipeline-diff",
-      "steps": [
-        {
-          "spawn": "build"
+          "spawn": "unbump"
         },
         {
-          "exec": "cdk -a pipeline/delivlib.js diff"
+          "exec": "git diff --ignore-space-at-eol --exit-code"
         }
       ]
     }
