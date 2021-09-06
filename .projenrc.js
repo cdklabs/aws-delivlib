@@ -43,6 +43,8 @@ const project = new TypeScriptProject({
     secret: 'GITHUB_TOKEN',
   },
   autoApproveUpgrades: true,
+
+  releaseToNpm: true,
 });
 
 // trick projen so that it doesn't override the version in package.json
