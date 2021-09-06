@@ -13,6 +13,10 @@
     "build": "npx projen build",
     "test:watch": "npx projen test:watch",
     "test:update": "npx projen test:update",
+    "bump": "npx projen bump",
+    "unbump": "npx projen unbump",
+    "publish:github": "npx projen publish:github",
+    "publish:npm": "npx projen publish:npm",
     "upgrade": "npx projen upgrade",
     "default": "npx projen default",
     "watch": "npx projen watch",
@@ -21,10 +25,7 @@
     "integ:diff": "npx projen integ:diff",
     "integ:update": "npx projen integ:update",
     "compile:custom-resource-handlers": "npx projen compile:custom-resource-handlers",
-    "compile:pipeline": "npx projen compile:pipeline",
-    "bump": "npx projen bump",
-    "pipeline-update": "npx projen pipeline-update",
-    "pipeline-diff": "npx projen pipeline-diff",
+    "release": "npx projen release",
     "projen": "npx projen",
     "cdk": "npx cdk"
   },
@@ -77,7 +78,7 @@
   ],
   "main": "lib/index.js",
   "license": "Apache-2.0",
-  "version": "13.0.34",
+  "version": "0.0.0",
   "jest": {
     "testMatch": [
       "**/lib/__tests__/**/?(*.)+(spec|test).js?(x)"

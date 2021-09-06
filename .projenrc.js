@@ -37,14 +37,14 @@ const project = new TypeScriptProject({
   srcdir: 'lib',
   testdir: 'lib/__tests__',
 
-  // releases are handled by pipeline/delivlib.ts
-  release: false,
   pullRequestTemplate: false,
   autoApproveOptions: {
     allowedUsernames: ['aws-cdk-automation'],
     secret: 'GITHUB_TOKEN',
   },
   autoApproveUpgrades: true,
+
+  releaseToNpm: true,
 });
 
 // trick projen so that it doesn't override the version in package.json
@@ -66,24 +66,6 @@ project.testTask.spawn(integDiff);
 const compileCustomResourceHandlers = project.addTask('compile:custom-resource-handlers');
 compileCustomResourceHandlers.exec('/bin/bash ./build-custom-resource-handlers.sh');
 
-const compilePipeline = project.addTask('compile:pipeline');
-compilePipeline.exec('/bin/bash ./build-pipeline.sh');
-
 project.compileTask.prependSpawn(compileCustomResourceHandlers);
-project.compileTask.spawn(compilePipeline);
-
-project.packageTask.reset();
-project.packageTask.exec('/bin/bash ./package.sh');
-
-const bump = project.tasks.addTask('bump');
-bump.exec('standard-version');
-
-const pipelineUpdate = project.tasks.addTask('pipeline-update');
-pipelineUpdate.spawn(project.buildTask);
-pipelineUpdate.exec('cdk -a pipeline/delivlib.js deploy');
-
-const pipelineDiff = project.tasks.addTask('pipeline-diff');
-pipelineDiff.spawn(project.buildTask);
-pipelineDiff.exec('cdk -a pipeline/delivlib.js diff');
 
 project.synth();
