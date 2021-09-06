@@ -143,6 +143,22 @@
         }
       ]
     },
+    "publish:npm": {
+      "name": "publish:npm",
+      "description": "Publish this package to npm",
+      "env": {
+        "NPM_DIST_TAG": "latest",
+        "NPM_REGISTRY": "registry.npmjs.org"
+      },
+      "requiredEnv": [
+        "NPM_TOKEN"
+      ],
+      "steps": [
+        {
+          "exec": "npx -p jsii-release@latest jsii-release-npm"
+        }
+      ]
+    },
     "upgrade": {
       "name": "upgrade",
       "description": "upgrade dependencies",
@@ -186,7 +202,13 @@
       "description": "Create an npm tarball",
       "steps": [
         {
-          "exec": "/bin/bash ./package.sh"
+          "exec": "mkdir -p dist/js"
+        },
+        {
+          "exec": "yarn pack"
+        },
+        {
+          "exec": "mv *.tgz dist/js/"
         }
       ]
     },

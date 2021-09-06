@@ -43,6 +43,8 @@ const project = new TypeScriptProject({
     secret: 'GITHUB_TOKEN',
   },
   autoApproveUpgrades: true,
+
+  releaseToNpm: true,
 });
 
 // trick projen so that it doesn't override the version in package.json
@@ -65,8 +67,5 @@ const compileCustomResourceHandlers = project.addTask('compile:custom-resource-h
 compileCustomResourceHandlers.exec('/bin/bash ./build-custom-resource-handlers.sh');
 
 project.compileTask.prependSpawn(compileCustomResourceHandlers);
-
-project.packageTask.reset();
-project.packageTask.exec('/bin/bash ./package.sh');
 
 project.synth();
