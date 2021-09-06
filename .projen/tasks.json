@@ -41,9 +41,6 @@
         },
         {
           "exec": "tsc --build"
-        },
-        {
-          "spawn": "compile:pipeline"
         }
       ]
     },
@@ -223,14 +220,6 @@
       "steps": [
         {
           "exec": "/bin/bash ./build-custom-resource-handlers.sh"
-        }
-      ]
-    },
-    "compile:pipeline": {
-      "name": "compile:pipeline",
-      "steps": [
-        {
-          "exec": "/bin/bash ./build-pipeline.sh"
         }
       ]
     },

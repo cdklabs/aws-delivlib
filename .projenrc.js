@@ -64,11 +64,7 @@ project.testTask.spawn(integDiff);
 const compileCustomResourceHandlers = project.addTask('compile:custom-resource-handlers');
 compileCustomResourceHandlers.exec('/bin/bash ./build-custom-resource-handlers.sh');
 
-const compilePipeline = project.addTask('compile:pipeline');
-compilePipeline.exec('/bin/bash ./build-pipeline.sh');
-
 project.compileTask.prependSpawn(compileCustomResourceHandlers);
-project.compileTask.spawn(compilePipeline);
 
 project.packageTask.reset();
 project.packageTask.exec('/bin/bash ./package.sh');
