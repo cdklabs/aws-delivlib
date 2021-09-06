@@ -3,6 +3,8 @@
 /test-reports/
 junit.xml
 /coverage/
+/dist/changelog.md
+/dist/version.txt
 /.mergify.yml
 !/lib/
 !/lib/**/*.js

@@ -61,16 +61,6 @@ To setup a development environment:
 3. Run `yarn build` (or `yarn watch`) to compile typescript
 4. Run `yarn test`
 
-## Build & Release Pipeline
-
-The build & release pipeline is defined in [`pipeline/delivlib.ts`](./pipeline/delivlib.ts). Surprisingly, it uses delivlib to synthesize the pipeline.
-
-You can use the following npm scripts to manage the pipeline:
-
-* Make sure to `yarn compile` (or `yarn watch`) to compile the pipeline code
-* `yarn pipeline-diff` - runs `cdk diff` against the deployed pipeline
-* `yarn pipeline-update` - runs `cdk deploy` to update the pipeline
-
 ## Testing
 
 We have good coverage of unit tests that should be testing the bulk of the logic in delivlib. For every contribution and change,

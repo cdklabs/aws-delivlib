@@ -37,8 +37,6 @@ const project = new TypeScriptProject({
   srcdir: 'lib',
   testdir: 'lib/__tests__',
 
-  // releases are handled by pipeline/delivlib.ts
-  release: false,
   pullRequestTemplate: false,
   autoApproveOptions: {
     allowedUsernames: ['aws-cdk-automation'],
@@ -74,16 +72,5 @@ project.compileTask.spawn(compilePipeline);
 
 project.packageTask.reset();
 project.packageTask.exec('/bin/bash ./package.sh');
-
-const bump = project.tasks.addTask('bump');
-bump.exec('standard-version');
-
-const pipelineUpdate = project.tasks.addTask('pipeline-update');
-pipelineUpdate.spawn(project.buildTask);
-pipelineUpdate.exec('cdk -a pipeline/delivlib.js deploy');
-
-const pipelineDiff = project.tasks.addTask('pipeline-diff');
-pipelineDiff.spawn(project.buildTask);
-pipelineDiff.exec('cdk -a pipeline/delivlib.js diff');
 
 project.synth();
