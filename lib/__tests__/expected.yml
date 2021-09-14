@@ -1303,7 +1303,7 @@ Resources:
           - Name: DELIVLIB_ENV_TEST
             Type: PLAINTEXT
             Value: MAGIC_1924
-        Image: jsii/superchain:latest
+        Image: jsii/superchain:1-buster-slim
         ImagePullCredentialsType: SERVICE_ROLE
         PrivilegedMode: false
         Type: LINUX_CONTAINER
@@ -2834,7 +2834,7 @@ Resources:
             Value: cdk-hnb659fds-assets-712950704752-us-east-1
           - Name: SCRIPT_S3_KEY
             Type: PLAINTEXT
-            Value: 053efa861f4bb4811cc7443590a600671935ff19eab190a9b040736f3cf756b9.zip
+            Value: 4c07cc89c6c892802cdae47c62d3d5d8fcd7cd008c7e63f26ca8d49f47925a7a.zip
           - Name: FOR_REAL
             Type: PLAINTEXT
             Value: "true"
@@ -2854,7 +2854,7 @@ Resources:
             Type: PLAINTEXT
             Value:
               Ref: X509CodeSigningKey8DE65BF8
-        Image: jsii/superchain
+        Image: jsii/superchain:1-buster-slim
         ImagePullCredentialsType: SERVICE_ROLE
         PrivilegedMode: false
         Type: LINUX_CONTAINER
@@ -3067,7 +3067,7 @@ Resources:
           - Name: MAVEN_ENDPOINT
             Type: PLAINTEXT
             Value: https://aws.oss.sonatype.org:443/
-        Image: jsii/superchain
+        Image: jsii/superchain:1-buster-slim
         ImagePullCredentialsType: SERVICE_ROLE
         PrivilegedMode: false
         Type: LINUX_CONTAINER
@@ -4008,7 +4008,7 @@ Resources:
         Type: NO_ARTIFACTS
       Environment:
         ComputeType: BUILD_GENERAL1_SMALL
-        Image: jsii/superchain:latest
+        Image: jsii/superchain:1-buster-slim
         ImagePullCredentialsType: SERVICE_ROLE
         PrivilegedMode: false
         Type: LINUX_CONTAINER
@@ -4137,7 +4137,7 @@ Resources:
         Type: NO_ARTIFACTS
       Environment:
         ComputeType: BUILD_GENERAL1_SMALL
-        Image: jsii/superchain:latest
+        Image: jsii/superchain:1-buster-slim
         ImagePullCredentialsType: SERVICE_ROLE
         PrivilegedMode: false
         Type: LINUX_CONTAINER
@@ -4285,7 +4285,7 @@ Resources:
     Properties:
       Code:
         S3Bucket: cdk-hnb659fds-assets-712950704752-us-east-1
-        S3Key: ff9251e1c9991e0788c269b3f4daac2ef4701a3e98de0bb0a1aedae2bb35a514.zip
+        S3Key: 845a81158eea60ac45858f70f5f7c3a7f5498926228a313a6b718c66e3f322c6.zip
       Role:
         Fn::GetAtt:
           - CodeCommitPipelineChangeControllerFunctionServiceRoleF02841DB
