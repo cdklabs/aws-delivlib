@@ -2,7 +2,8 @@
 set -euo pipefail
 
 echo "Installing required CLI tools: jq, openssl..."
-yum install -y jq openssl
+sudo apt-get update
+sudo apt-get install -y jq openssl
 
 if [[ "${FOR_REAL:-}" == "true" ]]; then
     dotnet=dotnet

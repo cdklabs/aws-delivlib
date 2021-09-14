@@ -79,7 +79,7 @@ function flattenEvent(event: CalendarEvent, date: Date): CalendarEvent[] {
     const events: CalendarEvent[] = [];
 
     // Calculate the duration of initial event in the recurring series.
-    const duration = new Date(event.end).getTime() - new Date(event.start).getTime();
+    const duration = event.end.getTime() - event.start.getTime();
 
     // Obtain the start date of the most recent event in the series, inclusive of
     // 'date' and calculate a new event based on the duration of the initial.

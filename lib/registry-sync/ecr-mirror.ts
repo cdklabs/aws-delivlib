@@ -101,7 +101,7 @@ export class EcrMirror extends Construct {
     this._project = new codebuild.Project(this, 'EcrPushImages', {
       environment: {
         privileged: true,
-        buildImage: codebuild.LinuxBuildImage.fromDockerRegistry('jsii/superchain', {
+        buildImage: codebuild.LinuxBuildImage.fromDockerRegistry('jsii/superchain:1-buster-slim', {
           secretsManagerCredentials: props.dockerHubCredentials.secret,
         }),
       },

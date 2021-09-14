@@ -73,7 +73,7 @@ export class PublishToMavenProject extends Construct implements IPublisher {
     const forReal = props.dryRun === undefined ? 'false' : (!props.dryRun).toString();
 
     const shellable = new Shellable(this, 'Default', {
-      platform: new LinuxPlatform(cbuild.LinuxBuildImage.fromDockerRegistry('jsii/superchain')),
+      platform: new LinuxPlatform(cbuild.LinuxBuildImage.fromDockerRegistry('jsii/superchain:1-buster-slim')),
       scriptDirectory: path.join(__dirname, 'publishing', 'maven'),
       entrypoint: 'publish.sh',
       environment: {
@@ -232,7 +232,7 @@ export class PublishToNuGetProject extends Construct implements IPublisher {
     }
 
     const shellable = new Shellable(this, 'Default', {
-      platform: new LinuxPlatform(cbuild.LinuxBuildImage.fromDockerRegistry('jsii/superchain')),
+      platform: new LinuxPlatform(cbuild.LinuxBuildImage.fromDockerRegistry('jsii/superchain:1-buster-slim')),
       scriptDirectory: path.join(__dirname, 'publishing', 'nuget'),
       entrypoint: 'publish.sh',
       environment,
