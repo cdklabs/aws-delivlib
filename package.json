@@ -38,7 +38,7 @@
     "@monocdk-experiment/assert": "^1.122.0",
     "@types/aws-lambda": "^8.10.83",
     "@types/jest": "^26.0.24",
-    "@types/node": "^12.7.0",
+    "@types/node": "^12.13.0",
     "@typescript-eslint/eslint-plugin": "^4.31.1",
     "@typescript-eslint/parser": "^4.31.1",
     "aws-cdk": "^1.122.0",
@@ -77,7 +77,7 @@
     "continuous-integration"
   ],
   "engines": {
-    "node": ">= 12.7.0"
+    "node": ">= 12.13.0"
   },
   "main": "lib/index.js",
   "license": "Apache-2.0",

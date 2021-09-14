@@ -14,7 +14,7 @@ const project = new TypeScriptProject({
     'continuous-integration',
     'ci-cd',
   ],
-  minNodeVersion: '12.7.0',
+  minNodeVersion: '12.13.0',
   deps: ['changelog-parser'],
   devDeps: [
     '@monocdk-experiment/assert',
