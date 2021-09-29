@@ -2,7 +2,14 @@
 set -euo pipefail
 
 echo "Installing required CLI tools: jq, openssl..."
-yum install -y jq openssl
+if command -v yum &>/dev/null; then
+    yum install -y jq openssl
+elif command -v apt-get &>/dev/null; then
+    apt-get update
+    apt-get install -y jq openssl
+else
+    echo "!!! Neither an apt nor yum distribution - could not install jq and openssl, things might break!"
+fi
 
 if [[ "${FOR_REAL:-}" == "true" ]]; then
     dotnet=dotnet
