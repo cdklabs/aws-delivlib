@@ -49,13 +49,16 @@ export class SlackNotification implements IPipelineNotification {
   public bind(options: PipelineNotificationBindOptions): void {
     const targets: starnotifs.CfnNotificationRule.TargetProperty[] = this.props.channels.map(c => {
       return {
-        targetAddress: Stack.of(options.pipeline).resolve(c.slackChannelConfigurationArn),
+        targetAddress: c.slackChannelConfigurationArn,
         targetType: 'AWSChatbotSlack',
       };
     });
-    const md5 = crypto.createHash('md5');
-    md5.update(JSON.stringify(targets));
-    const hash = md5.digest('hex');
+    const hash = crypto.createHash('md5')
+      .update(JSON.stringify(
+        // Resolving the value so tokens don't cause flaky outputs
+        Stack.of(options.pipeline).resolve(targets)),
+      )
+      .digest('hex');
     new starnotifs.CfnNotificationRule(options.pipeline, `PipelineNotificationSlack-${hash}`, {
       name: `${options.pipeline.pipeline.pipelineName}-${hash}`,
       detailType: this.props.detailLevel ?? SlackNotificationDetailLevel.BASIC,
