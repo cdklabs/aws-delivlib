@@ -45,6 +45,14 @@ export interface PackageIntegrityValidationProps {
    */
   readonly privileged?: boolean;
 
+  /**
+   * Tag prefix for this specific validation. Only needed for repositories that either release
+   * multiple packages or multiple major versions.
+   *
+   * @default - no prefix
+   */
+  readonly tagPrefix?: string;
+
 }
 
 /**
@@ -56,7 +64,6 @@ export interface PackageIntegrityValidationProps {
  *
  * - The publishing platform (for example GitHub runners)
  * - The artifact storage (for example npmjs.com)
- * - The source code storage (for example github.com)
  */
 export class PackageIntegrityValidation extends Construct {
 
@@ -75,6 +82,7 @@ export class PackageIntegrityValidation extends Construct {
       },
       environment: {
         GITHUB_REPOSITORY: props.repository,
+        TAG_PREFIX: props.tagPrefix ?? '',
       },
     });
 
