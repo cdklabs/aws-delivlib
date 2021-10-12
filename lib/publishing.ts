@@ -368,6 +368,17 @@ export interface PublishToGitHubProps {
   changelogFileName?: string;
 
   /**
+   * The name of the release notes file, containing the completed release notes
+   * for the current release.
+   * Relative to the artifacts root.
+   * NOTE - If this value is set and points to a valid file, the file in its entirety
+   * will be read and used for the release notes. The value of `changelogFileName` will
+   * be ignored.
+   * @default "./RELEASE_NOTES.md"
+   */
+  releaseNotesFileName?: string;
+
+  /**
    * Additional input artifacts to publish binaries from to GitHub release
    */
   additionalInputArtifacts?: cpipeline.Artifact[];
@@ -391,6 +402,11 @@ export class PublishToGitHub extends Construct implements IPublisher {
     const forReal = props.dryRun === undefined ? 'false' : (!props.dryRun).toString();
     this.additionalInputArtifacts = props.additionalInputArtifacts;
 
+    // The release notes, if set and a valid file, overrides any usages of the changelog.
+    if (props.changelogFileName && props.releaseNotesFileName) {
+      throw new Error('both `releaseNotesFileName` and `changelogFileName` cannot be specified; use one or the other');
+    }
+
     const shellable = new Shellable(this, 'Default', {
       platform: new LinuxPlatform(cbuild.LinuxBuildImage.UBUNTU_14_04_NODEJS_10_1_0),
       scriptDirectory: path.join(__dirname, 'publishing', 'github'),
@@ -398,6 +414,7 @@ export class PublishToGitHub extends Construct implements IPublisher {
       environment: noUndefined({
         BUILD_MANIFEST: props.buildManifestFileName || './build.json',
         CHANGELOG: props.changelogFileName || './CHANGELOG.md',
+        RELEASE_NOTES: props.releaseNotesFileName || './RELEASE_NOTES.md',
         SIGNING_KEY_ARN: props.signingKey.credential.secretArn,
         GITHUB_OWNER: props.githubRepo.owner,
         GITHUB_REPO: props.githubRepo.repo,
