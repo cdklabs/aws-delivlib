@@ -39,6 +39,7 @@ type Events = { [uuid: string]: CalendarEvent };
  * @returns the events that represent the blocked time, or `undefined` if `now` is not "blocked".
  */
 export function shouldBlockPipeline(icalData: string | Buffer, now = new Date(), advanceMarginSec = 3600): CalendarEvent | undefined {
+  validateTz();
   const events: Events = ical.parseICS(icalData.toString('utf8'));
   const blocks = containingEventsWithMargin(events, now, advanceMarginSec);
   return blocks.length > 0 ? blocks[0] : undefined;
@@ -139,4 +140,10 @@ function overlaps(left: { start: Date; end: Date }, right: { start: Date; end: D
 
 function isBetween(date: Date, left: Date, right: Date): boolean {
   return date >= left && date <= right;
+}
+
+function validateTz() {
+  if (new Date().getTimezoneOffset() !== 0) {
+    throw new Error('Because of a bug in "node-ical", this module can only be used when the system time zone is set to UTC. Run this command again with "TC=UTC"');
+  }
 }
