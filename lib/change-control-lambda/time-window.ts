@@ -144,6 +144,6 @@ function isBetween(date: Date, left: Date, right: Date): boolean {
 
 function validateTz() {
   if (new Date().getTimezoneOffset() !== 0) {
-    throw new Error('Because of a bug in "node-ical", this module can only be used when the system time zone is set to UTC. Run this command again with "TC=UTC"');
+    throw new Error('Because of a bug in "node-ical", this module can only be used when the system time zone is set to UTC. Run this command again with "TZ=UTC"');
   }
 }
