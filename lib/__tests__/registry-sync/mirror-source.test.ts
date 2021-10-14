@@ -199,5 +199,24 @@ describe('RegistryImageSource', () => {
       const expected = 'docker build --pull -t myregistry/myrepository:latest --build-arg arg1=val1 --build-arg arg2=val2 myrepository';
       expect(result.commands[2]).toEqual(expected);
     });
+
+    test('can bind the same directory twice if they have different build args', () => {
+      // GIVEN
+      const stack = new Stack();
+      const ecrRegistry = 'myregistry';
+      const source1 = MirrorSource.fromDir(path.join(__dirname, 'docker-asset'), 'myrepository');
+      const source2 = MirrorSource.fromDir(path.join(__dirname, 'docker-asset'), 'myrepository', {
+        buildArgs: {
+          arg1: 'val1',
+          arg2: 'val2',
+        },
+      });
+
+      // WHEN
+      source1.bind({ scope: stack, ecrRegistry });
+      source2.bind({ scope: stack, ecrRegistry });
+
+      // THEN -- didn't throw
+    });
   });
 });
