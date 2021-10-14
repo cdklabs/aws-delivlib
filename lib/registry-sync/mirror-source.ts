@@ -115,7 +115,7 @@ export abstract class MirrorSource {
       }
 
       public bind(options: MirrorSourceBindOptions) {
-        const asset = new s3Assets.Asset(options.scope, `BuildContext${this.directory}`, { path: this.directory! });
+        const asset = new s3Assets.Asset(options.scope, `BuildContext${this.directory}${JSON.stringify(opts.buildArgs ?? {})}`, { path: this.directory! });
         if (options.syncJob) {
           asset.grantRead(options.syncJob);
         }
