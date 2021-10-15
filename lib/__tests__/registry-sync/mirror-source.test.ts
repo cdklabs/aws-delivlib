@@ -92,9 +92,9 @@ describe('RegistryImageSource', () => {
       // THEN
       expect(result.repositoryName).toEqual('myrepository');
       expect(result.tag).toEqual('latest');
-      const cmds = result.commands;
-      expect(cmds.shift()).toMatch(/aws s3 cp s3:.* myrepository.zip/);
-      expect(cmds).toEqual([
+      expect(result.commands).toEqual([
+        'rm -rf myrepository.zip myrepository',
+        expect.stringMatching(/aws s3 cp s3:.* myrepository.zip/),
         'unzip myrepository.zip -d myrepository',
         'docker build --pull -t myregistry/myrepository:latest myrepository',
       ]);
@@ -115,7 +115,12 @@ describe('RegistryImageSource', () => {
       // THEN
       expect(result.repositoryName).toEqual('myrepository');
       expect(result.tag).toEqual('mytag');
-      expect(result.commands[2]).toEqual('docker build --pull -t myregistry/myrepository:mytag myrepository');
+      expect(result.commands).toEqual([
+        'rm -rf myrepository.zip myrepository',
+        expect.stringMatching(/aws s3 cp s3:.* myrepository.zip/),
+        'unzip myrepository.zip -d myrepository',
+        'docker build --pull -t myregistry/myrepository:mytag myrepository',
+      ]);
     });
 
     test('syncJob is given permission to s3 asset', () => {
@@ -196,8 +201,12 @@ describe('RegistryImageSource', () => {
       });
 
       // THEN
-      const expected = 'docker build --pull -t myregistry/myrepository:latest --build-arg arg1=val1 --build-arg arg2=val2 myrepository';
-      expect(result.commands[2]).toEqual(expected);
+      expect(result.commands).toEqual([
+        'rm -rf myrepository.zip myrepository',
+        expect.stringMatching(/aws s3 cp s3:.* myrepository.zip/),
+        'unzip myrepository.zip -d myrepository',
+        'docker build --pull -t myregistry/myrepository:latest --build-arg arg1=val1 --build-arg arg2=val2 myrepository',
+      ]);
     });
 
     test('can bind the same directory twice if they have different build args', () => {
