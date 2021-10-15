@@ -58,6 +58,15 @@ export interface PublishToMavenProjectProps {
    * @default "https://oss.sonatype.org"
    */
   mavenEndpoint?: string;
+
+  /**
+   * The build image to do the publishing in
+   *
+   * Needs to have Maven preinstalled.
+   *
+   * @default Latest superchain
+   */
+  readonly buildImage?: cbuild.IBuildImage;
 }
 
 /**
@@ -73,7 +82,7 @@ export class PublishToMavenProject extends Construct implements IPublisher {
     const forReal = props.dryRun === undefined ? 'false' : (!props.dryRun).toString();
 
     const shellable = new Shellable(this, 'Default', {
-      platform: new LinuxPlatform(cbuild.LinuxBuildImage.fromDockerRegistry('jsii/superchain')),
+      platform: new LinuxPlatform(props.buildImage ?? cbuild.LinuxBuildImage.fromDockerRegistry('jsii/superchain')),
       scriptDirectory: path.join(__dirname, 'publishing', 'maven'),
       entrypoint: 'publish.sh',
       environment: {
@@ -198,6 +207,15 @@ export interface PublishToNuGetProjectProps {
    * @default No signing
    */
   codeSign?: ICodeSigningCertificate;
+
+  /**
+   * The build image to do the publishing in
+   *
+   * Needs to have NuGet preinstalled.
+   *
+   * @default Latest superchain
+   */
+  readonly buildImage?: cbuild.IBuildImage;
 }
 
 /**
@@ -232,7 +250,7 @@ export class PublishToNuGetProject extends Construct implements IPublisher {
     }
 
     const shellable = new Shellable(this, 'Default', {
-      platform: new LinuxPlatform(cbuild.LinuxBuildImage.fromDockerRegistry('jsii/superchain')),
+      platform: new LinuxPlatform(props.buildImage ?? cbuild.LinuxBuildImage.fromDockerRegistry('jsii/superchain')),
       scriptDirectory: path.join(__dirname, 'publishing', 'nuget'),
       entrypoint: 'publish.sh',
       environment,
