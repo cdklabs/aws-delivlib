@@ -33,10 +33,9 @@ export interface Artifact {
 export class Repository {
 
   private readonly isJsii: boolean;
-  private readonly projenVersion: string;
   private readonly manifest: any;
 
-  constructor(private readonly repoDir: string, readonly version: string) {
+  constructor(private readonly repoDir: string) {
     const manifestPath = path.join(repoDir, 'package.json');
 
     this.manifest = JSON.parse(fs.readFileSync(manifestPath, { encoding: 'utf-8' }));
@@ -49,14 +48,7 @@ export class Repository {
       throw new Error('Only projen repositories are supported at this time');
     }
 
-    this.projenVersion = this.manifest.devDependencies.projen;
-
     this.isJsii = !!this.manifest.jsii;
-
-    // projen projects don't have the version stored in package.json, so we add it before packing.
-    this.manifest.version = version;
-    fs.writeFileSync(manifestPath, JSON.stringify(this.manifest, null, 2));
-
   }
 
   /**
@@ -64,15 +56,27 @@ export class Repository {
    */
   public pack(): Artifact[] {
 
-    const packCommand = `npm install projen@${this.projenVersion} && npx projen build`;
+    const installCommand = 'yarn install --frozen-lockfile';
+    console.log(`Installing | ${installCommand}`);
+    execSync(installCommand, { cwd: this.repoDir, stdio: ['ignore', 'inherit', 'inherit'] });
+
+    // note that we have to run 'release' to preserve the version number.
+    // this won't do a bump since the commit we are on is already tagged.
+    const packCommand = 'npx projen release';
 
     console.log(`Packing | ${packCommand}`);
-    execSync(packCommand!, { cwd: this.repoDir, stdio: ['ignore', 'inherit', 'inherit'] });
+    execSync(packCommand, { cwd: this.repoDir, stdio: ['ignore', 'inherit', 'inherit'] });
 
     const outdir = this.isJsii ? path.join(this.repoDir, this.manifest.jsii.outdir) : path.join(this.repoDir, 'dist');
 
     const artifacts: Artifact[] = [];
     for (const lang of fs.readdirSync(outdir)) {
+      const langDir = path.join(outdir, lang);
+      if (!fs.lstatSync(langDir).isDirectory()) {
+        // dist folder may contain files such as changelog.md
+        // so we ignore these
+        continue;
+      }
       artifacts.push({ lang, directory: path.join(outdir, lang) });
     }
 

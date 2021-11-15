@@ -20,4 +20,8 @@ const integrity = new RepositoryIntegrity({
   repository: GITHUB_REPOSITORY,
   tagPrefix: TAG_PREFIX,
 });
-integrity.validate();
+try {
+  integrity.validate();
+} catch (e) {
+  console.log(e);
+}

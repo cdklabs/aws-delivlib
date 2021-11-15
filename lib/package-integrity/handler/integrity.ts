@@ -92,6 +92,7 @@ export abstract class ArtifactIntegrity {
 
       console.log(`Validating diff between ${local} and ${published}`);
       execSync(`diff ${local} ${published}`, { stdio: ['ignore', 'inherit', 'inherit'] });
+      console.log('Success');
 
     } finally {
       execSync(`rm -rf ${workdir}`);
@@ -172,6 +173,7 @@ export class RepositoryIntegrity {
         integrity.validate(artifact.directory);
       }
     }
+    console.log('Validation done');
   }
 
   private clone(): Repository {
@@ -186,10 +188,7 @@ export class RepositoryIntegrity {
     const latestTag = this.findLatestTag(repoDir, this.props.tagPrefix);
     execSync(`git checkout ${latestTag}`, { cwd: repoDir });
 
-    const tagWithoutPrefix = latestTag.replace(this.props.tagPrefix ?? '', '');
-    const version = tagWithoutPrefix.startsWith('v') ? tagWithoutPrefix.substring(1) : tagWithoutPrefix;
-
-    return new Repository(repoDir, version);
+    return new Repository(repoDir);
   }
 
   private findLatestTag(repoDir: string, prefix?: string) {
