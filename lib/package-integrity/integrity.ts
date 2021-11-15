@@ -78,7 +78,7 @@ export class PackageIntegrityValidation extends Construct {
       privileged: props.privileged ?? false,
       platform: new LinuxPlatform(props.buildImage),
       environmentSecrets: {
-        GITHUB_TOKEN_SECRET_ARN: props.githubTokenSecret.secretArn,
+        GITHUB_TOKEN: props.githubTokenSecret.secretArn,
       },
       environment: {
         GITHUB_REPOSITORY: props.repository,

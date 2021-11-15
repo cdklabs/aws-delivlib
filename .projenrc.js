@@ -18,6 +18,7 @@ const project = new TypeScriptProject({
   devDeps: [
     '@monocdk-experiment/assert',
     '@types/aws-lambda',
+    '@types/fs-extra',
     'aws-cdk',
     'jest-create-mock-instance',
     'constructs',
@@ -29,6 +30,7 @@ const project = new TypeScriptProject({
     'node-ical',
     'rrule',
     'esbuild',
+    'fs-extra',
   ],
   peerDeps: [
     'constructs',

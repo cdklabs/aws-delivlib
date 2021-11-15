@@ -1,38 +1,52 @@
-import { NpmIntegrity } from '../../../package-integrity/handler/integrity';
+import * as path from 'path';
+import { NpmArtifactIntegrity, PublishedPackage, PyPIArtifactIntegrity, RepositoryIntegrity } from '../../../package-integrity/handler/integrity';
+import { Repository } from '../../../package-integrity/handler/repository';
 
-describe('NpmIntegrity', () => {
+function repoFixture(name: string) {
+  return path.join(__dirname, '__fixtures__', name);
+}
 
-  const integrity = new NpmIntegrity();
+type Downloader = (pkg: PublishedPackage, target: string) => void;
 
-  describe('parse', () => {
+function createIntegrity(fixture: string, npmDownloader: Downloader, pypiDownloader: Downloader): RepositoryIntegrity {
 
-    test('non jsii yarn artifact', () => {
-      const pkg = integrity.parse('cdk8s-cli-v1.0.0-beta.59.tgz');
-      expect(pkg.name).toEqual('cdk8s-cli');
-      expect(pkg.version).toEqual('1.0.0-beta.59');
-    });
-
-    test('non jsii npm artifact', () => {
-      const pkg = integrity.parse('cdk8s-cli-1.0.0-beta.59.tgz');
-      expect(pkg.name).toEqual('cdk8s-cli');
-      expect(pkg.version).toEqual('1.0.0-beta.59');
-    });
-
-    test('jsii artifcat', () => {
-      const pkg = integrity.parse('cdk8s@1.0.0-beta.59.jsii.tgz');
-      expect(pkg.name).toEqual('cdk8s');
-      expect(pkg.version).toEqual('1.0.0-beta.59');
-    });
-
+  jest.spyOn<any, any>(NpmArtifactIntegrity.prototype, 'download').mockImplementation(npmDownloader as any);
+  jest.spyOn<any, any>(PyPIArtifactIntegrity.prototype, 'download').mockImplementation(pypiDownloader as any);
+  jest.spyOn<any, any>(RepositoryIntegrity.prototype, 'clone').mockImplementation(() => {
+    const repo = repoFixture(fixture);
+    return new Repository(repo, '1.0.0');
   });
 
-  describe('validate', () => {
-
-    test('non jsii yarn artifact', () => {
-
-
-    });
+  return new RepositoryIntegrity({
+    githubTokenSecretArn: 'dummy',
+    repository: 'dummy',
   });
 
+}
 
+afterAll(() => {
+  jest.restoreAllMocks();
+});
+
+test('happy', () => {
+  const integrity = createIntegrity('package1',
+    (pkg: PublishedPackage, target: string) => {
+      // just copy over the artifact
+    },
+    (pkg: PublishedPackage, target: string) => {
+
+    });
+  integrity.validate();
+});
+
+test('unhappy', () => {
+  const integrity = createIntegrity('');
+  integrity.validate();
+});
+
+test('fails on non-projen repository', () => {});
+
+test('jsii-package with a custom outdir', () => {
+  const integrity = createIntegrity('');
+  integrity.validate();
 });
