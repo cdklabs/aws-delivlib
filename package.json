@@ -25,6 +25,7 @@
     "integ:diff": "npx projen integ:diff",
     "integ:update": "npx projen integ:update",
     "compile:custom-resource-handlers": "npx projen compile:custom-resource-handlers",
+    "build:package-integrity-tests:projen-project": "npx projen build:package-integrity-tests:projen-project",
     "release": "npx projen release",
     "projen": "npx projen",
     "cdk": "npx cdk"

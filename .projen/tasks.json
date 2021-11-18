@@ -81,6 +81,9 @@
         },
         {
           "spawn": "package"
+        },
+        {
+          "spawn": "build:package-integrity-tests:projen-project"
         }
       ]
     },
@@ -246,6 +249,15 @@
       "steps": [
         {
           "exec": "/bin/bash ./build-custom-resource-handlers.sh"
+        }
+      ]
+    },
+    "build:package-integrity-tests:projen-project": {
+      "name": "build:package-integrity-tests:projen-project",
+      "steps": [
+        {
+          "exec": "npx projen && npx projen build",
+          "cwd": "/Users/epolon/dev/src/github.com/cdklabs/aws-delivlib/lib/__tests__/package-integrity/__fixtures__/projen-project"
         }
       ]
     },

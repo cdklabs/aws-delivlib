@@ -1,3 +1,4 @@
+import * as fs from 'fs';
 import * as path from 'path';
 import { NpmArtifactIntegrity, PublishedPackage, PyPIArtifactIntegrity, RepositoryIntegrity } from '../../../package-integrity/handler/integrity';
 import { Repository } from '../../../package-integrity/handler/repository';
@@ -14,7 +15,7 @@ function createIntegrity(fixture: string, npmDownloader: Downloader, pypiDownloa
   jest.spyOn<any, any>(PyPIArtifactIntegrity.prototype, 'download').mockImplementation(pypiDownloader as any);
   jest.spyOn<any, any>(RepositoryIntegrity.prototype, 'clone').mockImplementation(() => {
     const repo = repoFixture(fixture);
-    return new Repository(repo, '1.0.0');
+    return new Repository(repo);
   });
 
   return new RepositoryIntegrity({
@@ -29,12 +30,14 @@ afterAll(() => {
 });
 
 test('happy', () => {
-  const integrity = createIntegrity('package1',
+  const fixture = 'projen-project';
+  const integrity = createIntegrity(fixture,
     (pkg: PublishedPackage, target: string) => {
-      // just copy over the artifact
+      const dist = path.join(repoFixture(fixture), 'dist');
+      fs.copyFileSync(path.join(dist, 'js', `${pkg.name}-v${pkg.version}.tgz`), target);
     },
     (pkg: PublishedPackage, target: string) => {
-
+      fs.copyFileSync(`${repoFixture(fixture)}`, target);
     });
   integrity.validate();
 });

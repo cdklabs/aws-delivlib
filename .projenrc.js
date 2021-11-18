@@ -1,3 +1,5 @@
+const fs = require('fs');
+const path = require('path');
 const { TypeScriptProject } = require('projen');
 
 const project = new TypeScriptProject({
@@ -69,5 +71,12 @@ const compileCustomResourceHandlers = project.addTask('compile:custom-resource-h
 compileCustomResourceHandlers.exec('/bin/bash ./build-custom-resource-handlers.sh');
 
 project.compileTask.prependSpawn(compileCustomResourceHandlers);
+
+const integrityFixturesPath = path.join(__dirname, 'lib', '__tests__', 'package-integrity', '__fixtures__');
+for (const integrityFixture of fs.readdirSync(integrityFixturesPath)) {
+  const buildFixture = project.addTask(`build:package-integrity-tests:${integrityFixture}`);
+  buildFixture.exec('npx projen build', { cwd: path.join(integrityFixturesPath, integrityFixture) });
+  project.buildTask.spawn(buildFixture);
+}
 
 project.synth();
