@@ -3,16 +3,16 @@
 exports[`minimal snapshot 1`] = `
 Object {
   "Parameters": Object {
-    "AssetParametersf60150cbac8b2492682640e5871cb7353dbe98240f425a7efaa9f3cfe58bf806ArtifactHash31DC7E03": Object {
-      "Description": "Artifact hash for asset \\"f60150cbac8b2492682640e5871cb7353dbe98240f425a7efaa9f3cfe58bf806\\"",
+    "AssetParametersc47b19b19087f1d6ae0f200fc3c5b5e6fc461b33a6a5dc49f704d909997e2eeaArtifactHash89742096": Object {
+      "Description": "Artifact hash for asset \\"c47b19b19087f1d6ae0f200fc3c5b5e6fc461b33a6a5dc49f704d909997e2eea\\"",
       "Type": "String",
     },
-    "AssetParametersf60150cbac8b2492682640e5871cb7353dbe98240f425a7efaa9f3cfe58bf806S3BucketF65C1459": Object {
-      "Description": "S3 bucket for asset \\"f60150cbac8b2492682640e5871cb7353dbe98240f425a7efaa9f3cfe58bf806\\"",
+    "AssetParametersc47b19b19087f1d6ae0f200fc3c5b5e6fc461b33a6a5dc49f704d909997e2eeaS3BucketE45BF4EE": Object {
+      "Description": "S3 bucket for asset \\"c47b19b19087f1d6ae0f200fc3c5b5e6fc461b33a6a5dc49f704d909997e2eea\\"",
       "Type": "String",
     },
-    "AssetParametersf60150cbac8b2492682640e5871cb7353dbe98240f425a7efaa9f3cfe58bf806S3VersionKey55608E43": Object {
-      "Description": "S3 key for asset version \\"f60150cbac8b2492682640e5871cb7353dbe98240f425a7efaa9f3cfe58bf806\\"",
+    "AssetParametersc47b19b19087f1d6ae0f200fc3c5b5e6fc461b33a6a5dc49f704d909997e2eeaS3VersionKeyD93A56AE": Object {
+      "Description": "S3 key for asset version \\"c47b19b19087f1d6ae0f200fc3c5b5e6fc461b33a6a5dc49f704d909997e2eea\\"",
       "Type": "String",
     },
   },
@@ -54,7 +54,7 @@ Object {
               "Name": "SCRIPT_S3_BUCKET",
               "Type": "PLAINTEXT",
               "Value": Object {
-                "Ref": "AssetParametersf60150cbac8b2492682640e5871cb7353dbe98240f425a7efaa9f3cfe58bf806S3BucketF65C1459",
+                "Ref": "AssetParametersc47b19b19087f1d6ae0f200fc3c5b5e6fc461b33a6a5dc49f704d909997e2eeaS3BucketE45BF4EE",
               },
             },
             Object {
@@ -71,7 +71,7 @@ Object {
                           "Fn::Split": Array [
                             "||",
                             Object {
-                              "Ref": "AssetParametersf60150cbac8b2492682640e5871cb7353dbe98240f425a7efaa9f3cfe58bf806S3VersionKey55608E43",
+                              "Ref": "AssetParametersc47b19b19087f1d6ae0f200fc3c5b5e6fc461b33a6a5dc49f704d909997e2eeaS3VersionKeyD93A56AE",
                             },
                           ],
                         },
@@ -84,7 +84,7 @@ Object {
                           "Fn::Split": Array [
                             "||",
                             Object {
-                              "Ref": "AssetParametersf60150cbac8b2492682640e5871cb7353dbe98240f425a7efaa9f3cfe58bf806S3VersionKey55608E43",
+                              "Ref": "AssetParametersc47b19b19087f1d6ae0f200fc3c5b5e6fc461b33a6a5dc49f704d909997e2eeaS3VersionKeyD93A56AE",
                             },
                           ],
                         },
@@ -105,9 +105,9 @@ Object {
               "Value": "",
             },
             Object {
-              "Name": "GITHUB_TOKEN",
-              "Type": "SECRETS_MANAGER",
-              "Value": "github-token",
+              "Name": "GITHUB_TOKEN_ARN",
+              "Type": "PLAINTEXT",
+              "Value": "arn:aws:secretsmanager:us-east-1:123456789123:secret:github-token-000000",
             },
           ],
           "Image": "jsii/superchain:1-buster-slim-node12",
@@ -233,30 +233,6 @@ Object {
         "PolicyDocument": Object {
           "Statement": Array [
             Object {
-              "Action": "secretsmanager:GetSecretValue",
-              "Effect": "Allow",
-              "Resource": Object {
-                "Fn::Join": Array [
-                  "",
-                  Array [
-                    "arn:",
-                    Object {
-                      "Ref": "AWS::Partition",
-                    },
-                    ":secretsmanager:",
-                    Object {
-                      "Ref": "AWS::Region",
-                    },
-                    ":",
-                    Object {
-                      "Ref": "AWS::AccountId",
-                    },
-                    ":secret:github-token-??????",
-                  ],
-                ],
-              },
-            },
-            Object {
               "Action": Array [
                 "logs:CreateLogGroup",
                 "logs:CreateLogStream",
@@ -365,7 +341,7 @@ Object {
                       },
                       ":s3:::",
                       Object {
-                        "Ref": "AssetParametersf60150cbac8b2492682640e5871cb7353dbe98240f425a7efaa9f3cfe58bf806S3BucketF65C1459",
+                        "Ref": "AssetParametersc47b19b19087f1d6ae0f200fc3c5b5e6fc461b33a6a5dc49f704d909997e2eeaS3BucketE45BF4EE",
                       },
                     ],
                   ],
@@ -380,7 +356,7 @@ Object {
                       },
                       ":s3:::",
                       Object {
-                        "Ref": "AssetParametersf60150cbac8b2492682640e5871cb7353dbe98240f425a7efaa9f3cfe58bf806S3BucketF65C1459",
+                        "Ref": "AssetParametersc47b19b19087f1d6ae0f200fc3c5b5e6fc461b33a6a5dc49f704d909997e2eeaS3BucketE45BF4EE",
                       },
                       "/*",
                     ],

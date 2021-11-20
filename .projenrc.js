@@ -1,5 +1,3 @@
-const fs = require('fs');
-const path = require('path');
 const { TypeScriptProject } = require('projen');
 
 const project = new TypeScriptProject({
