@@ -63,15 +63,15 @@ export class Repository {
   /**
    * Pack the repository to produce the artifacts.
    */
-  public pack(): Artifact[] {
+  public pack(task?: string): Artifact[] {
 
     const installCommand = 'yarn install --frozen-lockfile';
     console.log(`Installing | ${installCommand}`);
     execSync(installCommand, { cwd: this.repoDir, stdio: ['ignore', 'inherit', 'inherit'] });
 
-    // note that we have to run 'release' to preserve the version number.
+    // note that run 'release' by default to preserve the version number.
     // this won't do a bump since the commit we are on is already tagged.
-    const packCommand = 'npx projen release';
+    const packCommand = `npx projen ${task ?? 'release'}`;
     console.log(`Packing | ${packCommand}`);
     execSync(packCommand, { cwd: this.repoDir, stdio: ['ignore', 'inherit', 'inherit'] });
 

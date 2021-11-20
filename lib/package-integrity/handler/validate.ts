@@ -14,10 +14,12 @@ function optionalEnv(name: string, defaultValue?: string) {
 const GITHUB_TOKEN_ARN = requiredEnv('GITHUB_TOKEN_ARN');
 const GITHUB_REPOSITORY = requiredEnv('GITHUB_REPOSITORY');
 const TAG_PREFIX = optionalEnv('TAG_PREFIX');
+const PACK_TASK = optionalEnv('PACK_TASK');
 
 const integrity = new RepositoryIntegrity({
   githubTokenSecretArn: GITHUB_TOKEN_ARN,
   repository: GITHUB_REPOSITORY,
   tagPrefix: TAG_PREFIX,
+  packTask: PACK_TASK,
 });
 integrity.validate();

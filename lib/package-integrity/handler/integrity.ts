@@ -144,6 +144,13 @@ export interface RepositoryIntegrityProps {
    * for example: https://github.com/cdk8s-team/cdk8s-plus/tags.
    */
   readonly tagPrefix?: string;
+
+  /**
+   * The projen task that produces the local artifacts.
+   *
+   * @default 'release'
+   */
+  readonly packTask?: string;
 }
 
 /**
@@ -159,7 +166,7 @@ export class RepositoryIntegrity {
   public validate() {
 
     const repo = this.clone();
-    const artifacts = repo.pack();
+    const artifacts = repo.pack(this.props.packTask);
 
     let integrity = undefined;
     for (const artifact of artifacts) {

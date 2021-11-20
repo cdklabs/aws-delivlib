@@ -53,6 +53,13 @@ export interface PackageIntegrityValidationProps {
    */
   readonly tagPrefix?: string;
 
+  /**
+   * The projen task that produces the local artifacts.
+   *
+   * @default 'release'
+   */
+  readonly packTask?: string;
+
 }
 
 /**
@@ -80,14 +87,15 @@ export class PackageIntegrityValidation extends Construct {
       entrypoint: 'validate.sh',
       privileged: props.privileged ?? false,
       platform: new LinuxPlatform(props.buildImage),
-      environmentSecrets: {
-        GITHUB_TOKEN: props.githubTokenSecret.secretArn,
-      },
       environment: {
         GITHUB_REPOSITORY: props.repository,
         TAG_PREFIX: props.tagPrefix ?? '',
+        GITHUB_TOKEN_ARN: props.githubTokenSecret.secretArn,
+        PACK_TASK: props.packTask,
       },
     });
+
+    props.githubTokenSecret.grantRead(shellable.role);
 
     new events.Rule(this, 'ScheduledTrigger', {
       schedule: props.schedule ?? events.Schedule.rate(Duration.days(1)),
