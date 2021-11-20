@@ -67,6 +67,9 @@ export interface PackageIntegrityValidationProps {
  */
 export class PackageIntegrityValidation extends Construct {
 
+  /**
+   * The alarm that will trigger if the validation fails.
+   */
   public readonly failureAlarm: cloudwatch.Alarm;
 
   constructor(scope: Construct, id: string, props: PackageIntegrityValidationProps) {

@@ -815,6 +815,36 @@ const stack = new MyStack(...);
 Aspects.of(stack).add(new EcrMirrorAspect(ecrMirrorStack.mirror));
 ```
 
+## Package Integrity
+
+To ensure the artifacts published into package managers exactly correspond to your source code, delivlib offers a `PackageIntegrityValidation` construct.
+It will perform periodic integrity checks, comparing the published artifact against an artifact directly build from source code.
+
+This can help detect scenarios where your publishing platform may have been compromised, and your packages no longer contain the expected bits.
+
+```ts
+// first import the secret containing your github token secret.
+// the secret value should be the token in plain text.
+const token = sm.Secret.fromSecretCompleteArn(stack, 'GitHubSecret', '<sercet-arn>');
+
+// validate integrity of your package, hosted in a github repository.
+new PackageIntegrityValidation(stack, 'PackageValidation', {
+  repository: '<repository-slug>',
+  buildImage: codebuild.LinuxBuildImage.fromDockerRegistry('<docker-image>'),
+  githubTokenSecret: token,
+});
+```
+
+At a high level, the validation is performed like so:
+
+1. Clone the GitHub repository and checkout to the latest tag.
+2. Build the repository to produce local artifacts from the source code.
+3. Download the corresponding artifacts from package managers.
+4. Compare.
+
+By default the validation will run once a day, but you can configure its schedule using the `schedule` option.
+If the validation fails, a CloudWatch alarm will be triggered, which is accessible via the `failureAlarm` property.
+
 ## Contributing
 
 See the [contribution guide](./CONTRIBUTING.md) for details on how to submit
