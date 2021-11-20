@@ -5,6 +5,10 @@
       "type": "build"
     },
     {
+      "name": "@types/adm-zip",
+      "type": "build"
+    },
+    {
       "name": "@types/aws-lambda",
       "type": "build"
     },
@@ -22,11 +26,19 @@
       "type": "build"
     },
     {
+      "name": "@types/tar",
+      "type": "build"
+    },
+    {
       "name": "@typescript-eslint/eslint-plugin",
       "type": "build"
     },
     {
       "name": "@typescript-eslint/parser",
+      "type": "build"
+    },
+    {
+      "name": "adm-zip",
       "type": "build"
     },
     {
@@ -106,6 +118,10 @@
     {
       "name": "standard-version",
       "version": "^9",
+      "type": "build"
+    },
+    {
+      "name": "tar",
       "type": "build"
     },
     {

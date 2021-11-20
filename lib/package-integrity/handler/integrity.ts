@@ -91,7 +91,11 @@ export abstract class ArtifactIntegrity {
       this.extract(artifactPath, local);
 
       console.log(`Validating diff between ${local} and ${published}`);
-      execSync(`diff ${local} ${published}`, { stdio: ['ignore', 'inherit', 'inherit'] });
+      try {
+        execSync(`diff ${local} ${published}`, { stdio: ['ignore', 'inherit', 'inherit'] });
+      } catch (error) {
+        throw new Error(`${name} validation failed`);
+      }
       console.log('Success');
 
     } finally {

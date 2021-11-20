@@ -743,6 +743,13 @@
   resolved "https://registry.yarnpkg.com/@tootallnate/once/-/once-1.1.2.tgz#ccb91445360179a04e7fe6aff78c00ffc1eeaf82"
   integrity sha512-RbzJvlNzmRq5c3O09UipeuXno4tA1FE6ikOjxZK0tuxVv3412l64l5t1W5pj4+rJq9vpkm/kwiR07aZXnsKPxw==
 
+"@types/adm-zip@^0.4.34":
+  version "0.4.34"
+  resolved "https://registry.yarnpkg.com/@types/adm-zip/-/adm-zip-0.4.34.tgz#62ac859eb2af6024362a1b3e43527ab79e0c624e"
+  integrity sha512-8ToYLLAYhkRfcmmljrKi22gT2pqu7hGMDtORP1emwIEGmgUTZOsaDjzWFzW5N2frcFRz/50CWt4zA1CxJ73pmQ==
+  dependencies:
+    "@types/node" "*"
+
 "@types/aws-lambda@^8.10.83":
   version "8.10.83"
   resolved "https://registry.yarnpkg.com/@types/aws-lambda/-/aws-lambda-8.10.83.tgz#66db06cedb7476e860e8655e4387fd2e4385433a"
@@ -837,6 +844,13 @@
   resolved "https://registry.yarnpkg.com/@types/minimist/-/minimist-1.2.2.tgz#ee771e2ba4b3dc5b372935d549fd9617bf345b8c"
   integrity sha512-jhuKLIRrhvCPLqwPcx6INqmKeiA5EWrsCOPhrlFSrbrmU4ZMPjj5Ul/oLCMDO98XRUIwVm78xICz4EPCektzeQ==
 
+"@types/minipass@*":
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/@types/minipass/-/minipass-3.1.0.tgz#616dcc2205982d4c720f4c7e9a9fddc497245273"
+  integrity sha512-b2yPKwCrB8x9SB65kcCistMoe3wrYnxxt5rJSZ1kprw0uOXvhuKi9kTQ746Y+Pbqoh+9C0N4zt0ztmTnG9yg7A==
+  dependencies:
+    "@types/node" "*"
+
 "@types/node@*":
   version "16.9.4"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-16.9.4.tgz#a12f0ee7847cf17a97f6fdf1093cb7a9af23cca4"
@@ -866,6 +880,14 @@
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/@types/stack-utils/-/stack-utils-2.0.1.tgz#20f18294f797f2209b5f65c8e3b5c8e8261d127c"
   integrity sha512-Hl219/BT5fLAaz6NDkSuhzasy49dwQS/DSdu4MdggFB8zcXv7vflBI3xp7FEmkmdDkBUI2bPUNeMttp2knYdxw==
+
+"@types/tar@^6.1.1":
+  version "6.1.1"
+  resolved "https://registry.yarnpkg.com/@types/tar/-/tar-6.1.1.tgz#ab341ec1f149d7eb2a4f4ded56ff85f0d4fe7cb5"
+  integrity sha512-8mto3YZfVpqB1CHMaYz1TUYIQfZFbh/QbEq5Hsn6D0ilCfqRVCdalmc89B7vi3jhl9UYIk+dWDABShNfOkv5HA==
+  dependencies:
+    "@types/minipass" "*"
+    "@types/node" "*"
 
 "@types/yargs-parser@*":
   version "20.2.1"
@@ -998,6 +1020,11 @@ add-stream@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/add-stream/-/add-stream-1.0.0.tgz#6a7990437ca736d5e1288db92bd3266d5f5cb2aa"
   integrity sha1-anmQQ3ynNtXhKI25K9MmbV9csqo=
+
+adm-zip@^0.5.9:
+  version "0.5.9"
+  resolved "https://registry.yarnpkg.com/adm-zip/-/adm-zip-0.5.9.tgz#b33691028333821c0cf95c31374c5462f2905a83"
+  integrity sha512-s+3fXLkeeLjZ2kLjCBwQufpI5fuN+kIGBxu6530nVQZGVol0d7Y/M88/xw9HGGUcJjKf8LutN3VPRUBq6N7Ajg==
 
 agent-base@6, agent-base@^6.0.0, agent-base@^6.0.2:
   version "6.0.2"
@@ -6792,7 +6819,7 @@ tar-stream@^2.2.0:
     inherits "^2.0.3"
     readable-stream "^3.1.1"
 
-tar@^6.0.2, tar@^6.1.0:
+tar@^6.0.2, tar@^6.1.0, tar@^6.1.11:
   version "6.1.11"
   resolved "https://registry.yarnpkg.com/tar/-/tar-6.1.11.tgz#6760a38f003afa1b2ffd0ffe9e9abbd0eab3d621"
   integrity sha512-an/KZQzQUkZCkuoAA64hM92X0Urb6VpRhAFllDzz44U2mcD5scmT3zBc4VgVpkugF580+DQn8eAFSyoQt0tznA==

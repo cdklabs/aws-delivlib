@@ -1,0 +1,4 @@
+Marker file so we don't commit empty directories.
+
+The .projen directory is only validated for existence, not content.
+So it doesn't matter what we put here for.

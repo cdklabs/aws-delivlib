@@ -25,7 +25,6 @@
     "integ:diff": "npx projen integ:diff",
     "integ:update": "npx projen integ:update",
     "compile:custom-resource-handlers": "npx projen compile:custom-resource-handlers",
-    "build:package-integrity-tests:projen-project": "npx projen build:package-integrity-tests:projen-project",
     "release": "npx projen release",
     "projen": "npx projen",
     "cdk": "npx cdk"
@@ -37,12 +36,15 @@
   },
   "devDependencies": {
     "@monocdk-experiment/assert": "^1.123.0",
+    "@types/adm-zip": "^0.4.34",
     "@types/aws-lambda": "^8.10.83",
     "@types/fs-extra": "^9.0.13",
     "@types/jest": "^26.0.24",
     "@types/node": "^14.17.0",
+    "@types/tar": "^6.1.1",
     "@typescript-eslint/eslint-plugin": "^4.31.1",
     "@typescript-eslint/parser": "^4.31.1",
+    "adm-zip": "^0.5.9",
     "aws-cdk": "^1.123.0",
     "aws-sdk": "^2.991.0",
     "constructs": "^3.3.147",
@@ -62,6 +64,7 @@
     "projen": "^0.28.19",
     "rrule": "^2.6.8",
     "standard-version": "^9",
+    "tar": "^6.1.11",
     "ts-jest": "^26.5.6",
     "typescript": "^4.4.3"
   },

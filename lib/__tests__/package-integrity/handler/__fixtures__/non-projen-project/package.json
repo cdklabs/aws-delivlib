@@ -1,0 +1,5 @@
+{
+  "name": "non-project-project",
+  "private": true,
+  "comment": "Should fail because no .projen directory exists"
+}

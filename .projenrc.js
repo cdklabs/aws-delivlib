@@ -21,6 +21,8 @@ const project = new TypeScriptProject({
     '@monocdk-experiment/assert',
     '@types/aws-lambda',
     '@types/fs-extra',
+    '@types/tar',
+    '@types/adm-zip',
     'aws-cdk',
     'jest-create-mock-instance',
     'constructs',
@@ -33,6 +35,8 @@ const project = new TypeScriptProject({
     'rrule',
     'esbuild',
     'fs-extra',
+    'tar',
+    'adm-zip',
   ],
   peerDeps: [
     'constructs',
@@ -71,12 +75,5 @@ const compileCustomResourceHandlers = project.addTask('compile:custom-resource-h
 compileCustomResourceHandlers.exec('/bin/bash ./build-custom-resource-handlers.sh');
 
 project.compileTask.prependSpawn(compileCustomResourceHandlers);
-
-const integrityFixturesPath = path.join(__dirname, 'lib', '__tests__', 'package-integrity', '__fixtures__');
-for (const integrityFixture of fs.readdirSync(integrityFixturesPath)) {
-  const buildFixture = project.addTask(`build:package-integrity-tests:${integrityFixture}`);
-  buildFixture.exec('npx projen build', { cwd: path.join(integrityFixturesPath, integrityFixture) });
-  project.buildTask.spawn(buildFixture);
-}
 
 project.synth();
