@@ -115,7 +115,7 @@ export abstract class MirrorSource {
       }
 
       public bind(options: MirrorSourceBindOptions) {
-        const asset = new s3Assets.Asset(options.scope, `BuildContext${this.directory}`, { path: this.directory! });
+        const asset = new s3Assets.Asset(options.scope, `BuildContext${this.directory}${JSON.stringify(opts.buildArgs ?? {})}`, { path: this.directory! });
         if (options.syncJob) {
           asset.grantRead(options.syncJob);
         }
@@ -128,11 +128,15 @@ export abstract class MirrorSource {
           Object.entries(opts.buildArgs).forEach(([k, v]) => cmdFlags.push('--build-arg', `${k}=${v}`));
         }
 
+        const zipFile = `${this.repositoryName}.zip`;
+        const tmpDir = this.repositoryName;
+
         return {
           commands: [
-            `aws s3 cp ${asset.s3ObjectUrl} ${this.repositoryName}.zip`,
-            `unzip ${this.repositoryName}.zip -d ${this.repositoryName}`,
-            `docker build ${cmdFlags.join(' ')} ${this.repositoryName}`,
+            `rm -rf ${zipFile} ${tmpDir}`,
+            `aws s3 cp ${asset.s3ObjectUrl} ${zipFile}`,
+            `unzip ${zipFile} -d ${tmpDir}`,
+            `docker build ${cmdFlags.join(' ')} ${tmpDir}`,
           ],
           repositoryName: this.repositoryName,
           tag: this.tag,

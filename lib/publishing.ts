@@ -58,6 +58,15 @@ export interface PublishToMavenProjectProps {
    * @default "https://oss.sonatype.org"
    */
   mavenEndpoint?: string;
+
+  /**
+   * The build image to do the publishing in
+   *
+   * Needs to have Maven preinstalled.
+   *
+   * @default Latest superchain
+   */
+  readonly buildImage?: cbuild.IBuildImage;
 }
 
 /**
@@ -73,7 +82,7 @@ export class PublishToMavenProject extends Construct implements IPublisher {
     const forReal = props.dryRun === undefined ? 'false' : (!props.dryRun).toString();
 
     const shellable = new Shellable(this, 'Default', {
-      platform: new LinuxPlatform(cbuild.LinuxBuildImage.fromDockerRegistry('jsii/superchain')),
+      platform: new LinuxPlatform(props.buildImage ?? cbuild.LinuxBuildImage.fromDockerRegistry('jsii/superchain')),
       scriptDirectory: path.join(__dirname, 'publishing', 'maven'),
       entrypoint: 'publish.sh',
       environment: {
@@ -198,6 +207,15 @@ export interface PublishToNuGetProjectProps {
    * @default No signing
    */
   codeSign?: ICodeSigningCertificate;
+
+  /**
+   * The build image to do the publishing in
+   *
+   * Needs to have NuGet preinstalled.
+   *
+   * @default Latest superchain
+   */
+  readonly buildImage?: cbuild.IBuildImage;
 }
 
 /**
@@ -232,7 +250,7 @@ export class PublishToNuGetProject extends Construct implements IPublisher {
     }
 
     const shellable = new Shellable(this, 'Default', {
-      platform: new LinuxPlatform(cbuild.LinuxBuildImage.fromDockerRegistry('jsii/superchain')),
+      platform: new LinuxPlatform(props.buildImage ?? cbuild.LinuxBuildImage.fromDockerRegistry('jsii/superchain')),
       scriptDirectory: path.join(__dirname, 'publishing', 'nuget'),
       entrypoint: 'publish.sh',
       environment,
@@ -368,6 +386,17 @@ export interface PublishToGitHubProps {
   changelogFileName?: string;
 
   /**
+   * The name of the release notes file, containing the completed release notes
+   * for the current release.
+   * Relative to the artifacts root.
+   * NOTE - If this value is set and points to a valid file, the file in its entirety
+   * will be read and used for the release notes. The value of `changelogFileName` will
+   * be ignored.
+   * @default "./RELEASE_NOTES.md"
+   */
+  releaseNotesFileName?: string;
+
+  /**
    * Additional input artifacts to publish binaries from to GitHub release
    */
   additionalInputArtifacts?: cpipeline.Artifact[];
@@ -391,6 +420,11 @@ export class PublishToGitHub extends Construct implements IPublisher {
     const forReal = props.dryRun === undefined ? 'false' : (!props.dryRun).toString();
     this.additionalInputArtifacts = props.additionalInputArtifacts;
 
+    // The release notes, if set and a valid file, overrides any usages of the changelog.
+    if (props.changelogFileName && props.releaseNotesFileName) {
+      throw new Error('both `releaseNotesFileName` and `changelogFileName` cannot be specified; use one or the other');
+    }
+
     const shellable = new Shellable(this, 'Default', {
       platform: new LinuxPlatform(cbuild.LinuxBuildImage.UBUNTU_14_04_NODEJS_10_1_0),
       scriptDirectory: path.join(__dirname, 'publishing', 'github'),
@@ -398,6 +432,7 @@ export class PublishToGitHub extends Construct implements IPublisher {
       environment: noUndefined({
         BUILD_MANIFEST: props.buildManifestFileName || './build.json',
         CHANGELOG: props.changelogFileName || './CHANGELOG.md',
+        RELEASE_NOTES: props.releaseNotesFileName || './RELEASE_NOTES.md',
         SIGNING_KEY_ARN: props.signingKey.credential.secretArn,
         GITHUB_OWNER: props.githubRepo.owner,
         GITHUB_REPO: props.githubRepo.repo,
