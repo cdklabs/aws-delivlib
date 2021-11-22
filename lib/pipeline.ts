@@ -211,6 +211,7 @@ export class Pipeline extends Construct {
   private readonly dryRun: boolean;
   private readonly buildEnvironment: cbuild.BuildEnvironment;
   private readonly buildSpec?: cbuild.BuildSpec;
+  private firstPublishStageName?: string;
 
   constructor(parent: Construct, name: string, props: PipelineProps) {
     super(parent, name);
@@ -325,7 +326,11 @@ export class Pipeline extends Construct {
   }
 
   public addPublish(publisher: IPublisher, options: AddPublishOptions = {}) {
-    const stage = this.getOrCreateStage(PUBLISH_STAGE_NAME);
+    const publishStageName = options.stageName ?? PUBLISH_STAGE_NAME;
+    if (!this.firstPublishStageName) {
+      this.firstPublishStageName = publishStageName;
+    }
+    const stage = this.getOrCreateStage(publishStageName);
 
     publisher.addToPipeline(stage, `${publisher.node.id}Publish`, {
       inputArtifact: options.inputArtifact || this.buildOutput,
@@ -338,7 +343,7 @@ export class Pipeline extends Construct {
    * @param options the options to configure the change control policy.
    */
   public addChangeControl(options: AddChangeControlOptions = { }): ChangeController {
-    const publishStage = this.getStage(PUBLISH_STAGE_NAME);
+    const publishStage = this.getStage(this.firstPublishStageName ?? PUBLISH_STAGE_NAME);
     if (!publishStage) {
       throw new Error(`This pipeline does not have a ${PUBLISH_STAGE_NAME} stage yet. Add one first.`);
     }
@@ -349,46 +354,46 @@ export class Pipeline extends Construct {
     });
   }
 
-  public publishToNpm(options: publishing.PublishToNpmProjectProps) {
+  public publishToNpm(options: publishing.PublishToNpmProjectProps & AddPublishOptions) {
     this.addPublish(new publishing.PublishToNpmProject(this, 'Npm', {
       dryRun: this.dryRun,
       ...options,
-    }));
+    }), options);
   }
 
-  public publishToMaven(options: publishing.PublishToMavenProjectProps) {
+  public publishToMaven(options: publishing.PublishToMavenProjectProps & AddPublishOptions) {
     this.addPublish(new publishing.PublishToMavenProject(this, 'Maven', {
       dryRun: this.dryRun,
       ...options,
-    }));
+    }), options);
   }
 
-  public publishToNuGet(options: publishing.PublishToNuGetProjectProps) {
+  public publishToNuGet(options: publishing.PublishToNuGetProjectProps & AddPublishOptions) {
     this.addPublish(new publishing.PublishToNuGetProject(this, 'NuGet', {
       dryRun: this.dryRun,
       ...options,
-    }));
+    }), options);
   }
 
-  public publishToGitHubPages(options: publishing.PublishDocsToGitHubProjectProps) {
+  public publishToGitHubPages(options: publishing.PublishDocsToGitHubProjectProps & AddPublishOptions) {
     this.addPublish(new publishing.PublishDocsToGitHubProject(this, 'GitHubPages', {
       dryRun: this.dryRun,
       ...options,
-    }));
+    }), options);
   }
 
-  public publishToGitHub(options: publishing.PublishToGitHubProps) {
+  public publishToGitHub(options: publishing.PublishToGitHubProps & AddPublishOptions) {
     this.addPublish(new publishing.PublishToGitHub(this, 'GitHub', {
       dryRun: this.dryRun,
       ...options,
-    }));
+    }), options);
   }
 
-  public publishToPyPI(options: publishing.PublishToPyPiProps) {
+  public publishToPyPI(options: publishing.PublishToPyPiProps & AddPublishOptions) {
     this.addPublish(new publishing.PublishToPyPi(this, 'PyPI', {
       dryRun: this.dryRun,
       ...options,
-    }));
+    }), options);
   }
 
   public publishToS3(id: string, options: publishing.PublishToS3Props & AddPublishOptions) {
@@ -577,6 +582,7 @@ export interface AddChangeControlOptions {
    */
   scheduleExpression?: string;
 }
+
 export interface AddPublishOptions {
   /**
    * The input artifact to use
@@ -584,6 +590,20 @@ export interface AddPublishOptions {
    * @default Build output artifact
    */
   inputArtifact?: cpipeline.Artifact;
+
+  /**
+   * Stage name to add publishing job to
+   *
+   * By default, this will be the stage name `'Publish'`, but if you want to
+   * separate out the publishing actions into different stages (in order to
+   * block/unblock them separately for example) you can change this.
+   *
+   * Stages appear in the pipeline in the order they are referenced for
+   * the first time.
+   *
+   * @default "Publish"
+   */
+  readonly stageName?: string;
 }
 
 export interface AddShellableOptions extends ShellableProps {
