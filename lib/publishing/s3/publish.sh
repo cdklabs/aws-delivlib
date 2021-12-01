@@ -27,7 +27,8 @@ fi
 if [[ "${idempotency_token:-}" != "" ]]; then
     echo "Idempotency token: $idempotency_token"
 
-    aws s3 ls $BUCKET_URL/$idempotency_token > /dev/null && {
+    # Must use 's3 cp' to try and read exact filename. 's3 ls' would match prefixes as well.
+    aws s3 cp $BUCKET_URL/$idempotency_token - > /dev/null 2>&1 && {
         echo "Token found, stopping."
         exit 0
     } || {
