@@ -6,6 +6,7 @@ junit.xml
 /dist/changelog.md
 /dist/version.txt
 /.mergify.yml
+/tsconfig.dev.json
 !/lib/
 !/lib/**/*.js
 !/lib/**/*.d.ts
@@ -18,4 +19,3 @@ dist
 tsconfig.tsbuildinfo
 /lib/__tests__/
 /.eslintrc.json
-/tsconfig.eslint.json
