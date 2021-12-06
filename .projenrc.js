@@ -1,6 +1,6 @@
-const { TypeScriptProject } = require('projen');
+const { typescript } = require('projen');
 
-const project = new TypeScriptProject({
+const project = new typescript.TypeScriptProject({
   name: 'aws-delivlib',
   description: 'A fabulous library for defining continuous pipelines for building, testing and releasing code libraries.',
   repository: 'https://github.com/cdklabs/aws-delivlib.git',
