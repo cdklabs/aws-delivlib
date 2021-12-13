@@ -1,4 +1,5 @@
-import * as AWS from 'aws-sdk';
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+import AWS = require('aws-sdk');
 import * as transitions from '../../change-control-lambda/disable-transition';
 import * as timeWindow from '../../change-control-lambda/time-window';
 
