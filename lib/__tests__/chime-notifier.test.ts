@@ -1,11 +1,12 @@
-import * as https from 'https';
 import {
   App, Construct, Lazy, Stack,
   aws_codepipeline as aws_codepipeline,
   aws_codepipeline_actions as aws_codepipeline_actions,
 } from 'monocdk';
 import { ChimeNotifier } from '../../lib';
-import { codePipeline, handler } from '../../lib/chime-notifier/notifier-handler';
+import { codePipeline, handler } from '../../lib/chime-notifier/handler/notifier-handler';
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const https = require('https');
 import '@monocdk-experiment/assert/jest';
 
 jest.mock('https');

@@ -1411,7 +1411,7 @@ Resources:
     Properties:
       Code:
         S3Bucket: cdk-hnb659fds-assets-712950704752-us-east-1
-        S3Key: 663163693e04179c71265b44a325be7e6b8c4e90b081883a1b3f3393de2546ea.zip
+        S3Key: 7820644cf1fdec7cec290ed6fdd561e35f4015d4dcf03a20f8035dda3c0ac88a.zip
       Role:
         Fn::GetAtt:
           - CodeCommitPipelinePipelineWatcherPollerServiceRole0A1D8005
@@ -4288,7 +4288,7 @@ Resources:
     Properties:
       Code:
         S3Bucket: cdk-hnb659fds-assets-712950704752-us-east-1
-        S3Key: d81bf2d4c389ecd69472cf4b27599e1ffbe0c1543104f45d035834e863f64ca7.zip
+        S3Key: dc2e98009b027861f34e56eebb81faa5a3951ed9da80ce4a903a45de04268238.zip
       Role:
         Fn::GetAtt:
           - CodeCommitPipelineChangeControllerFunctionServiceRoleF02841DB
@@ -4925,7 +4925,7 @@ Parameters:
   BootstrapVersion:
     Type: AWS::SSM::Parameter::Value<String>
     Default: /cdk-bootstrap/hnb659fds/version
-    Description: Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store.
+    Description: Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]
 Rules:
   CheckBootstrapVersion:
     Assertions:

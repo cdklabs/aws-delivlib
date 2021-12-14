@@ -1,4 +1,5 @@
-import * as AWS from 'aws-sdk';
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+import AWS = require('aws-sdk');
 
 const mockDisableStageTransition = jest.fn((_params: AWS.CodePipeline.DisableStageTransitionInput) => {
   return { promise: () => Promise.resolve({}) };

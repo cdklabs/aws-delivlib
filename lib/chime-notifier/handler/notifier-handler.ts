@@ -56,9 +56,9 @@ export async function handler(event: any) {
   // Find the action that caused the pipeline to fail (no pagination for now)
   const actionResponse = await codePipeline.listActionExecutions({ pipelineName, filter: { pipelineExecutionId } }).promise();
   process.stdout.write(`${JSON.stringify(actionResponse)}\n`);
-  const failingActionDetails = (actionResponse.actionExecutionDetails || []).find(d => d.status === 'Failed');
-  const failingAction = failingActionDetails?.actionName ?? 'UNKNOWN';
-  const failureUrl = failingActionDetails?.output?.executionResult?.externalExecutionUrl ?? '???';
+  const failingActionDetails = actionResponse.actionExecutionDetails?.find(d => d.status === 'Failed');
+  const failingAction = failingActionDetails?.actionName || 'UNKNOWN';
+  const failureUrl = failingActionDetails?.output?.executionResult?.externalExecutionUrl || '???';
 
   const message = messageTemplate
     .replace(/\$PIPELINE/g, pipelineName)
