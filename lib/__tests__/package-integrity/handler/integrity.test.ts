@@ -22,6 +22,11 @@ interface IntegrityInputs {
 function initializeRepo(repoDir: string): Repository {
 
   const shell = (command: string) => child.execSync(command, { cwd: repoDir, stdio: ['ignore', 'inherit', 'inherit'] });
+
+  // we need CI=false since projen defaults to CI=true in a GitHub
+  // environment, and project generation normally happens outside of CI.
+  const projen = () => shell('CI=false ./node_modules/.bin/projen');
+
   const isProjen = fs.existsSync(path.join(repoDir, '.projenrc.js'));
 
   if (isProjen) {
@@ -29,10 +34,10 @@ function initializeRepo(repoDir: string): Repository {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const projenVersion = require(path.join(require.resolve('projen'), '..', '..', 'package.json')).version;
     shell(`npm install --no-package-lock projen@${projenVersion}`);
-    shell('CI=false ./node_modules/.bin/projen');
+    projen();
 
     // not sure why - but we need to run projen again to synchronize the lock file...
-    shell('CI=false ./node_modules/.bin/projen');
+    projen();
 
   }
 
