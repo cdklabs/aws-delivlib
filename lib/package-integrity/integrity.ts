@@ -82,7 +82,7 @@ export class PackageIntegrityValidation extends Construct {
   constructor(scope: Construct, id: string, props: PackageIntegrityValidationProps) {
     super(scope, id);
 
-    const shellable = new Shellable(this, 'Validate', {
+    const shellable = new Shellable(this, 'Default', {
       scriptDirectory: path.join(__dirname, 'handler'),
       entrypoint: 'validate.sh',
       privileged: props.privileged ?? false,
