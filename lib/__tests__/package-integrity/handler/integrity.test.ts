@@ -46,7 +46,7 @@ function initializeRepo(repoDir: string): Repository {
 
 function withRepo(fixture: string, work: (repoDir: string) => void) {
 
-  const tempdir = fs.mkdtempSync(path.join(os.tmpdir()));
+  const tempdir = fs.mkdtempSync(path.join(os.tmpdir(), path.sep));
   const repoDir = path.join(tempdir, fixture);
   fs.mkdirSync(repoDir);
   try {
