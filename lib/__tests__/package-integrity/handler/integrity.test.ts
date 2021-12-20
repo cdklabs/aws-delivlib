@@ -29,10 +29,10 @@ function initializeRepo(repoDir: string): Repository {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const projenVersion = require(path.join(require.resolve('projen'), '..', '..', 'package.json')).version;
     shell(`npm install --no-package-lock projen@${projenVersion}`);
-    shell('./node_modules/.bin/projen');
+    shell('CI=false ./node_modules/.bin/projen');
 
     // not sure why - but we need to run projen again to synchronize the lock file...
-    shell('./node_modules/.bin/projen');
+    shell('CI=false ./node_modules/.bin/projen');
 
   }
 
@@ -45,6 +45,9 @@ function initializeRepo(repoDir: string): Repository {
   shell('git add .');
   shell('git commit -m initial');
   shell('git tag -a v0.0.0 -m v0.0.0');
+
+  console.log(`Initilized repository: ${repoDir}`);
+  shell('ls -l');
 
   return new Repository(repoDir);
 }
