@@ -1,7 +1,7 @@
 import * as child from 'child_process';
 import * as os from 'os';
 import * as path from 'path';
-import * as AdmZip from 'adm-zip';
+import AdmZip from 'adm-zip';
 import * as fs from 'fs-extra';
 import * as tar from 'tar';
 import { NpmArtifactIntegrity, PublishedPackage, PyPIArtifactIntegrity, RepositoryIntegrity } from '../../../package-integrity/handler/integrity';
