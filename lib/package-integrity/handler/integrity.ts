@@ -67,7 +67,7 @@ export abstract class ArtifactIntegrity {
     const name = this.constructor.name;
 
     console.log(`Running ${name} on ${artifactPath}`);
-    const workdir = fs.mkdtempSync(path.join(os.tmpdir(), 'integrity-check'));
+    const workdir = fs.mkdtempSync(path.join(os.tmpdir(), path.sep, 'integrity-check'));
 
     try {
       const downloaded = path.join(workdir, `${name}.downloaded`);
