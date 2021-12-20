@@ -40,7 +40,7 @@ function initializeRepo(repoDir: string): Repository {
 
   // otherwise it won't run in github actions...
   shell('git config user.email "you@example.com"');
-  shell('git config --global user.name "example"');
+  shell('git config user.name "example"');
 
   shell('git add .');
   shell('git commit -m initial');
@@ -75,7 +75,7 @@ function createIntegrity(inputs: IntegrityInputs) {
 
 }
 
-afterAll(() => {
+beforeEach(() => {
   jest.restoreAllMocks();
 });
 
