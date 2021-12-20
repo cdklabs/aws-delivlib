@@ -1,5 +1,0 @@
-{
-  "name": "non-yarn-project",
-  "private": true,
-  "comment": "Should fail because no yarn.lock file exists"
-}

@@ -19,21 +19,32 @@ interface IntegrityInputs {
   repoDir: string;
 }
 
-function generateRepo(repoDir: string) {
+function initializeRepo(repoDir: string): Repository {
 
   const shell = (command: string) => child.execSync(command, { cwd: repoDir, stdio: ['ignore', 'inherit', 'inherit'] });
+  const isProjen = fs.existsSync(path.join(repoDir, '.projenrc.js'));
 
-  shell('npm install --no-package-lock projen && rm -rf package.json');
-  shell('./node_modules/.bin/projen');
-  shell('yarn install');
+  if (isProjen) {
+    // see https://github.com/projen/projen/issues/1356
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const projenVersion = require(path.join(require.resolve('projen'), '..', '..', 'package.json')).version;
+    shell(`npm install --no-package-lock projen@${projenVersion}`);
+    shell('./node_modules/.bin/projen');
+
+    // not sure why - but we need to run projen again to synchronize the lock file...
+    shell('./node_modules/.bin/projen');
+
+  }
+
   shell('git init -b main');
   shell('git add .');
-  shell('git commit -m projen');
+  shell('git commit -m initial');
   shell('git tag -a v0.0.0 -m v0.0.0');
 
+  return new Repository(repoDir);
 }
 
-function withRepoDir(fixture: string, work: (repoDir: string) => void) {
+function withRepo(fixture: string, work: (repoDir: string) => void) {
 
   const tempdir = fs.mkdtempSync(path.join(os.tmpdir()));
   const repoDir = path.join(tempdir, fixture);
@@ -48,11 +59,9 @@ function withRepoDir(fixture: string, work: (repoDir: string) => void) {
 
 function createIntegrity(inputs: IntegrityInputs) {
 
-  const clone = () => new Repository(inputs.repoDir);
-
   jest.spyOn<any, any>(NpmArtifactIntegrity.prototype, 'download').mockImplementation(inputs.npmDownload as any);
   jest.spyOn<any, any>(PyPIArtifactIntegrity.prototype, 'download').mockImplementation(inputs.pypiDownload as any);
-  jest.spyOn<any, any>(RepositoryIntegrity.prototype, 'clone').mockImplementation(clone);
+  jest.spyOn<any, any>(RepositoryIntegrity.prototype, 'clone').mockImplementation(() => initializeRepo(inputs.repoDir));
 
   return new RepositoryIntegrity({
     githubTokenSecretArn: 'dummy',
@@ -68,7 +77,9 @@ afterAll(() => {
 
 test('happy projen-jsii', () => {
 
-  withRepoDir('projen-jsii-project', (repoDir) => {
+  withRepo('projen-jsii-project', (repoDir) => {
+
+    // happy path - simply copy over the actual artifacts
 
     const npmDownload = (pkg: PublishedPackage, target: string) => {
       const dist = path.join(repoDir, 'dist');
@@ -82,8 +93,6 @@ test('happy projen-jsii', () => {
       fs.copySync(path.join(dist, 'python', name), path.join(target, name));
     };
 
-    generateRepo(repoDir);
-
     const integrity = createIntegrity({ repoDir, npmDownload, pypiDownload });
     integrity.validate();
 
@@ -93,7 +102,9 @@ test('happy projen-jsii', () => {
 
 test('happy projen-non-jsii', () => {
 
-  withRepoDir('projen-non-jsii-project', (repoDir) => {
+  withRepo('projen-non-jsii-project', (repoDir) => {
+
+    // happy path - simply copy over the actual artifacts
 
     const npmDownload = (pkg: PublishedPackage, target: string) => {
       const dist = path.join(repoDir, 'dist');
@@ -107,8 +118,6 @@ test('happy projen-non-jsii', () => {
       fs.copySync(path.join(dist, 'python', name), path.join(target, name));
     };
 
-    generateRepo(repoDir);
-
     const integrity = createIntegrity({ repoDir, npmDownload, pypiDownload });
     integrity.validate();
 
@@ -119,14 +128,13 @@ test('happy projen-non-jsii', () => {
 
 test('unhappy npm artifact', () => {
 
-  withRepoDir('projen-jsii-project', (repoDir) => {
+  withRepo('projen-jsii-project', (repoDir) => {
+
+    // unhappy path - conjure up corrupted artifacts
 
     const npmDownload = (pkg: PublishedPackage, target: string) => {
       const name = `${pkg.name}@${pkg.version}.jsii.tgz`;
-
-      // conjure up a corrupted tar
       tar.create({ file: path.join(target, name), gzip: true, sync: true },
-        // tarring only package.json should create a diff
         [path.join(repoDir, 'package.json')],
       );
     };
@@ -137,8 +145,6 @@ test('unhappy npm artifact', () => {
       fs.copySync(path.join(dist, 'python', name), path.join(target, name));
     };
 
-    generateRepo(repoDir);
-
     const integrity = createIntegrity({ repoDir, npmDownload, pypiDownload });
     expect(() => integrity.validate()).toThrowError('NpmArtifactIntegrity validation failed');
 
@@ -147,7 +153,9 @@ test('unhappy npm artifact', () => {
 
 test('unhappy pypi artifcat', () => {
 
-  withRepoDir('projen-jsii-project', (repoDir) => {
+  withRepo('projen-jsii-project', (repoDir) => {
+
+    // unhappy path - conjure up corrupted artifacts
 
     const npmDownload = (pkg: PublishedPackage, target: string) => {
       const dist = path.join(repoDir, 'dist');
@@ -157,18 +165,10 @@ test('unhappy pypi artifcat', () => {
 
     const pypiDownload = (pkg: PublishedPackage, target: string) => {
       const name = `${pkg.name}-${pkg.version}-py3-none-any.whl`;
-
-      // conjure up a corrupted whl
       const whl = new AdmZip();
-
-      // tarring only package.json should create a diff
       whl.addLocalFile(path.join(repoDir, 'package.json'));
-
       whl.writeZip(path.join(target, name));
-
     };
-
-    generateRepo(repoDir);
 
     const integrity = createIntegrity({ repoDir, npmDownload, pypiDownload });
     expect(() => integrity.validate()).toThrowError('PyPIArtifactIntegrity validation failed');
@@ -179,7 +179,7 @@ test('unhappy pypi artifcat', () => {
 
 test('only projen projects are supported', () => {
 
-  withRepoDir('non-projen-project', (repoDir) => {
+  withRepo('non-projen-project', (repoDir) => {
     const integrity = createIntegrity({ repoDir, npmDownload: {} as any, pypiDownload: {} as any });
     expect(() => integrity.validate()).toThrowError('Only projen managed repositories are supported at this time');
   });
@@ -188,7 +188,7 @@ test('only projen projects are supported', () => {
 
 test('only yarn projects are supported', () => {
 
-  withRepoDir('non-yarn-project', (repoDir) => {
+  withRepo('non-yarn-project', (repoDir) => {
     const integrity = createIntegrity({ repoDir, npmDownload: {} as any, pypiDownload: {} as any });
     expect(() => integrity.validate()).toThrowError('Only yarn managed repositories are supported at this time');
   });

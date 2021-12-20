@@ -67,13 +67,13 @@ export class Repository {
 
     const installCommand = 'yarn install --frozen-lockfile';
     console.log(`Installing | ${installCommand}`);
-    execSync(installCommand, { cwd: this.repoDir, stdio: ['ignore', 'inherit', 'inherit'] });
+    this._shell(installCommand);
 
     // note that run 'release' by default to preserve the version number.
     // this won't do a bump since the commit we are on is already tagged.
     const packCommand = `npx projen ${task ?? 'release'}`;
     console.log(`Packing | ${packCommand}`);
-    execSync(packCommand, { cwd: this.repoDir, stdio: ['ignore', 'inherit', 'inherit'] });
+    this._shell(packCommand);
 
     const outdir = this.isJsii ? path.join(this.repoDir, this.manifest.jsii.outdir) : path.join(this.repoDir, 'dist');
 
@@ -90,6 +90,10 @@ export class Repository {
 
     return artifacts;
 
+  }
+
+  private _shell(command: string) {
+    execSync(command, { cwd: this.repoDir, stdio: ['ignore', 'inherit', 'inherit'] });
   }
 
 }
