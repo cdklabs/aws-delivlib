@@ -36,11 +36,12 @@ function initializeRepo(repoDir: string): Repository {
 
   }
 
+  shell('git init -b main');
+
   // otherwise it won't run in github actions...
   shell('git config user.email "you@example.com"');
   shell('git config --global user.name "example"');
 
-  shell('git init -b main');
   shell('git add .');
   shell('git commit -m initial');
   shell('git tag -a v0.0.0 -m v0.0.0');

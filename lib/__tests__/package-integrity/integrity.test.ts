@@ -46,7 +46,7 @@ test('creates a codebuild project that triggers daily and runs the integrity han
           Name: 'SCRIPT_S3_BUCKET',
           Type: 'PLAINTEXT',
           Value: {
-            Ref: 'AssetParameters28ca6bbeba8b8118b556fc80c6f7791dc186e2b31574f8c7af99f99612d1df60S3Bucket541FB9FB',
+            Ref: 'AssetParameters28027421a4eec5864010731c54ff97094c708be725a99503846d003e8c89f398S3Bucket7A2CA021',
           },
         },
         {
@@ -63,7 +63,7 @@ test('creates a codebuild project that triggers daily and runs the integrity han
                       'Fn::Split': [
                         '||',
                         {
-                          Ref: 'AssetParameters28ca6bbeba8b8118b556fc80c6f7791dc186e2b31574f8c7af99f99612d1df60S3VersionKeyCD1569FC',
+                          Ref: 'AssetParameters28027421a4eec5864010731c54ff97094c708be725a99503846d003e8c89f398S3VersionKey5F06DD0C',
                         },
                       ],
                     },
@@ -76,7 +76,7 @@ test('creates a codebuild project that triggers daily and runs the integrity han
                       'Fn::Split': [
                         '||',
                         {
-                          Ref: 'AssetParameters28ca6bbeba8b8118b556fc80c6f7791dc186e2b31574f8c7af99f99612d1df60S3VersionKeyCD1569FC',
+                          Ref: 'AssetParameters28027421a4eec5864010731c54ff97094c708be725a99503846d003e8c89f398S3VersionKey5F06DD0C',
                         },
                       ],
                     },
