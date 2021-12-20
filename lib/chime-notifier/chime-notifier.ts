@@ -1,4 +1,3 @@
-import * as fs from 'fs';
 import * as path from 'path';
 import {
   Construct, Duration,
@@ -55,7 +54,7 @@ export class ChimeNotifier extends Construct {
       const notifierLambda = new lambda.SingletonFunction(this, 'Default', {
         handler: 'index.handler',
         uuid: '0f4a3ee0-692e-4249-932f-a46a833886d8',
-        code: lambda.Code.inline(stripComments(fs.readFileSync(path.join(__dirname, 'notifier-handler.js')).toString('utf8'))),
+        code: lambda.Code.fromAsset(path.join(__dirname, 'handler')),
         runtime: lambda.Runtime.NODEJS_12_X,
         timeout: Duration.minutes(5),
       });
@@ -83,13 +82,4 @@ export class ChimeNotifier extends Construct {
       });
     }
   }
-}
-
-/**
- * Strip comments from JS source code to keep its size small enough for inline code.
- *
- * At least get rid of the giant TypeScript source map.
- */
-function stripComments(x: string) {
-  return x.replace(/\/\/.*$/g, '').replace(/\/\*.*\*\//gs, '');
 }

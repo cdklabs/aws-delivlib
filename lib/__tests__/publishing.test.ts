@@ -4,8 +4,11 @@ import {
   aws_codebuild as codebuild,
   aws_codecommit as codecommit,
   aws_kms as kms,
+  assertions,
 } from 'monocdk';
 import * as delivlib from '../../lib';
+
+const { Template, Match } = assertions;
 
 
 describe('with standard pipeline', () => {
@@ -59,5 +62,23 @@ describe('with standard pipeline', () => {
         Image: 'xyz',
       },
     }));
+  });
+
+  test('can control stage name', () => {
+    pipeline.publishToNuGet({
+      nugetApiKeySecret: { secretArn: 'arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/nuget-fHzSUD' },
+      buildImage: codebuild.LinuxBuildImage.fromDockerRegistry('xyz'),
+      stageName: 'MyPublishStage',
+    });
+
+    const template = Template.fromStack(stack);
+    template.hasResourceProperties('AWS::CodePipeline::Pipeline', {
+      Stages: Match.arrayWith([{
+        Name: 'MyPublishStage',
+        Actions: [Match.objectLike({
+          Name: 'NuGetPublish',
+        })],
+      }]),
+    });
   });
 });
