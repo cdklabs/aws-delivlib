@@ -4,7 +4,7 @@ import {
   aws_codebuild as codebuild,
   aws_secretsmanager as sm,
 } from 'monocdk';
-import { PackageIntegrityValidation } from '../..';
+import { LinuxPlatform, PackageIntegrityValidation } from '../..';
 
 test('creates a codebuild project that triggers daily and runs the integrity handler', () => {
 
@@ -12,7 +12,7 @@ test('creates a codebuild project that triggers daily and runs the integrity han
   const token = sm.Secret.fromSecretCompleteArn(stack, 'GitHubSecret', 'arn:aws:secretsmanager:us-east-1:123456789123:secret:github-token-000000');
 
   new PackageIntegrityValidation(stack, 'Integrity', {
-    buildImage: codebuild.LinuxBuildImage.fromDockerRegistry('jsii/superchain:1-buster-slim-node12'),
+    buildPlatform: new LinuxPlatform(codebuild.LinuxBuildImage.fromDockerRegistry('jsii/superchain:1-buster-slim-node12')),
     githubTokenSecret: token,
     repository: 'cdklabs/some-repo',
   });
@@ -46,7 +46,7 @@ test('creates a codebuild project that triggers daily and runs the integrity han
           Name: 'SCRIPT_S3_BUCKET',
           Type: 'PLAINTEXT',
           Value: {
-            Ref: 'AssetParameters28027421a4eec5864010731c54ff97094c708be725a99503846d003e8c89f398S3Bucket7A2CA021',
+            Ref: 'AssetParameters27ca06ed7b31bd103b53f87679a7f786fd3fac55c5ba3f10387c378891b5250bS3Bucket80170398',
           },
         },
         {
@@ -63,7 +63,7 @@ test('creates a codebuild project that triggers daily and runs the integrity han
                       'Fn::Split': [
                         '||',
                         {
-                          Ref: 'AssetParameters28027421a4eec5864010731c54ff97094c708be725a99503846d003e8c89f398S3VersionKey5F06DD0C',
+                          Ref: 'AssetParameters27ca06ed7b31bd103b53f87679a7f786fd3fac55c5ba3f10387c378891b5250bS3VersionKey2F732545',
                         },
                       ],
                     },
@@ -76,7 +76,7 @@ test('creates a codebuild project that triggers daily and runs the integrity han
                       'Fn::Split': [
                         '||',
                         {
-                          Ref: 'AssetParameters28027421a4eec5864010731c54ff97094c708be725a99503846d003e8c89f398S3VersionKey5F06DD0C',
+                          Ref: 'AssetParameters27ca06ed7b31bd103b53f87679a7f786fd3fac55c5ba3f10387c378891b5250bS3VersionKey2F732545',
                         },
                       ],
                     },

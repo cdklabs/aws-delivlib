@@ -82,15 +82,20 @@ export abstract class ArtifactIntegrity {
       fs.mkdirSync(local);
 
       // download the package
+      console.log(`Downloading [${pkg.name} | ${pkg.version}] to ${downloaded}`);
       this.download(pkg, downloaded);
 
+      const artifact = this.findOne(downloaded);
+
       // extract the downlaoded package
+      console.log(`Extracting remote artifact from ${artifact} to ${published}`);
       this.extract(this.findOne(downloaded), published);
 
       // extract the local artfiact
+      console.log(`Extracting local artifact from ${artifactPath} to ${local}`);
       this.extract(artifactPath, local);
 
-      console.log(`Validating diff between ${local} and ${published}`);
+      console.log(`Comparing ${local} <> ${published}`);
       try {
         execSync(`diff ${local} ${published}`, { stdio: ['ignore', 'inherit', 'inherit'] });
       } catch (error) {

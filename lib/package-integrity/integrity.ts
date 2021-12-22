@@ -2,13 +2,12 @@ import * as path from 'path';
 import {
   Construct,
   aws_cloudwatch as cloudwatch,
-  aws_codebuild as codebuild,
   aws_events as events,
   aws_events_targets as targets,
   aws_secretsmanager as sm,
   Duration,
 } from 'monocdk';
-import { LinuxPlatform, Shellable } from '../shellable';
+import { Shellable, ShellPlatform } from '../shellable';
 
 /**
  * Properties for `PackageIntegrityValidation`.
@@ -26,10 +25,12 @@ export interface PackageIntegrityValidationProps {
   readonly githubTokenSecret: sm.ISecret;
 
   /**
-   * The build image to use. This is important because the source code will be built inside this image.
-   * So its important this image matches the one used when releasing the package.
+   * The build platform to use. This platform should contain all necessary tools to package the artifacts
+   * in the repository. Note that by default, this also means running the tests.
+   *
+   * @default ShellPlatform.LinuxUbuntu
    */
-  readonly buildImage: codebuild.IBuildImage;
+  readonly buildPlatform?: ShellPlatform;
 
   /**
    * Run the validation on a schedule.
@@ -86,7 +87,7 @@ export class PackageIntegrityValidation extends Construct {
       scriptDirectory: path.join(__dirname, 'handler'),
       entrypoint: 'validate.sh',
       privileged: props.privileged ?? false,
-      platform: new LinuxPlatform(props.buildImage),
+      platform: props.buildPlatform ?? ShellPlatform.LinuxUbuntu,
       environment: {
         GITHUB_REPOSITORY: props.repository,
         TAG_PREFIX: props.tagPrefix ?? '',
