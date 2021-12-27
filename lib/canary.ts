@@ -30,7 +30,7 @@ export class Canary extends Construct {
   constructor(scope: Construct, id: string, props: CanaryProps) {
     super(scope, id);
 
-    const env = props.environment || {};
+    const env = props.environment || { };
     if (!('IS_CANARY' in env)) {
       env.IS_CANARY = 'true';
     }

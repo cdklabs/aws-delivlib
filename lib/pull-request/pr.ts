@@ -252,8 +252,8 @@ export class AutoPullRequest extends Construct {
       // there's no way to stop a BuildSpec execution halfway through without throwing an error. Believe me, I
       // checked the code. Instead we define a variable that we will switch all other lines on/off.
       commands.push(`${this.props.condition} ` +
-        '&& { echo \'Skip condition is met, skipping...\' && export SKIP=true; } ' +
-        '|| { echo \'Skip condition is not met, continuing...\' && export SKIP=false; }');
+      '&& { echo \'Skip condition is met, skipping...\' && export SKIP=true; } ' +
+      '|| { echo \'Skip condition is not met, continuing...\' && export SKIP=false; }');
     }
 
     // read the token
@@ -375,8 +375,8 @@ export class AutoPullRequest extends Construct {
 
     return [
       'aws secretsmanager get-secret-value '
-      + `--secret-id "${this.props.repo.sshKeySecret.secretArn}" `
-      + '--output=text --query=SecretString > ~/.ssh/id_rsa',
+        + `--secret-id "${this.props.repo.sshKeySecret.secretArn}" `
+        + '--output=text --query=SecretString > ~/.ssh/id_rsa',
       'mkdir -p ~/.ssh',
       'chmod 0600 ~/.ssh/id_rsa ~/.ssh/config',
       'ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts',
@@ -388,8 +388,8 @@ export class AutoPullRequest extends Construct {
     // We will do nothing and set `SKIP=true` if the head ref is an ancestor of the base branch (no PR could be created)
     return [
       `git merge-base --is-ancestor ${this.props.head.name} origin/${this.baseBranch}`
-      + ` && { echo "Skipping: ${this.props.head.name} is an ancestor of origin/${this.baseBranch}"; export SKIP=true; }`
-      + ` || { echo "Pushing: ${this.props.head.name} is ahead of origin/${this.baseBranch}"; export SKIP=false; }`,
+        + ` && { echo "Skipping: ${this.props.head.name} is an ancestor of origin/${this.baseBranch}"; export SKIP=true; }`
+        + ` || { echo "Pushing: ${this.props.head.name} is ahead of origin/${this.baseBranch}"; export SKIP=false; }`,
       `git remote add origin_ssh ${this.props.repo.repositoryUrlSsh}`,
       // Need `--atomic`, otherwise `git push` might successfully push the tags but not to `main`.
       `git push --atomic --follow-tags origin_ssh ${this.props.head.name}:${this.props.head.name}`,
@@ -407,7 +407,7 @@ export class AutoPullRequest extends Construct {
     return [
       `${this.githubCurlGet(`/search/issues?q=${encodeURIComponent(filters.join(' '))}`, '-o search.json')}`,
       'node -e \'process.exitCode = require("./search.json").total_count\''
-      + ` || { echo "Found open PRs with label ${labels}, skipping PR."; export SKIP=true; }`,
+        + ` || { echo "Found open PRs with label ${labels}, skipping PR."; export SKIP=true; }`,
     ];
   }
 
@@ -436,7 +436,7 @@ export class AutoPullRequest extends Construct {
     commands.push(this.githubCurl('/pulls/$PR_NUMBER', '-X PATCH', { body: body }));
 
     if (this.props.labels && this.props.labels.length > 0) {
-      // apply labels.
+    // apply labels.
       commands.push(this.githubCurl('/issues/$PR_NUMBER/labels', '-X POST', { labels: this.props.labels }));
     }
 

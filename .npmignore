@@ -19,4 +19,3 @@ dist
 tsconfig.tsbuildinfo
 /lib/__tests__/
 /.eslintrc.json
-!/assets/

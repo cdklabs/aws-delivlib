@@ -55,7 +55,7 @@ export class ChimeNotifier extends Construct {
       const notifierLambda = new lambda.SingletonFunction(this, 'Default', {
         handler: 'index.handler',
         uuid: '0f4a3ee0-692e-4249-932f-a46a833886d8',
-        code: lambda.Code.fromAsset(path.join(__dirname, '../../assets/lib/chime-notifier/notifier-handler')),
+        code: lambda.Code.fromAsset(path.join(__dirname, 'handler')),
         runtime: lambda.Runtime.NODEJS_12_X,
         timeout: Duration.minutes(5),
       });

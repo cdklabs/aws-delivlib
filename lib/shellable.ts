@@ -345,7 +345,7 @@ export class Shellable extends Construct {
       return undefined;
     }
 
-    const out: { [key: string]: string } = {};
+    const out: { [key: string]: string } = { };
     Object.entries(environmentSecrets ?? {}).forEach(([name, secretArn]) => {
       const secret = aws_secretsmanager.Secret.fromSecretCompleteArn(this, `${name}SecretFromArn`, secretArn);
       out[name] = secret.secretName;

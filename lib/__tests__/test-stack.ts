@@ -11,7 +11,7 @@ import * as delivlib from '../../lib';
 const testDir = path.join(__dirname, 'delivlib-tests');
 
 export class TestStack extends Stack {
-  constructor(parent: App, id: string, props: StackProps = {}) {
+  constructor(parent: App, id: string, props: StackProps = { }) {
     super(parent, id, props);
 
     //

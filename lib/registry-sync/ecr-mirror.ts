@@ -224,7 +224,7 @@ export class EcrMirror extends Construct {
  * with ECR equivalents found in the EcrMirror.
  */
 export class EcrMirrorAspect implements IAspect {
-  constructor(private readonly mirror: EcrMirror) { }
+  constructor(private readonly mirror: EcrMirror) {}
 
   public visit(construct: IConstruct) {
     if (construct instanceof codebuild.Project) {

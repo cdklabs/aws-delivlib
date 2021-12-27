@@ -50,7 +50,6 @@ junit.xml
 /dist/
 !/.projen/jest-snapshot-resolver.js
 !/.eslintrc.json
-/assets/
 cdk.out
 pipeline/*.js
 pipeline/*.d.ts

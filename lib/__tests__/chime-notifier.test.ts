@@ -7,7 +7,6 @@ import {
 import { Template } from 'aws-cdk-lib/assertions';
 import { Construct } from 'constructs';
 import { ChimeNotifier } from '../../lib';
-// eslint-disable-next-line @typescript-eslint/no-require-imports
 import { codePipeline, handler } from '../../lib/chime-notifier/handler/notifier-handler';
 
 jest.mock('https', () => {
@@ -150,7 +149,7 @@ export class FakeSourceAction extends aws_codepipeline_actions.Action {
   // tslint:disable-next-line: max-line-length
   protected bound(_scope: Construct, _stage: aws_codepipeline.IStage, _options: aws_codepipeline.ActionBindOptions): aws_codepipeline.ActionConfig {
     return {
-      configuration: {},
+      configuration: { },
     };
   }
 }

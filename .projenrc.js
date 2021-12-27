@@ -49,15 +49,6 @@ const project = new typescript.TypeScriptProject({
 
 // trick projen so that it doesn't override the version in package.json
 project.tasks.addEnvironment('RELEASE', '1');
-const bundler = javascript.Bundler.of(project);
-if (!bundler) {
-  throw new Error('No bundler found. Please add a Bundler component to your project.');
-}
-bundler.addBundle('lib/chime-notifier/handler/notifier-handler.ts', {
-  externals: ['aws-sdk'],
-  target: 'node14',
-  platform: 'node',
-});
 
 project.gitignore.exclude('cdk.out');
 project.gitignore.exclude('pipeline/*.js');

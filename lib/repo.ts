@@ -68,7 +68,7 @@ export class CodeCommitRepo implements IRepo {
     return this.repository.repositoryCloneUrlSsh;
   }
 
-  public createBuildSource(_: Construct, _webhook: boolean, options: BuildSourceOptions = {}): cbuild.ISource {
+  public createBuildSource(_: Construct, _webhook: boolean, options: BuildSourceOptions = { }): cbuild.ISource {
     return cbuild.Source.codeCommit({
       repository: this.repository,
       cloneDepth: options.cloneDepth,
@@ -137,7 +137,7 @@ export class GitHubRepo implements IRepo {
     return sourceOutput;
   }
 
-  public createBuildSource(_: Construct, webhook: boolean, options: BuildSourceOptions = {}): cbuild.ISource {
+  public createBuildSource(_: Construct, webhook: boolean, options: BuildSourceOptions = { }): cbuild.ISource {
     if (options.branch && options.branches) {
       throw new Error('Specify at most one of \'branch\' and \'branches\'');
     }

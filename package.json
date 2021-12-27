@@ -8,9 +8,6 @@
   "scripts": {
     "build": "npx projen build",
     "bump": "npx projen bump",
-    "bundle": "npx projen bundle",
-    "bundle:lib/chime-notifier/handler/notifier-handler": "npx projen bundle:lib/chime-notifier/handler/notifier-handler",
-    "bundle:lib/chime-notifier/handler/notifier-handler:watch": "npx projen bundle:lib/chime-notifier/handler/notifier-handler:watch",
     "clobber": "npx projen clobber",
     "compile": "npx projen compile",
     "compile:custom-resource-handlers": "npx projen compile:custom-resource-handlers",
