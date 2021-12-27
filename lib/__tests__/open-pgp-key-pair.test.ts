@@ -25,14 +25,14 @@ test('correctly creates', () => {
 
   // THEN
   template.hasResourceProperties('AWS::CloudFormation::CustomResource', Match.objectLike({
-    identity: 'Test',
-    email: 'nobody@nowhere.com',
-    expiry: '1d',
-    keySizeBits: 1024,
-    secretName: 'SecretName',
-    keyArn: stack.resolve(encryptionKey.keyArn),
-    version: 0,
-    deleteImmediately: false,
+    Identity: 'Test',
+    Email: 'nobody@nowhere.com',
+    Expiry: '1d',
+    KeySizeBits: 1024,
+    SecretName: 'SecretName',
+    KeyArn: stack.resolve(encryptionKey.keyArn),
+    Version: 0,
+    DeleteImmediately: false,
   }));
 });
 

@@ -164,9 +164,7 @@ test('autoBuild() can be used to add automatic builds to the pipeline', () => {
   });
   const template = Template.fromStack(stack);
 
-  template.hasResourceProperties('AWS::CodeBuild::Project', {
-
-  });
+  template.resourceCountIs('AWS::Serverless::Application', 0);
 });
 
 test('autoBuild() can be configured to publish logs publically', () => {

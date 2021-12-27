@@ -69,6 +69,7 @@ export class CertificateSigningRequest extends Construct {
     const csr = new CustomResource(this, 'Resource', {
       serviceToken: customResource.functionArn,
       resourceType: 'Custom::CertificateSigningRequest',
+      pascalCaseProperties: true,
       properties: {
         resourceVersion: hashFileOrDirectory(codeLocation),
         // Private key
