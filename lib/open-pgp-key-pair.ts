@@ -163,6 +163,7 @@ export class OpenPGPKeyPair extends Construct implements ICredentialPair {
 
     const secret = new CustomResource(this, 'Resource', {
       serviceToken: fn.functionArn,
+      pascalCaseProperties: true,
       properties: {
         resourceVersion: hashFileOrDirectory(codeLocation),
         identity: props.identity,

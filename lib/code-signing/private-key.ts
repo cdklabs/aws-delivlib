@@ -113,6 +113,7 @@ export class RsaPrivateKeySecret extends Construct {
     const privateKey = new CustomResource(this, 'Resource', {
       serviceToken: customResource.functionArn,
       resourceType: 'Custom::RsaPrivateKeySecret',
+      pascalCaseProperties: true,
       properties: {
         resourceVersion: hashFileOrDirectory(codeLocation),
         description: props.description,

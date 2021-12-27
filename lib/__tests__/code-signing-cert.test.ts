@@ -42,7 +42,7 @@ test('secret name consists of stack name and relative construct path', () => {
   // THEN - specifically: does not include construct names above the containing stack
   // uses the actual stack name (and not the stack NODE name)
   template.hasResourceProperties('Custom::RsaPrivateKeySecret', {
-    secretName: 'ActualStackName/Inbetween/Cert/RSAPrivateKey',
+    SecretName: 'ActualStackName/Inbetween/Cert/RSAPrivateKey',
   });
 });
 
@@ -59,6 +59,6 @@ test('secret name can be overridden', () => {
   const template = Template.fromStack(stack);
 
   template.hasResourceProperties('Custom::RsaPrivateKeySecret', {
-    secretName: 'Sekrit/RSAPrivateKey',
+    SecretName: 'Sekrit/RSAPrivateKey',
   });
 });
