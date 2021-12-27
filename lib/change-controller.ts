@@ -1,6 +1,6 @@
 import * as path from 'path';
 import {
-  CfnOutput, Construct, Duration, RemovalPolicy,
+  CfnOutput, Duration, RemovalPolicy,
   aws_cloudwatch as cloudwatch,
   aws_codepipeline as cp,
   aws_events as events,
@@ -10,8 +10,8 @@ import {
   aws_s3 as s3,
   aws_s3_notifications as s3_notifications,
   aws_lambda_nodejs as nodejs,
-}
-  from 'monocdk';
+} from 'aws-cdk-lib';
+import { Construct } from 'constructs';
 
 export interface ChangeControllerProps {
   /**
@@ -104,10 +104,11 @@ export class ChangeController extends Construct {
     }
 
     this.failureAlarm = new cloudwatch.Alarm(this, 'Failed', {
-      metric: fn.metricErrors(),
+      metric: fn.metricErrors({
+        period: Duration.seconds(300),
+      }),
       threshold: 1,
       datapointsToAlarm: 1,
-      period: Duration.seconds(300),
       evaluationPeriods: 1,
     });
 

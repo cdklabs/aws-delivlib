@@ -22,8 +22,13 @@ jobs:
           fetch-depth: 0
       - name: Set git identity
         run: |-
+          git config --global init.defaultBranch main
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
+      - name: Setup Node.js
+        uses: actions/setup-node@v2.2.0
+        with:
+          node-version: 14.17.0
       - name: Install dependencies
         run: yarn install --check-files --frozen-lockfile
       - name: release
@@ -36,7 +41,7 @@ jobs:
         if: ${{ steps.git_remote.outputs.latest_commit == github.sha }}
         uses: actions/upload-artifact@v2.1.1
         with:
-          name: build-artifact
+          name: dist
           path: dist
   release_github:
     name: Publish to GitHub Releases
@@ -52,7 +57,7 @@ jobs:
       - name: Download build artifacts
         uses: actions/download-artifact@v2
         with:
-          name: build-artifact
+          name: dist
           path: dist
       - name: Release
         run: errout=$(mktemp); gh release create $(cat dist/releasetag.txt) -R
@@ -78,7 +83,7 @@ jobs:
       - name: Download build artifacts
         uses: actions/download-artifact@v2
         with:
-          name: build-artifact
+          name: dist
           path: dist
       - name: Release
         run: npx -p jsii-release@latest jsii-release-npm

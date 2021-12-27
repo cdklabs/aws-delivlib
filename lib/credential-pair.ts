@@ -1,7 +1,7 @@
 import {
   aws_ssm as ssm,
   aws_secretsmanager as secretsManager,
-} from 'monocdk';
+} from 'aws-cdk-lib';
 
 
 /**

@@ -1,8 +1,9 @@
 import {
-  Construct, SecretValue, SecretsManagerSecretOptions,
+  SecretValue, SecretsManagerSecretOptions,
   aws_codebuild as cbuild, aws_codecommit as ccommit,
   aws_codepipeline as cpipeline, aws_codepipeline_actions as cpipeline_actions,
-} from 'monocdk';
+} from 'aws-cdk-lib';
+import { Construct } from 'constructs';
 import { ExternalSecret } from './permissions';
 
 export interface IRepo {
@@ -67,7 +68,7 @@ export class CodeCommitRepo implements IRepo {
     return this.repository.repositoryCloneUrlSsh;
   }
 
-  public createBuildSource(_: Construct, _webhook: boolean, options: BuildSourceOptions = { }): cbuild.ISource {
+  public createBuildSource(_: Construct, _webhook: boolean, options: BuildSourceOptions = {}): cbuild.ISource {
     return cbuild.Source.codeCommit({
       repository: this.repository,
       cloneDepth: options.cloneDepth,
@@ -136,7 +137,7 @@ export class GitHubRepo implements IRepo {
     return sourceOutput;
   }
 
-  public createBuildSource(_: Construct, webhook: boolean, options: BuildSourceOptions = { }): cbuild.ISource {
+  public createBuildSource(_: Construct, webhook: boolean, options: BuildSourceOptions = {}): cbuild.ISource {
     if (options.branch && options.branches) {
       throw new Error('Specify at most one of \'branch\' and \'branches\'');
     }

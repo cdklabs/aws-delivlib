@@ -1,12 +1,13 @@
 import * as path from 'path';
 import {
-  Construct, Duration,
+  Duration,
   aws_codepipeline as cpipeline,
   aws_iam as iam,
   aws_lambda as lambda,
   aws_events as events,
   aws_events_targets as events_targets,
-} from 'monocdk';
+} from 'aws-cdk-lib';
+import { Construct } from 'constructs';
 
 export interface ChimeNotifierOptions {
   /**
@@ -54,7 +55,7 @@ export class ChimeNotifier extends Construct {
       const notifierLambda = new lambda.SingletonFunction(this, 'Default', {
         handler: 'index.handler',
         uuid: '0f4a3ee0-692e-4249-932f-a46a833886d8',
-        code: lambda.Code.fromAsset(path.join(__dirname, 'handler')),
+        code: lambda.Code.fromAsset(path.join(__dirname, '../../assets/lib/chime-notifier/notifier-handler')),
         runtime: lambda.Runtime.NODEJS_12_X,
         timeout: Duration.minutes(5),
       });

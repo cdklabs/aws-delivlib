@@ -1,14 +1,15 @@
-// tslint:disable-next-line: max-line-length
 import * as path from 'path';
 import {
-  Construct, Duration, Stack, RemovalPolicy,
-  aws_cloudformation as cfn,
+  Duration, Stack, RemovalPolicy,
+  CustomResource,
   aws_iam as iam,
   aws_kms as kms,
   aws_lambda as lambda,
   aws_secretsmanager as secretsManager,
   aws_ssm as ssm,
-} from 'monocdk';
+  ArnFormat,
+} from 'aws-cdk-lib';
+import { Construct } from 'constructs';
 import { ICredentialPair } from './credential-pair';
 import { hashFileOrDirectory } from './util';
 
@@ -136,7 +137,7 @@ export class OpenPGPKeyPair extends Construct implements ICredentialPair {
       resources: [Stack.of(this).formatArn({
         service: 'secretsmanager',
         resource: 'secret',
-        sep: ':',
+        arnFormat: ArnFormat.COLON_RESOURCE_NAME,
         resourceName: `${props.secretName}-??????`,
       })],
     }));
@@ -160,8 +161,8 @@ export class OpenPGPKeyPair extends Construct implements ICredentialPair {
       }));
     }
 
-    const secret = new cfn.CustomResource(this, 'Resource', {
-      provider: cfn.CustomResourceProvider.lambda(fn),
+    const secret = new CustomResource(this, 'Resource', {
+      serviceToken: fn.functionArn,
       properties: {
         resourceVersion: hashFileOrDirectory(codeLocation),
         identity: props.identity,
@@ -180,7 +181,7 @@ export class OpenPGPKeyPair extends Construct implements ICredentialPair {
 
     this.credential = secretsManager.Secret.fromSecretAttributes(this, 'Credential', {
       encryptionKey: props.encryptionKey,
-      secretArn: secret.getAtt('SecretArn').toString(),
+      secretCompleteArn: secret.getAtt('SecretArn').toString(),
     });
     this.principal = new ssm.StringParameter(this, 'Principal', {
       description: `The public part of the OpenPGP key in ${this.credential.secretArn}`,
@@ -191,14 +192,14 @@ export class OpenPGPKeyPair extends Construct implements ICredentialPair {
 
   public grantRead(grantee: iam.IPrincipal): void {
     // Secret grant, identity-based only
-    grantee.addToPolicy(new iam.PolicyStatement({
+    grantee.addToPrincipalPolicy(new iam.PolicyStatement({
       resources: [this.credential.secretArn],
       actions: ['secretsmanager:ListSecrets', 'secretsmanager:DescribeSecret', 'secretsmanager:GetSecretValue'],
     }));
 
     // Key grant
     if (this.credential.encryptionKey) {
-      grantee.addToPolicy(new iam.PolicyStatement({
+      grantee.addToPrincipalPolicy(new iam.PolicyStatement({
         resources: [this.credential.encryptionKey.keyArn],
         actions: ['kms:Decrypt'],
       }));

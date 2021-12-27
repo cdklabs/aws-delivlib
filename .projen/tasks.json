@@ -40,6 +40,33 @@
       ],
       "condition": "! git log --oneline -1 | grep -q \"chore(release):\""
     },
+    "bundle": {
+      "name": "bundle",
+      "description": "Prepare assets",
+      "steps": [
+        {
+          "spawn": "bundle:lib/chime-notifier/handler/notifier-handler"
+        }
+      ]
+    },
+    "bundle:lib/chime-notifier/handler/notifier-handler": {
+      "name": "bundle:lib/chime-notifier/handler/notifier-handler",
+      "description": "Create a JavaScript bundle from lib/chime-notifier/handler/notifier-handler.ts",
+      "steps": [
+        {
+          "exec": "esbuild --bundle lib/chime-notifier/handler/notifier-handler.ts --target=\"node14\" --platform=\"node\" --outfile=\"assets/lib/chime-notifier/handler/notifier-handler/index.js\" --external:aws-sdk"
+        }
+      ]
+    },
+    "bundle:lib/chime-notifier/handler/notifier-handler:watch": {
+      "name": "bundle:lib/chime-notifier/handler/notifier-handler:watch",
+      "description": "Continuously update the JavaScript bundle from lib/chime-notifier/handler/notifier-handler.ts",
+      "steps": [
+        {
+          "exec": "esbuild --bundle lib/chime-notifier/handler/notifier-handler.ts --target=\"node14\" --platform=\"node\" --outfile=\"assets/lib/chime-notifier/handler/notifier-handler/index.js\" --external:aws-sdk --watch"
+        }
+      ]
+    },
     "clobber": {
       "name": "clobber",
       "description": "hard resets to HEAD of origin and cleans the local repo",
@@ -142,13 +169,14 @@
       "name": "post-compile",
       "description": "Runs after successful compilation"
     },
-    "post-upgrade": {
-      "name": "post-upgrade",
-      "description": "Runs after upgrading dependencies"
-    },
     "pre-compile": {
       "name": "pre-compile",
-      "description": "Prepare the project for compilation"
+      "description": "Prepare the project for compilation",
+      "steps": [
+        {
+          "spawn": "bundle"
+        }
+      ]
     },
     "release": {
       "name": "release",
@@ -179,7 +207,7 @@
       "description": "Run tests",
       "steps": [
         {
-          "exec": "jest --passWithNoTests --all --updateSnapshot"
+          "exec": "jest --passWithNoTests --all --updateSnapshot --coverageProvider=v8"
         },
         {
           "spawn": "eslint"
@@ -252,9 +280,6 @@
         },
         {
           "exec": "npx projen"
-        },
-        {
-          "spawn": "post-upgrade"
         }
       ]
     },

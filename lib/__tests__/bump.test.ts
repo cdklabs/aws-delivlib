@@ -1,7 +1,7 @@
 // tslint:disable: max-line-length
-import * as cdk from 'monocdk';
+import * as cdk from 'aws-cdk-lib';
+import { Template } from 'aws-cdk-lib/assertions';
 import { AutoBump, WritableGitHubRepo } from '../../lib';
-import '@monocdk-experiment/assert/jest';
 
 const Stack = cdk.Stack;
 
@@ -21,11 +21,12 @@ test('autoBump', () => {
   new AutoBump(stack, 'MyAutoBump', {
     repo: MOCK_REPO,
   });
+  const template = Template.fromStack(stack);
 
   // THEN
 
   // build project
-  expect(stack).toHaveResource('AWS::CodeBuild::Project', {
+  template.hasResourceProperties('AWS::CodeBuild::Project', {
     Triggers: {
       Webhook: false,
     },
@@ -77,9 +78,10 @@ test('autoBump with schedule', () => {
     repo: MOCK_REPO,
     scheduleExpression: 'cron(0 12 * * ? *)',
   });
+  const template = Template.fromStack(stack);
 
   // default schedule
-  expect(stack).toHaveResource('AWS::Events::Rule', {
+  template.hasResourceProperties('AWS::Events::Rule', {
     ScheduleExpression: 'cron(0 12 * * ? *)',
   });
 
@@ -94,11 +96,12 @@ test('autoBump with custom cloneDepth', () => {
     repo: MOCK_REPO,
     cloneDepth: 10,
   });
+  const template = Template.fromStack(stack);
 
   // THEN
 
   // build project
-  expect(stack).toHaveResource('AWS::CodeBuild::Project', {
+  template.hasResourceProperties('AWS::CodeBuild::Project', {
     Triggers: {
       Webhook: false,
     },
@@ -149,10 +152,11 @@ test('autoBump with schedule disabled', () => {
     repo: MOCK_REPO,
     scheduleExpression: 'disable',
   });
+  const template = Template.fromStack(stack);
 
   // THEN
-  expect(stack).not.toHaveResource('AWS::Events::Rule', {
-    ScheduleExpression: 'cron(0 12 * * ? *)',
+  template.hasResourceProperties('AWS::Events::Rule', {
+    ScheduleExpression: 'disable',
   });
 });
 
@@ -172,11 +176,12 @@ test('autoBump with push only', () => {
     repo,
     pushOnly: true,
   });
+  const template = Template.fromStack(stack);
 
   // THEN
 
   // build project
-  expect(stack).toHaveResource('AWS::CodeBuild::Project', {
+  template.hasResourceProperties('AWS::CodeBuild::Project', {
     Triggers: {
       Webhook: false,
     },
@@ -230,11 +235,12 @@ test('autoBump with pull request with custom options', () => {
     },
 
   });
+  const template = Template.fromStack(stack);
 
   // THEN
 
   // build project
-  expect(stack).toHaveResource('AWS::CodeBuild::Project', {
+  template.hasResourceProperties('AWS::CodeBuild::Project', {
     Triggers: {
       Webhook: false,
     },

@@ -3,7 +3,7 @@ import {
   aws_chatbot as chatbot,
   aws_codestarnotifications as starnotifs,
   Stack,
-} from 'monocdk';
+} from 'aws-cdk-lib';
 import { IPipelineNotification, PipelineNotificationBindOptions } from '../';
 
 /**

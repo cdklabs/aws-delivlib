@@ -1,9 +1,8 @@
-import { stringLike } from '@monocdk-experiment/assert';
-import '@monocdk-experiment/assert/jest';
 import {
   App, Stack,
   aws_codecommit as codecommit,
-} from 'monocdk';
+} from 'aws-cdk-lib';
+import { Capture, Template, Match } from 'aws-cdk-lib/assertions';
 import { Pipeline, CodeCommitRepo, ChimeNotification } from '../../../lib';
 
 describe('chime notifications', () => {
@@ -19,22 +18,30 @@ describe('chime notifications', () => {
       webhookUrls: ['url-1'],
     }));
 
+    const template = Template.fromStack(stack);
+    const inputTemplateCapture = new Capture();
+
     // THEN
-    expect(stack).toHaveResourceLike('AWS::Events::Rule', {
+    template.hasResourceProperties('AWS::Events::Rule', {
       EventPattern: {
         source: ['aws.codepipeline'],
         resources: [
           stack.resolve(pipe.pipeline.pipelineArn),
         ],
       },
-      Targets: [
-        {
+      Targets: Match.arrayWith([
+        Match.objectLike({
           InputTransformer: {
-            InputTemplate: stringLike('*url-1*'),
+            InputPathsMap: {
+              detail: '$.detail',
+            },
+            InputTemplate: inputTemplateCapture,
           },
-        },
-      ],
+        }),
+      ]),
     });
+
+    expect(inputTemplateCapture.asString()).toContain('url-1');
   });
 
   test('multiple chime notifications', () => {
@@ -44,6 +51,7 @@ describe('chime notifications', () => {
       repo: new CodeCommitRepo(new codecommit.Repository(stack, 'Repo1', { repositoryName: 'test' })),
     });
 
+
     // WHEN
     pipe.notifyOnFailure(new ChimeNotification({
       webhookUrls: ['url-1'],
@@ -52,25 +60,32 @@ describe('chime notifications', () => {
     pipe.notifyOnFailure(new ChimeNotification({
       webhookUrls: ['url-2'],
     }));
+    const template = Template.fromStack(stack);
+    const inputTemplateCapture = new Capture();
 
     // THEN
-    expect(stack).toHaveResourceLike('AWS::Events::Rule', {
-      Targets: [
-        {
+    template.hasResourceProperties('AWS::Events::Rule', {
+      EventPattern: {
+        'source': [
+          'aws.codepipeline',
+        ],
+        'detail-type': [
+          'CodePipeline Pipeline Execution State Change',
+        ],
+      },
+      Targets: Match.arrayWith([
+        Match.objectLike({
           InputTransformer: {
-            InputTemplate: stringLike('*url-1*'),
+            InputPathsMap: {
+              detail: '$.detail',
+            },
+            InputTemplate: inputTemplateCapture,
           },
-        },
-      ],
+        }),
+      ]),
     });
-    expect(stack).toHaveResourceLike('AWS::Events::Rule', {
-      Targets: [
-        {
-          InputTransformer: {
-            InputTemplate: stringLike('*url-2*'),
-          },
-        },
-      ],
-    });
+    expect(inputTemplateCapture.asString()).toContain('url-1');
+    inputTemplateCapture.next();
+    expect(inputTemplateCapture.asString()).toContain('url-2');
   });
 });

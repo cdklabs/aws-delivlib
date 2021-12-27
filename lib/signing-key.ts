@@ -1,4 +1,5 @@
-import { Construct, aws_iam as iam, aws_kms as kms } from 'monocdk';
+import { aws_iam as iam, aws_kms as kms } from 'aws-cdk-lib';
+import { Construct } from 'constructs';
 import { OpenPGPKeyPair } from './open-pgp-key-pair';
 
 
@@ -43,7 +44,7 @@ export class OpenPgpKey extends Construct {
   constructor(parent: Construct, name: string, props: SigningKeyProps) {
     super(parent, name);
 
-    this.scope = props.secretName || this.node.uniqueId;
+    this.scope = props.secretName || this.node.addr;
     const secretName = `${this.scope}/SigningKey`;
 
     this.key = new kms.Key(this, 'Key', {
