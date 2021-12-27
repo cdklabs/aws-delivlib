@@ -1,13 +1,13 @@
 import * as path from 'path';
 import {
-  Construct,
   aws_cloudwatch as cloudwatch,
   aws_codepipeline as cpipeline,
   aws_events as events,
   aws_events_targets as events_targets,
   aws_iam as iam,
   aws_lambda as lambda,
-} from 'monocdk';
+} from 'aws-cdk-lib';
+import { Construct } from 'constructs';
 
 export interface PipelineWatcherProps {
   /**
@@ -92,7 +92,7 @@ export class PipelineWatcher extends Construct {
         metricName: props.failureMetricName,
         namespace: props.metricNamespace,
         statistic: cloudwatch.Statistic.MAXIMUM,
-        dimensions: {
+        dimensionsMap: {
           Pipeline: props.pipeline.pipelineName,
         },
       }),

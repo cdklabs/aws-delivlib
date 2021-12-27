@@ -1,5 +1,5 @@
-import '@monocdk-experiment/assert/jest';
-import { App, Stack } from 'monocdk';
+import { App, Stack } from 'aws-cdk-lib';
+import { Template } from 'aws-cdk-lib/assertions';
 import { AutoBuild, GitHubRepo } from '../../lib';
 
 let app: App;
@@ -16,8 +16,9 @@ test('webhooks are enabled by default', () => {
       tokenSecretArn: 'arn:aws:secretsmanager:someregion:someaccount:secret:sometoken',
     }),
   });
+  const template = Template.fromStack(stack);
 
-  expect(stack).toHaveResource('AWS::CodeBuild::Project', {
+  template.hasResourceProperties('AWS::CodeBuild::Project', {
     Triggers: {
       FilterGroups: [
         [
@@ -40,8 +41,9 @@ test('webhooks for a single branch', () => {
     }),
     branch: 'banana',
   });
+  const template = Template.fromStack(stack);
 
-  expect(stack).toHaveResource('AWS::CodeBuild::Project', {
+  template.hasResourceProperties('AWS::CodeBuild::Project', {
     Triggers: {
       FilterGroups: [
         [
@@ -78,8 +80,9 @@ test('webhooks for multiple branches', () => {
     }),
     branches: ['banana', 'grapefruit'],
   });
+  const template = Template.fromStack(stack);
 
-  expect(stack).toHaveResource('AWS::CodeBuild::Project', {
+  template.hasResourceProperties('AWS::CodeBuild::Project', {
     Triggers: {
       FilterGroups: [
         [
@@ -116,8 +119,9 @@ test('can disable webhooks', () => {
     }),
     webhook: false,
   });
+  const template = Template.fromStack(stack);
 
-  expect(stack).toHaveResource('AWS::CodeBuild::Project', {
+  template.hasResourceProperties('AWS::CodeBuild::Project', {
     Triggers: {
       Webhook: false,
     },

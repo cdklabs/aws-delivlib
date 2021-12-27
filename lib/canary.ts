@@ -1,10 +1,10 @@
 import {
-  Construct,
   aws_cloudwatch as cloudwatch,
   aws_codebuild as cbuild,
   aws_events as events,
   aws_events_targets as events_targets,
-} from 'monocdk';
+} from 'aws-cdk-lib';
+import { Construct } from 'constructs';
 import { Shellable, ShellableProps } from './shellable';
 
 
@@ -30,7 +30,7 @@ export class Canary extends Construct {
   constructor(scope: Construct, id: string, props: CanaryProps) {
     super(scope, id);
 
-    const env = props.environment || { };
+    const env = props.environment || {};
     if (!('IS_CANARY' in env)) {
       env.IS_CANARY = 'true';
     }

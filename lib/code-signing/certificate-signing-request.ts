@@ -1,9 +1,10 @@
 import * as path from 'path';
 import {
-  Construct, Duration,
-  aws_cloudformation as cfn,
+  Duration,
+  CustomResource,
   aws_lambda as lambda,
-} from 'monocdk';
+} from 'aws-cdk-lib';
+import { Construct } from 'constructs';
 import { hashFileOrDirectory } from '../util';
 import { RsaPrivateKeySecret } from './private-key';
 
@@ -65,8 +66,8 @@ export class CertificateSigningRequest extends Construct {
       })],
     });
 
-    const csr = new cfn.CustomResource(this, 'Resource', {
-      provider: cfn.CustomResourceProvider.lambda(customResource),
+    const csr = new CustomResource(this, 'Resource', {
+      serviceToken: customResource.functionArn,
       resourceType: 'Custom::CertificateSigningRequest',
       properties: {
         resourceVersion: hashFileOrDirectory(codeLocation),

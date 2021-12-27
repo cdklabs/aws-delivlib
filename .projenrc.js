@@ -1,6 +1,6 @@
-const { typescript: { TypeScriptProject } } = require('projen');
+const { typescript, javascript } = require('projen');
 
-const project = new TypeScriptProject({
+const project = new typescript.TypeScriptProject({
   name: 'aws-delivlib',
   description: 'A fabulous library for defining continuous pipelines for building, testing and releasing code libraries.',
   repository: 'https://github.com/cdklabs/aws-delivlib.git',
@@ -8,6 +8,7 @@ const project = new TypeScriptProject({
   projenUpgradeSecret: 'PROJEN_GITHUB_TOKEN',
   authorName: 'Amazon Web Services',
   authorUrl: 'https://aws.amazon.com',
+  minNodeVersion: '14.17.0',
   keywords: [
     'aws-cdk',
     'continuous-delivery',
@@ -16,12 +17,11 @@ const project = new TypeScriptProject({
   ],
   deps: ['changelog-parser'],
   devDeps: [
-    '@monocdk-experiment/assert',
     '@types/aws-lambda',
     'aws-cdk',
     'jest-create-mock-instance',
     'constructs',
-    'monocdk',
+    'aws-cdk-lib',
     'standard-version',
     'ts-jest',
     'typescript',
@@ -32,7 +32,7 @@ const project = new TypeScriptProject({
   ],
   peerDeps: [
     'constructs',
-    'monocdk',
+    'aws-cdk-lib',
   ],
   srcdir: 'lib',
   testdir: 'lib/__tests__',
@@ -49,6 +49,15 @@ const project = new TypeScriptProject({
 
 // trick projen so that it doesn't override the version in package.json
 project.tasks.addEnvironment('RELEASE', '1');
+const bundler = javascript.Bundler.of(project);
+if (!bundler) {
+  throw new Error('No bundler found. Please add a Bundler component to your project.');
+}
+bundler.addBundle('lib/chime-notifier/handler/notifier-handler.ts', {
+  externals: ['aws-sdk'],
+  target: 'node14',
+  platform: 'node',
+});
 
 project.gitignore.exclude('cdk.out');
 project.gitignore.exclude('pipeline/*.js');

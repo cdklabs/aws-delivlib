@@ -1,8 +1,9 @@
 import {
-  Construct, Token, SecretValue,
+  Token, SecretValue,
   aws_codebuild as codebuild,
   aws_sam as serverless,
-} from 'monocdk';
+} from 'aws-cdk-lib';
+import { Construct } from 'constructs';
 import { BuildEnvironmentProps, createBuildEnvironment } from './build-env';
 import { IRepo } from './repo';
 

@@ -1,10 +1,6 @@
 {
   "dependencies": [
     {
-      "name": "@monocdk-experiment/assert",
-      "type": "build"
-    },
-    {
       "name": "@types/aws-lambda",
       "type": "build"
     },
@@ -14,7 +10,7 @@
     },
     {
       "name": "@types/node",
-      "version": "^14.17.0",
+      "version": "^14",
       "type": "build"
     },
     {
@@ -29,6 +25,10 @@
     },
     {
       "name": "aws-cdk",
+      "type": "build"
+    },
+    {
+      "name": "aws-cdk-lib",
       "type": "build"
     },
     {
@@ -78,10 +78,6 @@
       "type": "build"
     },
     {
-      "name": "monocdk",
-      "type": "build"
-    },
-    {
       "name": "node-ical",
       "type": "build"
     },
@@ -112,11 +108,11 @@
       "type": "build"
     },
     {
-      "name": "constructs",
+      "name": "aws-cdk-lib",
       "type": "peer"
     },
     {
-      "name": "monocdk",
+      "name": "constructs",
       "type": "peer"
     },
     {

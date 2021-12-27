@@ -12,10 +12,16 @@ const mockEnableStageTransition = jest.fn((_params: AWS.CodePipeline.EnableStage
 const pipelineName = 'MyPipeline';
 const stageName = 'MyStage';
 
-(AWS as any).CodePipeline = jest.fn(() => ({
-  disableStageTransition: mockDisableStageTransition,
-  enableStageTransition: mockEnableStageTransition,
-}) as unknown as AWS.CodePipeline).mockName('AWS.CodePipeline') as any;
+jest.mock('aws-sdk', () => {
+  return {
+    CodePipeline: jest.fn(() => {
+      return {
+        disableStageTransition: mockDisableStageTransition,
+        enableStageTransition: mockEnableStageTransition,
+      };
+    }),
+  };
+});
 
 describe('disableTransition', () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports

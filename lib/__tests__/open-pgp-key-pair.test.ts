@@ -1,8 +1,8 @@
-import * as assert from '@monocdk-experiment/assert';
 import {
   App, Stack,
   aws_kms as kms,
-} from 'monocdk';
+} from 'aws-cdk-lib';
+import { Template, Match } from 'aws-cdk-lib/assertions';
 import { OpenPGPKeyPair } from '../../lib/open-pgp-key-pair';
 
 
@@ -21,17 +21,18 @@ test('correctly creates', () => {
     secretName: 'SecretName',
     version: 0,
   });
+  const template = Template.fromStack(stack);
 
   // THEN
-  assert.expect(stack).to(assert.haveResourceLike('AWS::CloudFormation::CustomResource', {
-    Identity: 'Test',
-    Email: 'nobody@nowhere.com',
-    Expiry: '1d',
-    KeySizeBits: 1024,
-    SecretName: 'SecretName',
-    KeyArn: stack.resolve(encryptionKey.keyArn),
-    Version: 0,
-    DeleteImmediately: false,
+  template.hasResourceProperties('AWS::CloudFormation::CustomResource', Match.objectLike({
+    identity: 'Test',
+    email: 'nobody@nowhere.com',
+    expiry: '1d',
+    keySizeBits: 1024,
+    secretName: 'SecretName',
+    keyArn: stack.resolve(encryptionKey.keyArn),
+    version: 0,
+    deleteImmediately: false,
   }));
 });
 
@@ -51,13 +52,14 @@ test('correctly forwards parameter name', () => {
     secretName: 'SecretName',
     version: 0,
   });
+  const template = Template.fromStack(stack);
 
   // THEN
-  assert.expect(stack).to(assert.haveResource('AWS::SSM::Parameter', {
+  template.hasResourceProperties('AWS::SSM::Parameter', {
     Type: 'String',
     Value: { 'Fn::GetAtt': ['SecretA720EF05', 'PublicKey'] },
     Name: parameterName,
-  }));
+  });
 });
 
 test('Handler has appropriate permissions', () => {
@@ -75,9 +77,10 @@ test('Handler has appropriate permissions', () => {
     secretName: 'Bar',
     version: 0,
   });
+  const template = Template.fromStack(stack);
 
   // THEN
-  assert.expect(stack).to(assert.haveResource('AWS::IAM::Policy', {
+  template.hasResourceProperties('AWS::IAM::Policy', {
     PolicyDocument: {
       Version: '2012-10-17',
       Statement: [{
@@ -100,14 +103,14 @@ test('Handler has appropriate permissions', () => {
     },
     PolicyName: 'SingletonLambdaf25803d3054b44fc985f4860d7d6ee74ServiceRoleDefaultPolicyA8FDF5BD',
     Roles: [{ Ref: 'SingletonLambdaf25803d3054b44fc985f4860d7d6ee74ServiceRole410148CF' }],
-  }));
+  });
 
-  assert.expect(stack).to(assert.haveResourceLike('AWS::KMS::Key', {
+  template.hasResourceProperties('AWS::KMS::Key', {
     KeyPolicy: {
-      Statement: [{
+      Statement: Match.arrayWith([Match.objectLike({
         // The key administration enabler statement -- exact content is irrelevant
         Resource: '*',
-      }, {
+      }), Match.objectLike({
         Effect: 'Allow',
         Action: ['kms:Decrypt', 'kms:GenerateDataKey'],
         Resource: '*',
@@ -115,7 +118,7 @@ test('Handler has appropriate permissions', () => {
           StringEquals: { 'kms:ViaService': { 'Fn::Join': ['', ['secretsmanager.', { Ref: 'AWS::Region' }, '.amazonaws.com']] } },
         },
         Principal: { AWS: { 'Fn::GetAtt': ['SingletonLambdaf25803d3054b44fc985f4860d7d6ee74ServiceRole410148CF', 'Arn'] } },
-      }],
+      })]),
     },
-  }));
+  });
 });

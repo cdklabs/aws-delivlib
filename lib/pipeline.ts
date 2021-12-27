@@ -1,5 +1,5 @@
 import {
-  Construct, Duration, IConstruct,
+  Duration,
   aws_cloudwatch as cloudwatch,
   aws_codebuild as cbuild,
   aws_codepipeline as cpipeline,
@@ -9,7 +9,8 @@ import {
   aws_iam as iam, aws_s3 as s3,
   aws_sns as sns,
   aws_sns_subscriptions as sns_subs,
-} from 'monocdk';
+} from 'aws-cdk-lib';
+import { Construct, IConstruct } from 'constructs';
 
 import { AutoBuild, AutoBuildOptions } from './auto-build';
 import { createBuildEnvironment } from './build-env';
@@ -204,7 +205,7 @@ export class Pipeline extends Construct {
   public readonly pipeline: cpipeline.Pipeline;
   private readonly branch: string;
   private readonly notify?: sns.Topic;
-  private stages: { [name: string]: cpipeline.IStage } = { };
+  private stages: { [name: string]: cpipeline.IStage } = {};
 
   private readonly concurrency?: number;
   private readonly repo: IRepo;
@@ -291,7 +292,8 @@ export class Pipeline extends Construct {
    * @return The Shellable and the Action added to the pipeline.
    */
   public addShellable(stageName: string, id: string, options: AddShellableOptions): {
-    shellable: Shellable; action: cpipeline_actions.CodeBuildAction;} {
+    shellable: Shellable; action: cpipeline_actions.CodeBuildAction;
+  } {
     const stage = this.getOrCreateStage(stageName);
 
     const sh = new Shellable(this, id, options);
@@ -308,7 +310,7 @@ export class Pipeline extends Construct {
     return { shellable: sh, action };
   }
 
-  public addTest(id: string, props: ShellableProps): {shellable: Shellable; action: cpipeline_actions.CodeBuildAction} {
+  public addTest(id: string, props: ShellableProps): { shellable: Shellable; action: cpipeline_actions.CodeBuildAction } {
     return this.addShellable(TEST_STAGE_NAME, id, {
       actionName: `Test${id}`,
       failureNotification: `Test ${id} failed`,
@@ -465,7 +467,7 @@ export class Pipeline extends Construct {
    * Enables automatic builds of pull requests in the Github repository and posts the
    * results back as a comment with a public link to the build logs.
    */
-  public autoBuild(options: AutoBuildOptions = { }): AutoBuild {
+  public autoBuild(options: AutoBuildOptions = {}): AutoBuild {
     return new AutoBuild(this, 'AutoBuild', {
       environment: this.buildEnvironment,
       repo: this.repo,
@@ -481,7 +483,7 @@ export class Pipeline extends Construct {
     return new cloudwatch.Metric({
       namespace: METRIC_NAMESPACE,
       metricName: FAILURE_METRIC_NAME,
-      dimensions: {
+      dimensionsMap: {
         Pipeline: this.pipeline.pipelineName,
       },
       statistic: 'Sum',
@@ -497,7 +499,7 @@ export class Pipeline extends Construct {
       return new cloudwatch.Metric({
         namespace: METRIC_NAMESPACE,
         metricName: FAILURE_METRIC_NAME,
-        dimensions: {
+        dimensionsMap: {
           Pipeline: this.pipeline.pipelineName,
           Action: action.actionProperties.actionName,
         },

@@ -1,6 +1,6 @@
-import '@monocdk-experiment/assert/jest';
-import { Stack } from 'monocdk';
-import { Pipeline } from 'monocdk/aws-codepipeline';
+import { Stack } from 'aws-cdk-lib';
+import { Template } from 'aws-cdk-lib/assertions';
+import { Pipeline } from 'aws-cdk-lib/aws-codepipeline';
 import { PipelineWatcher } from '../../lib/pipeline-watcher';
 
 const props = {
@@ -13,10 +13,11 @@ describe('PipelineWatcher', () => {
     const stack = new Stack();
     const pipeline = Pipeline.fromPipelineArn(stack, 'Pipeline', 'arn:aws:codepipeline:us-east-1:012345789:MyPipeline');
     new PipelineWatcher(stack, 'Watcher', { pipeline, ...props });
+    const template = Template.fromStack(stack);
 
-    expect(stack).toHaveResource('AWS::Events::Rule');
-    expect(stack).toHaveResource('AWS::Lambda::Function');
-    expect(stack).toHaveResource('AWS::CloudWatch::Alarm', {
+    template.resourceCountIs('AWS::Events::Rule', 1);
+    template.resourceCountIs('AWS::Lambda::Function', 1);
+    template.hasResourceProperties('AWS::CloudWatch::Alarm', {
       ComparisonOperator: 'GreaterThanOrEqualToThreshold',
       EvaluationPeriods: 1,
       AlarmDescription: 'Pipeline MyPipeline has failed stages',
@@ -38,8 +39,9 @@ describe('PipelineWatcher', () => {
     const stack = new Stack();
     const pipeline = Pipeline.fromPipelineArn(stack, 'Pipeline', 'arn:aws:codepipeline:us-east-1:012345789:MyPipeline');
     new PipelineWatcher(stack, 'Watcher', { pipeline, title: 'MyTitle', ...props });
+    const template = Template.fromStack(stack);
 
-    expect(stack).toHaveResource('AWS::CloudWatch::Alarm', {
+    template.hasResourceProperties('AWS::CloudWatch::Alarm', {
       AlarmDescription: 'Pipeline MyTitle has failed stages',
     });
   });
@@ -49,7 +51,8 @@ describe('PipelineWatcher', () => {
     const pipeline = Pipeline.fromPipelineArn(stack, 'Pipeline', 'arn:aws:codepipeline:us-east-1:012345789:MyPipeline');
     new PipelineWatcher(stack, 'Watcher', { pipeline, ...props });
 
-    expect(stack).toHaveResourceLike('AWS::IAM::Policy', {
+    const template = Template.fromStack(stack);
+    template.hasResourceProperties('AWS::IAM::Policy', {
       PolicyDocument: {
         Statement: [
           {
@@ -77,7 +80,8 @@ describe('PipelineWatcher', () => {
     const pipeline = Pipeline.fromPipelineArn(stack, 'Pipeline', 'arn:aws:codepipeline:us-east-1:012345789:MyPipeline');
     new PipelineWatcher(stack, 'Watcher', { pipeline, ...props });
 
-    expect(stack).toHaveResource('AWS::CloudWatch::Alarm', {
+    const template = Template.fromStack(stack);
+    template.hasResourceProperties('AWS::CloudWatch::Alarm', {
       TreatMissingData: 'ignore',
     });
   });

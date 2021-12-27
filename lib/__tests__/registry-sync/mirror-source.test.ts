@@ -1,10 +1,9 @@
-import '@monocdk-experiment/assert/jest';
 import * as path from 'path';
-import { arrayWith } from '@monocdk-experiment/assert';
 import {
-  Stack,
+  Stack, App,
   aws_codebuild as codebuild,
-} from 'monocdk';
+} from 'aws-cdk-lib';
+import { Template, Match } from 'aws-cdk-lib/assertions';
 import { MirrorSource } from '../../../lib/registry-sync';
 
 describe('RegistryImageSource', () => {
@@ -79,9 +78,15 @@ describe('RegistryImageSource', () => {
   describe('fromDirectory()', () => {
     test('default', () => {
       // GIVEN
-      const stack = new Stack();
+      const app = new App();
+      const stack = new Stack(app, 'Default', {
+        env: {
+          account: '111111111111',
+          region: 'us-east-1',
+        },
+      });
       const ecrRegistry = 'myregistry';
-      const source = MirrorSource.fromDirectory(path.join(__dirname, 'docker-asset'), 'myrepository');
+      const source = MirrorSource.fromDir(path.join(__dirname, 'docker-asset'), 'myrepository');
 
       // WHEN
       const result = source.bind({
@@ -102,9 +107,15 @@ describe('RegistryImageSource', () => {
 
     test('explicit tag', () => {
       // GIVEN
-      const stack = new Stack();
+      const app = new App();
+      const stack = new Stack(app, 'Default', {
+        env: {
+          account: '111111111111',
+          region: 'us-east-1',
+        },
+      });
       const ecrRegistry = 'myregistry';
-      const source = MirrorSource.fromDirectory(path.join(__dirname, 'docker-asset'), 'myrepository', 'mytag');
+      const source = MirrorSource.fromDir(path.join(__dirname, 'docker-asset'), 'myrepository', { tag: 'mytag' });
 
       // WHEN
       const result = source.bind({
@@ -127,7 +138,7 @@ describe('RegistryImageSource', () => {
       // GIVEN
       const stack = new Stack();
       const ecrRegistry = 'myregistry';
-      const source = MirrorSource.fromDirectory(path.join(__dirname, 'docker-asset'), 'myrepository');
+      const source = MirrorSource.fromDir(path.join(__dirname, 'docker-asset'), 'myrepository');
       const syncJob = new codebuild.Project(stack, 'SyncJob', {
         buildSpec: codebuild.BuildSpec.fromObject({}),
       });
@@ -139,10 +150,12 @@ describe('RegistryImageSource', () => {
         syncJob,
       });
 
+      const template = Template.fromStack(stack);
+
       // THEN
-      expect(stack).toHaveResourceLike('AWS::IAM::Policy', {
+      template.hasResourceProperties('AWS::IAM::Policy', {
         PolicyDocument: {
-          Statement: arrayWith({
+          Statement: Match.arrayWith([{
             Action: [
               's3:GetObject*',
               's3:GetBucket*',
@@ -156,7 +169,7 @@ describe('RegistryImageSource', () => {
                   [
                     'arn:', { Ref: 'AWS::Partition' }, ':s3:::',
                     {
-                      Ref: 'AssetParameterse8d9cb1c0103dbf504327aacfe6adaaaa0749014246bf11110b90ace9e5ee1c8S3BucketABAF9C0C',
+                      'Fn::Sub': 'cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}',
                     },
                   ],
                 ],
@@ -167,21 +180,27 @@ describe('RegistryImageSource', () => {
                   [
                     'arn:', { Ref: 'AWS::Partition' }, ':s3:::',
                     {
-                      Ref: 'AssetParameterse8d9cb1c0103dbf504327aacfe6adaaaa0749014246bf11110b90ace9e5ee1c8S3BucketABAF9C0C',
+                      'Fn::Sub': 'cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}',
                     },
                     '/*',
                   ],
                 ],
               },
             ],
-          }),
+          }]),
         },
       });
     });
 
     test('build args', () => {
       // GIVEN
-      const stack = new Stack();
+      const app = new App();
+      const stack = new Stack(app, 'Default', {
+        env: {
+          account: '111111111111',
+          region: 'us-east-1',
+        },
+      });
       const ecrRegistry = 'myregistry';
       const source = MirrorSource.fromDir(path.join(__dirname, 'docker-asset'), 'myrepository', {
         buildArgs: {
@@ -200,10 +219,11 @@ describe('RegistryImageSource', () => {
         syncJob,
       });
 
+
       // THEN
       expect(result.commands).toEqual([
         'rm -rf myrepository.zip myrepository',
-        expect.stringMatching(/aws s3 cp s3:.* myrepository.zip/),
+        expect.stringMatching(/aws s3 cp s3.* myrepository.zip/),
         'unzip myrepository.zip -d myrepository',
         'docker build --pull -t myregistry/myrepository:latest --build-arg arg1=val1 --build-arg arg2=val2 myrepository',
       ]);

@@ -1,7 +1,7 @@
 import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as path from 'path';
-import { aws_codebuild as cbuild } from 'monocdk';
+import { aws_codebuild as cbuild } from 'aws-cdk-lib';
 
 
 /**

@@ -1,31 +1,35 @@
+import * as https from 'https';
 import {
-  App, Construct, Lazy, Stack,
+  App, Lazy, Stack,
   aws_codepipeline as aws_codepipeline,
   aws_codepipeline_actions as aws_codepipeline_actions,
-} from 'monocdk';
+} from 'aws-cdk-lib';
+import { Template } from 'aws-cdk-lib/assertions';
+import { Construct } from 'constructs';
 import { ChimeNotifier } from '../../lib';
-import { codePipeline, handler } from '../../lib/chime-notifier/handler/notifier-handler';
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-const https = require('https');
-import '@monocdk-experiment/assert/jest';
+import { codePipeline, handler } from '../../lib/chime-notifier/handler/notifier-handler';
 
-jest.mock('https');
-
-const mockHttpsWrite = jest.fn();
-(https as any).request = jest.fn((_url, _options, cb) => {
+jest.mock('https', () => {
   return {
-    on: jest.fn(),
-    write: mockHttpsWrite,
-    end: () => cb({
-      statusCode: 200,
-      headers: {},
-      setEncoding: () => undefined,
-      on: (event: string, listener: () => void) => {
-        if (event === 'end') { listener(); }
-      },
+    request: jest.fn((_url, _options, cb) => {
+      return {
+        on: jest.fn(),
+        write: mockHttpsWrite,
+        end: () => cb({
+          statusCode: 200,
+          headers: {},
+          setEncoding: () => undefined,
+          on: (event: string, listener: () => void) => {
+            if (event === 'end') { listener(); }
+          },
+        }),
+      };
     }),
   };
 });
+
+const mockHttpsWrite = jest.fn();
 
 test('call codepipeline and then post to webhooks', async () => {
   codePipeline.getPipelineExecution = jest.fn().mockReturnValue({
@@ -106,9 +110,10 @@ test('can add to stack', () => {
     pipeline,
     webhookUrls: ['https://go/'],
   });
+  const template = Template.fromStack(stack);
 
   // EXPECT: no error
-  expect(stack).toHaveResource('AWS::Lambda::Function');
+  template.resourceCountIs('AWS::Lambda::Function', 1);
 });
 
 test('webhook url can be a token', () => {
@@ -119,10 +124,11 @@ test('webhook url can be a token', () => {
 
   new ChimeNotifier(stack, 'Chime', {
     pipeline,
-    webhookUrls: [Lazy.stringValue({ produce: () => 'https://go/' })],
+    webhookUrls: [Lazy.string({ produce: () => 'https://go/' })],
   });
+  const template = Template.fromStack(stack);
 
-  expect(stack).toHaveResource('AWS::Lambda::Function');
+  template.resourceCountIs('AWS::Lambda::Function', 1);
 });
 
 export class FakeSourceAction extends aws_codepipeline_actions.Action {
@@ -144,7 +150,7 @@ export class FakeSourceAction extends aws_codepipeline_actions.Action {
   // tslint:disable-next-line: max-line-length
   protected bound(_scope: Construct, _stage: aws_codepipeline.IStage, _options: aws_codepipeline.ActionBindOptions): aws_codepipeline.ActionConfig {
     return {
-      configuration: { },
+      configuration: {},
     };
   }
 }

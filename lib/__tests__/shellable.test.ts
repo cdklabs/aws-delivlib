@@ -1,6 +1,6 @@
 import * as path from 'path';
-import { expect as assert, haveResource, ResourcePart, SynthUtils } from '@monocdk-experiment/assert';
-import * as cdk from 'monocdk';
+import * as cdk from 'aws-cdk-lib';
+import { Template, Match } from 'aws-cdk-lib/assertions';
 import { Shellable, ShellPlatform } from '../../lib';
 
 
@@ -20,23 +20,34 @@ test('can assume a refreshable role', () => {
     },
   });
 
-  const template = assert(stack).value;
+  const template = Template.fromStack(stack);
 
-  expect(JSON.parse(template.Resources.MyShellableB2FFD397.Properties.Source.BuildSpec).phases.pre_build.commands).toEqual([
-    'echo "Downloading scripts from s3://${SCRIPT_S3_BUCKET}/${SCRIPT_S3_KEY}"',
-    'aws s3 cp s3://${SCRIPT_S3_BUCKET}/${SCRIPT_S3_KEY} /tmp',
-    'mkdir -p /tmp/scriptdir',
-    'unzip /tmp/$(basename $SCRIPT_S3_KEY) -d /tmp/scriptdir',
-    'mkdir -p ~/.aws',
-    'touch ~/.aws/credentials',
-    'config=~/.aws/config',
-    'echo [profile profile]>> ${config}',
-    'echo credential_source = EcsContainer >> ${config}',
-    'echo role_session_name = session >> ${config}',
-    'echo role_arn = arn >> $config',
-    'export AWS_PROFILE=profile',
-    'export AWS_SDK_LOAD_CONFIG=1',
-  ]);
+  template.hasResourceProperties('AWS::CodeBuild::Project', {
+    Source: {
+      BuildSpec: Match.serializedJson({
+        version: '0.2',
+        phases: Match.objectLike({
+          pre_build: {
+            commands: Match.arrayWith([
+              'echo "Downloading scripts from s3://${SCRIPT_S3_BUCKET}/${SCRIPT_S3_KEY}"',
+              'aws s3 cp s3://${SCRIPT_S3_BUCKET}/${SCRIPT_S3_KEY} /tmp',
+              'mkdir -p /tmp/scriptdir',
+              'unzip /tmp/$(basename $SCRIPT_S3_KEY) -d /tmp/scriptdir',
+              'mkdir -p ~/.aws',
+              'touch ~/.aws/credentials',
+              'config=~/.aws/config',
+              'echo [profile profile]>> ${config}',
+              'echo credential_source = EcsContainer >> ${config}',
+              'echo role_session_name = session >> ${config}',
+              'echo role_arn = arn >> $config',
+              'export AWS_PROFILE=profile',
+              'export AWS_SDK_LOAD_CONFIG=1',
+            ]),
+          },
+        }),
+      }),
+    },
+  });
 });
 
 test('minimal configuration', () => {
@@ -47,7 +58,9 @@ test('minimal configuration', () => {
     entrypoint: 'test.sh',
   });
 
-  assert(stack).to(haveResource('AWS::CodeBuild::Project'));
+  const template = Template.fromStack(stack);
+
+  template.resourceCountIs('AWS::CodeBuild::Project', 1);
 });
 
 test('assume role', () => {
@@ -62,11 +75,21 @@ test('assume role', () => {
     },
   });
 
-  const template = SynthUtils.synthesize(stack).template;
-  const buildSpec = JSON.parse(template.Resources.MyShellableB2FFD397.Properties.Source.BuildSpec);
-
-  expect(buildSpec.phases.pre_build.commands)
-    .toContain('AWS_STS_REGIONAL_ENDPOINTS=legacy aws sts assume-role --role-arn \"arn:aws:role:to:assume\" --role-session-name \"my-session-name\"  > $creds');
+  const template = Template.fromStack(stack);
+  template.hasResourceProperties('AWS::CodeBuild::Project', {
+    Source: {
+      BuildSpec: Match.serializedJson({
+        version: '0.2',
+        phases: Match.objectLike({
+          pre_build: {
+            commands: Match.arrayWith([
+              'AWS_STS_REGIONAL_ENDPOINTS=legacy aws sts assume-role --role-arn \"arn:aws:role:to:assume\" --role-session-name \"my-session-name\"  > $creds',
+            ]),
+          },
+        }),
+      }),
+    },
+  });
 });
 
 test('assume role with external-id', () => {
@@ -82,11 +105,21 @@ test('assume role with external-id', () => {
     },
   });
 
-  const template = SynthUtils.synthesize(stack).template;
-  const buildSpec = JSON.parse(template.Resources.MyShellableB2FFD397.Properties.Source.BuildSpec);
-
-  expect(buildSpec.phases.pre_build.commands)
-    .toContain('AWS_STS_REGIONAL_ENDPOINTS=legacy aws sts assume-role --role-arn \"arn:aws:role:to:assume\" --role-session-name \"my-session-name\" --external-id \"my-externa-id\" > $creds');
+  const template = Template.fromStack(stack);
+  template.hasResourceProperties('AWS::CodeBuild::Project', {
+    Source: {
+      BuildSpec: Match.serializedJson({
+        version: '0.2',
+        phases: Match.objectLike({
+          pre_build: {
+            commands: Match.arrayWith([
+              'AWS_STS_REGIONAL_ENDPOINTS=legacy aws sts assume-role --role-arn \"arn:aws:role:to:assume\" --role-session-name \"my-session-name\" --external-id \"my-externa-id\" > $creds',
+            ]),
+          },
+        }),
+      }),
+    },
+  });
 });
 
 test('assume role with regional endpoints', () => {
@@ -102,11 +135,22 @@ test('assume role with regional endpoints', () => {
     useRegionalStsEndpoints: true,
   });
 
-  const template = SynthUtils.synthesize(stack).template;
-  const buildSpec = JSON.parse(template.Resources.MyShellableB2FFD397.Properties.Source.BuildSpec);
+  const template = Template.fromStack(stack);
+  template.hasResourceProperties('AWS::CodeBuild::Project', {
+    Source: {
+      BuildSpec: Match.serializedJson({
+        version: '0.2',
+        phases: Match.objectLike({
+          pre_build: {
+            commands: Match.arrayWith([
+              'AWS_STS_REGIONAL_ENDPOINTS=regional aws sts assume-role --role-arn \"arn:aws:role:to:assume\" --role-session-name \"my-session-name\"  > $creds',
+            ]),
+          },
+        }),
+      }),
+    },
+  });
 
-  expect(buildSpec.phases.pre_build.commands)
-    .toContain('AWS_STS_REGIONAL_ENDPOINTS=regional aws sts assume-role --role-arn \"arn:aws:role:to:assume\" --role-session-name \"my-session-name\"  > $creds');
 });
 
 test('assume role with global endpoints', () => {
@@ -122,11 +166,22 @@ test('assume role with global endpoints', () => {
     useRegionalStsEndpoints: false,
   });
 
-  const template = SynthUtils.synthesize(stack).template;
-  const buildSpec = JSON.parse(template.Resources.MyShellableB2FFD397.Properties.Source.BuildSpec);
+  const template = Template.fromStack(stack);
+  template.hasResourceProperties('AWS::CodeBuild::Project', {
+    Source: {
+      BuildSpec: Match.serializedJson({
+        version: '0.2',
+        phases: Match.objectLike({
+          pre_build: {
+            commands: Match.arrayWith([
+              'AWS_STS_REGIONAL_ENDPOINTS=legacy aws sts assume-role --role-arn \"arn:aws:role:to:assume\" --role-session-name \"my-session-name\"  > $creds',
+            ]),
+          },
+        }),
+      }),
+    },
+  });
 
-  expect(buildSpec.phases.pre_build.commands)
-    .toContain('AWS_STS_REGIONAL_ENDPOINTS=legacy aws sts assume-role --role-arn \"arn:aws:role:to:assume\" --role-session-name \"my-session-name\"  > $creds');
 });
 
 test('assume role not supported on windows', () => {
@@ -151,11 +206,12 @@ test('alarm options - defaults', () => {
     entrypoint: 'test.sh',
   });
 
-  assert(stack).to(haveResource('AWS::CloudWatch::Alarm', {
+  const template = Template.fromStack(stack);
+  template.hasResourceProperties('AWS::CloudWatch::Alarm', {
     EvaluationPeriods: 1,
     Threshold: 1,
     Period: 300,
-  }));
+  });
 });
 
 test('alarm options - custom', () => {
@@ -169,11 +225,12 @@ test('alarm options - custom', () => {
     alarmPeriod: cdk.Duration.minutes(60),
   });
 
-  assert(stack).to(haveResource('AWS::CloudWatch::Alarm', {
+  const template = Template.fromStack(stack);
+  template.hasResourceProperties('AWS::CloudWatch::Alarm', {
     EvaluationPeriods: 2,
     Threshold: 5,
     Period: 3600,
-  }));
+  });
 });
 
 test('privileged mode', () => {
@@ -185,11 +242,12 @@ test('privileged mode', () => {
     privileged: true,
   });
 
-  assert(stack).to(haveResource('AWS::CodeBuild::Project', {
+  const template = Template.fromStack(stack);
+  template.hasResourceProperties('AWS::CodeBuild::Project', {
     Environment: {
       PrivilegedMode: true,
     },
-  }, ResourcePart.Properties, true));
+  });
 });
 
 test('environment variables', () => {
@@ -210,35 +268,22 @@ test('environment variables', () => {
       ENV_VAR_PARAMETER: 'env-var-parameter-name',
     },
   });
+  const template = Template.fromStack(stack);
 
-  assert(stack).to(haveResource('AWS::CodeBuild::Project', {
+  template.hasResourceProperties('AWS::CodeBuild::Project', {
     Environment: {
       EnvironmentVariables: [
         {
           Name: 'SCRIPT_S3_BUCKET',
           Type: 'PLAINTEXT',
           Value: {
-            Ref: 'AssetParameters3d34b07ba871989d030649c646b3096ba7c78ca531897bcdb0670774d2f9d3e4S3BucketDA91EFBC',
+            'Fn::Sub': 'cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}',
           },
         },
         {
           Name: 'SCRIPT_S3_KEY',
           Type: 'PLAINTEXT',
-          Value: {
-            'Fn::Join': ['', [{
-              'Fn::Select': [0, {
-                'Fn::Split': ['||', {
-                  Ref: 'AssetParameters3d34b07ba871989d030649c646b3096ba7c78ca531897bcdb0670774d2f9d3e4S3VersionKeyF3F83F76',
-                }],
-              }],
-            }, {
-              'Fn::Select': [1, {
-                'Fn::Split': ['||', {
-                  Ref: 'AssetParameters3d34b07ba871989d030649c646b3096ba7c78ca531897bcdb0670774d2f9d3e4S3VersionKeyF3F83F76',
-                }],
-              }],
-            }]],
-          },
+          Value: '3d34b07ba871989d030649c646b3096ba7c78ca531897bcdb0670774d2f9d3e4.zip',
         },
         {
           Name: 'ENV_VAR',
@@ -262,9 +307,9 @@ test('environment variables', () => {
         },
       ],
     },
-  }, ResourcePart.Properties, true));
+  });
 
-  assert(stack).to(haveResource('AWS::IAM::Policy', {
+  template.hasResourceProperties('AWS::IAM::Policy', {
     PolicyDocument: {
       Statement: [
         {
@@ -424,7 +469,7 @@ test('environment variables', () => {
                   },
                   ':s3:::',
                   {
-                    Ref: 'AssetParameters3d34b07ba871989d030649c646b3096ba7c78ca531897bcdb0670774d2f9d3e4S3BucketDA91EFBC',
+                    'Fn::Sub': 'cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}',
                   },
                 ],
               ],
@@ -439,7 +484,7 @@ test('environment variables', () => {
                   },
                   ':s3:::',
                   {
-                    Ref: 'AssetParameters3d34b07ba871989d030649c646b3096ba7c78ca531897bcdb0670774d2f9d3e4S3BucketDA91EFBC',
+                    'Fn::Sub': 'cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}',
                   },
                   '/*',
                 ],
@@ -493,5 +538,5 @@ test('environment variables', () => {
         Ref: 'EnvironmentVariablesRole93B5CD9F',
       },
     ],
-  }));
+  });
 });
