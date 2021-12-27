@@ -205,7 +205,7 @@ export class Pipeline extends Construct {
   public readonly pipeline: cpipeline.Pipeline;
   private readonly branch: string;
   private readonly notify?: sns.Topic;
-  private stages: { [name: string]: cpipeline.IStage } = {};
+  private stages: { [name: string]: cpipeline.IStage } = { };
 
   private readonly concurrency?: number;
   private readonly repo: IRepo;
@@ -292,8 +292,7 @@ export class Pipeline extends Construct {
    * @return The Shellable and the Action added to the pipeline.
    */
   public addShellable(stageName: string, id: string, options: AddShellableOptions): {
-    shellable: Shellable; action: cpipeline_actions.CodeBuildAction;
-  } {
+    shellable: Shellable; action: cpipeline_actions.CodeBuildAction;} {
     const stage = this.getOrCreateStage(stageName);
 
     const sh = new Shellable(this, id, options);
@@ -310,7 +309,7 @@ export class Pipeline extends Construct {
     return { shellable: sh, action };
   }
 
-  public addTest(id: string, props: ShellableProps): { shellable: Shellable; action: cpipeline_actions.CodeBuildAction } {
+  public addTest(id: string, props: ShellableProps): {shellable: Shellable; action: cpipeline_actions.CodeBuildAction} {
     return this.addShellable(TEST_STAGE_NAME, id, {
       actionName: `Test${id}`,
       failureNotification: `Test ${id} failed`,
@@ -467,7 +466,7 @@ export class Pipeline extends Construct {
    * Enables automatic builds of pull requests in the Github repository and posts the
    * results back as a comment with a public link to the build logs.
    */
-  public autoBuild(options: AutoBuildOptions = {}): AutoBuild {
+  public autoBuild(options: AutoBuildOptions = { }): AutoBuild {
     return new AutoBuild(this, 'AutoBuild', {
       environment: this.buildEnvironment,
       repo: this.repo,

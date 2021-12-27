@@ -223,7 +223,7 @@ describe('RegistryImageSource', () => {
       // THEN
       expect(result.commands).toEqual([
         'rm -rf myrepository.zip myrepository',
-        expect.stringMatching(/aws s3 cp s3.* myrepository.zip/),
+        expect.stringMatching(/aws s3 cp s3:.* myrepository.zip/),
         'unzip myrepository.zip -d myrepository',
         'docker build --pull -t myregistry/myrepository:latest --build-arg arg1=val1 --build-arg arg2=val2 myrepository',
       ]);
