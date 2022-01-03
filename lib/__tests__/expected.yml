@@ -2624,7 +2624,7 @@ Resources:
             Value: cdk-hnb659fds-assets-712950704752-us-east-1
           - Name: SCRIPT_S3_KEY
             Type: PLAINTEXT
-            Value: 35c16d7c4ec9e174f902a76cc60887a8b1628f0de563c194a54ba7a54f000eb5.zip
+            Value: b47ae622aa5e233309182a77632e391df4af339a7313ef79b47c718d0d5e4a9d.zip
           - Name: FOR_REAL
             Type: PLAINTEXT
             Value: "false"
