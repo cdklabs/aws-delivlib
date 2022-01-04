@@ -501,7 +501,7 @@ Resources:
                 Owner: awslabs
                 Repo: aws-delivlib-sample
                 Branch: master
-                OAuthToken: "{{resolve:secretsmanager:arn:aws:secretsmanager:us-east-1:712950704752:secret:github-token-nnAqfW:SecretString:::}}"
+                OAuthToken: "{{resolve:secretsmanager:arn:aws:secretsmanager:us-east-1:712950704752:secret:github-token-QDP6QX:SecretString:::}}"
                 PollForSourceChanges: false
               Name: Pull
               OutputArtifacts:
@@ -741,7 +741,7 @@ Resources:
     Properties:
       Authentication: GITHUB_HMAC
       AuthenticationConfiguration:
-        SecretToken: "{{resolve:secretsmanager:arn:aws:secretsmanager:us-east-1:712950704752:secret:github-token-nnAqfW:SecretString:::}}"
+        SecretToken: "{{resolve:secretsmanager:arn:aws:secretsmanager:us-east-1:712950704752:secret:github-token-QDP6QX:SecretString:::}}"
       Filters:
         - JsonPath: $.ref
           MatchEquals: refs/heads/{Branch}
@@ -2571,7 +2571,7 @@ Resources:
               - secretsmanager:DescribeSecret
               - secretsmanager:GetSecretValue
             Effect: Allow
-            Resource: arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/npm-OynG62
+            Resource: arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/npm-MhaWgx
           - Action:
               - s3:GetObject*
               - s3:GetBucket*
@@ -2627,10 +2627,10 @@ Resources:
             Value: b47ae622aa5e233309182a77632e391df4af339a7313ef79b47c718d0d5e4a9d.zip
           - Name: FOR_REAL
             Type: PLAINTEXT
-            Value: "true"
+            Value: "false"
           - Name: NPM_TOKEN_SECRET
             Type: PLAINTEXT
-            Value: arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/npm-OynG62
+            Value: arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/npm-MhaWgx
           - Name: DISTTAG
             Type: PLAINTEXT
             Value: ""
@@ -2763,7 +2763,7 @@ Resources:
               - secretsmanager:DescribeSecret
               - secretsmanager:GetSecretValue
             Effect: Allow
-            Resource: arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/nuget-fHzSUD
+            Resource: arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/nuget-jDbgrN
           - Action:
               - secretsmanager:ListSecrets
               - secretsmanager:DescribeSecret
@@ -2837,13 +2837,13 @@ Resources:
             Value: b331bddd4fcb3d1d466ddd4c30728608b3a013016e6ed325e4b11d73b7b8cf57.zip
           - Name: FOR_REAL
             Type: PLAINTEXT
-            Value: "true"
+            Value: "false"
           - Name: NUGET_SECRET_REGION
             Type: PLAINTEXT
             Value: us-east-1
           - Name: NUGET_SECRET_ID
             Type: PLAINTEXT
-            Value: arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/nuget-fHzSUD
+            Value: arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/nuget-jDbgrN
           - Name: CODE_SIGNING_SECRET_ID
             Type: PLAINTEXT
             Value:
@@ -2980,7 +2980,7 @@ Resources:
               - secretsmanager:DescribeSecret
               - secretsmanager:GetSecretValue
             Effect: Allow
-            Resource: arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/maven-7ROCWi
+            Resource: arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/maven-S4Q2y3
           - Action:
               - secretsmanager:ListSecrets
               - secretsmanager:DescribeSecret
@@ -3060,10 +3060,10 @@ Resources:
                 - SecretArn
           - Name: FOR_REAL
             Type: PLAINTEXT
-            Value: "true"
+            Value: "false"
           - Name: MAVEN_LOGIN_SECRET
             Type: PLAINTEXT
-            Value: arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/maven-7ROCWi
+            Value: arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/maven-S4Q2y3
           - Name: MAVEN_ENDPOINT
             Type: PLAINTEXT
             Value: https://aws.oss.sonatype.org:443/
@@ -3200,7 +3200,7 @@ Resources:
               - secretsmanager:GetSecretValue
               - secretsmanager:DescribeSecret
             Effect: Allow
-            Resource: arn:aws:secretsmanager:us-east-1:712950704752:secret:github-token-nnAqfW
+            Resource: arn:aws:secretsmanager:us-east-1:712950704752:secret:github-token-QDP6QX
           - Action:
               - secretsmanager:ListSecrets
               - secretsmanager:DescribeSecret
@@ -3292,7 +3292,7 @@ Resources:
             Value: aws-delivlib-sample
           - Name: FOR_REAL
             Type: PLAINTEXT
-            Value: "true"
+            Value: "false"
           - Name: SECONDARY_SOURCE_NAMES
             Type: PLAINTEXT
             Value: Artifact_delivlibtestCodeCommitPipelineGenerateTwoArtifacts54497DAA artifact2
@@ -3428,7 +3428,7 @@ Resources:
               - secretsmanager:DescribeSecret
               - secretsmanager:GetSecretValue
             Effect: Allow
-            Resource: arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/github-ssh-lwzfjW
+            Resource: arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/github-ssh-okGazo
           - Action:
               - s3:GetObject*
               - s3:GetBucket*
@@ -3490,10 +3490,10 @@ Resources:
             Value: gh-pages
           - Name: SSH_KEY_SECRET
             Type: PLAINTEXT
-            Value: arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/github-ssh-lwzfjW
+            Value: arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/github-ssh-okGazo
           - Name: FOR_REAL
             Type: PLAINTEXT
-            Value: "true"
+            Value: "false"
           - Name: COMMIT_USERNAME
             Type: PLAINTEXT
             Value: foobar
@@ -3629,7 +3629,7 @@ Resources:
               - secretsmanager:DescribeSecret
               - secretsmanager:GetSecretValue
             Effect: Allow
-            Resource: arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/pypi-tOhH6X
+            Resource: arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/pypi-tp8M57
           - Action:
               - s3:GetObject*
               - s3:GetBucket*
@@ -3685,10 +3685,10 @@ Resources:
             Value: c17f8f9d719e9e4e72c47092e9d9a130a19c607b87d5f5a327b05f38c219c1ca.zip
           - Name: FOR_REAL
             Type: PLAINTEXT
-            Value: "true"
+            Value: "false"
           - Name: PYPI_CREDENTIALS_SECRET_ID
             Type: PLAINTEXT
-            Value: arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/pypi-tOhH6X
+            Value: arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/pypi-tp8M57
         Image: aws/codebuild/python:3.6.5
         ImagePullCredentialsType: CODEBUILD
         PrivilegedMode: false
@@ -3815,7 +3815,7 @@ Resources:
               - secretsmanager:DescribeSecret
               - secretsmanager:GetSecretValue
             Effect: Allow
-            Resource: arn:aws:secretsmanager:us-east-1:712950704752:secret:github-token-nnAqfW
+            Resource: arn:aws:secretsmanager:us-east-1:712950704752:secret:github-token-QDP6QX
           - Action:
               - s3:GetObject*
               - s3:GetBucket*
@@ -3869,9 +3869,12 @@ Resources:
           - Name: SCRIPT_S3_KEY
             Type: PLAINTEXT
             Value: d51656c063a0eef8e6e43eebc868209915793a138eb4a16217cb8d51583f6424.zip
+          - Name: DRYRUN
+            Type: PLAINTEXT
+            Value: "true"
           - Name: GITHUB_TOKEN_SECRET
             Type: PLAINTEXT
-            Value: arn:aws:secretsmanager:us-east-1:712950704752:secret:github-token-nnAqfW
+            Value: arn:aws:secretsmanager:us-east-1:712950704752:secret:github-token-QDP6QX
           - Name: GIT_BRANCH
             Type: PLAINTEXT
             Value: golang
@@ -3991,13 +3994,13 @@ Resources:
               - secretsmanager:DescribeSecret
               - secretsmanager:GetSecretValue
             Effect: Allow
-            Resource: arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/github-ssh-lwzfjW
+            Resource: arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/github-ssh-okGazo
           - Action:
               - secretsmanager:ListSecrets
               - secretsmanager:DescribeSecret
               - secretsmanager:GetSecretValue
             Effect: Allow
-            Resource: arn:aws:secretsmanager:us-east-1:712950704752:secret:github-token-nnAqfW
+            Resource: arn:aws:secretsmanager:us-east-1:712950704752:secret:github-token-QDP6QX
         Version: "2012-10-17"
       PolicyName: CodeCommitPipelineAutoBumpAutoPullRequestRoleDefaultPolicy3BB1CD6F
       Roles:
@@ -4033,13 +4036,13 @@ Resources:
               "build": {
                 "commands": [
                   "export SKIP=false",
-                  "$SKIP || { aws secretsmanager get-secret-value --secret-id \"arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/github-ssh-lwzfjW\" --output=text --query=SecretString > ~/.ssh/id_rsa ; }",
+                  "$SKIP || { aws secretsmanager get-secret-value --secret-id \"arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/github-ssh-okGazo\" --output=text --query=SecretString > ~/.ssh/id_rsa ; }",
                   "$SKIP || { mkdir -p ~/.ssh ; }",
                   "$SKIP || { chmod 0600 ~/.ssh/id_rsa ~/.ssh/config ; }",
                   "$SKIP || { ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts ; }",
                   "$SKIP || { ls .git && { echo \".git directory exists\";  } || { echo \".git directory doesnot exist - cloning...\" && git init . && git remote add origin git@github.com:awslabs/aws-delivlib-sample.git && git fetch && git reset --hard origin/master && git branch -M master && git clean -fqdx; } ; }",
                   "$SKIP || { git describe --exact-match master && { echo 'Skip condition is met, skipping...' && export SKIP=true; } || { echo 'Skip condition is not met, continuing...' && export SKIP=false; } ; }",
-                  "$SKIP || { export GITHUB_TOKEN=$(aws secretsmanager get-secret-value --secret-id \"arn:aws:secretsmanager:us-east-1:712950704752:secret:github-token-nnAqfW\" --output=text --query=SecretString) ; }",
+                  "$SKIP || { export GITHUB_TOKEN=$(aws secretsmanager get-secret-value --secret-id \"arn:aws:secretsmanager:us-east-1:712950704752:secret:github-token-QDP6QX\" --output=text --query=SecretString) ; }",
                   "$SKIP || { git rev-parse --verify origin/bump/$VERSION && { git checkout bump/$VERSION && git merge master && npm i && npm run bump && export VERSION=$(git describe) && echo Finished running user commands;  } || { git checkout master && git checkout -b temp && npm i && npm run bump && export VERSION=$(git describe) && echo Finished running user commands && git branch -M bump/$VERSION; } ; }",
                   "$SKIP || { git merge-base --is-ancestor bump/$VERSION origin/master && { echo \"Skipping: bump/$VERSION is an ancestor of origin/master\"; export SKIP=true; } || { echo \"Pushing: bump/$VERSION is ahead of origin/master\"; export SKIP=false; } ; }",
                   "$SKIP || { git remote add origin_ssh git@github.com:awslabs/aws-delivlib-sample.git ; }",
@@ -4172,7 +4175,7 @@ Resources:
           Ref: CodeCommitPipelineAutoBuildProject5D212EE9
         DeletePreviousComments: "true"
         CommentOnSuccess: "true"
-        GitHubOAuthToken: "{{resolve:secretsmanager:arn:aws:secretsmanager:us-east-1:712950704752:secret:github-token-nnAqfW:SecretString:::}}"
+        GitHubOAuthToken: "{{resolve:secretsmanager:arn:aws:secretsmanager:us-east-1:712950704752:secret:github-token-QDP6QX:SecretString:::}}"
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/AutoBuild/GitHubCodeBuildLogsSAR
   CodeCommitPipelineChangeControllerCalendarNotifications1AFBE6E9:
