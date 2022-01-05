@@ -4291,7 +4291,7 @@ Resources:
     Properties:
       Code:
         S3Bucket: cdk-hnb659fds-assets-712950704752-us-east-1
-        S3Key: dc2e98009b027861f34e56eebb81faa5a3951ed9da80ce4a903a45de04268238.zip
+        S3Key: 3044256b9586ecb8a7709713aaca30ceb34f699e3f93c8858f633aaf2f0c7140.zip
       Role:
         Fn::GetAtt:
           - CodeCommitPipelineChangeControllerFunctionServiceRoleF02841DB
