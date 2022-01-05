@@ -134,10 +134,7 @@
           "exec": "mkdir -p dist/js"
         },
         {
-          "exec": "yarn pack"
-        },
-        {
-          "exec": "mv *.tgz dist/js/"
+          "exec": "mv $(npm pack) dist/js/"
         }
       ]
     },
