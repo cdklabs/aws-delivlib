@@ -34,15 +34,15 @@
     "organization": false
   },
   "devDependencies": {
-    "@monocdk-experiment/assert": "^1.138.0",
+    "@monocdk-experiment/assert": "^1.138.1",
     "@types/aws-lambda": "^8.10.89",
     "@types/jest": "^27.4.0",
     "@types/node": "^12",
     "@typescript-eslint/eslint-plugin": "^5",
     "@typescript-eslint/parser": "^5",
-    "aws-cdk": "^1.138.0",
-    "aws-sdk": "^2.1052.0",
-    "constructs": "^3.3.181",
+    "aws-cdk": "^1.138.1",
+    "aws-sdk": "^2.1053.0",
+    "constructs": "^3.3.182",
     "esbuild": "^0.14.10",
     "eslint": "^8",
     "eslint-import-resolver-node": "^0.3.6",
@@ -52,18 +52,18 @@
     "jest-create-mock-instance": "^2.0.0",
     "jest-junit": "^13",
     "json-schema": "^0.4.0",
-    "monocdk": "^1.138.0",
+    "monocdk": "^1.138.1",
     "node-ical": "^0.14.1",
     "npm-check-updates": "^12",
-    "projen": "^0.50.9",
+    "projen": "^0.50.11",
     "rrule": "^2.6.8",
     "standard-version": "^9",
     "ts-jest": "^27.1.2",
     "typescript": "~4.5.4"
   },
   "peerDependencies": {
-    "constructs": "^3.3.181",
-    "monocdk": "^1.138.0"
+    "constructs": "^3.3.182",
+    "monocdk": "^1.138.1"
   },
   "dependencies": {
     "changelog-parser": "^2.8.0"
