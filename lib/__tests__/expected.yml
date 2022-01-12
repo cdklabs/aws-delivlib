@@ -359,6 +359,33 @@ Resources:
     DeletionPolicy: Retain
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/BuildPipeline/ArtifactsBucket/Resource
+  CodeCommitPipelineBuildPipelineArtifactsBucketPolicy97EF6204:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket:
+        Ref: CodeCommitPipelineBuildPipelineArtifactsBucketED2813B3
+      PolicyDocument:
+        Statement:
+          - Action: s3:*
+            Condition:
+              Bool:
+                aws:SecureTransport: "false"
+            Effect: Deny
+            Principal:
+              AWS: "*"
+            Resource:
+              - Fn::GetAtt:
+                  - CodeCommitPipelineBuildPipelineArtifactsBucketED2813B3
+                  - Arn
+              - Fn::Join:
+                  - ""
+                  - - Fn::GetAtt:
+                        - CodeCommitPipelineBuildPipelineArtifactsBucketED2813B3
+                        - Arn
+                    - /*
+        Version: "2012-10-17"
+    Metadata:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/BuildPipeline/ArtifactsBucket/Policy/Resource
   CodeCommitPipelineBuildPipelineRole1843599A:
     Type: AWS::IAM::Role
     Properties:
@@ -1313,6 +1340,8 @@ Resources:
           - Arn
       Source:
         Type: CODEPIPELINE
+      Cache:
+        Type: NO_CACHE
       EncryptionKey:
         Fn::GetAtt:
           - CodeCommitPipelineBuildPipelineArtifactsBucketEncryptionKey05A62A83
@@ -1646,6 +1675,8 @@ Resources:
             }
           }
         Type: NO_SOURCE
+      Cache:
+        Type: NO_CACHE
       EncryptionKey:
         Fn::GetAtt:
           - CodeCommitPipelineBuildPipelineArtifactsBucketEncryptionKey05A62A83
@@ -1845,6 +1876,8 @@ Resources:
             }
           }
         Type: NO_SOURCE
+      Cache:
+        Type: NO_CACHE
       EncryptionKey:
         Fn::GetAtt:
           - CodeCommitPipelineBuildPipelineArtifactsBucketEncryptionKey05A62A83
@@ -2069,6 +2102,8 @@ Resources:
                   }
                 }
         Type: NO_SOURCE
+      Cache:
+        Type: NO_CACHE
       EncryptionKey:
         Fn::GetAtt:
           - CodeCommitPipelineBuildPipelineArtifactsBucketEncryptionKey05A62A83
@@ -2289,6 +2324,8 @@ Resources:
             }
           }
         Type: NO_SOURCE
+      Cache:
+        Type: NO_CACHE
       EncryptionKey:
         Fn::GetAtt:
           - CodeCommitPipelineBuildPipelineArtifactsBucketEncryptionKey05A62A83
@@ -2433,6 +2470,8 @@ Resources:
             }
           }
         Type: NO_SOURCE
+      Cache:
+        Type: NO_CACHE
       EncryptionKey: alias/aws/s3
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/CanaryHelloCanary/Shellable/Resource/Resource
@@ -2668,6 +2707,8 @@ Resources:
             }
           }
         Type: NO_SOURCE
+      Cache:
+        Type: NO_CACHE
       EncryptionKey:
         Fn::GetAtt:
           - CodeCommitPipelineBuildPipelineArtifactsBucketEncryptionKey05A62A83
@@ -2885,6 +2926,8 @@ Resources:
             }
           }
         Type: NO_SOURCE
+      Cache:
+        Type: NO_CACHE
       EncryptionKey:
         Fn::GetAtt:
           - CodeCommitPipelineBuildPipelineArtifactsBucketEncryptionKey05A62A83
@@ -3098,6 +3141,8 @@ Resources:
             }
           }
         Type: NO_SOURCE
+      Cache:
+        Type: NO_CACHE
       EncryptionKey:
         Fn::GetAtt:
           - CodeCommitPipelineBuildPipelineArtifactsBucketEncryptionKey05A62A83
@@ -3333,6 +3378,8 @@ Resources:
             }
           }
         Type: NO_SOURCE
+      Cache:
+        Type: NO_CACHE
       EncryptionKey:
         Fn::GetAtt:
           - CodeCommitPipelineBuildPipelineArtifactsBucketEncryptionKey05A62A83
@@ -3534,6 +3581,8 @@ Resources:
             }
           }
         Type: NO_SOURCE
+      Cache:
+        Type: NO_CACHE
       EncryptionKey:
         Fn::GetAtt:
           - CodeCommitPipelineBuildPipelineArtifactsBucketEncryptionKey05A62A83
@@ -3720,6 +3769,8 @@ Resources:
             }
           }
         Type: NO_SOURCE
+      Cache:
+        Type: NO_CACHE
       EncryptionKey:
         Fn::GetAtt:
           - CodeCommitPipelineBuildPipelineArtifactsBucketEncryptionKey05A62A83
@@ -3915,6 +3966,8 @@ Resources:
             }
           }
         Type: NO_SOURCE
+      Cache:
+        Type: NO_CACHE
       EncryptionKey:
         Fn::GetAtt:
           - CodeCommitPipelineBuildPipelineArtifactsBucketEncryptionKey05A62A83
@@ -4057,6 +4110,8 @@ Resources:
         Location: https://github.com/awslabs/aws-delivlib-sample.git
         ReportBuildStatus: false
         Type: GITHUB
+      Cache:
+        Type: NO_CACHE
       EncryptionKey: alias/aws/s3
       Triggers:
         Webhook: false
@@ -4156,6 +4211,8 @@ Resources:
         ReportBuildStatus: true
         Type: GITHUB
       BadgeEnabled: true
+      Cache:
+        Type: NO_CACHE
       EncryptionKey: alias/aws/s3
       Triggers:
         FilterGroups:
@@ -4291,7 +4348,7 @@ Resources:
     Properties:
       Code:
         S3Bucket: cdk-hnb659fds-assets-712950704752-us-east-1
-        S3Key: 3044256b9586ecb8a7709713aaca30ceb34f699e3f93c8858f633aaf2f0c7140.zip
+        S3Key: 6d84cdad0db1b0ef3c0db08c3e9ceb1ca56b3f8ffc4e1e1fd23f9a51b052e8fd.zip
       Role:
         Fn::GetAtt:
           - CodeCommitPipelineChangeControllerFunctionServiceRoleF02841DB
@@ -4806,6 +4863,8 @@ Resources:
 
           s3 = boto3.client("s3")
 
+          EVENTBRIDGE_CONFIGURATION = 'EventBridgeConfiguration'
+
           CONFIGURATION_TYPES = ["TopicConfigurations", "QueueConfigurations", "LambdaFunctionConfigurations"]
 
           def handler(event: dict, context):
@@ -4858,6 +4917,13 @@ Resources:
               external = external_notifications.get(t, [])
               incoming = [with_id(n) for n in notification_configuration.get(t, [])]
               notifications[t] = external + incoming
+
+            # EventBridge configuration is a special case because it's just an empty object if it exists
+            if EVENTBRIDGE_CONFIGURATION in notification_configuration:
+              notifications[EVENTBRIDGE_CONFIGURATION] = notification_configuration[EVENTBRIDGE_CONFIGURATION]
+            elif EVENTBRIDGE_CONFIGURATION in external_notifications:
+              notifications[EVENTBRIDGE_CONFIGURATION] = external_notifications[EVENTBRIDGE_CONFIGURATION]
+
             return notifications
 
 
@@ -4868,6 +4934,11 @@ Resources:
               # if the notification was created by us, we know what id to expect
               # so we can filter by it.
               external_notifications[t] = [n for n in existing_notifications.get(t, []) if not n['Id'].startswith(f"{stack_id}-")]
+
+            # always treat EventBridge configuration as an external config if it already exists
+            # as there is no way to determine whether it's managed by us or not
+            if EVENTBRIDGE_CONFIGURATION in existing_notifications:
+              external_notifications[EVENTBRIDGE_CONFIGURATION] = existing_notifications[EVENTBRIDGE_CONFIGURATION]
 
             return external_notifications
 
