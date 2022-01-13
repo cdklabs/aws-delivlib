@@ -4213,6 +4213,7 @@ Resources:
       BadgeEnabled: true
       Cache:
         Type: NO_CACHE
+      Description: Automatic PR build for awslabs/aws-delivlib-sample
       EncryptionKey: alias/aws/s3
       Triggers:
         FilterGroups:

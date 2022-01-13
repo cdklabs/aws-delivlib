@@ -142,6 +142,13 @@ export interface AutoPullRequestProps extends AutoPullRequestOptions {
    * @default - don't look at open PRs
    */
   readonly skipIfOpenPrsWithLabels?: string[];
+
+  /**
+   * Description string for the CodeBuild project
+   *
+   * @default - No description
+   */
+  readonly projectDescription?: string;
 }
 
 /**
@@ -274,6 +281,7 @@ export class AutoPullRequest extends Construct {
 
     this.project = new cbuild.Project(this, 'PullRequest', {
       source: props.repo.createBuildSource(this, false, { cloneDepth }),
+      description: props.projectDescription,
       environment: createBuildEnvironment(props.build ?? {}),
       buildSpec: cbuild.BuildSpec.fromObject({
         version: '0.2',

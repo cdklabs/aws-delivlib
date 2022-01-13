@@ -105,6 +105,7 @@ export class AutoBuild extends Construct {
 
     this.project = new codebuild.Project(this, 'Project', {
       projectName: props.projectName,
+      description: `Automatic PR build for ${props.repo.describe()}`,
       source: props.repo.createBuildSource(this, props.webhook ?? true, { branch: props.branch, branches: props.branches }),
       environment: createBuildEnvironment(props.environment ?? {}),
       badge: props.repo.allowsBadge,
