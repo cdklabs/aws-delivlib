@@ -1220,10 +1220,10 @@ aws-cdk@^1.139.0:
     yaml "1.10.2"
     yargs "^16.2.0"
 
-aws-sdk@^2.1055.0, aws-sdk@^2.848.0, aws-sdk@^2.979.0:
-  version "2.1055.0"
-  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.1055.0.tgz#07beb86650d5a313f7c899807c51b12b5e2f4117"
-  integrity sha512-99drH3mvXakw9we8Rs2cDQmi2pS7PVAC9pvTlB7lHPUwLYftMlko5cFMceZxvTHeyLkdvg98iNIHI3hbnzitoQ==
+aws-sdk@^2.1056.0, aws-sdk@^2.848.0, aws-sdk@^2.979.0:
+  version "2.1056.0"
+  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.1056.0.tgz#a1eb5039e3c780ce484f34ef2e0760cb8cccbf3e"
+  integrity sha512-ocpc4Sy9Lclt+v5bIRuvFq0WwJoLIU26ikdCQn+ke9lIDPC9+hGZbkFK7TiqTu3noEekgIubGHFGEkd/5V0HhQ==
   dependencies:
     buffer "4.9.2"
     events "1.1.1"
@@ -2209,9 +2209,9 @@ duplexer3@^0.1.4:
   integrity sha1-7gHdHKwO08vH/b6jfcCo8c4ALOI=
 
 electron-to-chromium@^1.4.17:
-  version "1.4.43"
-  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.43.tgz#665c0cd8d5e7cce0ba78d90a514c8c813ca3bdbe"
-  integrity sha512-PO3kEfcxPrti/4STbXvCkNIF4fgWvCKl2508e6UI7KomCDffpIfeBZLXsh5DK/XGsjUw3kwq6WEsi0MJTlGAdg==
+  version "1.4.44"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.44.tgz#8a41923afdd6ef5ddabe001626036ba5d1d64ae6"
+  integrity sha512-tHGWiUUmY7GABK8+DNcr474cnZDTzD8x1736SlDosVH8+/vRJeqfaIBAEHFtMjddz/0T4rKKYsxEc8BwQRdBpw==
 
 emittery@^0.8.1:
   version "0.8.1"
@@ -5271,10 +5271,10 @@ progress@^2.0.0, progress@^2.0.3:
   resolved "https://registry.yarnpkg.com/progress/-/progress-2.0.3.tgz#7e8cf8d8f5b8f239c1bc68beb4eb78567d572ef8"
   integrity sha512-7PiHtLll5LdnKIMw100I+8xJXR5gW2QwWYkT6iJva0bXitZKa/XMrSbdmg3r2Xnaidz9Qumd0VPaMrZlF9V9sA==
 
-projen@^0.50.26:
-  version "0.50.26"
-  resolved "https://registry.yarnpkg.com/projen/-/projen-0.50.26.tgz#03f02b49b144d31848a939ba9fcd7835d6614317"
-  integrity sha512-6WIwWQYfitUEn0mTa1tbor5sZUFK1lpyDsbOz49iOT97WEc4sefj8CSrGgUEgzoWhDX9a0Wq1IfhYtcj1ygUAg==
+projen@^0.50.27:
+  version "0.50.27"
+  resolved "https://registry.yarnpkg.com/projen/-/projen-0.50.27.tgz#a4b4c78ade8fe44335f12d6d0f1b80d1847e7e73"
+  integrity sha512-1/Wtn+IjEpG8ZeGI8ErwIXZkmMAnGYmHKrwKhWbOjtbC/ljw+t+e0L4qVaL4Svwv+HsSFtNBzS7kyEEYub9BXg==
   dependencies:
     "@iarna/toml" "^2.2.5"
     case "^1.6.3"
