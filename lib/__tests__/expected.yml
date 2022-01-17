@@ -4112,6 +4112,7 @@ Resources:
         Type: GITHUB
       Cache:
         Type: NO_CACHE
+      Description: Release awslabs/aws-delivlib-sample, branch master
       EncryptionKey: alias/aws/s3
       Triggers:
         Webhook: false
