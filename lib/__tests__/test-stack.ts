@@ -20,8 +20,8 @@ export class TestStack extends Stack {
 
     const githubRepo = new delivlib.WritableGitHubRepo({
       repository: 'awslabs/aws-delivlib-sample',
-      tokenSecretArn: 'arn:aws:secretsmanager:us-east-1:712950704752:secret:github-token-nnAqfW',
-      sshKeySecret: { secretArn: 'arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/github-ssh-lwzfjW' },
+      tokenSecretArn: 'arn:aws:secretsmanager:us-east-1:712950704752:secret:github-token-QDP6QX',
+      sshKeySecret: { secretArn: 'arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/github-ssh-okGazo' },
       commitEmail: 'foo@bar.com',
       commitUsername: 'foobar',
     });
@@ -37,6 +37,7 @@ export class TestStack extends Stack {
       environment: {
         DELIVLIB_ENV_TEST: 'MAGIC_1924',
       },
+      dryRun: true,
     });
 
     //
@@ -109,7 +110,7 @@ export class TestStack extends Stack {
     //
 
     pipeline.publishToNpm({
-      npmTokenSecret: { secretArn: 'arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/npm-OynG62' },
+      npmTokenSecret: { secretArn: 'arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/npm-MhaWgx' },
       access: delivlib.NpmAccess.RESTRICTED,
     });
 
@@ -128,7 +129,7 @@ export class TestStack extends Stack {
     });
 
     pipeline.publishToNuGet({
-      nugetApiKeySecret: { secretArn: 'arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/nuget-fHzSUD' },
+      nugetApiKeySecret: { secretArn: 'arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/nuget-jDbgrN' },
       codeSign,
     });
 
@@ -145,7 +146,7 @@ export class TestStack extends Stack {
     });
 
     pipeline.publishToMaven({
-      mavenLoginSecret: { secretArn: 'arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/maven-7ROCWi' },
+      mavenLoginSecret: { secretArn: 'arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/maven-S4Q2y3' },
       mavenEndpoint: 'https://aws.oss.sonatype.org:443/',
       signingKey,
       stagingProfileId: '68a05363083174',
@@ -162,7 +163,7 @@ export class TestStack extends Stack {
     });
 
     pipeline.publishToPyPI({
-      loginSecret: { secretArn: 'arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/pypi-tOhH6X' },
+      loginSecret: { secretArn: 'arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/pypi-tp8M57' },
     });
 
     // publish go bindings to awslabs/aws-delivlib-sample under the "golang"

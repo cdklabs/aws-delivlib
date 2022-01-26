@@ -76,6 +76,12 @@ export interface AutoBumpProps extends AutoPullRequestOptions {
    */
   head?: AutoBumpHead;
 
+  /**
+   * Description string for the CodeBuild project
+   *
+   * @default - A default description
+   */
+  readonly projectDescription?: string;
 }
 
 export class AutoBump extends cdk.Construct {
@@ -110,7 +116,7 @@ export class AutoBump extends cdk.Construct {
       },
       // check if base is already released
       condition: `git describe --exact-match ${baseBranch}`,
+      projectDescription: props.projectDescription ?? `Release ${props.repo.owner}/${props.repo.repo}, branch ${baseBranch}`,
     });
-
   }
 }
