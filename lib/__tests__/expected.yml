@@ -4237,6 +4237,15 @@ Resources:
         GitHubOAuthToken: "{{resolve:secretsmanager:arn:aws:secretsmanager:us-east-1:712950704752:secret:github-token-QDP6QX:SecretString:::}}"
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/AutoBuild/GitHubCodeBuildLogsSAR
+  CodeCommitPipelineChangeControllerCalendar94B1DEA8:
+    Type: AWS::S3::Bucket
+    Properties:
+      VersioningConfiguration:
+        Status: Enabled
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
+    Metadata:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/ChangeController/Calendar/Resource
   CodeCommitPipelineChangeControllerCalendarNotifications1AFBE6E9:
     Type: Custom::S3BucketNotifications
     Properties:
@@ -4264,15 +4273,6 @@ Resources:
       - CodeCommitPipelineChangeControllerCalendarAllowBucketNotificationsTodelivlibtestCodeCommitPipelineChangeControllerFunction83CC56EB3330DA3F
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/ChangeController/Calendar/Notifications/Resource
-  CodeCommitPipelineChangeControllerCalendar94B1DEA8:
-    Type: AWS::S3::Bucket
-    Properties:
-      VersioningConfiguration:
-        Status: Enabled
-    UpdateReplacePolicy: Delete
-    DeletionPolicy: Delete
-    Metadata:
-      aws:cdk:path: delivlib-test/CodeCommitPipeline/ChangeController/Calendar/Resource
   CodeCommitPipelineChangeControllerCalendarAllowBucketNotificationsTodelivlibtestCodeCommitPipelineChangeControllerFunction83CC56EB3330DA3F:
     Type: AWS::Lambda::Permission
     Properties:
@@ -4865,8 +4865,6 @@ Resources:
 
           s3 = boto3.client("s3")
 
-          EVENTBRIDGE_CONFIGURATION = 'EventBridgeConfiguration'
-
           CONFIGURATION_TYPES = ["TopicConfigurations", "QueueConfigurations", "LambdaFunctionConfigurations"]
 
           def handler(event: dict, context):
@@ -4919,13 +4917,6 @@ Resources:
               external = external_notifications.get(t, [])
               incoming = [with_id(n) for n in notification_configuration.get(t, [])]
               notifications[t] = external + incoming
-
-            # EventBridge configuration is a special case because it's just an empty object if it exists
-            if EVENTBRIDGE_CONFIGURATION in notification_configuration:
-              notifications[EVENTBRIDGE_CONFIGURATION] = notification_configuration[EVENTBRIDGE_CONFIGURATION]
-            elif EVENTBRIDGE_CONFIGURATION in external_notifications:
-              notifications[EVENTBRIDGE_CONFIGURATION] = external_notifications[EVENTBRIDGE_CONFIGURATION]
-
             return notifications
 
 
@@ -4936,11 +4927,6 @@ Resources:
               # if the notification was created by us, we know what id to expect
               # so we can filter by it.
               external_notifications[t] = [n for n in existing_notifications.get(t, []) if not n['Id'].startswith(f"{stack_id}-")]
-
-            # always treat EventBridge configuration as an external config if it already exists
-            # as there is no way to determine whether it's managed by us or not
-            if EVENTBRIDGE_CONFIGURATION in existing_notifications:
-              external_notifications[EVENTBRIDGE_CONFIGURATION] = existing_notifications[EVENTBRIDGE_CONFIGURATION]
 
             return external_notifications
 
