@@ -36,13 +36,13 @@
     "organization": false
   },
   "devDependencies": {
-    "@monocdk-experiment/assert": "^1.140.0",
+    "@monocdk-experiment/assert": "^1.141.0",
     "@types/aws-lambda": "^8.10.92",
     "@types/jest": "^27.4.0",
     "@types/node": "^12",
     "@typescript-eslint/eslint-plugin": "^5",
     "@typescript-eslint/parser": "^5",
-    "aws-cdk": "^1.140.0",
+    "aws-cdk": "^1.141.0",
     "aws-sdk": "^2.1064.0",
     "constructs": "^3.3.200",
     "esbuild": "^0.14.14",
@@ -54,7 +54,7 @@
     "jest-create-mock-instance": "^2.0.0",
     "jest-junit": "^13",
     "json-schema": "^0.4.0",
-    "monocdk": "^1.140.0",
+    "monocdk": "^1.141.0",
     "node-ical": "^0.14.1",
     "npm-check-updates": "^12",
     "projen": "^0.52.3",
@@ -65,7 +65,7 @@
   },
   "peerDependencies": {
     "constructs": "^3.3.200",
-    "monocdk": "^1.140.0"
+    "monocdk": "^1.141.0"
   },
   "dependencies": {
     "changelog-parser": "^2.8.0"
