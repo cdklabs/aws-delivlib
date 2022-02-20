@@ -64,9 +64,10 @@ function withRepo(fixture: string, work: (repoDir: string) => void) {
   fs.mkdirSync(repoDir);
   try {
     fs.copySync(fixturePath(fixture), repoDir);
+    console.log(`repoDir: ${repoDir}`);
     work(repoDir);
   } finally {
-    fs.removeSync(repoDir);
+    // fs.removeSync(repoDir);
   }
 }
 
@@ -121,7 +122,7 @@ test('happy projen-non-jsii', () => {
 
     const npmDownload = (pkg: PublishedPackage, target: string) => {
       const dist = path.join(repoDir, 'dist');
-      const name = `${pkg.name}-v${pkg.version}.tgz`;
+      const name = `${pkg.name}-${pkg.version}.tgz`;
       fs.copySync(path.join(dist, 'js', name), path.join(target, name));
     };
 
