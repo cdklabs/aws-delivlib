@@ -61,7 +61,7 @@
     "monocdk": "^1.139.0",
     "node-ical": "^0.14.1",
     "npm-check-updates": "^12",
-    "projen": "^0.51.5",
+    "projen": "^0.52.38",
     "rrule": "^2.6.8",
     "standard-version": "^9",
     "tar": "^6.1.11",
