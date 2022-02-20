@@ -12,6 +12,7 @@
     "compile": "npx projen compile",
     "compile:custom-resource-handlers": "npx projen compile:custom-resource-handlers",
     "default": "npx projen default",
+    "eject": "npx projen eject",
     "eslint": "npx projen eslint",
     "integ:diff": "npx projen integ:diff",
     "integ:update": "npx projen integ:update",
@@ -35,9 +36,9 @@
     "organization": false
   },
   "devDependencies": {
-    "@monocdk-experiment/assert": "^1.139.0",
+    "@monocdk-experiment/assert": "^1.143.0",
     "@types/adm-zip": "^0.4.34",
-    "@types/aws-lambda": "^8.10.90",
+    "@types/aws-lambda": "^8.10.92",
     "@types/fs-extra": "^9.0.13",
     "@types/jest": "^27.4.0",
     "@types/node": "^12",
@@ -45,20 +46,20 @@
     "@typescript-eslint/eslint-plugin": "^5",
     "@typescript-eslint/parser": "^5",
     "adm-zip": "^0.5.9",
-    "aws-cdk": "^1.139.0",
-    "aws-sdk": "^2.1060.0",
-    "constructs": "^3.3.193",
-    "esbuild": "^0.14.11",
+    "aws-cdk": "^1.143.0",
+    "aws-sdk": "^2.1070.0",
+    "constructs": "^3.3.210",
+    "esbuild": "^0.14.20",
     "eslint": "^8",
     "eslint-import-resolver-node": "^0.3.6",
     "eslint-import-resolver-typescript": "^2.5.0",
     "eslint-plugin-import": "^2.25.4",
     "fs-extra": "^10.0.0",
-    "jest": "^27.4.7",
+    "jest": "^27.5.0",
     "jest-create-mock-instance": "^2.0.0",
     "jest-junit": "^13",
     "json-schema": "^0.4.0",
-    "monocdk": "^1.139.0",
+    "monocdk": "^1.143.0",
     "node-ical": "^0.14.1",
     "npm-check-updates": "^12",
     "projen": "^0.52.38",
@@ -66,11 +67,11 @@
     "standard-version": "^9",
     "tar": "^6.1.11",
     "ts-jest": "^27.1.3",
-    "typescript": "~4.5.4"
+    "typescript": "~4.5.5"
   },
   "peerDependencies": {
-    "constructs": "^3.3.193",
-    "monocdk": "^1.139.0"
+    "constructs": "^3.3.210",
+    "monocdk": "^1.143.0"
   },
   "dependencies": {
     "changelog-parser": "^2.8.0"
