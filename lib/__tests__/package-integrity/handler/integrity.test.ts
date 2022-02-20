@@ -60,14 +60,14 @@ function initializeRepo(repoDir: string): Repository {
 function withRepo(fixture: string, work: (repoDir: string) => void) {
 
   const tempdir = fs.mkdtempSync(path.join(os.tmpdir(), path.sep));
-  const repoDir = path.join(tempdir, fixture);
-  fs.mkdirSync(repoDir);
   try {
+    const repoDir = path.join(tempdir, fixture);
+    fs.mkdirSync(repoDir);
     fs.copySync(fixturePath(fixture), repoDir);
     console.log(`repoDir: ${repoDir}`);
     work(repoDir);
   } finally {
-    // fs.removeSync(repoDir);
+    fs.removeSync(tempdir);
   }
 }
 

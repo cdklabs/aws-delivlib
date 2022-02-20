@@ -35,7 +35,7 @@ export class Repository {
   private readonly isJsii: boolean;
   private readonly manifest: any;
 
-  constructor(private readonly repoDir: string) {
+  public constructor(private readonly repoDir: string) {
     const manifestPath = path.join(repoDir, 'package.json');
 
     this.manifest = JSON.parse(fs.readFileSync(manifestPath, { encoding: 'utf-8' }));

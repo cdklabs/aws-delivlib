@@ -1,7 +1,8 @@
 import { execSync } from 'child_process';
-import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import * as fs from 'fs-extra';
 import { Repository } from './repository';
 
 /**
@@ -28,6 +29,11 @@ export interface PublishedPackage {
 export abstract class ArtifactIntegrity {
 
   /**
+   * The file extenstion of artifacts produced for this check. (e.g 'whl')
+   */
+  protected abstract readonly ext: string;
+
+  /**
    * Download a package to the target directory.
    *
    * @param pkg The package to download.
@@ -49,12 +55,7 @@ export abstract class ArtifactIntegrity {
    * @param artifactName Base name of the local artifact file.
    * @returns The package this artifact correlates to.
    */
-  protected abstract parse(artifactName: string): PublishedPackage;
-
-  /**
-   * The file extenstion of artifacts produced for this check. (e.g 'whl')
-   */
-  protected abstract get ext(): string;
+  protected abstract parseArtifactName(artifactName: string): PublishedPackage;
 
   /**
    * Validate a local artifact against its published counterpart.
@@ -66,8 +67,8 @@ export abstract class ArtifactIntegrity {
     const artifactPath = this.findOne(localArtifactDir);
     const name = this.constructor.name;
 
-    console.log(`Running ${name} on ${artifactPath}`);
-    const workdir = fs.mkdtempSync(path.join(os.tmpdir(), path.sep, 'integrity-check'));
+    this.log(`Validating ${artifactPath}`);
+    const workdir = fs.mkdtempSync(path.join(os.tmpdir(), 'integrity-check'));
 
     try {
       const downloaded = path.join(workdir, `${name}.downloaded`);
@@ -75,49 +76,54 @@ export abstract class ArtifactIntegrity {
       const local = path.join(workdir, `${name}.local`);
 
       // parse the artifact name into a package.
-      const pkg = this.parse(path.basename(artifactPath));
+      const pkg = this.parseArtifactName(path.basename(artifactPath));
 
       fs.mkdirSync(downloaded);
       fs.mkdirSync(published);
       fs.mkdirSync(local);
 
       // download the package
-      console.log(`Downloading [${pkg.name} | ${pkg.version}] to ${downloaded}`);
+      this.log(`Downloading [${pkg.name} | ${pkg.version}] to ${downloaded}`);
       this.download(pkg, downloaded);
 
       const artifact = this.findOne(downloaded);
 
       // extract the downlaoded package
-      console.log(`Extracting remote artifact from ${artifact} to ${published}`);
+      this.log(`Extracting remote artifact from ${artifact} to ${published}`);
       this.extract(this.findOne(downloaded), published);
 
       // extract the local artfiact
-      console.log(`Extracting local artifact from ${artifactPath} to ${local}`);
+      this.log(`Extracting local artifact from ${artifactPath} to ${local}`);
       this.extract(artifactPath, local);
 
-      console.log(`Comparing ${local} <> ${published}`);
+      this.log(`Comparing ${local} <> ${published}`);
       try {
         execSync(`diff ${local} ${published}`, { stdio: ['ignore', 'inherit', 'inherit'] });
       } catch (error) {
         throw new Error(`${name} validation failed`);
       }
-      console.log('Success');
+      this.log('Success');
 
     } finally {
-      execSync(`rm -rf ${workdir}`);
+      fs.removeSync(workdir);
     }
 
+  }
+
+  protected log(message: string) {
+    console.log(`${this.constructor.name} | ${message} `);
   }
 
   private findOne(dir: string): string {
     const files = fs.readdirSync(dir).filter(f => f.endsWith(this.ext));
     if (files.length === 0) {
-      throw new Error(`No files found in ${dir}`);
+      throw new Error(`No files found in ${dir} with extension ${this.ext}`);
     }
-    if (files.length > 1) {
-      throw new Error(`Multiple files found in ${dir}`);
+    const [first, ...rest] = files;
+    if (rest.length > 0) {
+      throw new Error(`Multiple files found in ${dir} with extension ${this.ext}: ${first}, ${rest.join(', ')}`);
     }
-    return path.join(dir, files[0]);
+    return path.join(dir, first);
   }
 
 }
@@ -163,7 +169,7 @@ export interface RepositoryIntegrityProps {
  */
 export class RepositoryIntegrity {
 
-  constructor(private readonly props: RepositoryIntegrityProps) {}
+  public constructor(private readonly props: RepositoryIntegrityProps) {}
 
   /**
    * Validate the artifacts of this repo against its published counterpart.
@@ -219,9 +225,7 @@ export class RepositoryIntegrity {
  */
 export class NpmArtifactIntegrity extends ArtifactIntegrity {
 
-  protected get ext(): string {
-    return 'tgz';
-  }
+  protected readonly ext = 'tgz';
 
   protected download(pkg: PublishedPackage, target: string): void {
     execSync(`npm pack ${pkg.name}@${pkg.version}`, { cwd: target });
@@ -231,7 +235,7 @@ export class NpmArtifactIntegrity extends ArtifactIntegrity {
     execSync(`tar -zxvf ${file} --strip-components=1 -C ${target}`);
   }
 
-  protected parse(artifactName: string): PublishedPackage {
+  protected parseArtifactName(artifactName: string): PublishedPackage {
 
     // cdk8s@1.0.0-beta.59.jsii.tgz
     const jsiiArtifact = /(.*)@(.*)\.jsii./;
@@ -258,9 +262,7 @@ export class NpmArtifactIntegrity extends ArtifactIntegrity {
  */
 export class PyPIArtifactIntegrity extends ArtifactIntegrity {
 
-  protected get ext(): string {
-    return 'whl';
-  }
+  protected readonly ext = 'whl';
 
   protected download(pkg: PublishedPackage, target: string): void {
     execSync(`pip download --no-deps ${pkg.name}==${pkg.version}`, { cwd: target });
@@ -270,7 +272,7 @@ export class PyPIArtifactIntegrity extends ArtifactIntegrity {
     execSync(`unzip ${artifact}`, { cwd: target });
   }
 
-  protected parse(artifactName: string): PublishedPackage {
+  protected parseArtifactName(artifactName: string): PublishedPackage {
 
     // cdk8s-1.0.0b63-py3-none-any.whl
     const regex = /(.*)-v?(\d.*)-py.*.whl/;
