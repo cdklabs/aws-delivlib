@@ -8,6 +8,7 @@
   "scripts": {
     "build": "npx projen build",
     "bump": "npx projen bump",
+    "bundle:package-integrity": "npx projen bundle:package-integrity",
     "clobber": "npx projen clobber",
     "compile": "npx projen compile",
     "compile:custom-resource-handlers": "npx projen compile:custom-resource-handlers",

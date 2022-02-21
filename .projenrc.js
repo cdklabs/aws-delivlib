@@ -75,4 +75,20 @@ compileCustomResourceHandlers.exec('/bin/bash ./build-custom-resource-handlers.s
 
 project.compileTask.prependSpawn(compileCustomResourceHandlers);
 
+project.gitignore.include('lib/package-integrity/handler/JSONStream.d.ts');
+const bundlePackageIntegrity = project.addTask('bundle:package-integrity', {
+  description: 'Bundle the package integrity script',
+  exec: [
+    'esbuild',
+    '--bundle',
+    'lib/package-integrity/handler/validate.js',
+    '--target="node12"',
+    '--platform="node"',
+    '--outfile="lib/package-integrity/handler/validate.bundle.js"',
+    '--sourcemap',
+  ].join(' '),
+});
+
+project.compileTask.spawn(bundlePackageIntegrity);
+
 project.synth();

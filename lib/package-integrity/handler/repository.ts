@@ -1,6 +1,9 @@
 import { execSync } from 'child_process';
 import * as fs from 'fs';
+import * as os from 'os';
 import * as path from 'path';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import * as AWS from 'aws-sdk';
 
 /**
  * Properties for `Repository`.
@@ -28,14 +31,92 @@ export interface Artifact {
 }
 
 /**
+ * Options for `Repository.fromGitHub`
+ */
+export interface RepositoryFromGitHubOptions {
+
+  /**
+   * Repository slug (e.g cdk8s-team/cdk8s-core)
+   */
+  readonly slug: string;
+
+  /**
+   * Repository tag.
+   *
+   * @default - latest tag based on creation date.
+   */
+  readonly tag?: string;
+
+  /**
+    * Prefix for detecting the latest tag of the repo. Only applies if `tag` isn't specified.
+    * This is useful for repositories that produce multiple packages, and hence multiple tags
+    * for example: https://github.com/cdk8s-team/cdk8s-plus/tags.
+    */
+  readonly tagPrefix?: string;
+
+  /**
+   * ARN of an AWS secrets manager secret containing a GitHub token.
+   * Required for private repositories. Recommended for public ones, to avoid throtlling issues.
+   *
+   * @default - the repository is cloned without credentials.
+   */
+  readonly githubTokenSecretArn?: string;
+
+}
+
+/**
+ * Options for `Repository.fromDir`
+ */
+export interface RepositoryFromDirOptions {
+
+  /**
+   * The directory of the repo.
+   */
+  readonly repoDir: string;
+
+}
+
+/**
  * Repository containing a node project.
  */
 export class Repository {
 
+  /**
+   * Create a repository from a local directory.
+   */
+  public static async fromDir(options: RepositoryFromDirOptions): Promise<Repository> {
+    return new Repository(options.repoDir);
+  }
+
+  /**
+   * Create a repository from a GitHub repository.
+   */
+  public static async fromGitHub(options: RepositoryFromGitHubOptions): Promise<Repository> {
+
+    const workdir = fs.mkdtempSync(path.join(os.tmpdir(), 'work'));
+    const sm = new AWS.SecretsManager();
+
+    let token = undefined;
+    if (options.githubTokenSecretArn) {
+      const secret = await sm.getSecretValue({ SecretId: options.githubTokenSecretArn }).promise();
+      token = secret.SecretString;
+    }
+    const repoDir = fs.mkdtempSync(path.join(workdir, 'repo'));
+
+    console.log(`Cloning ${options.slug} into ${repoDir}`);
+    execSync(`git clone https://${token ? `${token}@` : ''}github.com/${options.slug}.git ${repoDir}`);
+
+    const latestTag = findLatestTag(repoDir, options.tagPrefix);
+    execSync(`git checkout ${latestTag}`, { cwd: repoDir });
+
+    return new Repository(repoDir);
+
+  }
+
   private readonly isJsii: boolean;
   private readonly manifest: any;
 
-  public constructor(private readonly repoDir: string) {
+  private constructor(public readonly repoDir: string) {
     const manifestPath = path.join(repoDir, 'package.json');
 
     this.manifest = JSON.parse(fs.readFileSync(manifestPath, { encoding: 'utf-8' }));
@@ -63,17 +144,14 @@ export class Repository {
   /**
    * Pack the repository to produce the artifacts.
    */
-  public pack(task?: string): Artifact[] {
+  public pack(command: string): Artifact[] {
 
     const installCommand = 'yarn install --frozen-lockfile';
     console.log(`Installing | ${installCommand}`);
     this._shell(installCommand);
 
-    // note that run 'release' by default to preserve the version number.
-    // this won't do a bump since the commit we are on is already tagged.
-    const packCommand = `npx projen ${task ?? 'release'}`;
-    console.log(`Packing | ${packCommand}`);
-    this._shell(packCommand);
+    console.log(`Packing | ${command}`);
+    this._shell(command);
 
     const outdir = this.isJsii ? path.join(this.repoDir, this.manifest.jsii.outdir) : path.join(this.repoDir, 'dist');
 
@@ -96,4 +174,9 @@ export class Repository {
     execSync(command, { cwd: this.repoDir, stdio: ['ignore', 'inherit', 'inherit'] });
   }
 
+}
+
+function findLatestTag(repoDir: string, prefix?: string) {
+  const tags = execSync(`git tag -l --sort=-creatordate "${prefix ?? ''}*"`, { cwd: repoDir }).toString();
+  return tags.split(os.EOL)[0].trim();
 }

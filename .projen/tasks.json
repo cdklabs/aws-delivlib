@@ -40,6 +40,15 @@
       ],
       "condition": "! git log --oneline -1 | grep -q \"chore(release):\""
     },
+    "bundle:package-integrity": {
+      "name": "bundle:package-integrity",
+      "description": "Bundle the package integrity script",
+      "steps": [
+        {
+          "exec": "esbuild --bundle lib/package-integrity/handler/validate.js --target=\"node12\" --platform=\"node\" --outfile=\"lib/package-integrity/handler/validate.bundle.js\" --sourcemap"
+        }
+      ]
+    },
     "clobber": {
       "name": "clobber",
       "description": "hard resets to HEAD of origin and cleans the local repo",
@@ -81,6 +90,9 @@
         },
         {
           "exec": "tsc --build"
+        },
+        {
+          "spawn": "bundle:package-integrity"
         }
       ]
     },

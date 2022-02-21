@@ -4,11 +4,13 @@ import * as https from 'https';
 import * as os from 'os';
 import * as path from 'path';
 // eslint-disable-next-line import/no-extraneous-dependencies
-import * as AWS from 'aws-sdk';
+import AdmZip from 'adm-zip';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import * as fs from 'fs-extra';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import * as jstream from 'JSONStream';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import * as tar from 'tar';
 import { Repository } from './repository';
 
 
@@ -54,7 +56,7 @@ export abstract class ArtifactIntegrity {
    * @param artifact Path to an artifact file.
    * @param targetDir The directory to extract to. It will exist by the time this method is invoked.
    */
-  protected abstract extract(artifact: string, targetDir: string): void;
+  protected abstract extract(artifact: string, targetDir: string): Promise<void>;
 
   /**
    * Parse a local artifact file name into a structured package.
@@ -94,11 +96,11 @@ export abstract class ArtifactIntegrity {
 
       // extract the downlaoded package
       this.log(`Extracting remote artifact from ${downloaded} to ${remote}`);
-      this.extract(downloaded, remote);
+      await this.extract(downloaded, remote);
 
       // extract the local artfiact
       this.log(`Extracting local artifact from ${artifactPath} to ${local}`);
-      this.extract(artifactPath, local);
+      await this.extract(artifactPath, local);
 
       this.log(`Comparing ${local} <> ${remote}`);
       try {
@@ -109,7 +111,7 @@ export abstract class ArtifactIntegrity {
       this.log('Success');
 
     } finally {
-      // fs.removeSync(workdir);
+      fs.removeSync(workdir);
     }
 
   }
@@ -137,36 +139,14 @@ export abstract class ArtifactIntegrity {
  */
 export interface RepositoryIntegrityProps {
   /**
-   * Repository slug (e.g cdk8s-team/cdk8s-core)
+   * Repository to validate.
    */
-  readonly repository: string;
+  readonly repository: Repository;
 
   /**
-   * ARN of an AWS secrets manager secret containing a GitHub token.
-   * Required for private repositories. Recommended for public ones, to avoid throtlling issues.
+   * The command that produces the local artifacts.
    *
-   * @default - the repository is cloned without credentials.
-   */
-  readonly githubTokenSecretArn?: string;
-
-  /**
-   * Repository tag.
-   *
-   * @default - latest tag based on creation date.
-   */
-  readonly tag?: string;
-
-  /**
-   * Prefix for detecting the latest tag of the repo. Only applies if `tag` isn't specified.
-   * This is useful for repositories that produce multiple packages, and hence multiple tags
-   * for example: https://github.com/cdk8s-team/cdk8s-plus/tags.
-   */
-  readonly tagPrefix?: string;
-
-  /**
-   * The projen task that produces the local artifacts.
-   *
-   * @default 'release'
+   * @default 'npx projen release'
    */
   readonly packTask?: string;
 }
@@ -183,8 +163,9 @@ export class RepositoryIntegrity {
    */
   public async validate() {
 
-    const repo = await this.clone();
-    const artifacts = repo.pack(this.props.packTask);
+    // note that run 'release' by default to preserve the version number.
+    // this won't do a bump since the commit we are on is already tagged.
+    const artifacts = this.props.repository.pack(this.props.packTask ?? 'npx projen release');
 
     let integrity = undefined;
     for (const artifact of artifacts) {
@@ -205,32 +186,6 @@ export class RepositoryIntegrity {
     console.log('Validation done');
   }
 
-  public async clone(): Promise<Repository> {
-
-    const workdir = fs.mkdtempSync(path.join(os.tmpdir(), 'work'));
-    const sm = new AWS.SecretsManager();
-
-    let token = undefined;
-    if (this.props.githubTokenSecretArn) {
-      const secret = await sm.getSecretValue({ SecretId: this.props.githubTokenSecretArn }).promise();
-      token = secret.SecretString;
-    }
-    const repoDir = fs.mkdtempSync(path.join(workdir, 'repo'));
-
-    console.log(`Cloning ${this.props.repository} into ${repoDir}`);
-    execSync(`git clone https://${token ? `${token}@` : ''}github.com/${this.props.repository}.git ${repoDir}`);
-
-    const latestTag = this.findLatestTag(repoDir, this.props.tagPrefix);
-    execSync(`git checkout ${latestTag}`, { cwd: repoDir });
-
-    return new Repository(repoDir);
-  }
-
-  private findLatestTag(repoDir: string, prefix?: string) {
-    const tags = execSync(`git tag -l --sort=-creatordate "${prefix ?? ''}*"`, { cwd: repoDir }).toString();
-    return tags.split(os.EOL)[0].trim();
-  }
-
 }
 
 /**
@@ -241,13 +196,12 @@ export class NpmArtifactIntegrity extends ArtifactIntegrity {
   protected readonly ext = 'tgz';
 
   protected async download(pkg: PublishedPackage, target: string): Promise<void> {
-    const metadata = await jsonGet(`https://registry.npmjs.org/${encodeURIComponent(pkg.name)}/${encodeURIComponent(pkg.version)}`);
-    const tarball = metadata.dist.tarball;
-    await download(tarball, target);
+    const tarballUrl = await jsonGet(`https://registry.npmjs.org/${encodeURIComponent(pkg.name)}/${encodeURIComponent(pkg.version)}`, ['dist', 'tarball']);
+    await download(tarballUrl, target);
   }
 
-  protected extract(file: string, target: string): void {
-    execSync(`tar -zxvf ${file} --strip-components=1 -C ${target}`);
+  protected async extract(file: string, targetDir: string): Promise<void> {
+    return tar.x({ cwd: targetDir, file: file, strip: 1 });
   }
 
   protected parseArtifactName(artifactName: string): PublishedPackage {
@@ -281,8 +235,8 @@ export class PyPIArtifactIntegrity extends ArtifactIntegrity {
 
   protected async download(pkg: PublishedPackage, target: string): Promise<void> {
 
-    const metadata = await jsonGet(`https://pypi.org/pypi/${encodeURIComponent(pkg.name)}/json`);
-    const wheels: string[] = metadata.releases[pkg.version].filter((f: any) => f.url.endsWith('whl')).map((f: any) => f.url);
+    const files = await jsonGet(`https://pypi.org/pypi/${encodeURIComponent(pkg.name)}/json`, ['releases', pkg.version]);
+    const wheels: string[] = files.filter((f: any) => f.url.endsWith('whl')).map((f: any) => f.url);
 
     if (wheels.length === 0) {
       throw new Error(`No wheels found for package ${pkg.name}-${pkg.version}`);
@@ -295,8 +249,9 @@ export class PyPIArtifactIntegrity extends ArtifactIntegrity {
     await download(wheels[0], target);
   }
 
-  protected extract(artifact: string, target: string): void {
-    execSync(`unzip ${artifact}`, { cwd: target });
+  protected async extract(artifact: string, target: string): Promise<void> {
+    const zip = new AdmZip(artifact);
+    return zip.extractAllToAsync(target);
   }
 
   protected parseArtifactName(artifactName: string): PublishedPackage {
@@ -316,7 +271,6 @@ export class PyPIArtifactIntegrity extends ArtifactIntegrity {
 }
 
 export function jsonGet(url: string, jsonPath?: string[]): Promise<any> {
-  console.log(`Fetching: ${url}`);
   return get(url, (res, ok, ko) => {
     const json = jstream.parse(jsonPath);
     json.once('data', ok);
@@ -327,7 +281,6 @@ export function jsonGet(url: string, jsonPath?: string[]): Promise<any> {
 }
 
 export async function download(url: string, targetFile: string): Promise<any> {
-  console.log(`Downloading: ${url}`);
   return get(url, (res, ok, ko) => {
     const file = fs.createWriteStream(targetFile);
     file.on('finish', ok);

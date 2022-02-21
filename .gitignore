@@ -53,4 +53,5 @@ junit.xml
 cdk.out
 pipeline/*.js
 pipeline/*.d.ts
+!lib/package-integrity/handler/JSONStream.d.ts
 !/.github/workflows/upgrade-main.yml
