@@ -111,7 +111,7 @@ export abstract class ArtifactIntegrity {
       this.log('Success');
 
     } finally {
-      fs.removeSync(workdir);
+      // fs.removeSync(workdir);
     }
 
   }
@@ -251,7 +251,7 @@ export class PyPIArtifactIntegrity extends ArtifactIntegrity {
 
   protected async extract(artifact: string, target: string): Promise<void> {
     const zip = new AdmZip(artifact);
-    return zip.extractAllToAsync(target);
+    return Promise.resolve(zip.extractAllTo(target));
   }
 
   protected parseArtifactName(artifactName: string): PublishedPackage {

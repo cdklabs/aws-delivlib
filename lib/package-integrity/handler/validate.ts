@@ -12,8 +12,8 @@ function optionalEnv(name: string, defaultValue?: string) {
   return process.env[name] ?? defaultValue;
 }
 
-const GITHUB_TOKEN_ARN = requiredEnv('GITHUB_TOKEN_ARN');
 const GITHUB_REPOSITORY = requiredEnv('GITHUB_REPOSITORY');
+const GITHUB_TOKEN_ARN = optionalEnv('GITHUB_TOKEN_ARN');
 const TAG_PREFIX = optionalEnv('TAG_PREFIX');
 const PACK_TASK = optionalEnv('PACK_TASK');
 

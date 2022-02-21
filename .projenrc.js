@@ -85,7 +85,7 @@ const bundlePackageIntegrity = project.addTask('bundle:package-integrity', {
     '--target="node12"',
     '--platform="node"',
     '--outfile="lib/package-integrity/handler/validate.bundle.js"',
-    '--sourcemap',
+    '--sourcemap=inline',
   ].join(' '),
 });
 

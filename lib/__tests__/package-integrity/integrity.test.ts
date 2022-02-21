@@ -43,50 +43,6 @@ test('creates a codebuild project that triggers daily and runs the integrity han
     Environment: {
       EnvironmentVariables: [
         {
-          Name: 'SCRIPT_S3_BUCKET',
-          Type: 'PLAINTEXT',
-          Value: {
-            Ref: 'AssetParametersb8e18e88e2b4e13717fa876912b3209d00c06f9eb9a340033e2260ac1a3ec2c1S3Bucket7C2492AE',
-          },
-        },
-        {
-          Name: 'SCRIPT_S3_KEY',
-          Type: 'PLAINTEXT',
-          Value: {
-            'Fn::Join': [
-              '',
-              [
-                {
-                  'Fn::Select': [
-                    0,
-                    {
-                      'Fn::Split': [
-                        '||',
-                        {
-                          Ref: 'AssetParametersb8e18e88e2b4e13717fa876912b3209d00c06f9eb9a340033e2260ac1a3ec2c1S3VersionKeyD2AA52A1',
-                        },
-                      ],
-                    },
-                  ],
-                },
-                {
-                  'Fn::Select': [
-                    1,
-                    {
-                      'Fn::Split': [
-                        '||',
-                        {
-                          Ref: 'AssetParametersb8e18e88e2b4e13717fa876912b3209d00c06f9eb9a340033e2260ac1a3ec2c1S3VersionKeyD2AA52A1',
-                        },
-                      ],
-                    },
-                  ],
-                },
-              ],
-            ],
-          },
-        },
-        {
           Name: 'GITHUB_REPOSITORY',
           Type: 'PLAINTEXT',
           Value: 'cdklabs/some-repo',

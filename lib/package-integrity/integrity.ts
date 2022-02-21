@@ -22,7 +22,7 @@ export interface PackageIntegrityValidationProps {
   /**
    * Secret containing a github token.
    */
-  readonly githubTokenSecret: sm.ISecret;
+  readonly githubTokenSecret?: sm.ISecret;
 
   /**
    * The build platform to use. This platform should contain all necessary tools to package the artifacts
@@ -91,12 +91,15 @@ export class PackageIntegrityValidation extends Construct {
       environment: {
         GITHUB_REPOSITORY: props.repository,
         TAG_PREFIX: props.tagPrefix ?? '',
-        GITHUB_TOKEN_ARN: props.githubTokenSecret.secretArn,
+        GITHUB_TOKEN_ARN: props.githubTokenSecret?.secretArn,
         PACK_TASK: props.packTask,
       },
     });
 
-    props.githubTokenSecret.grantRead(shellable.role);
+    if (props.githubTokenSecret) {
+      const grant = props.githubTokenSecret.grantRead(shellable.role);
+      grant.assertSuccess();
+    }
 
     new events.Rule(this, 'ScheduledTrigger', {
       schedule: props.schedule ?? events.Schedule.rate(Duration.days(1)),

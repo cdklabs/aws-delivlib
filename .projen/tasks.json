@@ -45,7 +45,7 @@
       "description": "Bundle the package integrity script",
       "steps": [
         {
-          "exec": "esbuild --bundle lib/package-integrity/handler/validate.js --target=\"node12\" --platform=\"node\" --outfile=\"lib/package-integrity/handler/validate.bundle.js\" --sourcemap"
+          "exec": "esbuild --bundle lib/package-integrity/handler/validate.js --target=\"node12\" --platform=\"node\" --outfile=\"lib/package-integrity/handler/validate.bundle.js\" --sourcemap=inline"
         }
       ]
     },
