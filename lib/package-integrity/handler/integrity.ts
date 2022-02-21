@@ -152,7 +152,7 @@ export interface RepositoryIntegrityProps {
   /**
    * Repository tag.
    *
-   * @default - latest tag.
+   * @default - latest tag based on creation date.
    */
   readonly tag?: string;
 
