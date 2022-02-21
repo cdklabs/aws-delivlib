@@ -1,8 +1,12 @@
 import { execSync } from 'child_process';
+import type { RequestOptions, IncomingMessage } from 'http';
+import * as https from 'https';
 import * as os from 'os';
 import * as path from 'path';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import * as fs from 'fs-extra';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import * as jstream from 'JSONStream';
 import { Repository } from './repository';
 
 /**
@@ -34,20 +38,20 @@ export abstract class ArtifactIntegrity {
   protected abstract readonly ext: string;
 
   /**
-   * Download a package to the target directory.
+   * Download a package to the target file.
    *
    * @param pkg The package to download.
-   * @param target The directory to download to.
+   * @param targetFile The file path to download the package to.
    */
-  protected abstract download(pkg: PublishedPackage, target: string): void;
+  protected abstract download(pkg: PublishedPackage, targetFile: string): Promise<void>;
 
   /**
    * Extract the artifact into the target directory.
    *
    * @param artifact Path to an artifact file.
-   * @param target The directory to extract do.
+   * @param targetDir The directory to extract do.
    */
-  protected abstract extract(artifact: string, target: string): void;
+  protected abstract extract(artifact: string, targetDir: string): void;
 
   /**
    * Parse a local artifact file name into a structured package.
@@ -62,7 +66,7 @@ export abstract class ArtifactIntegrity {
    *
    * @param localArtifactDir The directory of the local artifact. Must contain exactly one file with the appropriate extenstion.
    */
-  public validate(localArtifactDir: string) {
+  public async validate(localArtifactDir: string) {
 
     const artifactPath = this.findOne(localArtifactDir);
     const name = this.constructor.name;
@@ -72,40 +76,37 @@ export abstract class ArtifactIntegrity {
 
     try {
       const downloaded = path.join(workdir, `${name}.downloaded`);
-      const published = path.join(workdir, `${name}.published`);
+      const remote = path.join(workdir, `${name}.remote`);
       const local = path.join(workdir, `${name}.local`);
 
       // parse the artifact name into a package.
       const pkg = this.parseArtifactName(path.basename(artifactPath));
 
-      fs.mkdirSync(downloaded);
-      fs.mkdirSync(published);
+      fs.mkdirSync(remote);
       fs.mkdirSync(local);
 
       // download the package
-      this.log(`Downloading [${pkg.name} | ${pkg.version}] to ${downloaded}`);
-      this.download(pkg, downloaded);
-
-      const artifact = this.findOne(downloaded);
+      this.log(`Downloading ${pkg.name}@${pkg.version} to ${downloaded}`);
+      await this.download(pkg, downloaded);
 
       // extract the downlaoded package
-      this.log(`Extracting remote artifact from ${artifact} to ${published}`);
-      this.extract(this.findOne(downloaded), published);
+      this.log(`Extracting remote artifact from ${downloaded} to ${remote}`);
+      this.extract(downloaded, remote);
 
       // extract the local artfiact
       this.log(`Extracting local artifact from ${artifactPath} to ${local}`);
       this.extract(artifactPath, local);
 
-      this.log(`Comparing ${local} <> ${published}`);
+      this.log(`Comparing ${local} <> ${remote}`);
       try {
-        execSync(`diff ${local} ${published}`, { stdio: ['ignore', 'inherit', 'inherit'] });
+        execSync(`diff ${local} ${remote}`, { stdio: ['ignore', 'inherit', 'inherit'] });
       } catch (error) {
         throw new Error(`${name} validation failed`);
       }
       this.log('Success');
 
     } finally {
-      fs.removeSync(workdir);
+      // fs.removeSync(workdir);
     }
 
   }
@@ -174,7 +175,7 @@ export class RepositoryIntegrity {
   /**
    * Validate the artifacts of this repo against its published counterpart.
    */
-  public validate() {
+  public async validate() {
 
     const repo = this.clone();
     const artifacts = repo.pack(this.props.packTask);
@@ -192,13 +193,13 @@ export class RepositoryIntegrity {
           break;
       }
       if (integrity) {
-        integrity.validate(artifact.directory);
+        await integrity.validate(artifact.directory);
       }
     }
     console.log('Validation done');
   }
 
-  private clone(): Repository {
+  public clone(): Repository {
 
     const workdir = fs.mkdtempSync(path.join(os.tmpdir(), 'work'));
     const token = execSync(`aws secretsmanager get-secret-value --secret-id ${this.props.githubTokenSecretArn} --output=text --query=SecretString`, { encoding: 'utf-8' }).toString().trim();
@@ -227,8 +228,10 @@ export class NpmArtifactIntegrity extends ArtifactIntegrity {
 
   protected readonly ext = 'tgz';
 
-  protected download(pkg: PublishedPackage, target: string): void {
-    execSync(`npm pack ${pkg.name}@${pkg.version}`, { cwd: target });
+  protected async download(pkg: PublishedPackage, target: string): Promise<void> {
+    const metadata = await jsonGet(`https://registry.npmjs.org/${encodeURIComponent(pkg.name)}/${encodeURIComponent(pkg.version)}`);
+    const tarball = metadata.dist.tarball;
+    await download(tarball, target);
   }
 
   protected extract(file: string, target: string): void {
@@ -264,8 +267,20 @@ export class PyPIArtifactIntegrity extends ArtifactIntegrity {
 
   protected readonly ext = 'whl';
 
-  protected download(pkg: PublishedPackage, target: string): void {
-    execSync(`pip download --no-deps ${pkg.name}==${pkg.version}`, { cwd: target });
+  protected async download(pkg: PublishedPackage, target: string): Promise<void> {
+
+    const metadata = await jsonGet(`https://pypi.org/pypi/${encodeURIComponent(pkg.name)}/json`);
+    const wheels: string[] = metadata.releases[pkg.version].filter((f: any) => f.url.endsWith('whl')).map((f: any) => f.url);
+
+    if (wheels.length === 0) {
+      throw new Error(`No wheels found for package ${pkg.name}-${pkg.version}`);
+    }
+
+    if (wheels.length > 1) {
+      throw new Error(`Multiple wheels found for package ${pkg.name}-${pkg.version}: ${wheels.join(',')}`);
+    }
+
+    await download(wheels[0], target);
   }
 
   protected extract(artifact: string, target: string): void {
@@ -285,5 +300,46 @@ export class PyPIArtifactIntegrity extends ArtifactIntegrity {
     return { name: match[1], version: match[2] };
 
   }
+
+}
+
+export function jsonGet(url: string, jsonPath?: string[]): Promise<any> {
+  console.log(`Fetching: ${url}`);
+  return get(url, (res, ok, ko) => {
+    const json = jstream.parse(jsonPath);
+    json.once('data', ok);
+    json.once('error', ko);
+
+    res.pipe(json, { end: true });
+  }, { headers: { 'Accept': 'application/json', 'Accept-Encoding': 'identity' } });
+}
+
+export async function download(url: string, targetFile: string): Promise<any> {
+  console.log(`Downloading: ${url}`);
+  return get(url, (res, ok, ko) => {
+    const file = fs.createWriteStream(targetFile);
+    file.on('finish', ok);
+    file.on('error', ko);
+    res.pipe(file, { end: true });
+  });
+}
+
+export async function get(
+  url: string,
+  handler: (res: IncomingMessage, ok: (value: unknown) => void, ko: (err: Error) => void) => void,
+  options: RequestOptions = {}) {
+
+  return new Promise((ok, ko) => {
+    const request = https.get(url, options, (res: IncomingMessage) => {
+      if (res.statusCode !== 200) {
+        const error = new Error(`GET ${url} - HTTP ${res.statusCode} (${res.statusMessage})`);
+        Error.captureStackTrace(error);
+        return ko(error);
+      }
+      res.once('error', ko);
+      handler(res, ok, ko);
+    });
+    request.on('error', ko);
+  });
 
 }

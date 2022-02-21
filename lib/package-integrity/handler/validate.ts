@@ -22,4 +22,9 @@ const integrity = new RepositoryIntegrity({
   tagPrefix: TAG_PREFIX,
   packTask: PACK_TASK,
 });
-integrity.validate();
+
+integrity.validate()
+  .catch(e => {
+    console.log(`Error: ${e.message}`);
+    process.exitCode = 1;
+  });

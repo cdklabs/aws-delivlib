@@ -57,15 +57,14 @@ function initializeRepo(repoDir: string): Repository {
   return new Repository(repoDir);
 }
 
-function withRepo(fixture: string, work: (repoDir: string) => void) {
+async function withRepo(fixture: string, work: (repoDir: string) => Promise<void>) {
 
   const tempdir = fs.mkdtempSync(path.join(os.tmpdir(), path.sep));
   try {
     const repoDir = path.join(tempdir, fixture);
     fs.mkdirSync(repoDir);
     fs.copySync(fixturePath(fixture), repoDir);
-    console.log(`repoDir: ${repoDir}`);
-    work(repoDir);
+    await work(repoDir);
   } finally {
     fs.removeSync(tempdir);
   }
@@ -89,123 +88,120 @@ beforeEach(() => {
 });
 
 
-test('happy projen-jsii', () => {
+test('happy projen-jsii', async () => {
 
-  withRepo('projen-jsii-project', (repoDir) => {
+  await withRepo('projen-jsii-project', async (repoDir) => {
 
     // happy path - simply copy over the actual artifacts
 
-    const npmDownload = (pkg: PublishedPackage, target: string) => {
+    const npmDownload = async (pkg: PublishedPackage, targetFile: string) => {
       const dist = path.join(repoDir, 'dist');
       const name = `${pkg.name}@${pkg.version}.jsii.tgz`;
-      fs.copySync(path.join(dist, 'js', name), path.join(target, name));
+      fs.copySync(path.join(dist, 'js', name), targetFile);
     };
 
-    const pypiDownload = (pkg: PublishedPackage, target: string) => {
+    const pypiDownload = async (pkg: PublishedPackage, targetFile: string) => {
       const dist = path.join(repoDir, 'dist');
       const name = `${pkg.name}-${pkg.version}-py3-none-any.whl`;
-      fs.copySync(path.join(dist, 'python', name), path.join(target, name));
+      fs.copySync(path.join(dist, 'python', name), targetFile);
     };
 
     const integrity = createIntegrity({ repoDir, npmDownload, pypiDownload });
-    integrity.validate();
+    await integrity.validate();
 
   });
 
 });
 
-test('happy projen-non-jsii', () => {
+test('happy projen-non-jsii', async () => {
 
-  withRepo('projen-non-jsii-project', (repoDir) => {
+  await withRepo('projen-non-jsii-project', async (repoDir) => {
 
     // happy path - simply copy over the actual artifacts
 
-    const npmDownload = (pkg: PublishedPackage, target: string) => {
+    const npmDownload = (pkg: PublishedPackage, targetFile: string) => {
       const dist = path.join(repoDir, 'dist');
       const name = `${pkg.name}-${pkg.version}.tgz`;
-      fs.copySync(path.join(dist, 'js', name), path.join(target, name));
+      fs.copySync(path.join(dist, 'js', name), targetFile);
     };
 
-    const pypiDownload = (pkg: PublishedPackage, target: string) => {
+    const pypiDownload = (pkg: PublishedPackage, targetFile: string) => {
       const dist = path.join(repoDir, 'dist');
       const name = `${pkg.name}-${pkg.version}-py3-none-any.whl`;
-      fs.copySync(path.join(dist, 'python', name), path.join(target, name));
+      fs.copySync(path.join(dist, 'python', name), targetFile);
     };
 
     const integrity = createIntegrity({ repoDir, npmDownload, pypiDownload });
-    integrity.validate();
+    await integrity.validate();
 
   });
 
 });
 
 
-test('unhappy npm artifact', () => {
+test('unhappy npm artifact', async () => {
 
-  withRepo('projen-jsii-project', (repoDir) => {
+  await withRepo('projen-jsii-project', async (repoDir) => {
 
     // unhappy path - conjure up corrupted artifacts
 
-    const npmDownload = (pkg: PublishedPackage, target: string) => {
-      const name = `${pkg.name}@${pkg.version}.jsii.tgz`;
-      tar.create({ file: path.join(target, name), gzip: true, sync: true },
+    const npmDownload = (_: PublishedPackage, targetFile: string) => {
+      tar.create({ file: targetFile, gzip: true, sync: true },
         [path.join(repoDir, 'package.json')],
       );
     };
 
-    const pypiDownload = (pkg: PublishedPackage, target: string) => {
+    const pypiDownload = (pkg: PublishedPackage, targetFile: string) => {
       const dist = path.join(repoDir, 'dist');
       const name = `${pkg.name}-${pkg.version}-py3-none-any.whl`;
-      fs.copySync(path.join(dist, 'python', name), path.join(target, name));
+      fs.copySync(path.join(dist, 'python', name), targetFile);
     };
 
     const integrity = createIntegrity({ repoDir, npmDownload, pypiDownload });
-    expect(() => integrity.validate()).toThrowError('NpmArtifactIntegrity validation failed');
+    return expect(integrity.validate()).rejects.toThrow('NpmArtifactIntegrity validation failed');
 
   });
 });
 
-test('unhappy pypi artifcat', () => {
+test('unhappy pypi artifcat', async () => {
 
-  withRepo('projen-jsii-project', (repoDir) => {
+  await withRepo('projen-jsii-project', async (repoDir) => {
 
     // unhappy path - conjure up corrupted artifacts
 
-    const npmDownload = (pkg: PublishedPackage, target: string) => {
+    const npmDownload = (pkg: PublishedPackage, targetFile: string) => {
       const dist = path.join(repoDir, 'dist');
       const name = `${pkg.name}@${pkg.version}.jsii.tgz`;
-      fs.copySync(path.join(dist, 'js', name), path.join(target, name));
+      fs.copySync(path.join(dist, 'js', name), targetFile);
     };
 
-    const pypiDownload = (pkg: PublishedPackage, target: string) => {
-      const name = `${pkg.name}-${pkg.version}-py3-none-any.whl`;
+    const pypiDownload = (_: PublishedPackage, targetFile: string) => {
       const whl = new AdmZip();
       whl.addLocalFile(path.join(repoDir, 'package.json'));
-      whl.writeZip(path.join(target, name));
+      whl.writeZip(targetFile);
     };
 
     const integrity = createIntegrity({ repoDir, npmDownload, pypiDownload });
-    expect(() => integrity.validate()).toThrowError('PyPIArtifactIntegrity validation failed');
+    return expect(integrity.validate()).toThrowError('PyPIArtifactIntegrity validation failed');
 
   });
 });
 
 
-test('only projen projects are supported', () => {
+test('only projen projects are supported', async () => {
 
-  withRepo('non-projen-project', (repoDir) => {
+  await withRepo('non-projen-project', async (repoDir) => {
     const integrity = createIntegrity({ repoDir, npmDownload: {} as any, pypiDownload: {} as any });
-    expect(() => integrity.validate()).toThrowError('Only projen managed repositories are supported at this time');
+    return expect(integrity.validate()).rejects.toThrowError('Only projen managed repositories are supported at this time');
   });
 
 });
 
-test('only yarn projects are supported', () => {
+test('only yarn projects are supported', async () => {
 
-  withRepo('non-yarn-project', (repoDir) => {
+  await withRepo('non-yarn-project', (repoDir) => {
     const integrity = createIntegrity({ repoDir, npmDownload: {} as any, pypiDownload: {} as any });
-    expect(() => integrity.validate()).toThrowError('Only yarn managed repositories are supported at this time');
+    return expect(integrity.validate()).rejects.toThrowError('Only yarn managed repositories are supported at this time');
   });
 
 });
-

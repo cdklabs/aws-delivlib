@@ -21,6 +21,7 @@ const project = new TypeScriptProject({
     '@types/fs-extra',
     '@types/tar',
     '@types/adm-zip',
+    '@types/jsonstream',
     'aws-cdk',
     'jest-create-mock-instance',
     'constructs',
@@ -35,6 +36,7 @@ const project = new TypeScriptProject({
     'fs-extra',
     'tar',
     'adm-zip',
+    'JSONStream',
   ],
   peerDeps: [
     'constructs',
