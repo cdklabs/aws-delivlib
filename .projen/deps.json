@@ -21,10 +21,6 @@
       "type": "build"
     },
     {
-      "name": "@types/jsonstream",
-      "type": "build"
-    },
-    {
       "name": "@types/node",
       "version": "^12",
       "type": "build"

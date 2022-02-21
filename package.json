@@ -41,7 +41,6 @@
     "@types/aws-lambda": "^8.10.92",
     "@types/fs-extra": "^9.0.13",
     "@types/jest": "^27.4.0",
-    "@types/jsonstream": "^0.8.30",
     "@types/node": "^12",
     "@types/tar": "^6.1.1",
     "@typescript-eslint/eslint-plugin": "^5",

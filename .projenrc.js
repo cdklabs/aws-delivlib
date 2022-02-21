@@ -21,7 +21,6 @@ const project = new TypeScriptProject({
     '@types/fs-extra',
     '@types/tar',
     '@types/adm-zip',
-    '@types/jsonstream',
     'aws-cdk',
     'jest-create-mock-instance',
     'constructs',
