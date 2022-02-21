@@ -52,7 +52,7 @@ export abstract class ArtifactIntegrity {
    * Extract the artifact into the target directory.
    *
    * @param artifact Path to an artifact file.
-   * @param targetDir The directory to extract do.
+   * @param targetDir The directory to extract to. It will exist by the time this method is invoked.
    */
   protected abstract extract(artifact: string, targetDir: string): void;
 
@@ -137,14 +137,17 @@ export abstract class ArtifactIntegrity {
  */
 export interface RepositoryIntegrityProps {
   /**
-   * ARN of an AWS secrets manager secret containing a GitHub token.
-   */
-  readonly githubTokenSecretArn: string;
-
-  /**
    * Repository slug (e.g cdk8s-team/cdk8s-core)
    */
   readonly repository: string;
+
+  /**
+   * ARN of an AWS secrets manager secret containing a GitHub token.
+   * Required for private repositories. Recommended for public ones, to avoid throtlling issues.
+   *
+   * @default - the repository is cloned without credentials.
+   */
+  readonly githubTokenSecretArn?: string;
 
   /**
    * Repository tag.
@@ -206,12 +209,16 @@ export class RepositoryIntegrity {
 
     const workdir = fs.mkdtempSync(path.join(os.tmpdir(), 'work'));
     const sm = new AWS.SecretsManager();
-    const secret = await sm.getSecretValue({ SecretId: this.props.githubTokenSecretArn }).promise();
-    const token = secret.SecretString;
+
+    let token = undefined;
+    if (this.props.githubTokenSecretArn) {
+      const secret = await sm.getSecretValue({ SecretId: this.props.githubTokenSecretArn }).promise();
+      token = secret.SecretString;
+    }
     const repoDir = fs.mkdtempSync(path.join(workdir, 'repo'));
 
     console.log(`Cloning ${this.props.repository} into ${repoDir}`);
-    execSync(`git clone https://${token}@github.com/${this.props.repository}.git ${repoDir}`);
+    execSync(`git clone https://${token ? `${token}@` : ''}github.com/${this.props.repository}.git ${repoDir}`);
 
     const latestTag = this.findLatestTag(repoDir, this.props.tagPrefix);
     execSync(`git checkout ${latestTag}`, { cwd: repoDir });
