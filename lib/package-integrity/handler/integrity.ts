@@ -4,10 +4,13 @@ import * as https from 'https';
 import * as os from 'os';
 import * as path from 'path';
 // eslint-disable-next-line import/no-extraneous-dependencies
+import * as AWS from 'aws-sdk';
+// eslint-disable-next-line import/no-extraneous-dependencies
 import * as fs from 'fs-extra';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import * as jstream from 'JSONStream';
 import { Repository } from './repository';
+
 
 /**
  * Published package.
@@ -177,7 +180,7 @@ export class RepositoryIntegrity {
    */
   public async validate() {
 
-    const repo = this.clone();
+    const repo = await this.clone();
     const artifacts = repo.pack(this.props.packTask);
 
     let integrity = undefined;
@@ -199,10 +202,12 @@ export class RepositoryIntegrity {
     console.log('Validation done');
   }
 
-  public clone(): Repository {
+  public async clone(): Promise<Repository> {
 
     const workdir = fs.mkdtempSync(path.join(os.tmpdir(), 'work'));
-    const token = execSync(`aws secretsmanager get-secret-value --secret-id ${this.props.githubTokenSecretArn} --output=text --query=SecretString`, { encoding: 'utf-8' }).toString().trim();
+    const sm = new AWS.SecretsManager();
+    const secret = await sm.getSecretValue({ SecretId: this.props.githubTokenSecretArn }).promise();
+    const token = secret.SecretString;
     const repoDir = fs.mkdtempSync(path.join(workdir, 'repo'));
 
     console.log(`Cloning ${this.props.repository} into ${repoDir}`);
