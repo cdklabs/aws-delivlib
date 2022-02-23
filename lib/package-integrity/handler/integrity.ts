@@ -150,7 +150,7 @@ export interface RepositoryIntegrityProps {
    *
    * @default 'npx projen release'
    */
-  readonly packTask?: string;
+  readonly packCommand?: string;
 }
 
 /**
@@ -167,7 +167,7 @@ export class RepositoryIntegrity {
 
     // note that run 'release' by default to preserve the version number.
     // this won't do a bump since the commit we are on is already tagged.
-    const artifacts = this.props.repository.pack(this.props.packTask ?? 'npx projen release');
+    const artifacts = this.props.repository.pack(this.props.packCommand ?? 'npx projen release');
 
     let integrity = undefined;
     for (const artifact of artifacts) {

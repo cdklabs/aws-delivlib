@@ -50,7 +50,7 @@ function createIntegrity(inputs: IntegrityInputs) {
   jest.spyOn<any, any>(PyPIArtifactIntegrity.prototype, 'download').mockImplementation(inputs.pypiDownload as any);
 
   // we don't need a pack task since we prepack in the test
-  return new RepositoryIntegrity({ repository: inputs.repo, packTask: 'echo success' });
+  return new RepositoryIntegrity({ repository: inputs.repo, packCommand: 'echo success' });
 
 }
 

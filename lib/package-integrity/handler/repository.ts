@@ -151,7 +151,7 @@ export class Repository {
     this._shell(installCommand);
 
     console.log(`Packing | ${command}`);
-    this._shell(command);
+    this._shell(`echo CI=\${CI} && ${command}`);
 
     const outdir = this.isJsii ? path.join(this.repoDir, this.manifest.jsii.outdir) : path.join(this.repoDir, 'dist');
 

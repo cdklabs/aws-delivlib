@@ -27,7 +27,7 @@ async function main() {
 
   const integrity = new RepositoryIntegrity({
     repository: repo,
-    packTask: PACK_TASK,
+    packCommand: PACK_TASK,
   });
 
   await integrity.validate();
