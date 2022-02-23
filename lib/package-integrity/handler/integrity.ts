@@ -97,10 +97,12 @@ export abstract class ArtifactIntegrity {
       // extract the downlaoded package
       this.log(`Extracting remote artifact from ${downloaded} to ${remote}`);
       await this.extract(downloaded, remote);
+      execSync(`ls -l ${remote}`, { stdio: ['ignore', 'inherit', 'inherit'] });
 
       // extract the local artfiact
       this.log(`Extracting local artifact from ${artifactPath} to ${local}`);
       await this.extract(artifactPath, local);
+      execSync(`ls -l ${local}`, { stdio: ['ignore', 'inherit', 'inherit'] });
 
       this.log(`Comparing ${local} <> ${remote}`);
       try {
@@ -111,7 +113,7 @@ export abstract class ArtifactIntegrity {
       this.log('Success');
 
     } finally {
-      // fs.removeSync(workdir);
+      fs.removeSync(workdir);
     }
 
   }
