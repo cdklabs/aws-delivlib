@@ -171,6 +171,7 @@ export class RepositoryIntegrity {
 
     let integrity = undefined;
     for (const artifact of artifacts) {
+      console.log(`artifact: ${artifact.directory} (${artifact.lang})`);
       switch (artifact.lang) {
         case 'js':
           integrity = new NpmArtifactIntegrity();
