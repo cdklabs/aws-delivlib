@@ -203,7 +203,13 @@
       "description": "Run tests",
       "steps": [
         {
-          "exec": "jest lib/__tests__/package-integrity/handler/integrity.test.js -t 'unhappy npm jsii' --passWithNoTests --all --updateSnapshot"
+          "exec": "jest --passWithNoTests --all --updateSnapshot"
+        },
+        {
+          "spawn": "eslint"
+        },
+        {
+          "spawn": "integ:diff"
         }
       ]
     },
