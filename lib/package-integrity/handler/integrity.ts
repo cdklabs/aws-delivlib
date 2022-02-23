@@ -97,12 +97,10 @@ export abstract class ArtifactIntegrity {
       // extract the downlaoded package
       this.log(`Extracting remote artifact from ${downloaded} to ${remote}`);
       await this.extract(downloaded, remote);
-      execSync(`ls -l ${remote}`, { stdio: ['ignore', 'inherit', 'inherit'] });
 
       // extract the local artfiact
       this.log(`Extracting local artifact from ${artifactPath} to ${local}`);
       await this.extract(artifactPath, local);
-      execSync(`ls -l ${local}`, { stdio: ['ignore', 'inherit', 'inherit'] });
 
       this.log(`Comparing ${local} <> ${remote}`);
       try {
@@ -171,7 +169,6 @@ export class RepositoryIntegrity {
 
     let integrity = undefined;
     for (const artifact of artifacts) {
-      console.log(`artifact: ${artifact.directory} (${artifact.lang})`);
       switch (artifact.lang) {
         case 'js':
           integrity = new NpmArtifactIntegrity();
@@ -179,8 +176,14 @@ export class RepositoryIntegrity {
         case 'python':
           integrity = new PyPIArtifactIntegrity();
           break;
-        default:
+        case 'java':
+        case 'dotnet':
+        case 'go':
+          // we don't have integrity checks for these
+          // artifacts yet.
           break;
+        default:
+          throw new Error(`Unsupported artifact language: ${artifact.lang}`);
       }
       if (integrity) {
         await integrity.validate(artifact.directory);

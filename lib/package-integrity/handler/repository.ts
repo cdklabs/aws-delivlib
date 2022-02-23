@@ -150,10 +150,13 @@ export class Repository {
     console.log(`Installing | ${installCommand}`);
     this._shell(installCommand);
 
-    console.log(`Packing | ${command}`);
-    this._shell(`echo CI=\${CI} && ${command}`);
+    const dist = this.isJsii ? this.manifest.jsii.outdir ?? 'dist' : 'dist';
+    const outdir = path.join(this.repoDir, dist);
 
-    const outdir = this.isJsii ? path.join(this.repoDir, this.manifest.jsii.outdir) : path.join(this.repoDir, 'dist');
+    console.log(`Packing | ${command}`);
+
+    // crapy: https://github.com/projen/projen/pull/1631
+    this._shell(this.isJsii ? `unset CI && ${command}` : command);
 
     const artifacts: Artifact[] = [];
     for (const lang of fs.readdirSync(outdir)) {
