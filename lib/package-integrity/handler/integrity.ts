@@ -200,7 +200,7 @@ export class NpmArtifactIntegrity extends ArtifactIntegrity {
     await download(tarballUrl, target);
   }
 
-  protected async extract(file: string, targetDir: string): Promise<void> {
+  public async extract(file: string, targetDir: string): Promise<void> {
     return tar.x({ cwd: targetDir, file: file, strip: 1 });
   }
 
@@ -249,9 +249,9 @@ export class PyPIArtifactIntegrity extends ArtifactIntegrity {
     await download(wheels[0], target);
   }
 
-  protected async extract(artifact: string, target: string): Promise<void> {
+  public async extract(artifact: string, target: string): Promise<void> {
     const zip = new AdmZip(artifact);
-    return Promise.resolve(zip.extractAllTo(target));
+    return zip.extractAllTo(target);
   }
 
   protected parseArtifactName(artifactName: string): PublishedPackage {
