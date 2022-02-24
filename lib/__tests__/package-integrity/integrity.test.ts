@@ -1,3 +1,4 @@
+import { SynthUtils } from '@monocdk-experiment/assert';
 import '@monocdk-experiment/assert/jest';
 import {
   App, Stack,
@@ -39,69 +40,26 @@ test('creates a codebuild project that triggers daily and runs the integrity han
     ],
   });
 
-  expect(stack).toHaveResourceLike('AWS::CodeBuild::Project', {
-    Environment: {
-      EnvironmentVariables: [
-        {
-          Name: 'SCRIPT_S3_BUCKET',
-          Type: 'PLAINTEXT',
-          Value: {
-            Ref: 'AssetParametersa78d023ed306b40d21b498bce140ebfef83ba87925505d476023bcd283f83719S3Bucket02EA5E9B',
-          },
-        },
-        {
-          Name: 'SCRIPT_S3_KEY',
-          Type: 'PLAINTEXT',
-          Value: {
-            'Fn::Join': [
-              '',
-              [
-                {
-                  'Fn::Select': [
-                    0,
-                    {
-                      'Fn::Split': [
-                        '||',
-                        {
-                          Ref: 'AssetParametersa78d023ed306b40d21b498bce140ebfef83ba87925505d476023bcd283f83719S3VersionKey5893CE58',
-                        },
-                      ],
-                    },
-                  ],
-                },
-                {
-                  'Fn::Select': [
-                    1,
-                    {
-                      'Fn::Split': [
-                        '||',
-                        {
-                          Ref: 'AssetParametersa78d023ed306b40d21b498bce140ebfef83ba87925505d476023bcd283f83719S3VersionKey5893CE58',
-                        },
-                      ],
-                    },
-                  ],
-                },
-              ],
-            ],
-          },
-        },
-        {
-          Name: 'GITHUB_REPOSITORY',
-          Type: 'PLAINTEXT',
-          Value: 'cdklabs/some-repo',
-        },
-        {
-          Name: 'TAG_PREFIX',
-          Type: 'PLAINTEXT',
-          Value: '',
-        },
-        {
-          Name: 'GITHUB_TOKEN_ARN',
-          Type: 'PLAINTEXT',
-          Value: 'arn:aws:secretsmanager:us-east-1:123456789123:secret:github-token-000000',
-        },
-      ],
-    },
-  });
+
+  const template = SynthUtils.synthesize(stack).template;
+  expect(template.Resources.IntegrityD83C2C0B.Properties.Environment.EnvironmentVariables.slice(2)).toStrictEqual(
+    [
+      {
+        Name: 'GITHUB_REPOSITORY',
+        Type: 'PLAINTEXT',
+        Value: 'cdklabs/some-repo',
+      },
+      {
+        Name: 'TAG_PREFIX',
+        Type: 'PLAINTEXT',
+        Value: '',
+      },
+      {
+        Name: 'GITHUB_TOKEN_ARN',
+        Type: 'PLAINTEXT',
+        Value: 'arn:aws:secretsmanager:us-east-1:123456789123:secret:github-token-000000',
+      },
+    ],
+  );
+
 });
