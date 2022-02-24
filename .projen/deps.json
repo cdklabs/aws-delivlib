@@ -5,7 +5,15 @@
       "type": "build"
     },
     {
+      "name": "@types/adm-zip",
+      "type": "build"
+    },
+    {
       "name": "@types/aws-lambda",
+      "type": "build"
+    },
+    {
+      "name": "@types/fs-extra",
       "type": "build"
     },
     {
@@ -18,6 +26,10 @@
       "type": "build"
     },
     {
+      "name": "@types/tar",
+      "type": "build"
+    },
+    {
       "name": "@typescript-eslint/eslint-plugin",
       "version": "^5",
       "type": "build"
@@ -25,6 +37,10 @@
     {
       "name": "@typescript-eslint/parser",
       "version": "^5",
+      "type": "build"
+    },
+    {
+      "name": "adm-zip",
       "type": "build"
     },
     {
@@ -61,6 +77,10 @@
       "type": "build"
     },
     {
+      "name": "fs-extra",
+      "type": "build"
+    },
+    {
       "name": "jest",
       "type": "build"
     },
@@ -75,6 +95,10 @@
     },
     {
       "name": "json-schema",
+      "type": "build"
+    },
+    {
+      "name": "JSONStream",
       "type": "build"
     },
     {
@@ -101,6 +125,10 @@
     {
       "name": "standard-version",
       "version": "^9",
+      "type": "build"
+    },
+    {
+      "name": "tar",
       "type": "build"
     },
     {
