@@ -37,9 +37,9 @@
     "organization": false
   },
   "devDependencies": {
-    "@monocdk-experiment/assert": "^1.146.0",
+    "@monocdk-experiment/assert": "^1.149.0",
     "@types/adm-zip": "^0.4.34",
-    "@types/aws-lambda": "^8.10.92",
+    "@types/aws-lambda": "^8.10.93",
     "@types/fs-extra": "^9.0.13",
     "@types/jest": "^27.4.1",
     "@types/node": "^12",
@@ -47,10 +47,10 @@
     "@typescript-eslint/eslint-plugin": "^5",
     "@typescript-eslint/parser": "^5",
     "adm-zip": "^0.5.9",
-    "aws-cdk": "^1.146.0",
-    "aws-sdk": "^2.1082.0",
-    "constructs": "^3.3.228",
-    "esbuild": "^0.14.23",
+    "aws-cdk": "^1.149.0",
+    "aws-sdk": "^2.1095.0",
+    "constructs": "^3.3.245",
+    "esbuild": "^0.14.27",
     "eslint": "^8",
     "eslint-import-resolver-node": "^0.3.6",
     "eslint-import-resolver-typescript": "^2.5.0",
@@ -61,22 +61,22 @@
     "jest-junit": "^13",
     "json-schema": "^0.4.0",
     "JSONStream": "^1.3.5",
-    "monocdk": "^1.146.0",
+    "monocdk": "^1.149.0",
     "node-ical": "^0.14.1",
     "npm-check-updates": "^12",
-    "projen": "^0.52.49",
-    "rrule": "^2.6.8",
+    "projen": "^0.53.1",
+    "rrule": "^2.6.9",
     "standard-version": "^9",
     "tar": "^6.1.11",
     "ts-jest": "^27.1.3",
-    "typescript": "~4.5.5"
+    "typescript": "~4.6.2"
   },
   "peerDependencies": {
-    "constructs": "^3.3.228",
-    "monocdk": "^1.146.0"
+    "constructs": "^3.3.245",
+    "monocdk": "^1.149.0"
   },
   "dependencies": {
-    "changelog-parser": "^2.8.0"
+    "changelog-parser": "^2.8.1"
   },
   "keywords": [
     "aws-cdk",
