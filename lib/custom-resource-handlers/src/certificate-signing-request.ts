@@ -74,13 +74,13 @@ async function _createSelfSignedCertificate(event: cfn.Event): Promise<ResourceA
     await s3.putObject({
       Bucket: bucketName,
       Key: 'certificate-signing-request.pem',
-      Body: await readFile(csrFile, { encoding: 'utf-8' }),
+      Body: await readFile(csrFile, { encoding: 'utf8' }),
       ContentType: 'application/x-pem-file',
     }).promise();
     await s3.putObject({
       Bucket: bucketName,
       Key: 'self-signed-certificate.pem',
-      Body: await readFile(certFile, { encoding: 'utf-8' }),
+      Body: await readFile(certFile, { encoding: 'utf8' }),
       ContentType: 'application/x-pem-file',
     }).promise();
 

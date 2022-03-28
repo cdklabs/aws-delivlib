@@ -68,6 +68,8 @@ integDiff.exec('/bin/bash ./lib/__tests__/run-test.sh');
 const integUpdate = project.addTask('integ:update');
 integUpdate.exec('/bin/bash ./lib/__tests__/run-test.sh update');
 
+// Need to run with UTC TZ, or else node-ical does very wrong things with timestamps and fails tests...
+project.testTask.env('TZ', 'UTC');
 project.testTask.spawn(integDiff);
 
 const compileCustomResourceHandlers = project.addTask('compile:custom-resource-handlers');
