@@ -38,6 +38,7 @@ async function handleEvent(event: cfn.Event, _context: lambda.Context): Promise<
       ExtendedKeyUsage: false,
       KeyUsage: true,
       PrivateKeySecretId: true,
+      OutputBucket: true,
     });
   }
 
@@ -67,10 +68,26 @@ async function _createSelfSignedCertificate(event: cfn.Event): Promise<ResourceA
       '-req',
       '-signkey', pkeyFile,
       '-days', '365');
+
+    const s3 = new aws.S3();
+    const bucketName: string = event.ResourceProperties.OutputBucket;
+    await s3.putObject({
+      Bucket: bucketName,
+      Key: 'certificate-signing-request.pem',
+      Body: await readFile(csrFile, { encoding: 'utf8' }),
+      ContentType: 'application/x-pem-file',
+    }).promise();
+    await s3.putObject({
+      Bucket: bucketName,
+      Key: 'self-signed-certificate.pem',
+      Body: await readFile(certFile, { encoding: 'utf8' }),
+      ContentType: 'application/x-pem-file',
+    }).promise();
+
     return {
       Ref: event.LogicalResourceId,
-      CSR: await readFile(csrFile, { encoding: 'utf8' }),
-      SelfSignedCertificate: await readFile(certFile, { encoding: 'utf8' }),
+      CSR: `s3://${bucketName}/certificate-signing-request.pem`,
+      SelfSignedCertificate: `s3://${bucketName}/self-signed-certificate.pem`,
     };
   } finally {
     await _rmrf(tempDir);

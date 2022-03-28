@@ -3,6 +3,8 @@ import {
   Construct, Duration,
   aws_cloudformation as cfn,
   aws_lambda as lambda,
+  aws_s3 as s3,
+  RemovalPolicy,
 } from 'monocdk';
 import { hashFileOrDirectory } from '../util';
 import { RsaPrivateKeySecret } from './private-key';
@@ -41,10 +43,13 @@ export interface CertificateSigningRequestProps {
  */
 export class CertificateSigningRequest extends Construct {
   /**
-   * The PEM-encoded CSR document.
+   * The S3 URL to the CSR document.
    */
   public readonly pemRequest: string;
 
+  /**
+   * The S3 URL to a self-signed certificate that corresponds with this CSR.
+   */
   public readonly selfSignedPemCertificate: string;
 
   constructor(parent: Construct, id: string, props: CertificateSigningRequestProps) {
@@ -65,6 +70,15 @@ export class CertificateSigningRequest extends Construct {
       })],
     });
 
+    const outputBucket = new s3.Bucket(this, 'Bucket', {
+      // CSRs can be easily re-created if lost or corrupt, so we can let those get to a black hole, no worries.
+      autoDeleteObjects: true,
+      removalPolicy: RemovalPolicy.DESTROY,
+      encryption: s3.BucketEncryption.S3_MANAGED,
+      enforceSSL: true,
+    });
+    outputBucket.grantReadWrite(customResource);
+
     const csr = new cfn.CustomResource(this, 'Resource', {
       provider: cfn.CustomResourceProvider.lambda(customResource),
       resourceType: 'Custom::CertificateSigningRequest',
@@ -83,6 +97,8 @@ export class CertificateSigningRequest extends Construct {
         // Key Usage
         extendedKeyUsage: props.extendedKeyUsage || '',
         keyUsage: props.keyUsage,
+        // Ouput location
+        outputBucket: outputBucket.bucketName,
       },
     });
     if (customResource.role) {

@@ -2,11 +2,13 @@
 import fs = require('fs');
 import path = require('path');
 import aws = require('aws-sdk');
+import awsMock = require('aws-sdk-mock');
 import { createMockInstance } from 'jest-create-mock-instance';
 import cfn = require('../../custom-resource-handlers/src/_cloud-formation');
 import lambda = require('../../custom-resource-handlers/src/_lambda');
 
 const context: lambda.Context = { awsRequestId: '90E99AAE-B120-409A-9156-0C5925FDD996' } as lambda.Context;
+const outputBucketName = 'csr-output-bucket-name';
 const eventBase = {
   LogicalResourceId: 'ResourceID12345689',
   ResponseURL: 'https://response/url',
@@ -25,6 +27,8 @@ const eventBase = {
     KeyUsage: 'critical,use-the-key',
     ExtendedKeyUsage: 'critical,abuse-the-key',
     PrivateKeySecretId: 'arn:::private-key-secret',
+
+    OutputBucket: outputBucketName,
   },
   ResourceType: 'Custom::Resource::Type',
   StackId: 'StackID-1324597',
@@ -85,7 +89,33 @@ const mockRmrf = jest.fn().mockName('_rmrf')
 jest.mock('../../custom-resource-handlers/src/_rmrf', () => mockRmrf);
 jest.spyOn(cfn, 'sendResponse').mockName('cfn.sendResponse').mockResolvedValue(Promise.resolve());
 
-beforeEach(() => jest.clearAllMocks());
+const mockPutObject = jest.fn().mockName('S3.putObject').mockImplementation(
+  (request: aws.S3.PutObjectRequest) => {
+    expect(request.Bucket).toBe(outputBucketName);
+    expect(request.ContentType).toBe('application/x-pem-file');
+    switch (request.Key) {
+      case 'certificate-signing-request.pem':
+        expect(request.Body).toBe(mockCsr);
+        break;
+      case 'self-signed-certificate.pem':
+        expect(request.Body).toBe(mockCertificate);
+        break;
+      default:
+        return { promise: () => Promise.reject(`Unexpected object key requested: ${request.Key}`) };
+    }
+
+    return { promise: () => Promise.resolve() };
+  },
+);
+
+beforeEach(() => {
+  awsMock.setSDKInstance(aws as any);
+  jest.clearAllMocks();
+});
+
+afterEach(() => {
+  awsMock.restore();
+});
 
 test('Create', async () => {
   const event: cfn.Event = {
@@ -116,6 +146,8 @@ test('Create', async () => {
     return '';
   });
 
+  awsMock.mock('S3', 'putObject', mockPutObject);
+
   const { handler } = require('../../custom-resource-handlers/src/certificate-signing-request');
   await expect(handler(event, context)).resolves.toBe(undefined);
 
@@ -129,12 +161,13 @@ test('Create', async () => {
       mockPrivateKey,
       expect.anything(),
       expect.any(Function));
+  expect(mockPutObject).toHaveBeenCalledTimes(2);
   await expect(mockRmrf).toBeCalledWith(mockTmpDir);
   return expect(cfn.sendResponse)
     .toBeCalledWith(event,
       cfn.Status.SUCCESS,
       event.LogicalResourceId,
-      { Ref: event.LogicalResourceId, CSR: mockCsr, SelfSignedCertificate: mockCertificate });
+      { Ref: event.LogicalResourceId, CSR: `s3://${outputBucketName}/certificate-signing-request.pem`, SelfSignedCertificate: `s3://${outputBucketName}/self-signed-certificate.pem` });
 });
 
 test('Update', async () => {
@@ -167,6 +200,8 @@ test('Update', async () => {
     return '';
   });
 
+  awsMock.mock('S3', 'putObject', mockPutObject);
+
   const { handler } = require('../../custom-resource-handlers/src/certificate-signing-request');
   await expect(handler(event, context)).resolves.toBe(undefined);
 
@@ -180,12 +215,13 @@ test('Update', async () => {
       mockPrivateKey,
       expect.anything(),
       expect.any(Function));
+  expect(mockPutObject).toHaveBeenCalledTimes(2);
   await expect(mockRmrf).toBeCalledWith(mockTmpDir);
   return expect(cfn.sendResponse)
     .toBeCalledWith(event,
       cfn.Status.SUCCESS,
       event.LogicalResourceId,
-      { Ref: event.LogicalResourceId, CSR: mockCsr, SelfSignedCertificate: mockCertificate });
+      { Ref: event.LogicalResourceId, CSR: `s3://${outputBucketName}/certificate-signing-request.pem`, SelfSignedCertificate: `s3://${outputBucketName}/self-signed-certificate.pem` });
 });
 
 test('Delete', async () => {

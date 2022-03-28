@@ -4350,7 +4350,7 @@ Resources:
     Properties:
       Code:
         S3Bucket: cdk-hnb659fds-assets-712950704752-us-east-1
-        S3Key: 98dba9b3d79739d40a37e0621754556a791eef3b1c96e913c6e8d5df3a379bd4.zip
+        S3Key: 0ff875115bf3a3ba9f32946b1f2b9b153553ecba0e511c42ac11bef064968c40.zip
       Role:
         Fn::GetAtt:
           - CodeCommitPipelineChangeControllerFunctionServiceRoleF02841DB
@@ -4478,6 +4478,82 @@ Resources:
         S3Key: 3484e3af42fdf9fe20bc76b3aa0b74c59f8ffe2e6aa726d82b5fb8fed9b91889.zip
     Metadata:
       aws:cdk:path: delivlib-test/X509CodeSigningKey/RSAPrivateKey/CertificateSigningRequest/OpenSslCliLayer/Resource
+  X509CodeSigningKeyRSAPrivateKeyCertificateSigningRequestBucketD81FB261:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      Tags:
+        - Key: aws-cdk:auto-delete-objects
+          Value: "true"
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
+    Metadata:
+      aws:cdk:path: delivlib-test/X509CodeSigningKey/RSAPrivateKey/CertificateSigningRequest/Bucket/Resource
+  X509CodeSigningKeyRSAPrivateKeyCertificateSigningRequestBucketPolicy8E2DB075:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket:
+        Ref: X509CodeSigningKeyRSAPrivateKeyCertificateSigningRequestBucketD81FB261
+      PolicyDocument:
+        Statement:
+          - Action: s3:*
+            Condition:
+              Bool:
+                aws:SecureTransport: "false"
+            Effect: Deny
+            Principal:
+              AWS: "*"
+            Resource:
+              - Fn::GetAtt:
+                  - X509CodeSigningKeyRSAPrivateKeyCertificateSigningRequestBucketD81FB261
+                  - Arn
+              - Fn::Join:
+                  - ""
+                  - - Fn::GetAtt:
+                        - X509CodeSigningKeyRSAPrivateKeyCertificateSigningRequestBucketD81FB261
+                        - Arn
+                    - /*
+          - Action:
+              - s3:GetBucket*
+              - s3:List*
+              - s3:DeleteObject*
+            Effect: Allow
+            Principal:
+              AWS:
+                Fn::GetAtt:
+                  - CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092
+                  - Arn
+            Resource:
+              - Fn::GetAtt:
+                  - X509CodeSigningKeyRSAPrivateKeyCertificateSigningRequestBucketD81FB261
+                  - Arn
+              - Fn::Join:
+                  - ""
+                  - - Fn::GetAtt:
+                        - X509CodeSigningKeyRSAPrivateKeyCertificateSigningRequestBucketD81FB261
+                        - Arn
+                    - /*
+        Version: "2012-10-17"
+    Metadata:
+      aws:cdk:path: delivlib-test/X509CodeSigningKey/RSAPrivateKey/CertificateSigningRequest/Bucket/Policy/Resource
+  X509CodeSigningKeyRSAPrivateKeyCertificateSigningRequestBucketAutoDeleteObjectsCustomResource8471F189:
+    Type: Custom::S3AutoDeleteObjects
+    Properties:
+      ServiceToken:
+        Fn::GetAtt:
+          - CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F
+          - Arn
+      BucketName:
+        Ref: X509CodeSigningKeyRSAPrivateKeyCertificateSigningRequestBucketD81FB261
+    DependsOn:
+      - X509CodeSigningKeyRSAPrivateKeyCertificateSigningRequestBucketPolicy8E2DB075
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
+    Metadata:
+      aws:cdk:path: delivlib-test/X509CodeSigningKey/RSAPrivateKey/CertificateSigningRequest/Bucket/AutoDeleteObjectsCustomResource/Default
   X509CodeSigningKeyRSAPrivateKeyCertificateSigningRequest7F706C9D:
     Type: Custom::CertificateSigningRequest
     Properties:
@@ -4485,7 +4561,7 @@ Resources:
         Fn::GetAtt:
           - CreateCSR541F67826DCF49A78C5A67715ADD9E4C8F4169F6
           - Arn
-      ResourceVersion: 0iNb/IhC8/vyyIyiktjSz6maP//45F9xl6pxQRtkscE=
+      ResourceVersion: iya3EURiIdG1hRWpTxUXI9stXq1asjZOpJDjraiV9dM=
       PrivateKeySecretId:
         Fn::GetAtt:
           - X509CodeSigningKeyRSAPrivateKeyE5980A70
@@ -4499,6 +4575,8 @@ Resources:
       DnEmailAddress: aws-cdk-dev+delivlib-test@amazon.com
       ExtendedKeyUsage: critical,codeSigning
       KeyUsage: critical,digitalSignature
+      OutputBucket:
+        Ref: X509CodeSigningKeyRSAPrivateKeyCertificateSigningRequestBucketD81FB261
     DependsOn:
       - CreateCSR541F67826DCF49A78C5A67715ADD9E4CServiceRoleDefaultPolicyC0800208
       - CreateCSR541F67826DCF49A78C5A67715ADD9E4CServiceRoleD2990C92
@@ -4609,6 +4687,24 @@ Resources:
     Properties:
       PolicyDocument:
         Statement:
+          - Action:
+              - s3:GetObject*
+              - s3:GetBucket*
+              - s3:List*
+              - s3:DeleteObject*
+              - s3:PutObject*
+              - s3:Abort*
+            Effect: Allow
+            Resource:
+              - Fn::GetAtt:
+                  - X509CodeSigningKeyRSAPrivateKeyCertificateSigningRequestBucketD81FB261
+                  - Arn
+              - Fn::Join:
+                  - ""
+                  - - Fn::GetAtt:
+                        - X509CodeSigningKeyRSAPrivateKeyCertificateSigningRequestBucketD81FB261
+                        - Arn
+                    - /*
           - Action: secretsmanager:GetSecretValue
             Effect: Allow
             Resource:
@@ -4626,7 +4722,7 @@ Resources:
     Properties:
       Code:
         S3Bucket: cdk-hnb659fds-assets-712950704752-us-east-1
-        S3Key: 70d613312145b8280d33a47035cc5be2a9bd0e5069705e39f83b14cd1f720e99.zip
+        S3Key: 9012a4bd6eb36f7ec4fec65ce817435d9b8dda297c62e87163a773c7d25c60a9.zip
       Role:
         Fn::GetAtt:
           - CreateCSR541F67826DCF49A78C5A67715ADD9E4CServiceRoleD2990C92
@@ -4642,6 +4738,44 @@ Resources:
       - CreateCSR541F67826DCF49A78C5A67715ADD9E4CServiceRoleD2990C92
     Metadata:
       aws:cdk:path: delivlib-test/CreateCSR541F67826DCF49A78C5A67715ADD9E4C/Resource
+  CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+      ManagedPolicyArns:
+        - Fn::Sub: arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+    Metadata:
+      aws:cdk:path: delivlib-test/Custom::S3AutoDeleteObjectsCustomResourceProvider/Role
+  CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        S3Bucket: cdk-hnb659fds-assets-712950704752-us-east-1
+        S3Key: 15684a15d07860e99d2a8079150ad33dd2cb743677fcd7016dd07345e1b69538.zip
+      Timeout: 900
+      MemorySize: 128
+      Handler: __entrypoint__.handler
+      Role:
+        Fn::GetAtt:
+          - CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092
+          - Arn
+      Runtime: nodejs12.x
+      Description:
+        Fn::Join:
+          - ""
+          - - "Lambda function for auto-deleting objects in "
+            - Ref: X509CodeSigningKeyRSAPrivateKeyCertificateSigningRequestBucketD81FB261
+            - " S3 bucket."
+    DependsOn:
+      - CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092
+    Metadata:
+      aws:cdk:path: delivlib-test/Custom::S3AutoDeleteObjectsCustomResourceProvider/Handler
   CodeSignCMKC986BB89:
     Type: AWS::KMS::Key
     Properties:
