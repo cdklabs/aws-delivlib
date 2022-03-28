@@ -201,6 +201,9 @@
     "test": {
       "name": "test",
       "description": "Run tests",
+      "env": {
+        "TZ": "UTC"
+      },
       "steps": [
         {
           "exec": "jest --passWithNoTests --all --updateSnapshot"

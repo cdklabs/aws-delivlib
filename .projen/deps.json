@@ -52,6 +52,10 @@
       "type": "build"
     },
     {
+      "name": "aws-sdk-mock",
+      "type": "build"
+    },
+    {
       "name": "constructs",
       "type": "build"
     },

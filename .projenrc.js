@@ -29,6 +29,7 @@ const project = new TypeScriptProject({
     'ts-jest',
     'typescript',
     'aws-sdk',
+    'aws-sdk-mock',
     'node-ical',
     'rrule',
     'esbuild',
