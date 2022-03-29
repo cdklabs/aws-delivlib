@@ -507,6 +507,13 @@ export class Pipeline extends Construct {
     }));
   }
 
+  public addManualApprovalToStage(stageName: string, props?: cpipeline_actions.ManualApprovalActionProps) {
+    const stage = this.getOrCreateStage(stageName);
+    stage.addAction(new cpipeline_actions.ManualApprovalAction(props ?? {
+      actionName: 'ManualApprovalAction',
+    }));
+  }
+
   private addFailureAlarm(title?: string): cloudwatch.Alarm {
     return new PipelineWatcher(this, 'PipelineWatcher', {
       pipeline: this.pipeline,
