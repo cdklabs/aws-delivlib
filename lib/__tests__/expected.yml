@@ -1,5 +1,63 @@
 Transform: AWS::Serverless-2016-10-31
 Resources:
+  NpmSecret19792F2C:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      GenerateSecretString:
+        GenerateStringKey: token
+        SecretStringTemplate: "{}"
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
+    Metadata:
+      aws:cdk:path: delivlib-test/NpmSecret/Resource
+  NugetSecretE12E7B38:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      GenerateSecretString:
+        GenerateStringKey: NugetApiKey
+        SecretStringTemplate: "{}"
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
+    Metadata:
+      aws:cdk:path: delivlib-test/NugetSecret/Resource
+  MavenSecretCBE79813:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      GenerateSecretString:
+        GenerateStringKey: password
+        SecretStringTemplate: '{"username":"user"}'
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
+    Metadata:
+      aws:cdk:path: delivlib-test/MavenSecret/Resource
+  PypISecret48FF453E:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      GenerateSecretString:
+        GenerateStringKey: password
+        SecretStringTemplate: '{"username":"__token__"}'
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
+    Metadata:
+      aws:cdk:path: delivlib-test/PypISecret/Resource
+  TokenSecret197DB3DBF:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      SecretString:
+        Ref: SsmParameterValuegithubtokenC96584B6F00A464EAD1953AFF4B05118Parameter
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
+    Metadata:
+      aws:cdk:path: delivlib-test/TokenSecret1/Resource
+  SshSecret1C881D214:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      SecretString:
+        Ref: SsmParameterValuegithubsshC96584B6F00A464EAD1953AFF4B05118Parameter
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
+    Metadata:
+      aws:cdk:path: delivlib-test/SshSecret1/Resource
   CodeCommitPipelineBuildPipelineArtifactsBucketEncryptionKey05A62A83:
     Type: AWS::KMS::Key
     Properties:
@@ -28,7 +86,9 @@ Resources:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - :iam::712950704752:root
+                    - ":iam::"
+                    - Ref: AWS::AccountId
+                    - :root
             Resource: "*"
           - Action:
               - kms:Decrypt
@@ -528,7 +588,12 @@ Resources:
                 Owner: awslabs
                 Repo: aws-delivlib-sample
                 Branch: master
-                OAuthToken: "{{resolve:secretsmanager:arn:aws:secretsmanager:us-east-1:712950704752:secret:github-token-QDP6QX:SecretString:::}}"
+                OAuthToken:
+                  Fn::Join:
+                    - ""
+                    - - "{{resolve:secretsmanager:"
+                      - Ref: TokenSecret197DB3DBF
+                      - :SecretString:::}}
                 PollForSourceChanges: false
               Name: Pull
               OutputArtifacts:
@@ -768,7 +833,12 @@ Resources:
     Properties:
       Authentication: GITHUB_HMAC
       AuthenticationConfiguration:
-        SecretToken: "{{resolve:secretsmanager:arn:aws:secretsmanager:us-east-1:712950704752:secret:github-token-QDP6QX:SecretString:::}}"
+        SecretToken:
+          Fn::Join:
+            - ""
+            - - "{{resolve:secretsmanager:"
+              - Ref: TokenSecret197DB3DBF
+              - :SecretString:::}}
       Filters:
         - JsonPath: $.ref
           MatchEquals: refs/heads/{Branch}
@@ -792,7 +862,9 @@ Resources:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - :iam::712950704752:root
+                    - ":iam::"
+                    - Ref: AWS::AccountId
+                    - :root
         Version: "2012-10-17"
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/BuildPipeline/Build/Build/CodePipelineActionRole/Resource
@@ -829,7 +901,9 @@ Resources:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - :iam::712950704752:root
+                    - ":iam::"
+                    - Ref: AWS::AccountId
+                    - :root
         Version: "2012-10-17"
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/BuildPipeline/Test/TestHelloLinux/CodePipelineActionRole/Resource
@@ -866,7 +940,9 @@ Resources:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - :iam::712950704752:root
+                    - ":iam::"
+                    - Ref: AWS::AccountId
+                    - :root
         Version: "2012-10-17"
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/BuildPipeline/Test/TestHelloWindows/CodePipelineActionRole/Resource
@@ -903,7 +979,9 @@ Resources:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - :iam::712950704752:root
+                    - ":iam::"
+                    - Ref: AWS::AccountId
+                    - :root
         Version: "2012-10-17"
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/BuildPipeline/Test/TestAssumeRole/CodePipelineActionRole/Resource
@@ -940,7 +1018,9 @@ Resources:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - :iam::712950704752:root
+                    - ":iam::"
+                    - Ref: AWS::AccountId
+                    - :root
         Version: "2012-10-17"
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/BuildPipeline/Test/ActionGenerateTwoArtifacts/CodePipelineActionRole/Resource
@@ -977,7 +1057,9 @@ Resources:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - :iam::712950704752:root
+                    - ":iam::"
+                    - Ref: AWS::AccountId
+                    - :root
         Version: "2012-10-17"
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/BuildPipeline/Publish/NpmPublish/CodePipelineActionRole/Resource
@@ -1014,7 +1096,9 @@ Resources:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - :iam::712950704752:root
+                    - ":iam::"
+                    - Ref: AWS::AccountId
+                    - :root
         Version: "2012-10-17"
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/BuildPipeline/Publish/NuGetPublish/CodePipelineActionRole/Resource
@@ -1051,7 +1135,9 @@ Resources:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - :iam::712950704752:root
+                    - ":iam::"
+                    - Ref: AWS::AccountId
+                    - :root
         Version: "2012-10-17"
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/BuildPipeline/Publish/MavenPublish/CodePipelineActionRole/Resource
@@ -1088,7 +1174,9 @@ Resources:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - :iam::712950704752:root
+                    - ":iam::"
+                    - Ref: AWS::AccountId
+                    - :root
         Version: "2012-10-17"
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/BuildPipeline/Publish/GitHubPublish/CodePipelineActionRole/Resource
@@ -1125,7 +1213,9 @@ Resources:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - :iam::712950704752:root
+                    - ":iam::"
+                    - Ref: AWS::AccountId
+                    - :root
         Version: "2012-10-17"
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/BuildPipeline/Publish/GitHubPagesPublish/CodePipelineActionRole/Resource
@@ -1162,7 +1252,9 @@ Resources:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - :iam::712950704752:root
+                    - ":iam::"
+                    - Ref: AWS::AccountId
+                    - :root
         Version: "2012-10-17"
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/BuildPipeline/Publish/PyPIPublish/CodePipelineActionRole/Resource
@@ -1199,7 +1291,9 @@ Resources:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - :iam::712950704752:root
+                    - ":iam::"
+                    - Ref: AWS::AccountId
+                    - :root
         Version: "2012-10-17"
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/BuildPipeline/Publish/GolangPublish/CodePipelineActionRole/Resource
@@ -1250,13 +1344,21 @@ Resources:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
+                    - ":logs:"
+                    - Ref: AWS::Region
+                    - ":"
+                    - Ref: AWS::AccountId
+                    - :log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelineBuildProject9F59E8AA
               - Fn::Join:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
+                    - ":logs:"
+                    - Ref: AWS::Region
+                    - ":"
+                    - Ref: AWS::AccountId
+                    - :log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelineBuildProject9F59E8AA
                     - :*
           - Action:
@@ -1271,7 +1373,11 @@ Resources:
                 - ""
                 - - "arn:"
                   - Ref: AWS::Partition
-                  - :codebuild:us-east-1:712950704752:report-group/
+                  - ":codebuild:"
+                  - Ref: AWS::Region
+                  - ":"
+                  - Ref: AWS::AccountId
+                  - :report-group/
                   - Ref: CodeCommitPipelineBuildProject9F59E8AA
                   - -*
           - Action:
@@ -1330,7 +1436,7 @@ Resources:
           - Name: DELIVLIB_ENV_TEST
             Type: PLAINTEXT
             Value: MAGIC_1924
-        Image: jsii/superchain:latest
+        Image: public.ecr.aws/c4i6u9i2/jsii/superchain:1-buster-slim-node14
         ImagePullCredentialsType: SERVICE_ROLE
         PrivilegedMode: false
         Type: LINUX_CONTAINER
@@ -1439,8 +1545,9 @@ Resources:
     Type: AWS::Lambda::Function
     Properties:
       Code:
-        S3Bucket: cdk-hnb659fds-assets-712950704752-us-east-1
-        S3Key: 7820644cf1fdec7cec290ed6fdd561e35f4015d4dcf03a20f8035dda3c0ac88a.zip
+        S3Bucket:
+          Fn::Sub: cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}
+        S3Key: 66b99756ae087cd731a655763245d55e9435c1657dc62d0c5a421806e223e6b2.zip
       Role:
         Fn::GetAtt:
           - CodeCommitPipelinePipelineWatcherPollerServiceRole0A1D8005
@@ -1467,7 +1574,11 @@ Resources:
               - ""
               - - "arn:"
                 - Ref: AWS::Partition
-                - ":codepipeline:us-east-1:712950704752:"
+                - ":codepipeline:"
+                - Ref: AWS::Region
+                - ":"
+                - Ref: AWS::AccountId
+                - ":"
                 - Ref: CodeCommitPipelineBuildPipeline656B8CCB
         detail-type:
           - CodePipeline Action Execution State Change
@@ -1545,13 +1656,21 @@ Resources:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
+                    - ":logs:"
+                    - Ref: AWS::Region
+                    - ":"
+                    - Ref: AWS::AccountId
+                    - :log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelineHelloLinuxCB82AB68
               - Fn::Join:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
+                    - ":logs:"
+                    - Ref: AWS::Region
+                    - ":"
+                    - Ref: AWS::AccountId
+                    - :log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelineHelloLinuxCB82AB68
                     - :*
           - Action:
@@ -1566,7 +1685,11 @@ Resources:
                 - ""
                 - - "arn:"
                   - Ref: AWS::Partition
-                  - :codebuild:us-east-1:712950704752:report-group/
+                  - ":codebuild:"
+                  - Ref: AWS::Region
+                  - ":"
+                  - Ref: AWS::AccountId
+                  - :report-group/
                   - Ref: CodeCommitPipelineHelloLinuxCB82AB68
                   - -*
           - Action:
@@ -1579,12 +1702,15 @@ Resources:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - :s3:::cdk-hnb659fds-assets-712950704752-us-east-1
+                    - ":s3:::"
+                    - Fn::Sub: cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}
               - Fn::Join:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - :s3:::cdk-hnb659fds-assets-712950704752-us-east-1/*
+                    - ":s3:::"
+                    - Fn::Sub: cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}
+                    - /*
           - Action:
               - s3:GetObject*
               - s3:GetBucket*
@@ -1640,7 +1766,8 @@ Resources:
         EnvironmentVariables:
           - Name: SCRIPT_S3_BUCKET
             Type: PLAINTEXT
-            Value: cdk-hnb659fds-assets-712950704752-us-east-1
+            Value:
+              Fn::Sub: cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}
           - Name: SCRIPT_S3_KEY
             Type: PLAINTEXT
             Value: 3d34b07ba871989d030649c646b3096ba7c78ca531897bcdb0670774d2f9d3e4.zip
@@ -1748,13 +1875,21 @@ Resources:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
+                    - ":logs:"
+                    - Ref: AWS::Region
+                    - ":"
+                    - Ref: AWS::AccountId
+                    - :log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelineHelloWindows61CA8F73
               - Fn::Join:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
+                    - ":logs:"
+                    - Ref: AWS::Region
+                    - ":"
+                    - Ref: AWS::AccountId
+                    - :log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelineHelloWindows61CA8F73
                     - :*
           - Action:
@@ -1769,7 +1904,11 @@ Resources:
                 - ""
                 - - "arn:"
                   - Ref: AWS::Partition
-                  - :codebuild:us-east-1:712950704752:report-group/
+                  - ":codebuild:"
+                  - Ref: AWS::Region
+                  - ":"
+                  - Ref: AWS::AccountId
+                  - :report-group/
                   - Ref: CodeCommitPipelineHelloWindows61CA8F73
                   - -*
           - Action:
@@ -1782,12 +1921,15 @@ Resources:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - :s3:::cdk-hnb659fds-assets-712950704752-us-east-1
+                    - ":s3:::"
+                    - Fn::Sub: cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}
               - Fn::Join:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - :s3:::cdk-hnb659fds-assets-712950704752-us-east-1/*
+                    - ":s3:::"
+                    - Fn::Sub: cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}
+                    - /*
           - Action:
               - s3:GetObject*
               - s3:GetBucket*
@@ -1843,7 +1985,8 @@ Resources:
         EnvironmentVariables:
           - Name: SCRIPT_S3_BUCKET
             Type: PLAINTEXT
-            Value: cdk-hnb659fds-assets-712950704752-us-east-1
+            Value:
+              Fn::Sub: cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}
           - Name: SCRIPT_S3_KEY
             Type: PLAINTEXT
             Value: 36b33307c18c06726950e481637d4439c34e56a89ae6e2f1725e2718095e0985.zip
@@ -1949,13 +2092,21 @@ Resources:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
+                    - ":logs:"
+                    - Ref: AWS::Region
+                    - ":"
+                    - Ref: AWS::AccountId
+                    - :log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelineAssumeRole05A76F51
               - Fn::Join:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
+                    - ":logs:"
+                    - Ref: AWS::Region
+                    - ":"
+                    - Ref: AWS::AccountId
+                    - :log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelineAssumeRole05A76F51
                     - :*
           - Action:
@@ -1970,7 +2121,11 @@ Resources:
                 - ""
                 - - "arn:"
                   - Ref: AWS::Partition
-                  - :codebuild:us-east-1:712950704752:report-group/
+                  - ":codebuild:"
+                  - Ref: AWS::Region
+                  - ":"
+                  - Ref: AWS::AccountId
+                  - :report-group/
                   - Ref: CodeCommitPipelineAssumeRole05A76F51
                   - -*
           - Action:
@@ -1983,12 +2138,15 @@ Resources:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - :s3:::cdk-hnb659fds-assets-712950704752-us-east-1
+                    - ":s3:::"
+                    - Fn::Sub: cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}
               - Fn::Join:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - :s3:::cdk-hnb659fds-assets-712950704752-us-east-1/*
+                    - ":s3:::"
+                    - Fn::Sub: cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}
+                    - /*
           - Action: sts:AssumeRole
             Effect: Allow
             Resource:
@@ -2050,7 +2208,8 @@ Resources:
         EnvironmentVariables:
           - Name: SCRIPT_S3_BUCKET
             Type: PLAINTEXT
-            Value: cdk-hnb659fds-assets-712950704752-us-east-1
+            Value:
+              Fn::Sub: cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}
           - Name: SCRIPT_S3_KEY
             Type: PLAINTEXT
             Value: fa3b8e01a3815c9af6c66b1e4c986e8743a43f68fb763464198c94900c0c96da.zip
@@ -2175,13 +2334,21 @@ Resources:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
+                    - ":logs:"
+                    - Ref: AWS::Region
+                    - ":"
+                    - Ref: AWS::AccountId
+                    - :log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelineGenerateTwoArtifactsA9DAD33B
               - Fn::Join:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
+                    - ":logs:"
+                    - Ref: AWS::Region
+                    - ":"
+                    - Ref: AWS::AccountId
+                    - :log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelineGenerateTwoArtifactsA9DAD33B
                     - :*
           - Action:
@@ -2196,7 +2363,11 @@ Resources:
                 - ""
                 - - "arn:"
                   - Ref: AWS::Partition
-                  - :codebuild:us-east-1:712950704752:report-group/
+                  - ":codebuild:"
+                  - Ref: AWS::Region
+                  - ":"
+                  - Ref: AWS::AccountId
+                  - :report-group/
                   - Ref: CodeCommitPipelineGenerateTwoArtifactsA9DAD33B
                   - -*
           - Action:
@@ -2209,12 +2380,15 @@ Resources:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - :s3:::cdk-hnb659fds-assets-712950704752-us-east-1
+                    - ":s3:::"
+                    - Fn::Sub: cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}
               - Fn::Join:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - :s3:::cdk-hnb659fds-assets-712950704752-us-east-1/*
+                    - ":s3:::"
+                    - Fn::Sub: cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}
+                    - /*
           - Action:
               - s3:GetObject*
               - s3:GetBucket*
@@ -2270,7 +2444,8 @@ Resources:
         EnvironmentVariables:
           - Name: SCRIPT_S3_BUCKET
             Type: PLAINTEXT
-            Value: cdk-hnb659fds-assets-712950704752-us-east-1
+            Value:
+              Fn::Sub: cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}
           - Name: SCRIPT_S3_KEY
             Type: PLAINTEXT
             Value: 3d34b07ba871989d030649c646b3096ba7c78ca531897bcdb0670774d2f9d3e4.zip
@@ -2376,13 +2551,21 @@ Resources:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
+                    - ":logs:"
+                    - Ref: AWS::Region
+                    - ":"
+                    - Ref: AWS::AccountId
+                    - :log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelineCanaryHelloCanaryShellableC8458471
               - Fn::Join:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
+                    - ":logs:"
+                    - Ref: AWS::Region
+                    - ":"
+                    - Ref: AWS::AccountId
+                    - :log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelineCanaryHelloCanaryShellableC8458471
                     - :*
           - Action:
@@ -2397,7 +2580,11 @@ Resources:
                 - ""
                 - - "arn:"
                   - Ref: AWS::Partition
-                  - :codebuild:us-east-1:712950704752:report-group/
+                  - ":codebuild:"
+                  - Ref: AWS::Region
+                  - ":"
+                  - Ref: AWS::AccountId
+                  - :report-group/
                   - Ref: CodeCommitPipelineCanaryHelloCanaryShellableC8458471
                   - -*
           - Action:
@@ -2410,12 +2597,15 @@ Resources:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - :s3:::cdk-hnb659fds-assets-712950704752-us-east-1
+                    - ":s3:::"
+                    - Fn::Sub: cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}
               - Fn::Join:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - :s3:::cdk-hnb659fds-assets-712950704752-us-east-1/*
+                    - ":s3:::"
+                    - Fn::Sub: cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}
+                    - /*
         Version: "2012-10-17"
       PolicyName: CodeCommitPipelineCanaryHelloCanaryShellableRoleDefaultPolicyD466B3CA
       Roles:
@@ -2432,7 +2622,8 @@ Resources:
         EnvironmentVariables:
           - Name: SCRIPT_S3_BUCKET
             Type: PLAINTEXT
-            Value: cdk-hnb659fds-assets-712950704752-us-east-1
+            Value:
+              Fn::Sub: cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}
           - Name: SCRIPT_S3_KEY
             Type: PLAINTEXT
             Value: 3d34b07ba871989d030649c646b3096ba7c78ca531897bcdb0670774d2f9d3e4.zip
@@ -2565,13 +2756,21 @@ Resources:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
+                    - ":logs:"
+                    - Ref: AWS::Region
+                    - ":"
+                    - Ref: AWS::AccountId
+                    - :log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelineNpm0D31AEFC
               - Fn::Join:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
+                    - ":logs:"
+                    - Ref: AWS::Region
+                    - ":"
+                    - Ref: AWS::AccountId
+                    - :log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelineNpm0D31AEFC
                     - :*
           - Action:
@@ -2586,7 +2785,11 @@ Resources:
                 - ""
                 - - "arn:"
                   - Ref: AWS::Partition
-                  - :codebuild:us-east-1:712950704752:report-group/
+                  - ":codebuild:"
+                  - Ref: AWS::Region
+                  - ":"
+                  - Ref: AWS::AccountId
+                  - :report-group/
                   - Ref: CodeCommitPipelineNpm0D31AEFC
                   - -*
           - Action:
@@ -2599,18 +2802,22 @@ Resources:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - :s3:::cdk-hnb659fds-assets-712950704752-us-east-1
+                    - ":s3:::"
+                    - Fn::Sub: cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}
               - Fn::Join:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - :s3:::cdk-hnb659fds-assets-712950704752-us-east-1/*
+                    - ":s3:::"
+                    - Fn::Sub: cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}
+                    - /*
           - Action:
               - secretsmanager:ListSecrets
               - secretsmanager:DescribeSecret
               - secretsmanager:GetSecretValue
             Effect: Allow
-            Resource: arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/npm-MhaWgx
+            Resource:
+              Ref: NpmSecret19792F2C
           - Action:
               - s3:GetObject*
               - s3:GetBucket*
@@ -2660,7 +2867,8 @@ Resources:
         EnvironmentVariables:
           - Name: SCRIPT_S3_BUCKET
             Type: PLAINTEXT
-            Value: cdk-hnb659fds-assets-712950704752-us-east-1
+            Value:
+              Fn::Sub: cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}
           - Name: SCRIPT_S3_KEY
             Type: PLAINTEXT
             Value: b47ae622aa5e233309182a77632e391df4af339a7313ef79b47c718d0d5e4a9d.zip
@@ -2669,7 +2877,8 @@ Resources:
             Value: "false"
           - Name: NPM_TOKEN_SECRET
             Type: PLAINTEXT
-            Value: arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/npm-MhaWgx
+            Value:
+              Ref: NpmSecret19792F2C
           - Name: DISTTAG
             Type: PLAINTEXT
             Value: ""
@@ -2759,13 +2968,21 @@ Resources:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
+                    - ":logs:"
+                    - Ref: AWS::Region
+                    - ":"
+                    - Ref: AWS::AccountId
+                    - :log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelineNuGet67CE1BA7
               - Fn::Join:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
+                    - ":logs:"
+                    - Ref: AWS::Region
+                    - ":"
+                    - Ref: AWS::AccountId
+                    - :log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelineNuGet67CE1BA7
                     - :*
           - Action:
@@ -2780,7 +2997,11 @@ Resources:
                 - ""
                 - - "arn:"
                   - Ref: AWS::Partition
-                  - :codebuild:us-east-1:712950704752:report-group/
+                  - ":codebuild:"
+                  - Ref: AWS::Region
+                  - ":"
+                  - Ref: AWS::AccountId
+                  - :report-group/
                   - Ref: CodeCommitPipelineNuGet67CE1BA7
                   - -*
           - Action:
@@ -2793,18 +3014,22 @@ Resources:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - :s3:::cdk-hnb659fds-assets-712950704752-us-east-1
+                    - ":s3:::"
+                    - Fn::Sub: cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}
               - Fn::Join:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - :s3:::cdk-hnb659fds-assets-712950704752-us-east-1/*
+                    - ":s3:::"
+                    - Fn::Sub: cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}
+                    - /*
           - Action:
               - secretsmanager:ListSecrets
               - secretsmanager:DescribeSecret
               - secretsmanager:GetSecretValue
             Effect: Allow
-            Resource: arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/nuget-jDbgrN
+            Resource:
+              Ref: NugetSecretE12E7B38
           - Action:
               - secretsmanager:ListSecrets
               - secretsmanager:DescribeSecret
@@ -2821,7 +3046,11 @@ Resources:
                 - ""
                 - - "arn:"
                   - Ref: AWS::Partition
-                  - :ssm:us-east-1:712950704752:parameter
+                  - ":ssm:"
+                  - Ref: AWS::Region
+                  - ":"
+                  - Ref: AWS::AccountId
+                  - :parameter
                   - Ref: X509CodeSigningKey8DE65BF8
           - Action:
               - s3:GetObject*
@@ -2872,19 +3101,22 @@ Resources:
         EnvironmentVariables:
           - Name: SCRIPT_S3_BUCKET
             Type: PLAINTEXT
-            Value: cdk-hnb659fds-assets-712950704752-us-east-1
+            Value:
+              Fn::Sub: cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}
           - Name: SCRIPT_S3_KEY
             Type: PLAINTEXT
-            Value: b331bddd4fcb3d1d466ddd4c30728608b3a013016e6ed325e4b11d73b7b8cf57.zip
+            Value: 3cbc3d3c52a4f2166f324341cebbd33c8995218d7157224f390231a2280fde6e.zip
           - Name: FOR_REAL
             Type: PLAINTEXT
             Value: "false"
           - Name: NUGET_SECRET_REGION
             Type: PLAINTEXT
-            Value: us-east-1
+            Value:
+              Ref: AWS::Region
           - Name: NUGET_SECRET_ID
             Type: PLAINTEXT
-            Value: arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/nuget-jDbgrN
+            Value:
+              Ref: NugetSecretE12E7B38
           - Name: CODE_SIGNING_SECRET_ID
             Type: PLAINTEXT
             Value:
@@ -2895,7 +3127,7 @@ Resources:
             Type: PLAINTEXT
             Value:
               Ref: X509CodeSigningKey8DE65BF8
-        Image: jsii/superchain
+        Image: public.ecr.aws/c4i6u9i2/jsii/superchain:1-buster-slim-node14
         ImagePullCredentialsType: SERVICE_ROLE
         PrivilegedMode: false
         Type: LINUX_CONTAINER
@@ -2978,13 +3210,21 @@ Resources:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
+                    - ":logs:"
+                    - Ref: AWS::Region
+                    - ":"
+                    - Ref: AWS::AccountId
+                    - :log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelineMavenB7154296
               - Fn::Join:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
+                    - ":logs:"
+                    - Ref: AWS::Region
+                    - ":"
+                    - Ref: AWS::AccountId
+                    - :log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelineMavenB7154296
                     - :*
           - Action:
@@ -2999,7 +3239,11 @@ Resources:
                 - ""
                 - - "arn:"
                   - Ref: AWS::Partition
-                  - :codebuild:us-east-1:712950704752:report-group/
+                  - ":codebuild:"
+                  - Ref: AWS::Region
+                  - ":"
+                  - Ref: AWS::AccountId
+                  - :report-group/
                   - Ref: CodeCommitPipelineMavenB7154296
                   - -*
           - Action:
@@ -3012,18 +3256,22 @@ Resources:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - :s3:::cdk-hnb659fds-assets-712950704752-us-east-1
+                    - ":s3:::"
+                    - Fn::Sub: cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}
               - Fn::Join:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - :s3:::cdk-hnb659fds-assets-712950704752-us-east-1/*
+                    - ":s3:::"
+                    - Fn::Sub: cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}
+                    - /*
           - Action:
               - secretsmanager:ListSecrets
               - secretsmanager:DescribeSecret
               - secretsmanager:GetSecretValue
             Effect: Allow
-            Resource: arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/maven-S4Q2y3
+            Resource:
+              Ref: MavenSecretCBE79813
           - Action:
               - secretsmanager:ListSecrets
               - secretsmanager:DescribeSecret
@@ -3088,7 +3336,8 @@ Resources:
         EnvironmentVariables:
           - Name: SCRIPT_S3_BUCKET
             Type: PLAINTEXT
-            Value: cdk-hnb659fds-assets-712950704752-us-east-1
+            Value:
+              Fn::Sub: cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}
           - Name: SCRIPT_S3_KEY
             Type: PLAINTEXT
             Value: 95e395880ca2de45ad4273f17cb4915be787585da0aa7b17a2cbbd860594ad9e.zip
@@ -3106,11 +3355,12 @@ Resources:
             Value: "false"
           - Name: MAVEN_LOGIN_SECRET
             Type: PLAINTEXT
-            Value: arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/maven-S4Q2y3
+            Value:
+              Ref: MavenSecretCBE79813
           - Name: MAVEN_ENDPOINT
             Type: PLAINTEXT
             Value: https://aws.oss.sonatype.org:443/
-        Image: jsii/superchain
+        Image: public.ecr.aws/c4i6u9i2/jsii/superchain:1-buster-slim-node14
         ImagePullCredentialsType: SERVICE_ROLE
         PrivilegedMode: false
         Type: LINUX_CONTAINER
@@ -3186,11 +3436,7 @@ Resources:
           - Action: secretsmanager:GetSecretValue
             Effect: Allow
             Resource:
-              Fn::Join:
-                - ""
-                - - "arn:"
-                  - Ref: AWS::Partition
-                  - :secretsmanager:us-east-1:712950704752:secret:github-token-??????
+              Ref: TokenSecret197DB3DBF
           - Action:
               - logs:CreateLogGroup
               - logs:CreateLogStream
@@ -3201,13 +3447,21 @@ Resources:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
+                    - ":logs:"
+                    - Ref: AWS::Region
+                    - ":"
+                    - Ref: AWS::AccountId
+                    - :log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelineGitHub0797840C
               - Fn::Join:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
+                    - ":logs:"
+                    - Ref: AWS::Region
+                    - ":"
+                    - Ref: AWS::AccountId
+                    - :log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelineGitHub0797840C
                     - :*
           - Action:
@@ -3222,7 +3476,11 @@ Resources:
                 - ""
                 - - "arn:"
                   - Ref: AWS::Partition
-                  - :codebuild:us-east-1:712950704752:report-group/
+                  - ":codebuild:"
+                  - Ref: AWS::Region
+                  - ":"
+                  - Ref: AWS::AccountId
+                  - :report-group/
                   - Ref: CodeCommitPipelineGitHub0797840C
                   - -*
           - Action:
@@ -3235,17 +3493,21 @@ Resources:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - :s3:::cdk-hnb659fds-assets-712950704752-us-east-1
+                    - ":s3:::"
+                    - Fn::Sub: cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}
               - Fn::Join:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - :s3:::cdk-hnb659fds-assets-712950704752-us-east-1/*
+                    - ":s3:::"
+                    - Fn::Sub: cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}
+                    - /*
           - Action:
               - secretsmanager:GetSecretValue
               - secretsmanager:DescribeSecret
             Effect: Allow
-            Resource: arn:aws:secretsmanager:us-east-1:712950704752:secret:github-token-QDP6QX
+            Resource:
+              Ref: TokenSecret197DB3DBF
           - Action:
               - secretsmanager:ListSecrets
               - secretsmanager:DescribeSecret
@@ -3310,7 +3572,8 @@ Resources:
         EnvironmentVariables:
           - Name: SCRIPT_S3_BUCKET
             Type: PLAINTEXT
-            Value: cdk-hnb659fds-assets-712950704752-us-east-1
+            Value:
+              Fn::Sub: cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}
           - Name: SCRIPT_S3_KEY
             Type: PLAINTEXT
             Value: 1c4d00e8f9125a52b4db3e74494c950959ffa433738adcf5c9f7251e4d255451.zip
@@ -3346,7 +3609,8 @@ Resources:
             Value: "true"
           - Name: GITHUB_TOKEN
             Type: SECRETS_MANAGER
-            Value: github-token
+            Value:
+              Ref: TokenSecret197DB3DBF
         Image: aws/codebuild/nodejs:10.1.0
         ImagePullCredentialsType: CODEBUILD
         PrivilegedMode: false
@@ -3430,13 +3694,21 @@ Resources:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
+                    - ":logs:"
+                    - Ref: AWS::Region
+                    - ":"
+                    - Ref: AWS::AccountId
+                    - :log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelineGitHubPages53B77CF6
               - Fn::Join:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
+                    - ":logs:"
+                    - Ref: AWS::Region
+                    - ":"
+                    - Ref: AWS::AccountId
+                    - :log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelineGitHubPages53B77CF6
                     - :*
           - Action:
@@ -3451,7 +3723,11 @@ Resources:
                 - ""
                 - - "arn:"
                   - Ref: AWS::Partition
-                  - :codebuild:us-east-1:712950704752:report-group/
+                  - ":codebuild:"
+                  - Ref: AWS::Region
+                  - ":"
+                  - Ref: AWS::AccountId
+                  - :report-group/
                   - Ref: CodeCommitPipelineGitHubPages53B77CF6
                   - -*
           - Action:
@@ -3464,18 +3740,22 @@ Resources:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - :s3:::cdk-hnb659fds-assets-712950704752-us-east-1
+                    - ":s3:::"
+                    - Fn::Sub: cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}
               - Fn::Join:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - :s3:::cdk-hnb659fds-assets-712950704752-us-east-1/*
+                    - ":s3:::"
+                    - Fn::Sub: cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}
+                    - /*
           - Action:
               - secretsmanager:ListSecrets
               - secretsmanager:DescribeSecret
               - secretsmanager:GetSecretValue
             Effect: Allow
-            Resource: arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/github-ssh-okGazo
+            Resource:
+              Ref: SshSecret1C881D214
           - Action:
               - s3:GetObject*
               - s3:GetBucket*
@@ -3525,7 +3805,8 @@ Resources:
         EnvironmentVariables:
           - Name: SCRIPT_S3_BUCKET
             Type: PLAINTEXT
-            Value: cdk-hnb659fds-assets-712950704752-us-east-1
+            Value:
+              Fn::Sub: cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}
           - Name: SCRIPT_S3_KEY
             Type: PLAINTEXT
             Value: 3252e1539f1e33e68b94d8ee2a2a84ff6a7fdf4fbbdb7b77286f931145dfe3b3.zip
@@ -3537,7 +3818,8 @@ Resources:
             Value: gh-pages
           - Name: SSH_KEY_SECRET
             Type: PLAINTEXT
-            Value: arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/github-ssh-okGazo
+            Value:
+              Ref: SshSecret1C881D214
           - Name: FOR_REAL
             Type: PLAINTEXT
             Value: "false"
@@ -3633,13 +3915,21 @@ Resources:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
+                    - ":logs:"
+                    - Ref: AWS::Region
+                    - ":"
+                    - Ref: AWS::AccountId
+                    - :log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelinePyPI2C59CE7B
               - Fn::Join:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
+                    - ":logs:"
+                    - Ref: AWS::Region
+                    - ":"
+                    - Ref: AWS::AccountId
+                    - :log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelinePyPI2C59CE7B
                     - :*
           - Action:
@@ -3654,7 +3944,11 @@ Resources:
                 - ""
                 - - "arn:"
                   - Ref: AWS::Partition
-                  - :codebuild:us-east-1:712950704752:report-group/
+                  - ":codebuild:"
+                  - Ref: AWS::Region
+                  - ":"
+                  - Ref: AWS::AccountId
+                  - :report-group/
                   - Ref: CodeCommitPipelinePyPI2C59CE7B
                   - -*
           - Action:
@@ -3667,18 +3961,22 @@ Resources:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - :s3:::cdk-hnb659fds-assets-712950704752-us-east-1
+                    - ":s3:::"
+                    - Fn::Sub: cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}
               - Fn::Join:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - :s3:::cdk-hnb659fds-assets-712950704752-us-east-1/*
+                    - ":s3:::"
+                    - Fn::Sub: cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}
+                    - /*
           - Action:
               - secretsmanager:ListSecrets
               - secretsmanager:DescribeSecret
               - secretsmanager:GetSecretValue
             Effect: Allow
-            Resource: arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/pypi-tp8M57
+            Resource:
+              Ref: PypISecret48FF453E
           - Action:
               - s3:GetObject*
               - s3:GetBucket*
@@ -3728,7 +4026,8 @@ Resources:
         EnvironmentVariables:
           - Name: SCRIPT_S3_BUCKET
             Type: PLAINTEXT
-            Value: cdk-hnb659fds-assets-712950704752-us-east-1
+            Value:
+              Fn::Sub: cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}
           - Name: SCRIPT_S3_KEY
             Type: PLAINTEXT
             Value: c17f8f9d719e9e4e72c47092e9d9a130a19c607b87d5f5a327b05f38c219c1ca.zip
@@ -3737,7 +4036,8 @@ Resources:
             Value: "false"
           - Name: PYPI_CREDENTIALS_SECRET_ID
             Type: PLAINTEXT
-            Value: arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/pypi-tp8M57
+            Value:
+              Ref: PypISecret48FF453E
         Image: aws/codebuild/python:3.6.5
         ImagePullCredentialsType: CODEBUILD
         PrivilegedMode: false
@@ -3821,13 +4121,21 @@ Resources:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
+                    - ":logs:"
+                    - Ref: AWS::Region
+                    - ":"
+                    - Ref: AWS::AccountId
+                    - :log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelineGolangBDFA17A1
               - Fn::Join:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
+                    - ":logs:"
+                    - Ref: AWS::Region
+                    - ":"
+                    - Ref: AWS::AccountId
+                    - :log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelineGolangBDFA17A1
                     - :*
           - Action:
@@ -3842,7 +4150,11 @@ Resources:
                 - ""
                 - - "arn:"
                   - Ref: AWS::Partition
-                  - :codebuild:us-east-1:712950704752:report-group/
+                  - ":codebuild:"
+                  - Ref: AWS::Region
+                  - ":"
+                  - Ref: AWS::AccountId
+                  - :report-group/
                   - Ref: CodeCommitPipelineGolangBDFA17A1
                   - -*
           - Action:
@@ -3855,18 +4167,22 @@ Resources:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - :s3:::cdk-hnb659fds-assets-712950704752-us-east-1
+                    - ":s3:::"
+                    - Fn::Sub: cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}
               - Fn::Join:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - :s3:::cdk-hnb659fds-assets-712950704752-us-east-1/*
+                    - ":s3:::"
+                    - Fn::Sub: cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}
+                    - /*
           - Action:
               - secretsmanager:ListSecrets
               - secretsmanager:DescribeSecret
               - secretsmanager:GetSecretValue
             Effect: Allow
-            Resource: arn:aws:secretsmanager:us-east-1:712950704752:secret:github-token-QDP6QX
+            Resource:
+              Ref: TokenSecret197DB3DBF
           - Action:
               - s3:GetObject*
               - s3:GetBucket*
@@ -3916,7 +4232,8 @@ Resources:
         EnvironmentVariables:
           - Name: SCRIPT_S3_BUCKET
             Type: PLAINTEXT
-            Value: cdk-hnb659fds-assets-712950704752-us-east-1
+            Value:
+              Fn::Sub: cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}
           - Name: SCRIPT_S3_KEY
             Type: PLAINTEXT
             Value: d51656c063a0eef8e6e43eebc868209915793a138eb4a16217cb8d51583f6424.zip
@@ -3925,7 +4242,8 @@ Resources:
             Value: "true"
           - Name: GITHUB_TOKEN_SECRET
             Type: PLAINTEXT
-            Value: arn:aws:secretsmanager:us-east-1:712950704752:secret:github-token-QDP6QX
+            Value:
+              Ref: TokenSecret197DB3DBF
           - Name: GIT_BRANCH
             Type: PLAINTEXT
             Value: golang
@@ -4018,13 +4336,21 @@ Resources:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
+                    - ":logs:"
+                    - Ref: AWS::Region
+                    - ":"
+                    - Ref: AWS::AccountId
+                    - :log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelineAutoBumpAutoPullRequest033F6993
               - Fn::Join:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
+                    - ":logs:"
+                    - Ref: AWS::Region
+                    - ":"
+                    - Ref: AWS::AccountId
+                    - :log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelineAutoBumpAutoPullRequest033F6993
                     - :*
           - Action:
@@ -4039,7 +4365,11 @@ Resources:
                 - ""
                 - - "arn:"
                   - Ref: AWS::Partition
-                  - :codebuild:us-east-1:712950704752:report-group/
+                  - ":codebuild:"
+                  - Ref: AWS::Region
+                  - ":"
+                  - Ref: AWS::AccountId
+                  - :report-group/
                   - Ref: CodeCommitPipelineAutoBumpAutoPullRequest033F6993
                   - -*
           - Action:
@@ -4047,13 +4377,15 @@ Resources:
               - secretsmanager:DescribeSecret
               - secretsmanager:GetSecretValue
             Effect: Allow
-            Resource: arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/github-ssh-okGazo
+            Resource:
+              Ref: SshSecret1C881D214
           - Action:
               - secretsmanager:ListSecrets
               - secretsmanager:DescribeSecret
               - secretsmanager:GetSecretValue
             Effect: Allow
-            Resource: arn:aws:secretsmanager:us-east-1:712950704752:secret:github-token-QDP6QX
+            Resource:
+              Ref: TokenSecret197DB3DBF
         Version: "2012-10-17"
       PolicyName: CodeCommitPipelineAutoBumpAutoPullRequestRoleDefaultPolicy3BB1CD6F
       Roles:
@@ -4076,36 +4408,45 @@ Resources:
           - CodeCommitPipelineAutoBumpAutoPullRequestRoleE7E0E388
           - Arn
       Source:
-        BuildSpec: |-
-          {
-            "version": "0.2",
-            "phases": {
-              "pre_build": {
-                "commands": [
-                  "git config --global user.email \"foo@bar.com\"",
-                  "git config --global user.name \"foobar\""
-                ]
-              },
-              "build": {
-                "commands": [
-                  "export SKIP=false",
-                  "$SKIP || { aws secretsmanager get-secret-value --secret-id \"arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/github-ssh-okGazo\" --output=text --query=SecretString > ~/.ssh/id_rsa ; }",
-                  "$SKIP || { mkdir -p ~/.ssh ; }",
-                  "$SKIP || { chmod 0600 ~/.ssh/id_rsa ~/.ssh/config ; }",
-                  "$SKIP || { ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts ; }",
-                  "$SKIP || { ls .git && { echo \".git directory exists\";  } || { echo \".git directory doesnot exist - cloning...\" && git init . && git remote add origin git@github.com:awslabs/aws-delivlib-sample.git && git fetch && git reset --hard origin/master && git branch -M master && git clean -fqdx; } ; }",
-                  "$SKIP || { git describe --exact-match master && { echo 'Skip condition is met, skipping...' && export SKIP=true; } || { echo 'Skip condition is not met, continuing...' && export SKIP=false; } ; }",
-                  "$SKIP || { export GITHUB_TOKEN=$(aws secretsmanager get-secret-value --secret-id \"arn:aws:secretsmanager:us-east-1:712950704752:secret:github-token-QDP6QX\" --output=text --query=SecretString) ; }",
-                  "$SKIP || { git rev-parse --verify origin/bump/$VERSION && { git checkout bump/$VERSION && git merge master && npm i && npm run bump && export VERSION=$(git describe) && echo Finished running user commands;  } || { git checkout master && git checkout -b temp && npm i && npm run bump && export VERSION=$(git describe) && echo Finished running user commands && git branch -M bump/$VERSION; } ; }",
-                  "$SKIP || { git merge-base --is-ancestor bump/$VERSION origin/master && { echo \"Skipping: bump/$VERSION is an ancestor of origin/master\"; export SKIP=true; } || { echo \"Pushing: bump/$VERSION is ahead of origin/master\"; export SKIP=false; } ; }",
-                  "$SKIP || { git remote add origin_ssh git@github.com:awslabs/aws-delivlib-sample.git ; }",
-                  "$SKIP || { git push --atomic --follow-tags origin_ssh bump/$VERSION:bump/$VERSION ; }",
-                  "$SKIP || { curl --fail -X POST -o pr.json --header \"Authorization: token $GITHUB_TOKEN\" --header \"Content-Type: application/json\" -d \"{\\\"title\\\":\\\"chore(release): $VERSION\\\",\\\"base\\\":\\\"master\\\",\\\"head\\\":\\\"bump/$VERSION\\\"}\" https://api.github.com/repos/awslabs/aws-delivlib-sample/pulls && export PR_NUMBER=$(node -p 'require(\"./pr.json\").number') ; }",
-                  "$SKIP || { curl --fail -X PATCH --header \"Authorization: token $GITHUB_TOKEN\" --header \"Content-Type: application/json\" -d \"{\\\"body\\\":\\\"See [CHANGELOG](https://github.com/awslabs/aws-delivlib-sample/blob/bump/$VERSION/CHANGELOG.md)\\\"}\" https://api.github.com/repos/awslabs/aws-delivlib-sample/pulls/$PR_NUMBER ; }"
-                ]
-              }
-            }
-          }
+        BuildSpec:
+          Fn::Join:
+            - ""
+            - - |-
+                {
+                  "version": "0.2",
+                  "phases": {
+                    "pre_build": {
+                      "commands": [
+                        "git config --global user.email \"foo@bar.com\"",
+                        "git config --global user.name \"foobar\""
+                      ]
+                    },
+                    "build": {
+                      "commands": [
+                        "export SKIP=false",
+                        "$SKIP || { aws secretsmanager get-secret-value --secret-id \"
+              - Ref: SshSecret1C881D214
+              - |-
+                \" --output=text --query=SecretString > ~/.ssh/id_rsa ; }",
+                        "$SKIP || { mkdir -p ~/.ssh ; }",
+                        "$SKIP || { chmod 0600 ~/.ssh/id_rsa ~/.ssh/config ; }",
+                        "$SKIP || { ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts ; }",
+                        "$SKIP || { ls .git && { echo \".git directory exists\";  } || { echo \".git directory doesnot exist - cloning...\" && git init . && git remote add origin git@github.com:awslabs/aws-delivlib-sample.git && git fetch && git reset --hard origin/master && git branch -M master && git clean -fqdx; } ; }",
+                        "$SKIP || { git describe --exact-match master && { echo 'Skip condition is met, skipping...' && export SKIP=true; } || { echo 'Skip condition is not met, continuing...' && export SKIP=false; } ; }",
+                        "$SKIP || { export GITHUB_TOKEN=$(aws secretsmanager get-secret-value --secret-id \"
+              - Ref: TokenSecret197DB3DBF
+              - |-
+                \" --output=text --query=SecretString) ; }",
+                        "$SKIP || { git rev-parse --verify origin/bump/$VERSION && { git checkout bump/$VERSION && git merge master && npm i && npm run bump && export VERSION=$(git describe) && echo Finished running user commands;  } || { git checkout master && git checkout -b temp && npm i && npm run bump && export VERSION=$(git describe) && echo Finished running user commands && git branch -M bump/$VERSION; } ; }",
+                        "$SKIP || { git merge-base --is-ancestor bump/$VERSION origin/master && { echo \"Skipping: bump/$VERSION is an ancestor of origin/master\"; export SKIP=true; } || { echo \"Pushing: bump/$VERSION is ahead of origin/master\"; export SKIP=false; } ; }",
+                        "$SKIP || { git remote add origin_ssh git@github.com:awslabs/aws-delivlib-sample.git ; }",
+                        "$SKIP || { git push --atomic --follow-tags origin_ssh bump/$VERSION:bump/$VERSION ; }",
+                        "$SKIP || { curl --fail -X POST -o pr.json --header \"Authorization: token $GITHUB_TOKEN\" --header \"Content-Type: application/json\" -d \"{\\\"title\\\":\\\"chore(release): $VERSION\\\",\\\"base\\\":\\\"master\\\",\\\"head\\\":\\\"bump/$VERSION\\\"}\" https://api.github.com/repos/awslabs/aws-delivlib-sample/pulls && export PR_NUMBER=$(node -p 'require(\"./pr.json\").number') ; }",
+                        "$SKIP || { curl --fail -X PATCH --header \"Authorization: token $GITHUB_TOKEN\" --header \"Content-Type: application/json\" -d \"{\\\"body\\\":\\\"See [CHANGELOG](https://github.com/awslabs/aws-delivlib-sample/blob/bump/$VERSION/CHANGELOG.md)\\\"}\" https://api.github.com/repos/awslabs/aws-delivlib-sample/pulls/$PR_NUMBER ; }"
+                      ]
+                    }
+                  }
+                }
         GitCloneDepth: 0
         Location: https://github.com/awslabs/aws-delivlib-sample.git
         ReportBuildStatus: false
@@ -4162,13 +4503,21 @@ Resources:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
+                    - ":logs:"
+                    - Ref: AWS::Region
+                    - ":"
+                    - Ref: AWS::AccountId
+                    - :log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelineAutoBuildProject5D212EE9
               - Fn::Join:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - :logs:us-east-1:712950704752:log-group:/aws/codebuild/
+                    - ":logs:"
+                    - Ref: AWS::Region
+                    - ":"
+                    - Ref: AWS::AccountId
+                    - :log-group:/aws/codebuild/
                     - Ref: CodeCommitPipelineAutoBuildProject5D212EE9
                     - :*
           - Action:
@@ -4183,7 +4532,11 @@ Resources:
                 - ""
                 - - "arn:"
                   - Ref: AWS::Partition
-                  - :codebuild:us-east-1:712950704752:report-group/
+                  - ":codebuild:"
+                  - Ref: AWS::Region
+                  - ":"
+                  - Ref: AWS::AccountId
+                  - :report-group/
                   - Ref: CodeCommitPipelineAutoBuildProject5D212EE9
                   - -*
         Version: "2012-10-17"
@@ -4199,7 +4552,7 @@ Resources:
         Type: NO_ARTIFACTS
       Environment:
         ComputeType: BUILD_GENERAL1_SMALL
-        Image: jsii/superchain:latest
+        Image: public.ecr.aws/c4i6u9i2/jsii/superchain:1-buster-slim-node14
         ImagePullCredentialsType: SERVICE_ROLE
         PrivilegedMode: false
         Type: LINUX_CONTAINER
@@ -4234,7 +4587,12 @@ Resources:
           Ref: CodeCommitPipelineAutoBuildProject5D212EE9
         DeletePreviousComments: "true"
         CommentOnSuccess: "true"
-        GitHubOAuthToken: "{{resolve:secretsmanager:arn:aws:secretsmanager:us-east-1:712950704752:secret:github-token-QDP6QX:SecretString:::}}"
+        GitHubOAuthToken:
+          Fn::Join:
+            - ""
+            - - "{{resolve:secretsmanager:"
+              - Ref: TokenSecret197DB3DBF
+              - :SecretString:::}}
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/AutoBuild/GitHubCodeBuildLogsSAR
   CodeCommitPipelineChangeControllerCalendar94B1DEA8:
@@ -4282,7 +4640,8 @@ Resources:
           - CodeCommitPipelineChangeControllerFunction776EAE6A
           - Arn
       Principal: s3.amazonaws.com
-      SourceAccount: "712950704752"
+      SourceAccount:
+        Ref: AWS::AccountId
       SourceArn:
         Fn::GetAtt:
           - CodeCommitPipelineChangeControllerCalendar94B1DEA8
@@ -4321,7 +4680,11 @@ Resources:
                 - ""
                 - - "arn:"
                   - Ref: AWS::Partition
-                  - ":codepipeline:us-east-1:712950704752:"
+                  - ":codepipeline:"
+                  - Ref: AWS::Region
+                  - ":"
+                  - Ref: AWS::AccountId
+                  - ":"
                   - Ref: CodeCommitPipelineBuildPipeline656B8CCB
                   - /Publish
           - Action:
@@ -4349,7 +4712,8 @@ Resources:
     Type: AWS::Lambda::Function
     Properties:
       Code:
-        S3Bucket: cdk-hnb659fds-assets-712950704752-us-east-1
+        S3Bucket:
+          Fn::Sub: cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}
         S3Key: 0ff875115bf3a3ba9f32946b1f2b9b153553ecba0e511c42ac11bef064968c40.zip
       Role:
         Fn::GetAtt:
@@ -4440,7 +4804,9 @@ Resources:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - :iam::712950704752:root
+                    - ":iam::"
+                    - Ref: AWS::AccountId
+                    - :root
         Version: "2012-10-17"
     Metadata:
       aws:cdk:path: delivlib-test/AssumeMe/Resource
@@ -4448,7 +4814,8 @@ Resources:
     Type: AWS::Lambda::LayerVersion
     Properties:
       Content:
-        S3Bucket: cdk-hnb659fds-assets-712950704752-us-east-1
+        S3Bucket:
+          Fn::Sub: cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}
         S3Key: 3484e3af42fdf9fe20bc76b3aa0b74c59f8ffe2e6aa726d82b5fb8fed9b91889.zip
     Metadata:
       aws:cdk:path: delivlib-test/X509CodeSigningKey/RSAPrivateKey/OpenSslCliLayer/Resource
@@ -4474,7 +4841,8 @@ Resources:
     Type: AWS::Lambda::LayerVersion
     Properties:
       Content:
-        S3Bucket: cdk-hnb659fds-assets-712950704752-us-east-1
+        S3Bucket:
+          Fn::Sub: cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}
         S3Key: 3484e3af42fdf9fe20bc76b3aa0b74c59f8ffe2e6aa726d82b5fb8fed9b91889.zip
     Metadata:
       aws:cdk:path: delivlib-test/X509CodeSigningKey/RSAPrivateKey/CertificateSigningRequest/OpenSslCliLayer/Resource
@@ -4636,7 +5004,11 @@ Resources:
                 - ""
                 - - "arn:"
                   - Ref: AWS::Partition
-                  - :secretsmanager:us-east-1:712950704752:secret:delivlib-test/X509CodeSigningKey/RSAPrivateKey-??????
+                  - ":secretsmanager:"
+                  - Ref: AWS::Region
+                  - ":"
+                  - Ref: AWS::AccountId
+                  - :secret:delivlib-test/X509CodeSigningKey/RSAPrivateKey-??????
         Version: "2012-10-17"
       PolicyName: RSAPrivateKey72FD327D38134632934028EC437AA486ServiceRoleDefaultPolicy487DB1EA
       Roles:
@@ -4647,7 +5019,8 @@ Resources:
     Type: AWS::Lambda::Function
     Properties:
       Code:
-        S3Bucket: cdk-hnb659fds-assets-712950704752-us-east-1
+        S3Bucket:
+          Fn::Sub: cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}
         S3Key: 49ad3cae9aedaa06b54a5997b18d3545de801b45c7dfb05a5354a03aec399460.zip
       Role:
         Fn::GetAtt:
@@ -4721,7 +5094,8 @@ Resources:
     Type: AWS::Lambda::Function
     Properties:
       Code:
-        S3Bucket: cdk-hnb659fds-assets-712950704752-us-east-1
+        S3Bucket:
+          Fn::Sub: cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}
         S3Key: 9012a4bd6eb36f7ec4fec65ce817435d9b8dda297c62e87163a773c7d25c60a9.zip
       Role:
         Fn::GetAtt:
@@ -4756,7 +5130,8 @@ Resources:
     Type: AWS::Lambda::Function
     Properties:
       Code:
-        S3Bucket: cdk-hnb659fds-assets-712950704752-us-east-1
+        S3Bucket:
+          Fn::Sub: cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}
         S3Key: 15684a15d07860e99d2a8079150ad33dd2cb743677fcd7016dd07345e1b69538.zip
       Timeout: 900
       MemorySize: 128
@@ -4804,14 +5179,21 @@ Resources:
                   - ""
                   - - "arn:"
                     - Ref: AWS::Partition
-                    - :iam::712950704752:root
+                    - ":iam::"
+                    - Ref: AWS::AccountId
+                    - :root
             Resource: "*"
           - Action:
               - kms:Decrypt
               - kms:GenerateDataKey
             Condition:
               StringEquals:
-                kms:ViaService: secretsmanager.us-east-1.amazonaws.com
+                kms:ViaService:
+                  Fn::Join:
+                    - ""
+                    - - secretsmanager.
+                      - Ref: AWS::Region
+                      - .amazonaws.com
             Effect: Allow
             Principal:
               AWS:
@@ -4844,7 +5226,8 @@ Resources:
     Type: AWS::Lambda::LayerVersion
     Properties:
       Content:
-        S3Bucket: cdk-hnb659fds-assets-712950704752-us-east-1
+        S3Bucket:
+          Fn::Sub: cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}
         S3Key: 69a776bec2bf25cc316055ac300a38998a429f41c98f76ef762e1aacb23488fe.zip
     Metadata:
       aws:cdk:path: delivlib-test/CodeSign/GpgLayer/Resource
@@ -4923,7 +5306,11 @@ Resources:
                 - ""
                 - - "arn:"
                   - Ref: AWS::Partition
-                  - :secretsmanager:us-east-1:712950704752:secret:delivlib-test/CodeSign-??????
+                  - ":secretsmanager:"
+                  - Ref: AWS::Region
+                  - ":"
+                  - Ref: AWS::AccountId
+                  - :secret:delivlib-test/CodeSign-??????
           - Action: ssm:DeleteParameter
             Effect: Allow
             Resource: "*"
@@ -4937,7 +5324,8 @@ Resources:
     Type: AWS::Lambda::Function
     Properties:
       Code:
-        S3Bucket: cdk-hnb659fds-assets-712950704752-us-east-1
+        S3Bucket:
+          Fn::Sub: cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}
         S3Key: 82a7500f96ba72e7bb0d262fe02e5a925b0801f0a77474de466ad2818fdbeea4.zip
       Role:
         Fn::GetAtt:
@@ -5105,6 +5493,17 @@ Resources:
       - BucketNotificationsHandler050a0587b7544547bf325f094a3db834RoleB6FB88EC
     Metadata:
       aws:cdk:path: delivlib-test/BucketNotificationsHandler050a0587b7544547bf325f094a3db834/Resource
+Parameters:
+  SsmParameterValuegithubtokenC96584B6F00A464EAD1953AFF4B05118Parameter:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: github-token
+  SsmParameterValuegithubsshC96584B6F00A464EAD1953AFF4B05118Parameter:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: github-ssh
+  BootstrapVersion:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /cdk-bootstrap/hnb659fds/version
+    Description: Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]
 Outputs:
   CodeCommitPipelineChangeControllerChangeControlBucketKeyCA921D21:
     Value: change-control.ics
@@ -5117,11 +5516,6 @@ Outputs:
       Fn::GetAtt:
         - X509CodeSigningKeyRSAPrivateKeyCertificateSigningRequest7F706C9D
         - CSR
-Parameters:
-  BootstrapVersion:
-    Type: AWS::SSM::Parameter::Value<String>
-    Default: /cdk-bootstrap/hnb659fds/version
-    Description: Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]
 Rules:
   CheckBootstrapVersion:
     Assertions:

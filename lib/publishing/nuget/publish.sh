@@ -72,7 +72,7 @@ log=$(mktemp -d)/log.txt
 found=false
 for NUGET_PACKAGE_PATH in $(find dotnet -name *.nupkg -not -iname *.symbols.nupkg); do
     found=true
-    if [ -n "${CODE_SIGNING_SECRET_ID:-}" ]; then
+    if [[ -n "${CODE_SIGNING_SECRET_ID:-}" && "${FOR_REAL:-}" == "true" ]]; then
         /bin/bash $SCRIPT_DIR/sign.sh "${NUGET_PACKAGE_PATH}" "${signcode_spc}" "${signcode_pvk}" "${signcode_tss}"
         if [ $? -ne 0 ]; then
             echo "❌ Code Signing failed"

@@ -73,18 +73,29 @@ yarn compile
 yarn test
 ```
 
-Besides this, there is a delivlib instance deployed to an AWS account (712950704752) that configures a delivlib pipeline for
-the package [aws-delivlib-sample](https://github.com/awslabs/aws-delivlib-sample). This instance can be used to test and
-validate your local changes. To do this,
+Besides this, you can deploy a delivlib pipeline for [aws-delivlib-sample](https://github.com/awslabs/aws-delivlib-sample) package to any AWS account. Use this deployment to test and validate your local changes. To do this:
+
+### Prerequisites
+
+- Your AWS account must have a secure SSM parameter called **github-token**, which contains a real GitHub token. The token must have `admin:repo_hook` permissions.
+This is necessary because this token is used to configure webhooks for the source pulling stage.
+
+- Your AWS account must have a secure SSM parameter called **github-ssh**, which contains a real GitHub ssh private key.
+This is necessary because one of the publishing steps performs a `git clone` using this key.
+
+- Your AWS account must be authenticated to GitHub. This process is manual and required only once.
+To do so, start creating a dummy code build project on the AWS console, and you'll see a **Connect to GitHub** button. This is necessary for configuring webhooks.
+
+Now you should be good to run the test:
 
 1. Build the package - `yarn compile`
-2. Setup credentials to our AWS account: 712950704752
-3. Execute `yarn integ:update`. This will update the delivlib instance and the command will halt at a user prompt.
+2. Setup credentials to your AWS account.
+3. Execute `yarn integ:update`. This will deploy the delivlib pipeline and the command will halt at a user prompt.
 
 At this point, you will find the resources created by delivlib in the stack whose ARN is printed to the console. Wait for the
 deployment to complete, and are then free to test and verify that your changes had the intended effect.
 
-Once complete, continue following the instructions and prompts until the end.q
+Once complete, continue following the instructions and prompts until the end.
 
 ## Releasing a New Version
 

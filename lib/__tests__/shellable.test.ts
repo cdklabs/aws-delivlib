@@ -253,7 +253,7 @@ test('environment variables', () => {
         {
           Name: 'ENV_VAR_SECRET',
           Type: 'SECRETS_MANAGER',
-          Value: 'env-var-secret-name',
+          Value: 'arn:test:secretsmanager:region:000000000000:secret:env-var-secret-name-abc123',
         },
         {
           Name: 'ENV_VAR_PARAMETER',
@@ -294,26 +294,7 @@ test('environment variables', () => {
         {
           Action: 'secretsmanager:GetSecretValue',
           Effect: 'Allow',
-          Resource: {
-            'Fn::Join': [
-              '',
-              [
-                'arn:',
-                {
-                  Ref: 'AWS::Partition',
-                },
-                ':secretsmanager:',
-                {
-                  Ref: 'AWS::Region',
-                },
-                ':',
-                {
-                  Ref: 'AWS::AccountId',
-                },
-                ':secret:env-var-secret-name-??????',
-              ],
-            ],
-          },
+          Resource: 'arn:test:secretsmanager:region:000000000000:secret:env-var-secret-name-abc123*',
         },
         {
           Action: [
