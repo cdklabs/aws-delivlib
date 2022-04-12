@@ -5,10 +5,16 @@ echo "Sources:"
 ls
 echo ----------------------------------------
 
-# Configure git to successfully push to the repository
-aws secretsmanager get-secret-value --secret-id "${SSH_KEY_SECRET}" --output=text --query=SecretString > ~/.ssh/id_rsa
-chmod 0600 ~/.ssh/id_rsa
+# Prepare the GitHub token
+token="$(aws secretsmanager get-secret-value --secret-id ${GITHUB_TOKEN_SECRET} --output=text --query=SecretString)"
 
+if [[ ! -z "${GITHUB_TOKEN_SECRET_KEY}" ]]; then
+  token=$(node -e "console.log(${token}.${GITHUB_TOKEN_SECRET_KEY});")
+fi
+
+export GITHUB_TOKEN="${token}"
+
+# Configure git to successfully push to the repository
 git config --global user.name "${COMMIT_USERNAME}"
 git config --global user.email "${COMMIT_EMAIL}"
 

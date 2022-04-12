@@ -63,9 +63,10 @@ if [ -n "${NUGET_ROLE_ARN:-}" ]; then
     export AWS_SESSION_TOKEN=$(echo $ROLE | jq -r .Credentials.SessionToken)
 fi
 
+NUGET_SECRET_ID_TOKEN_KEY="${NUGET_SECRET_ID_USERNAME_KEY:-NugetApiKey}"
 NUGET_SOURCE="https://api.nuget.org/v3/index.json"
 NUGET_SYMBOL_SOURCE="https://nuget.smbsrc.net/"
-NUGET_API_KEY=$(aws secretsmanager get-secret-value --region "${NUGET_SECRET_REGION:-}" --secret-id "${NUGET_SECRET_ID:-}" | jq -r .SecretString | jq -r .NugetApiKey)
+NUGET_API_KEY=$(aws secretsmanager get-secret-value --region "${NUGET_SECRET_REGION:-}" --secret-id "${NUGET_SECRET_ID:-}" | jq -r .SecretString | jq -r .${NUGET_SECRET_ID_TOKEN_KEY})
 
 log=$(mktemp -d)/log.txt
 

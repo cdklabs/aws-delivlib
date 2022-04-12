@@ -47,6 +47,16 @@ export interface PublishToMavenProjectProps {
   mavenLoginSecret: permissions.ExternalSecret;
 
   /**
+   * The key inside the secret holding the username.
+   */
+  mavenLoginSecretUsernameKey: string;
+
+  /**
+   * The key inside the secret holding the password.
+   */
+  mavenLoginSecretPasswordKey: string;
+
+  /**
    * If true (default) performs a dry-run only instead of actually publishing.
    * @default true
    */
@@ -90,6 +100,8 @@ export class PublishToMavenProject extends Construct implements IPublisher {
         SIGNING_KEY_ARN: props.signingKey.credential.secretArn,
         FOR_REAL: forReal,
         MAVEN_LOGIN_SECRET: props.mavenLoginSecret.secretArn,
+        MAVEN_LOGIN_SECRET_USERNAME_KEY: props.mavenLoginSecretUsernameKey,
+        MAVEN_LOGIN_SECRET_PASSWORD_KEY: props.mavenLoginSecretPasswordKey,
         MAVEN_ENDPOINT: props.mavenEndpoint || 'https://oss.sonatype.org',
       },
     });
@@ -118,6 +130,13 @@ export interface PublishToNpmProjectProps {
    * Identifier of the secret that contains the NPM token
    */
   npmTokenSecret: permissions.ExternalSecret;
+
+  /**
+   * The key inside the secret that contains the token.
+   *
+   * @default 'token'
+   */
+  npmTokenSecretKey?: string;
 
   /**
    * If `true` (default) will only perform a dry-run but will not actually publish.
@@ -167,6 +186,7 @@ export class PublishToNpmProject extends Construct implements IPublisher {
       environment: {
         FOR_REAL: forReal,
         NPM_TOKEN_SECRET: props.npmTokenSecret.secretArn,
+        NPM_TOKEN_SECRET_KEY: props.npmTokenSecretKey,
         DISTTAG: props.distTag || '',
         ACCESS: access,
       },
@@ -195,6 +215,13 @@ export interface PublishToNuGetProjectProps {
    * The SecretsManager secret which stores the Nuget API key.
    */
   nugetApiKeySecret: permissions.ExternalSecret;
+
+  /**
+   * The key inside the secret holding the token.
+   *
+   * @default 'NugetApiKey'
+   */
+  nugetApiKeySecretTokenKey?: string;
 
   /**
    * If `true` (default) will only perform a dry-run but will not actually publish.
@@ -243,6 +270,7 @@ export class PublishToNuGetProject extends Construct implements IPublisher {
     }
 
     environment.NUGET_SECRET_ID = props.nugetApiKeySecret.secretArn;
+    environment.NUGET_SECRET_ID_TOKEN_KEY = props.nugetApiKeySecretTokenKey;
 
     if (props.codeSign) {
       environment.CODE_SIGNING_SECRET_ID = props.codeSign.credential.secretArn;
@@ -326,9 +354,10 @@ export class PublishDocsToGitHubProject extends Construct implements IPublisher 
       entrypoint: 'publish.sh',
       environment: {
         // Must be SSH because we use an SSH key to authenticate
-        GITHUB_REPO: props.githubRepo.repositoryUrlSsh,
+        GITHUB_REPO_SLUG: props.githubRepo.repositorySlug,
         GITHUB_PAGES_BRANCH: props.branch || 'gh-pages',
-        SSH_KEY_SECRET: props.githubRepo.sshKeySecret.secretArn,
+        GITHUB_TOKEN_SECRET: props.githubRepo.tokenSecret.secretArn,
+        GITHUB_TOKEN_SECRET_KEY: props.githubRepo.tokenSecretKey,
         FOR_REAL: forReal,
         COMMIT_USERNAME: props.githubRepo.commitUsername,
         COMMIT_EMAIL: props.githubRepo.commitEmail,
@@ -530,6 +559,20 @@ export interface PublishToPyPiProps {
   loginSecret: permissions.ExternalSecret;
 
   /**
+   * The key inside the secret holding the username.
+   *
+   * @default 'username'
+   */
+  loginSecretUsernameKey?: string;
+
+  /**
+   * The key inside the secret holding the password.
+   *
+   * @default 'password'
+   */
+  loginSecretPasswordKey?: string;
+
+  /**
    * If `true` (default) will only perform a dry-run but will not actually publish.
    * @default true
    */
@@ -553,6 +596,8 @@ export class PublishToPyPi extends Construct {
       environment: {
         FOR_REAL: forReal,
         PYPI_CREDENTIALS_SECRET_ID: props.loginSecret.secretArn,
+        PYPI_CREDENTIALS_SECRET_ID_USERNAME_KEY: props.loginSecretUsernameKey,
+        PYPI_CREDENTIALS_SECRET_ID_PASSWORD_KEY: props.loginSecretPasswordKey,
       },
     });
 
@@ -585,6 +630,13 @@ export interface PublishToGolangProps {
    * @see https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token
    */
   readonly githubTokenSecret: permissions.ExternalSecret;
+
+  /**
+   * The key inside the secret holding the token.
+   *
+   * @default - no key. token is assumed to be the entire secret string.
+   */
+  readonly githubTokenSecretKey?: string;
 
   /**
    * Username to perform the commit with.
@@ -644,6 +696,7 @@ export class PublishToGolang extends Construct {
       environment: {
         DRYRUN: dryRun ? 'true' : undefined,
         GITHUB_TOKEN_SECRET: props.githubTokenSecret.secretArn,
+        GITHUB_TOKEN_SECRET_KEY: props.githubTokenSecretKey,
         VERSION: props.version,
         GIT_BRANCH: props.gitBranch,
         GIT_USER_NAME: props.gitUserName,

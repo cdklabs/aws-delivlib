@@ -113,6 +113,10 @@ export class GitHubRepo implements IRepo {
     this.tokenSecretOptions = props.tokenSecretOptions;
   }
 
+  public get repositorySlug() {
+    return `${this.owner}/${this.repo}`;
+  }
+
   public get repositoryUrlHttp() {
     return `https://github.com/${this.owner}/${this.repo}.git`;
   }
@@ -187,7 +191,14 @@ export interface WritableGitHubRepoProps extends GitHubRepoProps {
    * This is required if you wish to be able to use actions that write to the repo
    * such as docs publishing and automatic bumps.
    */
-  sshKeySecret: ExternalSecret;
+  tokenSecret: ExternalSecret;
+
+  /**
+   * The key inside the secret holding the token
+   *
+   * @default - no key. token is assumed to be the entire secret string.
+   */
+  tokenSecretKey?: string;
 
   /**
    * The username to use for the published commits
@@ -211,14 +222,16 @@ export class WritableGitHubRepo extends GitHubRepo {
       && 'commitUsername' in obj;
   }
 
-  public readonly sshKeySecret: ExternalSecret;
+  public readonly tokenSecret: ExternalSecret;
+  public readonly tokenSecretKey?: string;
   public readonly commitEmail: string;
   public readonly commitUsername: string;
 
   constructor(props: WritableGitHubRepoProps) {
     super(props);
 
-    this.sshKeySecret = props.sshKeySecret;
+    this.tokenSecret = props.tokenSecret;
+    this.tokenSecretKey = props.tokenSecretKey;
     this.commitEmail = props.commitEmail;
     this.commitUsername = props.commitUsername;
   }

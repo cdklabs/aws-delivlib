@@ -5,9 +5,10 @@ echo "Sources:"
 ls
 echo ----------------------------------------
 
+NPM_TOKEN_SECRET_KEY="${NPM_TOKEN_SECRET_KEY:-token}"
 # Prepare the NPM publishing token
 secret=$(aws secretsmanager get-secret-value --secret-id $NPM_TOKEN_SECRET --output=text --query=SecretString)
-token=$(node -e "console.log(${secret}.token);")
+token=$(node -e "console.log(${secret}.${NPM_TOKEN_SECRET});")
 
 export NPM_TOKEN=$token
 
