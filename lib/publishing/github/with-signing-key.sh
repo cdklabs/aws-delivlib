@@ -32,6 +32,8 @@ else
     trap "find $tmpdir -type f -exec rm {} \\; && rm -rf $tmpdir" EXIT
 
     # Use secrets manager to obtain the key and passphrase into a JSON file
+    SIGNING_KEY_PASSPHRASE_KEY="${SIGNING_KEY_PASSPHRASE_KEY:-Passphrase}"
+    SIGNING_KEY_PRIVATEKEY_KEY="${SIGNING_KEY_PRIVATEKEY_KEY:-PrivateKey}"
     echo "Retrieving key $SIGNING_KEY_ARN..." >&2
     aws secretsmanager get-secret-value --secret-id "$SIGNING_KEY_ARN" --output text --query SecretString > $tmpdir/secret.txt
 
@@ -39,7 +41,7 @@ else
         node -e "console.log(JSON.parse(require('fs').readFileSync('$tmpdir/secret.txt', { encoding: 'utf-8' })).$1)"
     }
 
-    export KEY_PASSPHRASE=$(value-from-secret Passphrase)
+    export KEY_PASSPHRASE=$(value-from-secret ${SIGNING_KEY_PASSPHRASE_KEY})
 
     # GnuPG will occasionally bail out with "gpg: <whatever> failed: Inappropriate ioctl for device", the following attempts to fix
     export GPG_TTY=$(tty)
@@ -48,7 +50,7 @@ else
     echo "Importing key..." >&2
     gpg --allow-secret-key-import \
         --batch --yes --no-tty \
-        --import <(value-from-secret PrivateKey)
+        --import <(value-from-secret ${SIGNING_KEY_PRIVATEKEY_KEY})
 
     export KEY_ID=$(gpg --list-keys --with-colons | grep pub | cut -d: -f5)
 

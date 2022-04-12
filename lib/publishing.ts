@@ -7,8 +7,8 @@ import {
   aws_iam as iam,
   aws_s3 as s3,
 } from 'monocdk';
+import { ExternalSecret } from '.';
 import { ICodeSigningCertificate } from './code-signing';
-import { OpenPGPKeyPair } from './open-pgp-key-pair';
 import * as permissions from './permissions';
 import { AddToPipelineOptions, IPublisher } from './pipeline';
 import { WritableGitHubRepo } from './repo';
@@ -417,7 +417,21 @@ export interface PublishToGitHubProps {
   /**
    * The signign key to use to create a GPG signature of the artifact.
    */
-  signingKey: OpenPGPKeyPair;
+  signingKey: ExternalSecret;
+
+  /**
+   * The key inside the secret holding the signing key passphrase.
+   *
+   * @default 'Passphrase'
+   */
+  signingKeyPassPhraseKey?: string;
+
+  /**
+    * The key inside the secret holding the signing key private key.
+    *
+    * @default 'PrivateKey'
+    */
+  signingKeyPrivateKeyKey?: string;
 
   /**
    * The name of the build manifest JSON file (must include "name" and "version" fields).
@@ -481,7 +495,9 @@ export class PublishToGitHub extends Construct implements IPublisher {
         BUILD_MANIFEST: props.buildManifestFileName || './build.json',
         CHANGELOG: props.changelogFileName || './CHANGELOG.md',
         RELEASE_NOTES: props.releaseNotesFileName || './RELEASE_NOTES.md',
-        SIGNING_KEY_ARN: props.signingKey.credential.secretArn,
+        SIGNING_KEY_ARN: props.signingKey.secretArn,
+        SIGNING_KEY_PASSPHRASE_KEY: props.signingKeyPassPhraseKey,
+        SIGNING_KEY_PRIVATEKEY_KEY: props.signingKeyPrivateKeyKey,
         GITHUB_OWNER: props.githubRepo.owner,
         GITHUB_REPO: props.githubRepo.repo,
         FOR_REAL: forReal,
@@ -496,7 +512,7 @@ export class PublishToGitHub extends Construct implements IPublisher {
 
     // allow script to read the signing key
     if (shellable.role) {
-      props.signingKey.grantRead(shellable.role);
+      permissions.grantSecretRead(props.signingKey, shellable.role);
     }
 
     this.role = shellable.role;
