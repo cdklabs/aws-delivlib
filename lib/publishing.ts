@@ -34,7 +34,21 @@ export interface PublishToMavenProjectProps {
   /**
    * The signing key itself
    */
-  signingKey: OpenPGPKeyPair;
+  signingKey: permissions.ExternalSecret;
+
+  /**
+   * The key inside the secret holding the signing key passphrase.
+   *
+   * @default 'Passphrase'
+   */
+  signingKeyPassPhraseKey?: string;
+
+  /**
+   * The key inside the secret holding the signing key private key.
+   *
+   * @default 'PrivateKey'
+   */
+  signingKeyPrivateKeyKey?: string;
 
   /**
    * The ID of the sonatype staging profile (e.g. "68a05363083174").
@@ -97,7 +111,9 @@ export class PublishToMavenProject extends Construct implements IPublisher {
       entrypoint: 'publish.sh',
       environment: {
         STAGING_PROFILE_ID: props.stagingProfileId,
-        SIGNING_KEY_ARN: props.signingKey.credential.secretArn,
+        SIGNING_KEY_ARN: props.signingKey.secretArn,
+        SIGNING_KEY_PASSPHRASE_KEY: props.signingKeyPassPhraseKey,
+        SIGNING_KEY_PRIVATEKEY_KEY: props.signingKeyPrivateKeyKey,
         FOR_REAL: forReal,
         MAVEN_LOGIN_SECRET: props.mavenLoginSecret.secretArn,
         MAVEN_LOGIN_SECRET_USERNAME_KEY: props.mavenLoginSecretUsernameKey,
@@ -108,7 +124,7 @@ export class PublishToMavenProject extends Construct implements IPublisher {
 
     if (shellable.role) {
       permissions.grantSecretRead(props.mavenLoginSecret, shellable.role);
-      props.signingKey.grantRead(shellable.role);
+      permissions.grantSecretRead(props.signingKey, shellable.role);
     }
 
     this.role = shellable.role;
@@ -270,7 +286,10 @@ export class PublishToNuGetProject extends Construct implements IPublisher {
     }
 
     environment.NUGET_SECRET_ID = props.nugetApiKeySecret.secretArn;
-    environment.NUGET_SECRET_ID_TOKEN_KEY = props.nugetApiKeySecretTokenKey;
+
+    if (props.nugetApiKeySecretTokenKey) {
+      environment.NUGET_SECRET_ID_TOKEN_KEY = props.nugetApiKeySecretTokenKey;
+    }
 
     if (props.codeSign) {
       environment.CODE_SIGNING_SECRET_ID = props.codeSign.credential.secretArn;
@@ -366,7 +385,7 @@ export class PublishDocsToGitHubProject extends Construct implements IPublisher 
     });
 
     if (shellable.role) {
-      permissions.grantSecretRead(props.githubRepo.sshKeySecret, shellable.role);
+      permissions.grantSecretRead(props.githubRepo.tokenSecret, shellable.role);
     }
 
     this.role = shellable.role;
