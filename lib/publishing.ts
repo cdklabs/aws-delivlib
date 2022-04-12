@@ -376,7 +376,7 @@ export class PublishDocsToGitHubProject extends Construct implements IPublisher 
       entrypoint: 'publish.sh',
       environment: {
         // Must be SSH because we use an SSH key to authenticate
-        GITHUB_REPO_SLUG: props.githubRepo.repositorySlug,
+        GITHUB_REPO: props.githubRepo.repositoryUrlSsh,
         GITHUB_PAGES_BRANCH: props.branch || 'gh-pages',
         SSH_KEY_SECRET: props.githubRepo.sshKeySecret.secretArn,
         SSH_KEY_SECRET_KEY: props.githubRepo.sshKeySecretKey,
