@@ -1547,7 +1547,7 @@ Resources:
       Code:
         S3Bucket:
           Fn::Sub: cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}
-        S3Key: 66b99756ae087cd731a655763245d55e9435c1657dc62d0c5a421806e223e6b2.zip
+        S3Key: 7820644cf1fdec7cec290ed6fdd561e35f4015d4dcf03a20f8035dda3c0ac88a.zip
       Role:
         Fn::GetAtt:
           - CodeCommitPipelinePipelineWatcherPollerServiceRole0A1D8005
