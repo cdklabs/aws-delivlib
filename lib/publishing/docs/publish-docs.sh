@@ -48,7 +48,7 @@ echo "📖 Cloning branch ${branch} from ${GITHUB_REPO}"
 
 WORKDIR=$(mktemp -d)
 
-if ! git clone -b ${branch} --depth=1 https://${GITHUB_TOKEN}@github.com/${GITHUB_REPO_SLUG}.git ${WORKDIR}; then
+if ! git clone -b ${branch} --depth=1 ${GITHUB_REPO} ${WORKDIR}; then
     mkdir -p ${WORKDIR}
 fi
 

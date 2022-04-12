@@ -375,8 +375,8 @@ export class PublishDocsToGitHubProject extends Construct implements IPublisher 
         // Must be SSH because we use an SSH key to authenticate
         GITHUB_REPO_SLUG: props.githubRepo.repositorySlug,
         GITHUB_PAGES_BRANCH: props.branch || 'gh-pages',
-        GITHUB_TOKEN_SECRET: props.githubRepo.tokenSecret.secretArn,
-        GITHUB_TOKEN_SECRET_KEY: props.githubRepo.tokenSecretKey,
+        SSH_KEY_SECRET: props.githubRepo.sshKeySecret.secretArn,
+        SSH_KEY_SECRET_KEY: props.githubRepo.sshKeySecretKey,
         FOR_REAL: forReal,
         COMMIT_USERNAME: props.githubRepo.commitUsername,
         COMMIT_EMAIL: props.githubRepo.commitEmail,
@@ -385,7 +385,7 @@ export class PublishDocsToGitHubProject extends Construct implements IPublisher 
     });
 
     if (shellable.role) {
-      permissions.grantSecretRead(props.githubRepo.tokenSecret, shellable.role);
+      permissions.grantSecretRead(props.githubRepo.sshKeySecret, shellable.role);
     }
 
     this.role = shellable.role;

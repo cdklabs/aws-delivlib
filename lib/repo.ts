@@ -191,14 +191,14 @@ export interface WritableGitHubRepoProps extends GitHubRepoProps {
    * This is required if you wish to be able to use actions that write to the repo
    * such as docs publishing and automatic bumps.
    */
-  tokenSecret: ExternalSecret;
+  sshKeySecret: ExternalSecret;
 
   /**
-   * The key inside the secret holding the token
+   * The key inside the secret holding the ssh key.
    *
-   * @default - no key. token is assumed to be the entire secret string.
+   * @default - no key. ssh key is assumed to be the entire secret string.
    */
-  tokenSecretKey?: string;
+  sshKeySecretKey?: string;
 
   /**
    * The username to use for the published commits
@@ -222,16 +222,16 @@ export class WritableGitHubRepo extends GitHubRepo {
       && 'commitUsername' in obj;
   }
 
-  public readonly tokenSecret: ExternalSecret;
-  public readonly tokenSecretKey?: string;
+  public readonly sshKeySecret: ExternalSecret;
+  public readonly sshKeySecretKey?: string;
   public readonly commitEmail: string;
   public readonly commitUsername: string;
 
   constructor(props: WritableGitHubRepoProps) {
     super(props);
 
-    this.tokenSecret = props.tokenSecret;
-    this.tokenSecretKey = props.tokenSecretKey;
+    this.sshKeySecret = props.sshKeySecret;
+    this.sshKeySecretKey = props.sshKeySecretKey;
     this.commitEmail = props.commitEmail;
     this.commitUsername = props.commitUsername;
   }
