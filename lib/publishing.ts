@@ -7,7 +7,6 @@ import {
   aws_iam as iam,
   aws_s3 as s3,
 } from 'monocdk';
-import { ExternalSecret } from '.';
 import { ICodeSigningCertificate } from './code-signing';
 import * as permissions from './permissions';
 import { AddToPipelineOptions, IPublisher } from './pipeline';
@@ -62,13 +61,17 @@ export interface PublishToMavenProjectProps {
 
   /**
    * The key inside the secret holding the username.
+   *
+   * @default 'username'
    */
-  mavenLoginSecretUsernameKey: string;
+  mavenLoginSecretUsernameKey?: string;
 
   /**
    * The key inside the secret holding the password.
+   *
+   * @default 'password'
    */
-  mavenLoginSecretPasswordKey: string;
+  mavenLoginSecretPasswordKey?: string;
 
   /**
    * If true (default) performs a dry-run only instead of actually publishing.
@@ -417,7 +420,7 @@ export interface PublishToGitHubProps {
   /**
    * The signign key to use to create a GPG signature of the artifact.
    */
-  signingKey: ExternalSecret;
+  signingKey: permissions.ExternalSecret;
 
   /**
    * The key inside the secret holding the signing key passphrase.
