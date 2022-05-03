@@ -31,7 +31,8 @@
         "OUTFILE": "package.json",
         "CHANGELOG": "dist/changelog.md",
         "BUMPFILE": "dist/version.txt",
-        "RELEASETAG": "dist/releasetag.txt"
+        "RELEASETAG": "dist/releasetag.txt",
+        "RELEASE_TAG_PREFIX": ""
       },
       "steps": [
         {
@@ -39,6 +40,15 @@
         }
       ],
       "condition": "! git log --oneline -1 | grep -q \"chore(release):\""
+    },
+    "bundle:package-integrity": {
+      "name": "bundle:package-integrity",
+      "description": "Bundle the package integrity script",
+      "steps": [
+        {
+          "exec": "esbuild --bundle lib/package-integrity/handler/validate.js --target=\"node12\" --platform=\"node\" --outfile=\"lib/package-integrity/handler/validate.bundle.js\" --sourcemap=inline"
+        }
+      ]
     },
     "clobber": {
       "name": "clobber",
@@ -81,6 +91,9 @@
         },
         {
           "exec": "tsc --build"
+        },
+        {
+          "spawn": "bundle:package-integrity"
         }
       ]
     },
@@ -98,6 +111,18 @@
       "steps": [
         {
           "exec": "node .projenrc.js"
+        }
+      ]
+    },
+    "eject": {
+      "name": "eject",
+      "description": "Remove projen from the project",
+      "env": {
+        "PROJEN_EJECTING": "true"
+      },
+      "steps": [
+        {
+          "spawn": "default"
         }
       ]
     },
@@ -177,6 +202,9 @@
     "test": {
       "name": "test",
       "description": "Run tests",
+      "env": {
+        "TZ": "UTC"
+      },
       "steps": [
         {
           "exec": "jest --passWithNoTests --all --updateSnapshot --coverageProvider=v8"
@@ -214,7 +242,8 @@
         "OUTFILE": "package.json",
         "CHANGELOG": "dist/changelog.md",
         "BUMPFILE": "dist/version.txt",
-        "RELEASETAG": "dist/releasetag.txt"
+        "RELEASETAG": "dist/releasetag.txt",
+        "RELEASE_TAG_PREFIX": ""
       },
       "steps": [
         {
@@ -229,6 +258,9 @@
         "CI": "0"
       },
       "steps": [
+        {
+          "exec": "yarn upgrade npm-check-updates"
+        },
         {
           "exec": "npm-check-updates --dep dev --upgrade --target=minor"
         },

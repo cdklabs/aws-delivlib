@@ -1,7 +1,15 @@
 {
   "dependencies": [
     {
+      "name": "@types/adm-zip",
+      "type": "build"
+    },
+    {
       "name": "@types/aws-lambda",
+      "type": "build"
+    },
+    {
+      "name": "@types/fs-extra",
       "type": "build"
     },
     {
@@ -11,6 +19,10 @@
     {
       "name": "@types/node",
       "version": "^14",
+      "type": "build"
+    },
+    {
+      "name": "@types/tar",
       "type": "build"
     },
     {
@@ -24,6 +36,10 @@
       "type": "build"
     },
     {
+      "name": "adm-zip",
+      "type": "build"
+    },
+    {
       "name": "aws-cdk",
       "type": "build"
     },
@@ -33,6 +49,10 @@
     },
     {
       "name": "aws-sdk",
+      "type": "build"
+    },
+    {
+      "name": "aws-sdk-mock",
       "type": "build"
     },
     {
@@ -61,7 +81,7 @@
       "type": "build"
     },
     {
-      "name": "jest",
+      "name": "fs-extra",
       "type": "build"
     },
     {
@@ -74,7 +94,16 @@
       "type": "build"
     },
     {
+      "name": "jest",
+      "version": "^27",
+      "type": "build"
+    },
+    {
       "name": "json-schema",
+      "type": "build"
+    },
+    {
+      "name": "JSONStream",
       "type": "build"
     },
     {
@@ -97,6 +126,10 @@
     {
       "name": "standard-version",
       "version": "^9",
+      "type": "build"
+    },
+    {
+      "name": "tar",
       "type": "build"
     },
     {

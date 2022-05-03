@@ -28,8 +28,13 @@ if [ "${1:-}" == "update" ]; then
   cp -f ${actual} ${expected}
 fi
 
+if [ "${1:-}" == "force" ]; then
+  cp -f ${actual} ${expected}
+fi
+
 diff ${actual} ${expected} || {
   echo "Expected test stack template does not match synthesized output"
   echo "To update expectations: 'yarn integ:update'"
+  echo "(or if you trust the changes, './lib/__tests__/run-test.sh force')"
   exit 1
 }

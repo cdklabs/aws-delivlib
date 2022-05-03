@@ -18,6 +18,9 @@ const project = new typescript.TypeScriptProject({
   deps: ['changelog-parser'],
   devDeps: [
     '@types/aws-lambda',
+    '@types/fs-extra',
+    '@types/tar',
+    '@types/adm-zip',
     'aws-cdk',
     'jest-create-mock-instance',
     'constructs',
@@ -26,9 +29,14 @@ const project = new typescript.TypeScriptProject({
     'ts-jest',
     'typescript',
     'aws-sdk',
+    'aws-sdk-mock',
     'node-ical',
     'rrule',
     'esbuild',
+    'fs-extra',
+    'tar',
+    'adm-zip',
+    'JSONStream',
   ],
   peerDeps: [
     'constructs',
@@ -61,11 +69,29 @@ integDiff.exec('/bin/bash ./lib/__tests__/run-test.sh');
 const integUpdate = project.addTask('integ:update');
 integUpdate.exec('/bin/bash ./lib/__tests__/run-test.sh update');
 
+// Need to run with UTC TZ, or else node-ical does very wrong things with timestamps and fails tests...
+project.testTask.env('TZ', 'UTC');
 project.testTask.spawn(integDiff);
 
 const compileCustomResourceHandlers = project.addTask('compile:custom-resource-handlers');
 compileCustomResourceHandlers.exec('/bin/bash ./build-custom-resource-handlers.sh');
 
 project.compileTask.prependSpawn(compileCustomResourceHandlers);
+
+project.gitignore.include('lib/package-integrity/handler/JSONStream.d.ts');
+const bundlePackageIntegrity = project.addTask('bundle:package-integrity', {
+  description: 'Bundle the package integrity script',
+  exec: [
+    'esbuild',
+    '--bundle',
+    'lib/package-integrity/handler/validate.js',
+    '--target="node12"',
+    '--platform="node"',
+    '--outfile="lib/package-integrity/handler/validate.bundle.js"',
+    '--sourcemap=inline',
+  ].join(' '),
+});
+
+project.compileTask.spawn(bundlePackageIntegrity);
 
 project.synth();
