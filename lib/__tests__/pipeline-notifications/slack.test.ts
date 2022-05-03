@@ -1,9 +1,9 @@
-import '@monocdk-experiment/assert/jest';
 import {
   App, Stack,
   aws_codecommit as codecommit,
   aws_chatbot as chatbot,
-} from 'monocdk';
+} from 'aws-cdk-lib';
+import { Template } from 'aws-cdk-lib/assertions';
 import { Pipeline, CodeCommitRepo, SlackNotification } from '../../../lib';
 
 describe('slack notifications', () => {
@@ -21,9 +21,10 @@ describe('slack notifications', () => {
 
     // WHEN
     pipe.notifyOnFailure(new SlackNotification({ channels: [slackChannel] }));
+    const template = Template.fromStack(stack);
 
     // THEN
-    expect(stack).toHaveResource('AWS::CodeStarNotifications::NotificationRule', {
+    template.hasResourceProperties('AWS::CodeStarNotifications::NotificationRule', {
       DetailType: 'BASIC',
       EventTypeIds: ['codepipeline-pipeline-action-execution-failed'],
       Name: {
@@ -67,9 +68,10 @@ describe('slack notifications', () => {
     // WHEN
     pipe.notifyOnFailure(new SlackNotification({ channels: [slackChannel1] }));
     pipe.notifyOnFailure(new SlackNotification({ channels: [slackChannel2] }));
+    const template = Template.fromStack(stack);
 
     // THEN
-    expect(stack).toHaveResource('AWS::CodeStarNotifications::NotificationRule', {
+    template.hasResourceProperties('AWS::CodeStarNotifications::NotificationRule', {
       Targets: [
         {
           TargetAddress: stack.resolve(slackChannel1.slackChannelConfigurationArn),
@@ -77,7 +79,7 @@ describe('slack notifications', () => {
         },
       ],
     });
-    expect(stack).toHaveResource('AWS::CodeStarNotifications::NotificationRule', {
+    template.hasResourceProperties('AWS::CodeStarNotifications::NotificationRule', {
       Targets: [
         {
           TargetAddress: stack.resolve(slackChannel2.slackChannelConfigurationArn),

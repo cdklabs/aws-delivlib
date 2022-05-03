@@ -1,10 +1,11 @@
 import {
-  Construct, Duration,
+  Duration,
   aws_cloudwatch as cloudwatch,
   aws_codebuild as cbuild,
   aws_events as events,
   aws_events_targets as events_targets,
-} from 'monocdk';
+} from 'aws-cdk-lib';
+import { Construct } from 'constructs';
 import { BuildEnvironmentProps, createBuildEnvironment } from '../build-env';
 import * as permissions from '../permissions';
 import { WritableGitHubRepo } from '../repo';

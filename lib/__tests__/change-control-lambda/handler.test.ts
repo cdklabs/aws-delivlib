@@ -1,9 +1,5 @@
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-import AWS = require('aws-sdk');
 import * as transitions from '../../change-control-lambda/disable-transition';
 import * as timeWindow from '../../change-control-lambda/time-window';
-
-// tslint:disable:no-console
 
 // _____                                _   _
 // |  __ \                              | | (_)
@@ -14,12 +10,22 @@ import * as timeWindow from '../../change-control-lambda/time-window';
 //                | |
 //                |_|
 
-jest.mock('aws-sdk');
+jest.mock('aws-sdk', () => {
+  return {
+    S3: jest.fn(() => {
+      return {
+        getObject: mockGetObject,
+      };
+    }).mockName('AWS.S3'),
+    CodePipeline: jest.fn(() => {
+      return {};
+    }).mockName('AWS.CodePipeline'),
+  };
+});
 jest.mock('../../change-control-lambda/disable-transition');
 jest.mock('../../change-control-lambda/time-window');
 
 const mockGetObject = jest.fn().mockName('AWS.S3.getObject');
-(AWS as any).S3 = jest.fn(() => ({ getObject: mockGetObject })).mockName('AWS.S3') as any;
 
 const mockEnableTransition =
   jest.fn((_pipeline: string, _stage: string) => Promise.resolve(undefined))

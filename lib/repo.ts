@@ -1,8 +1,9 @@
 import {
-  Construct, SecretValue, SecretsManagerSecretOptions,
+  SecretValue, SecretsManagerSecretOptions,
   aws_codebuild as cbuild, aws_codecommit as ccommit,
   aws_codepipeline as cpipeline, aws_codepipeline_actions as cpipeline_actions,
-} from 'monocdk';
+} from 'aws-cdk-lib';
+import { Construct } from 'constructs';
 import { ExternalSecret } from './permissions';
 
 export interface IRepo {

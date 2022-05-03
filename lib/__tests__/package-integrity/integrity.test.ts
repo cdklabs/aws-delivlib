@@ -1,10 +1,9 @@
-import { SynthUtils } from '@monocdk-experiment/assert';
-import '@monocdk-experiment/assert/jest';
 import {
   App, Stack,
   aws_codebuild as codebuild,
   aws_secretsmanager as sm,
-} from 'monocdk';
+} from 'aws-cdk-lib';
+import { Template, Match } from 'aws-cdk-lib/assertions';
 import { LinuxPlatform, PackageIntegrityValidation } from '../..';
 
 test('creates a codebuild project that triggers daily and runs the integrity handler', () => {
@@ -18,7 +17,8 @@ test('creates a codebuild project that triggers daily and runs the integrity han
     repository: 'cdklabs/some-repo',
   });
 
-  expect(stack).toHaveResourceLike('AWS::Events::Rule', {
+  const template = Template.fromStack(stack);
+  template.hasResourceProperties('AWS::Events::Rule', {
     ScheduleExpression: 'rate(1 day)',
     State: 'ENABLED',
     Targets: [
@@ -40,26 +40,46 @@ test('creates a codebuild project that triggers daily and runs the integrity han
     ],
   });
 
+  template.hasResourceProperties('AWS::CodeBuild::Project', {
+    Environment: {
+      EnvironmentVariables: Match.arrayWith([
+        {
+          Name: 'GITHUB_REPOSITORY',
+          Type: 'PLAINTEXT',
+          Value: 'cdklabs/some-repo',
+        },
+        {
+          Name: 'TAG_PREFIX',
+          Type: 'PLAINTEXT',
+          Value: '',
+        },
+        {
+          Name: 'GITHUB_TOKEN_ARN',
+          Type: 'PLAINTEXT',
+          Value: 'arn:aws:secretsmanager:us-east-1:123456789123:secret:github-token-000000',
+        },
+      ]),
+    },
+  });
 
-  const template = SynthUtils.synthesize(stack).template;
-  expect(template.Resources.IntegrityD83C2C0B.Properties.Environment.EnvironmentVariables.slice(2)).toStrictEqual(
-    [
-      {
-        Name: 'GITHUB_REPOSITORY',
-        Type: 'PLAINTEXT',
-        Value: 'cdklabs/some-repo',
-      },
-      {
-        Name: 'TAG_PREFIX',
-        Type: 'PLAINTEXT',
-        Value: '',
-      },
-      {
-        Name: 'GITHUB_TOKEN_ARN',
-        Type: 'PLAINTEXT',
-        Value: 'arn:aws:secretsmanager:us-east-1:123456789123:secret:github-token-000000',
-      },
-    ],
-  );
+  // expect(template.Resources.IntegrityD83C2C0B.Properties.Environment.EnvironmentVariables.slice(2)).toStrictEqual(
+  //   [
+  //     {
+  //       Name: 'GITHUB_REPOSITORY',
+  //       Type: 'PLAINTEXT',
+  //       Value: 'cdklabs/some-repo',
+  //     },
+  //     {
+  //       Name: 'TAG_PREFIX',
+  //       Type: 'PLAINTEXT',
+  //       Value: '',
+  //     },
+  //     {
+  //       Name: 'GITHUB_TOKEN_ARN',
+  //       Type: 'PLAINTEXT',
+  //       Value: 'arn:aws:secretsmanager:us-east-1:123456789123:secret:github-token-000000',
+  //     },
+  //   ],
+  // );
 
 });

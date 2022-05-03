@@ -1,12 +1,12 @@
 import * as path from 'path';
 import {
-  Construct,
   aws_cloudwatch as cloudwatch,
   aws_events as events,
   aws_events_targets as targets,
   aws_secretsmanager as sm,
   Duration,
-} from 'monocdk';
+} from 'aws-cdk-lib';
+import { Construct } from 'constructs';
 import { Shellable, ShellPlatform } from '../shellable';
 
 /**

@@ -1,8 +1,9 @@
 import {
-  App, Construct, Stack,
+  App, Stack,
   aws_kms as kms,
-} from 'monocdk';
-import '@monocdk-experiment/assert/jest';
+} from 'aws-cdk-lib';
+import { Template } from 'aws-cdk-lib/assertions';
+import { Construct } from 'constructs';
 import * as delivlib from '../../lib';
 
 
@@ -36,10 +37,11 @@ test('secret name consists of stack name and relative construct path', () => {
     pemCertificate: 'asdf',
     secretEncryptionKey: key,
   });
+  const template = Template.fromStack(stack);
 
   // THEN - specifically: does not include construct names above the containing stack
   // uses the actual stack name (and not the stack NODE name)
-  expect(stack).toHaveResource('Custom::RsaPrivateKeySecret', {
+  template.hasResourceProperties('Custom::RsaPrivateKeySecret', {
     SecretName: 'ActualStackName/Inbetween/Cert/RSAPrivateKey',
   });
 });
@@ -54,8 +56,9 @@ test('secret name can be overridden', () => {
     secretEncryptionKey: key,
     baseName: 'Sekrit',
   });
+  const template = Template.fromStack(stack);
 
-  expect(stack).toHaveResource('Custom::RsaPrivateKeySecret', {
+  template.hasResourceProperties('Custom::RsaPrivateKeySecret', {
     SecretName: 'Sekrit/RSAPrivateKey',
   });
 });

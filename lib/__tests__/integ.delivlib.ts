@@ -1,4 +1,4 @@
-import * as cdk from 'monocdk';
+import * as cdk from 'aws-cdk-lib';
 import { TestStack } from './test-stack';
 
 

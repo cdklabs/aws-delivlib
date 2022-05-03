@@ -1,12 +1,13 @@
 import * as path from 'path';
-import { expect as cdk_expect, haveResource, haveResourceLike, SynthUtils, ABSENT } from '@monocdk-experiment/assert';
 import {
-  App, Construct, Duration, Stack,
+  App, Duration, Stack,
   aws_codebuild as codebuild,
   aws_codecommit as codecommit,
   aws_codepipeline as cpipeline,
   aws_codepipeline_actions as cpipeline_actions,
-} from 'monocdk';
+} from 'aws-cdk-lib';
+import { Capture, Template, Match } from 'aws-cdk-lib/assertions';
+import { Construct } from 'constructs';
 import * as delivlib from '../../lib';
 import { determineRunOrder } from '../../lib/util';
 
@@ -18,9 +19,11 @@ test('pipelineName can be used to set a physical name for the pipeline', async (
     pipelineName: 'HelloPipeline',
   });
 
-  cdk_expect(stack).to(haveResource('AWS::CodePipeline::Pipeline', {
+  const template = Template.fromStack(stack);
+
+  template.hasResourceProperties('AWS::CodePipeline::Pipeline', {
     Name: 'HelloPipeline',
-  }));
+  });
 });
 
 test('concurrency: unlimited by default', async () => {
@@ -58,7 +61,7 @@ test('determineRunOrder: creates groups of up to "concurrency" actions', async (
   testCase({ actionCount: 3, concurrency: 2 });
 
   function testCase({ actionCount, concurrency }: { actionCount: number; concurrency: number }) {
-    const actionsPerRunOrder: { [runOrder: number]: number } = { };
+    const actionsPerRunOrder: { [runOrder: number]: number } = {};
     for (let i = 0; i < actionCount; ++i) {
       const runOrder = determineRunOrder(i, concurrency)!;
       if (!actionsPerRunOrder[runOrder]) {
@@ -92,60 +95,61 @@ test('can add arbitrary shellables with different artifacts', () => {
   }).action;
 
   pipeline.addPublish(new Pub(stack, 'Pub'), { inputArtifact: action.actionProperties.outputs![0] });
+  const template = Template.fromStack(stack);
 
-  cdk_expect(stack).to(haveResourceLike('AWS::CodePipeline::Pipeline', {
-    Stages: [
+  template.hasResourceProperties('AWS::CodePipeline::Pipeline', {
+    Stages: Match.arrayWith([
       {
-        Name: 'Source',
         Actions: [
-          {
-            ActionTypeId: { Category: 'Source', Owner: 'AWS', Provider: 'CodeCommit' },
+          Match.objectLike({
+            ActionTypeId: { Category: 'Source', Owner: 'AWS', Provider: 'CodeCommit', Version: '1' },
             Name: 'Pull',
             OutputArtifacts: [
               {
                 Name: 'Source',
               },
             ],
-          },
+          }),
         ],
+        Name: 'Source',
       },
       {
-        Name: 'Build',
         Actions: [
-          {
+          Match.objectLike({
             Name: 'Build',
-            ActionTypeId: { Category: 'Build', Owner: 'AWS', Provider: 'CodeBuild' },
+            ActionTypeId: { Category: 'Build', Owner: 'AWS', Provider: 'CodeBuild', Version: '1' },
             InputArtifacts: [{ Name: 'Source' }],
             OutputArtifacts: [{ Name: 'Artifact_Build_Build' }],
             RunOrder: 1,
-          },
+          }),
         ],
+        Name: 'Build',
       },
       {
-        Name: 'Test',
         Actions: [
-          {
-            ActionTypeId: { Category: 'Build', Owner: 'AWS', Provider: 'CodeBuild' },
+          Match.objectLike({
+            ActionTypeId: { Category: 'Build', Owner: 'AWS', Provider: 'CodeBuild', Version: '1' },
             InputArtifacts: [{ Name: 'Artifact_Build_Build' }],
             Name: 'ActionSecondStep',
-            OutputArtifacts: [{ Name: 'Artifact_TestStackPipelineSecondStep91726C11' }],
+            OutputArtifacts: [{ Name: 'Artifact_c81eddcbe9657bd312a728fb13df77bc09f9a519b4' }],
             RunOrder: 1,
-          },
+          }),
         ],
+        Name: 'Test',
       },
       {
-        Name: 'Publish',
         Actions: [
-          {
-            ActionTypeId: { Category: 'Build', Owner: 'AWS', Provider: 'CodeBuild' },
-            InputArtifacts: [{ Name: 'Artifact_TestStackPipelineSecondStep91726C11' }],
+          Match.objectLike({
+            ActionTypeId: { Category: 'Build', Owner: 'AWS', Provider: 'CodeBuild', Version: '1' },
+            InputArtifacts: [{ Name: 'Artifact_c81eddcbe9657bd312a728fb13df77bc09f9a519b4' }],
             Name: 'PubPublish',
             RunOrder: 1,
-          },
+          }),
         ],
+        Name: 'Publish',
       },
-    ],
-  }));
+    ]),
+  });
 });
 
 test('autoBuild() can be used to add automatic builds to the pipeline', () => {
@@ -158,13 +162,9 @@ test('autoBuild() can be used to add automatic builds to the pipeline', () => {
     pipelineName: 'HelloPipeline',
     autoBuild: true,
   });
+  const template = Template.fromStack(stack);
 
-  cdk_expect(stack).notTo(haveResource('AWS::Serverless::Application', {
-    Location: {
-      ApplicationId: 'arn:aws:serverlessrepo:us-east-1:277187709615:applications/github-codebuild-logs',
-      SemanticVersion: '1.4.0',
-    },
-  }));
+  template.resourceCountIs('AWS::Serverless::Application', 0);
 });
 
 test('autoBuild() can be configured to publish logs publically', () => {
@@ -180,8 +180,9 @@ test('autoBuild() can be configured to publish logs publically', () => {
       publicLogs: true,
     },
   });
+  const template = Template.fromStack(stack);
 
-  cdk_expect(stack).to(haveResource('AWS::Serverless::Application', {
+  template.hasResourceProperties('AWS::Serverless::Application', {
     Location: {
       ApplicationId: 'arn:aws:serverlessrepo:us-east-1:277187709615:applications/github-codebuild-logs',
       SemanticVersion: '1.4.0',
@@ -193,7 +194,7 @@ test('autoBuild() can be configured to publish logs publically', () => {
       DeletePreviousComments: 'true',
       CommentOnSuccess: 'true',
     },
-  }));
+  });
 });
 
 test('autoBuild() can be configured with a different buildspec', () => {
@@ -210,8 +211,9 @@ test('autoBuild() can be configured with a different buildspec', () => {
     },
   });
 
+  const template = Template.fromStack(stack);
   // THEN
-  cdk_expect(stack).to(haveResource('AWS::CodeBuild::Project', {
+  template.hasResourceProperties('AWS::CodeBuild::Project', {
     Source: {
       BuildSpec: 'different-buildspec.yaml',
       Location: {
@@ -222,7 +224,7 @@ test('autoBuild() can be configured with a different buildspec', () => {
       },
       Type: 'CODECOMMIT',
     },
-  }));
+  });
 });
 
 test('CodeBuild Project name matches buildProjectName property', () => {
@@ -236,10 +238,11 @@ test('CodeBuild Project name matches buildProjectName property', () => {
     buildProjectName: 'HelloBuild',
   });
 
+  const template = Template.fromStack(stack);
   // THEN
-  cdk_expect(stack).to(haveResourceLike('AWS::CodeBuild::Project', {
+  template.hasResourceProperties('AWS::CodeBuild::Project', {
     Name: 'HelloBuild',
-  }));
+  });
 });
 
 test('CodeBuild Project name is extended from pipelineName property', () => {
@@ -253,9 +256,10 @@ test('CodeBuild Project name is extended from pipelineName property', () => {
   });
 
   // THEN
-  cdk_expect(stack).to(haveResourceLike('AWS::CodeBuild::Project', {
+  const template = Template.fromStack(stack);
+  template.hasResourceProperties('AWS::CodeBuild::Project', {
     Name: 'HelloPipeline-Build',
-  }));
+  });
 });
 
 test('CodeBuild Project name is left undefined when neither buildProjectName nor pipelineName are specified', () => {
@@ -266,11 +270,12 @@ test('CodeBuild Project name is left undefined when neither buildProjectName nor
   new delivlib.Pipeline(stack, 'Pipeline', {
     repo: createTestRepo(stack),
   });
+  const template = Template.fromStack(stack);
 
   // THEN
-  cdk_expect(stack).to(haveResourceLike('AWS::CodeBuild::Project', {
-    Name: ABSENT,
-  }));
+  template.hasResourceProperties('AWS::CodeBuild::Project', {
+    Name: Match.absent(),
+  });
 });
 
 test('metricFailures', () => {
@@ -355,8 +360,12 @@ function createTestPipelineForConcurrencyTests(stack: Stack, props?: delivlib.Pi
   pipeline.addPublish(new TestPublishable(stack, 'pub5', { project }));
   pipeline.addPublish(new TestPublishable(stack, 'pub6', { project }));
 
-  const template = SynthUtils.synthesize(stack).template;
-  return template.Resources.PipelineBuildPipeline04C6628A.Properties.Stages;
+  const template = Template.fromStack(stack);
+  const capture = new Capture();
+  template.hasResourceProperties('AWS::CodePipeline::Pipeline', {
+    Stages: capture,
+  });
+  return capture.asArray();
 }
 
 function createTestRepo(stack: Stack) {

@@ -1,11 +1,10 @@
-import { expect as cdk_expect, haveResourceLike } from '@monocdk-experiment/assert';
 import {
   App, Stack,
   aws_codebuild as codebuild,
   aws_codecommit as codecommit,
   aws_kms as kms,
   assertions,
-} from 'monocdk';
+} from 'aws-cdk-lib';
 import * as delivlib from '../../lib';
 
 const { Template, Match } = assertions;
@@ -28,12 +27,13 @@ describe('with standard pipeline', () => {
       nugetApiKeySecret: { secretArn: 'arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/nuget-fHzSUD' },
       buildImage: codebuild.LinuxBuildImage.fromDockerRegistry('xyz'),
     });
+    const template = Template.fromStack(stack);
 
-    cdk_expect(stack).to(haveResourceLike('AWS::CodeBuild::Project', {
+    template.hasResourceProperties('AWS::CodeBuild::Project', {
       Environment: {
         Image: 'xyz',
       },
-    }));
+    });
   });
 
   test('can configure build image for Maven publishing', () => {
@@ -56,12 +56,13 @@ describe('with standard pipeline', () => {
       stagingProfileId: '68a05363083174',
       buildImage: codebuild.LinuxBuildImage.fromDockerRegistry('xyz'),
     });
+    const template = Template.fromStack(stack);
 
-    cdk_expect(stack).to(haveResourceLike('AWS::CodeBuild::Project', {
+    template.hasResourceProperties('AWS::CodeBuild::Project', {
       Environment: {
         Image: 'xyz',
       },
-    }));
+    });
   });
 
   test('can control stage name', () => {

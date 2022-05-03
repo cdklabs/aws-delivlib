@@ -1,11 +1,12 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import {
-  Construct, Duration,
+  Duration,
   aws_cloudwatch as cloudwatch, aws_codebuild as cbuild,
   aws_codepipeline as cpipeline, aws_codepipeline_actions as cpipeline_actions,
   aws_iam as iam, aws_s3_assets as assets, aws_secretsmanager, aws_ssm,
-} from 'monocdk';
+} from 'aws-cdk-lib';
+import { Construct } from 'constructs';
 import { BuildSpec } from './build-spec';
 import { renderEnvironmentVariables } from './util';
 
@@ -258,7 +259,7 @@ export class Shellable extends Construct {
       path: props.scriptDirectory,
     });
 
-    this.outputArtifactName = `Artifact_${this.node.uniqueId}`;
+    this.outputArtifactName = `Artifact_${this.node.addr}`;
     if (this.outputArtifactName.length > 100) {
       throw new Error(`Whoops, too long: ${this.outputArtifactName}`);
     }
@@ -305,7 +306,7 @@ export class Shellable extends Construct {
     });
 
     if (props.assumeRole) {
-      this.role.addToPolicy(new iam.PolicyStatement({
+      this.role.addToPrincipalPolicy(new iam.PolicyStatement({
         actions: ['sts:AssumeRole'],
         resources: [props.assumeRole.roleArn],
       }));

@@ -5,22 +5,7 @@ Resources:
     Properties:
       KeyPolicy:
         Statement:
-          - Action:
-              - kms:Create*
-              - kms:Describe*
-              - kms:Enable*
-              - kms:List*
-              - kms:Put*
-              - kms:Update*
-              - kms:Revoke*
-              - kms:Disable*
-              - kms:Get*
-              - kms:Delete*
-              - kms:ScheduleKeyDeletion
-              - kms:CancelKeyDeletion
-              - kms:GenerateDataKey
-              - kms:TagResource
-              - kms:UntagResource
+          - Action: kms:*
             Effect: Allow
             Principal:
               AWS:
@@ -29,298 +14,6 @@ Resources:
                   - - "arn:"
                     - Ref: AWS::Partition
                     - :iam::712950704752:root
-            Resource: "*"
-          - Action:
-              - kms:Decrypt
-              - kms:DescribeKey
-              - kms:Encrypt
-              - kms:ReEncrypt*
-              - kms:GenerateDataKey*
-            Effect: Allow
-            Principal:
-              AWS:
-                Fn::GetAtt:
-                  - CodeCommitPipelineBuildPipelineRole1843599A
-                  - Arn
-            Resource: "*"
-          - Action:
-              - kms:Decrypt
-              - kms:DescribeKey
-              - kms:Encrypt
-              - kms:ReEncrypt*
-              - kms:GenerateDataKey*
-            Effect: Allow
-            Principal:
-              AWS:
-                Fn::GetAtt:
-                  - CodeCommitPipelineBuildProjectRoleC6347B6E
-                  - Arn
-            Resource: "*"
-          - Action:
-              - kms:Decrypt
-              - kms:Encrypt
-              - kms:ReEncrypt*
-              - kms:GenerateDataKey*
-            Effect: Allow
-            Principal:
-              AWS:
-                Fn::GetAtt:
-                  - CodeCommitPipelineBuildProjectRoleC6347B6E
-                  - Arn
-            Resource: "*"
-          - Action:
-              - kms:Decrypt
-              - kms:DescribeKey
-              - kms:Encrypt
-              - kms:ReEncrypt*
-              - kms:GenerateDataKey*
-            Effect: Allow
-            Principal:
-              AWS:
-                Fn::GetAtt:
-                  - CodeCommitPipelineHelloLinuxRole97734933
-                  - Arn
-            Resource: "*"
-          - Action:
-              - kms:Decrypt
-              - kms:Encrypt
-              - kms:ReEncrypt*
-              - kms:GenerateDataKey*
-            Effect: Allow
-            Principal:
-              AWS:
-                Fn::GetAtt:
-                  - CodeCommitPipelineHelloLinuxRole97734933
-                  - Arn
-            Resource: "*"
-          - Action:
-              - kms:Decrypt
-              - kms:DescribeKey
-              - kms:Encrypt
-              - kms:ReEncrypt*
-              - kms:GenerateDataKey*
-            Effect: Allow
-            Principal:
-              AWS:
-                Fn::GetAtt:
-                  - CodeCommitPipelineHelloWindowsRole769C073E
-                  - Arn
-            Resource: "*"
-          - Action:
-              - kms:Decrypt
-              - kms:Encrypt
-              - kms:ReEncrypt*
-              - kms:GenerateDataKey*
-            Effect: Allow
-            Principal:
-              AWS:
-                Fn::GetAtt:
-                  - CodeCommitPipelineHelloWindowsRole769C073E
-                  - Arn
-            Resource: "*"
-          - Action:
-              - kms:Decrypt
-              - kms:DescribeKey
-              - kms:Encrypt
-              - kms:ReEncrypt*
-              - kms:GenerateDataKey*
-            Effect: Allow
-            Principal:
-              AWS:
-                Fn::GetAtt:
-                  - CodeCommitPipelineAssumeRoleRole1186B781
-                  - Arn
-            Resource: "*"
-          - Action:
-              - kms:Decrypt
-              - kms:Encrypt
-              - kms:ReEncrypt*
-              - kms:GenerateDataKey*
-            Effect: Allow
-            Principal:
-              AWS:
-                Fn::GetAtt:
-                  - CodeCommitPipelineAssumeRoleRole1186B781
-                  - Arn
-            Resource: "*"
-          - Action:
-              - kms:Decrypt
-              - kms:DescribeKey
-              - kms:Encrypt
-              - kms:ReEncrypt*
-              - kms:GenerateDataKey*
-            Effect: Allow
-            Principal:
-              AWS:
-                Fn::GetAtt:
-                  - CodeCommitPipelineGenerateTwoArtifactsRole91D2CDCA
-                  - Arn
-            Resource: "*"
-          - Action:
-              - kms:Decrypt
-              - kms:Encrypt
-              - kms:ReEncrypt*
-              - kms:GenerateDataKey*
-            Effect: Allow
-            Principal:
-              AWS:
-                Fn::GetAtt:
-                  - CodeCommitPipelineGenerateTwoArtifactsRole91D2CDCA
-                  - Arn
-            Resource: "*"
-          - Action:
-              - kms:Decrypt
-              - kms:DescribeKey
-            Effect: Allow
-            Principal:
-              AWS:
-                Fn::GetAtt:
-                  - CodeCommitPipelineNpmRole219D5F49
-                  - Arn
-            Resource: "*"
-          - Action:
-              - kms:Decrypt
-              - kms:Encrypt
-              - kms:ReEncrypt*
-              - kms:GenerateDataKey*
-            Effect: Allow
-            Principal:
-              AWS:
-                Fn::GetAtt:
-                  - CodeCommitPipelineNpmRole219D5F49
-                  - Arn
-            Resource: "*"
-          - Action:
-              - kms:Decrypt
-              - kms:DescribeKey
-            Effect: Allow
-            Principal:
-              AWS:
-                Fn::GetAtt:
-                  - CodeCommitPipelineNuGetRole488DA302
-                  - Arn
-            Resource: "*"
-          - Action:
-              - kms:Decrypt
-              - kms:Encrypt
-              - kms:ReEncrypt*
-              - kms:GenerateDataKey*
-            Effect: Allow
-            Principal:
-              AWS:
-                Fn::GetAtt:
-                  - CodeCommitPipelineNuGetRole488DA302
-                  - Arn
-            Resource: "*"
-          - Action:
-              - kms:Decrypt
-              - kms:DescribeKey
-            Effect: Allow
-            Principal:
-              AWS:
-                Fn::GetAtt:
-                  - CodeCommitPipelineMavenRoleC3A7769B
-                  - Arn
-            Resource: "*"
-          - Action:
-              - kms:Decrypt
-              - kms:Encrypt
-              - kms:ReEncrypt*
-              - kms:GenerateDataKey*
-            Effect: Allow
-            Principal:
-              AWS:
-                Fn::GetAtt:
-                  - CodeCommitPipelineMavenRoleC3A7769B
-                  - Arn
-            Resource: "*"
-          - Action:
-              - kms:Decrypt
-              - kms:DescribeKey
-            Effect: Allow
-            Principal:
-              AWS:
-                Fn::GetAtt:
-                  - CodeCommitPipelineGitHubRole77F2217D
-                  - Arn
-            Resource: "*"
-          - Action:
-              - kms:Decrypt
-              - kms:Encrypt
-              - kms:ReEncrypt*
-              - kms:GenerateDataKey*
-            Effect: Allow
-            Principal:
-              AWS:
-                Fn::GetAtt:
-                  - CodeCommitPipelineGitHubRole77F2217D
-                  - Arn
-            Resource: "*"
-          - Action:
-              - kms:Decrypt
-              - kms:DescribeKey
-            Effect: Allow
-            Principal:
-              AWS:
-                Fn::GetAtt:
-                  - CodeCommitPipelineGitHubPagesRole10784D1D
-                  - Arn
-            Resource: "*"
-          - Action:
-              - kms:Decrypt
-              - kms:Encrypt
-              - kms:ReEncrypt*
-              - kms:GenerateDataKey*
-            Effect: Allow
-            Principal:
-              AWS:
-                Fn::GetAtt:
-                  - CodeCommitPipelineGitHubPagesRole10784D1D
-                  - Arn
-            Resource: "*"
-          - Action:
-              - kms:Decrypt
-              - kms:DescribeKey
-            Effect: Allow
-            Principal:
-              AWS:
-                Fn::GetAtt:
-                  - CodeCommitPipelinePyPIRole30E20A9B
-                  - Arn
-            Resource: "*"
-          - Action:
-              - kms:Decrypt
-              - kms:Encrypt
-              - kms:ReEncrypt*
-              - kms:GenerateDataKey*
-            Effect: Allow
-            Principal:
-              AWS:
-                Fn::GetAtt:
-                  - CodeCommitPipelinePyPIRole30E20A9B
-                  - Arn
-            Resource: "*"
-          - Action:
-              - kms:Decrypt
-              - kms:DescribeKey
-            Effect: Allow
-            Principal:
-              AWS:
-                Fn::GetAtt:
-                  - CodeCommitPipelineGolangRole46DA8D4C
-                  - Arn
-            Resource: "*"
-          - Action:
-              - kms:Decrypt
-              - kms:Encrypt
-              - kms:ReEncrypt*
-              - kms:GenerateDataKey*
-            Effect: Allow
-            Principal:
-              AWS:
-                Fn::GetAtt:
-                  - CodeCommitPipelineGolangRole46DA8D4C
-                  - Arn
             Resource: "*"
         Version: "2012-10-17"
     UpdateReplacePolicy: Delete
@@ -359,33 +52,6 @@ Resources:
     DeletionPolicy: Retain
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/BuildPipeline/ArtifactsBucket/Resource
-  CodeCommitPipelineBuildPipelineArtifactsBucketPolicy97EF6204:
-    Type: AWS::S3::BucketPolicy
-    Properties:
-      Bucket:
-        Ref: CodeCommitPipelineBuildPipelineArtifactsBucketED2813B3
-      PolicyDocument:
-        Statement:
-          - Action: s3:*
-            Condition:
-              Bool:
-                aws:SecureTransport: "false"
-            Effect: Deny
-            Principal:
-              AWS: "*"
-            Resource:
-              - Fn::GetAtt:
-                  - CodeCommitPipelineBuildPipelineArtifactsBucketED2813B3
-                  - Arn
-              - Fn::Join:
-                  - ""
-                  - - Fn::GetAtt:
-                        - CodeCommitPipelineBuildPipelineArtifactsBucketED2813B3
-                        - Arn
-                    - /*
-        Version: "2012-10-17"
-    Metadata:
-      aws:cdk:path: delivlib-test/CodeCommitPipeline/BuildPipeline/ArtifactsBucket/Policy/Resource
   CodeCommitPipelineBuildPipelineRole1843599A:
     Type: AWS::IAM::Role
     Properties:
@@ -408,7 +74,7 @@ Resources:
               - s3:GetBucket*
               - s3:List*
               - s3:DeleteObject*
-              - s3:PutObject*
+              - s3:PutObject
               - s3:Abort*
             Effect: Allow
             Resource:
@@ -568,7 +234,7 @@ Resources:
                 - Name: Artifact_Build_Build
               Name: TestHelloLinux
               OutputArtifacts:
-                - Name: Artifact_delivlibtestCodeCommitPipelineHelloLinux01786D9D
+                - Name: Artifact_c883e6647f907b1eb255846397acb348c18b48b3a2
               RoleArn:
                 Fn::GetAtt:
                   - CodeCommitPipelineBuildPipelineTestTestHelloLinuxCodePipelineActionRole8FAC0642
@@ -586,7 +252,7 @@ Resources:
                 - Name: Artifact_Build_Build
               Name: TestHelloWindows
               OutputArtifacts:
-                - Name: Artifact_delivlibtestCodeCommitPipelineHelloWindowsDD89E92A
+                - Name: Artifact_c841b1bdd02c8dd629e3593235a8c4b73d361a30be
               RoleArn:
                 Fn::GetAtt:
                   - CodeCommitPipelineBuildPipelineTestTestHelloWindowsCodePipelineActionRole9316936E
@@ -604,7 +270,7 @@ Resources:
                 - Name: Artifact_Build_Build
               Name: TestAssumeRole
               OutputArtifacts:
-                - Name: Artifact_delivlibtestCodeCommitPipelineAssumeRole8CA58C9F
+                - Name: Artifact_c8681ea53827139c363558663e59350c1c894a3e54
               RoleArn:
                 Fn::GetAtt:
                   - CodeCommitPipelineBuildPipelineTestTestAssumeRoleCodePipelineActionRole8A7F2D7D
@@ -622,7 +288,7 @@ Resources:
                 - Name: Artifact_Build_Build
               Name: ActionGenerateTwoArtifacts
               OutputArtifacts:
-                - Name: Artifact_delivlibtestCodeCommitPipelineGenerateTwoArtifacts54497DAA
+                - Name: Artifact_c8e859296b521c19119769864a1f8ff14746ebd0c1
                 - Name: artifact2
               RoleArn:
                 Fn::GetAtt:
@@ -690,7 +356,7 @@ Resources:
                 PrimarySource: Artifact_Build_Build
               InputArtifacts:
                 - Name: Artifact_Build_Build
-                - Name: Artifact_delivlibtestCodeCommitPipelineGenerateTwoArtifacts54497DAA
+                - Name: Artifact_c8e859296b521c19119769864a1f8ff14746ebd0c1
                 - Name: artifact2
               Name: GitHubPublish
               RoleArn:
@@ -1279,7 +945,7 @@ Resources:
               - s3:GetBucket*
               - s3:List*
               - s3:DeleteObject*
-              - s3:PutObject*
+              - s3:PutObject
               - s3:Abort*
             Effect: Allow
             Resource:
@@ -1340,8 +1006,6 @@ Resources:
           - Arn
       Source:
         Type: CODEPIPELINE
-      Cache:
-        Type: NO_CACHE
       EncryptionKey:
         Fn::GetAtt:
           - CodeCommitPipelineBuildPipelineArtifactsBucketEncryptionKey05A62A83
@@ -1590,7 +1254,7 @@ Resources:
               - s3:GetBucket*
               - s3:List*
               - s3:DeleteObject*
-              - s3:PutObject*
+              - s3:PutObject
               - s3:Abort*
             Effect: Allow
             Resource:
@@ -1675,8 +1339,6 @@ Resources:
             }
           }
         Type: NO_SOURCE
-      Cache:
-        Type: NO_CACHE
       EncryptionKey:
         Fn::GetAtt:
           - CodeCommitPipelineBuildPipelineArtifactsBucketEncryptionKey05A62A83
@@ -1793,7 +1455,7 @@ Resources:
               - s3:GetBucket*
               - s3:List*
               - s3:DeleteObject*
-              - s3:PutObject*
+              - s3:PutObject
               - s3:Abort*
             Effect: Allow
             Resource:
@@ -1876,8 +1538,6 @@ Resources:
             }
           }
         Type: NO_SOURCE
-      Cache:
-        Type: NO_CACHE
       EncryptionKey:
         Fn::GetAtt:
           - CodeCommitPipelineBuildPipelineArtifactsBucketEncryptionKey05A62A83
@@ -2000,7 +1660,7 @@ Resources:
               - s3:GetBucket*
               - s3:List*
               - s3:DeleteObject*
-              - s3:PutObject*
+              - s3:PutObject
               - s3:Abort*
             Effect: Allow
             Resource:
@@ -2102,8 +1762,6 @@ Resources:
                   }
                 }
         Type: NO_SOURCE
-      Cache:
-        Type: NO_CACHE
       EncryptionKey:
         Fn::GetAtt:
           - CodeCommitPipelineBuildPipelineArtifactsBucketEncryptionKey05A62A83
@@ -2220,7 +1878,7 @@ Resources:
               - s3:GetBucket*
               - s3:List*
               - s3:DeleteObject*
-              - s3:PutObject*
+              - s3:PutObject
               - s3:Abort*
             Effect: Allow
             Resource:
@@ -2314,7 +1972,7 @@ Resources:
                     "**/*"
                   ]
                 },
-                "Artifact_delivlibtestCodeCommitPipelineGenerateTwoArtifacts54497DAA": {
+                "Artifact_c8e859296b521c19119769864a1f8ff14746ebd0c1": {
                   "base-directory": "output1",
                   "files": [
                     "**/*"
@@ -2324,8 +1982,6 @@ Resources:
             }
           }
         Type: NO_SOURCE
-      Cache:
-        Type: NO_CACHE
       EncryptionKey:
         Fn::GetAtt:
           - CodeCommitPipelineBuildPipelineArtifactsBucketEncryptionKey05A62A83
@@ -2470,8 +2126,6 @@ Resources:
             }
           }
         Type: NO_SOURCE
-      Cache:
-        Type: NO_CACHE
       EncryptionKey: alias/aws/s3
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/CanaryHelloCanary/Shellable/Resource/Resource
@@ -2676,7 +2330,7 @@ Resources:
           - Name: ACCESS
             Type: PLAINTEXT
             Value: restricted
-        Image: aws/codebuild/nodejs:10.1.0
+        Image: aws/codebuild/standard:5.0
         ImagePullCredentialsType: CODEBUILD
         PrivilegedMode: false
         Type: LINUX_CONTAINER
@@ -2707,8 +2361,6 @@ Resources:
             }
           }
         Type: NO_SOURCE
-      Cache:
-        Type: NO_CACHE
       EncryptionKey:
         Fn::GetAtt:
           - CodeCommitPipelineBuildPipelineArtifactsBucketEncryptionKey05A62A83
@@ -2926,8 +2578,6 @@ Resources:
             }
           }
         Type: NO_SOURCE
-      Cache:
-        Type: NO_CACHE
       EncryptionKey:
         Fn::GetAtt:
           - CodeCommitPipelineBuildPipelineArtifactsBucketEncryptionKey05A62A83
@@ -3141,8 +2791,6 @@ Resources:
             }
           }
         Type: NO_SOURCE
-      Cache:
-        Type: NO_CACHE
       EncryptionKey:
         Fn::GetAtt:
           - CodeCommitPipelineBuildPipelineArtifactsBucketEncryptionKey05A62A83
@@ -3313,7 +2961,7 @@ Resources:
             Value: cdk-hnb659fds-assets-712950704752-us-east-1
           - Name: SCRIPT_S3_KEY
             Type: PLAINTEXT
-            Value: 1c4d00e8f9125a52b4db3e74494c950959ffa433738adcf5c9f7251e4d255451.zip
+            Value: 7bfdb1075bf8728fe236bcef49fbf08ac3ead6c9947f5d65f25b5a7c09758bb1.zip
           - Name: BUILD_MANIFEST
             Type: PLAINTEXT
             Value: ./build.json
@@ -3340,14 +2988,14 @@ Resources:
             Value: "false"
           - Name: SECONDARY_SOURCE_NAMES
             Type: PLAINTEXT
-            Value: Artifact_delivlibtestCodeCommitPipelineGenerateTwoArtifacts54497DAA artifact2
+            Value: Artifact_c8e859296b521c19119769864a1f8ff14746ebd0c1 artifact2
           - Name: SIGN_ADDITIONAL_ARTIFACTS
             Type: PLAINTEXT
             Value: "true"
           - Name: GITHUB_TOKEN
             Type: SECRETS_MANAGER
             Value: github-token
-        Image: aws/codebuild/nodejs:10.1.0
+        Image: aws/codebuild/standard:5.0
         ImagePullCredentialsType: CODEBUILD
         PrivilegedMode: false
         Type: LINUX_CONTAINER
@@ -3378,8 +3026,6 @@ Resources:
             }
           }
         Type: NO_SOURCE
-      Cache:
-        Type: NO_CACHE
       EncryptionKey:
         Fn::GetAtt:
           - CodeCommitPipelineBuildPipelineArtifactsBucketEncryptionKey05A62A83
@@ -3550,7 +3196,7 @@ Resources:
           - Name: BUILD_MANIFEST
             Type: PLAINTEXT
             Value: ./build.json
-        Image: aws/codebuild/nodejs:10.1.0
+        Image: aws/codebuild/standard:5.0
         ImagePullCredentialsType: CODEBUILD
         PrivilegedMode: false
         Type: LINUX_CONTAINER
@@ -3581,8 +3227,6 @@ Resources:
             }
           }
         Type: NO_SOURCE
-      Cache:
-        Type: NO_CACHE
       EncryptionKey:
         Fn::GetAtt:
           - CodeCommitPipelineBuildPipelineArtifactsBucketEncryptionKey05A62A83
@@ -3738,7 +3382,7 @@ Resources:
           - Name: PYPI_CREDENTIALS_SECRET_ID
             Type: PLAINTEXT
             Value: arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/pypi-tp8M57
-        Image: aws/codebuild/python:3.6.5
+        Image: aws/codebuild/standard:5.0
         ImagePullCredentialsType: CODEBUILD
         PrivilegedMode: false
         Type: LINUX_CONTAINER
@@ -3769,8 +3413,6 @@ Resources:
             }
           }
         Type: NO_SOURCE
-      Cache:
-        Type: NO_CACHE
       EncryptionKey:
         Fn::GetAtt:
           - CodeCommitPipelineBuildPipelineArtifactsBucketEncryptionKey05A62A83
@@ -3966,8 +3608,6 @@ Resources:
             }
           }
         Type: NO_SOURCE
-      Cache:
-        Type: NO_CACHE
       EncryptionKey:
         Fn::GetAtt:
           - CodeCommitPipelineBuildPipelineArtifactsBucketEncryptionKey05A62A83
@@ -4110,8 +3750,6 @@ Resources:
         Location: https://github.com/awslabs/aws-delivlib-sample.git
         ReportBuildStatus: false
         Type: GITHUB
-      Cache:
-        Type: NO_CACHE
       Description: Release awslabs/aws-delivlib-sample, branch master
       EncryptionKey: alias/aws/s3
       Triggers:
@@ -4212,8 +3850,6 @@ Resources:
         ReportBuildStatus: true
         Type: GITHUB
       BadgeEnabled: true
-      Cache:
-        Type: NO_CACHE
       Description: Automatic PR build for awslabs/aws-delivlib-sample
       EncryptionKey: alias/aws/s3
       Triggers:
@@ -4237,15 +3873,6 @@ Resources:
         GitHubOAuthToken: "{{resolve:secretsmanager:arn:aws:secretsmanager:us-east-1:712950704752:secret:github-token-QDP6QX:SecretString:::}}"
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/AutoBuild/GitHubCodeBuildLogsSAR
-  CodeCommitPipelineChangeControllerCalendar94B1DEA8:
-    Type: AWS::S3::Bucket
-    Properties:
-      VersioningConfiguration:
-        Status: Enabled
-    UpdateReplacePolicy: Delete
-    DeletionPolicy: Delete
-    Metadata:
-      aws:cdk:path: delivlib-test/CodeCommitPipeline/ChangeController/Calendar/Resource
   CodeCommitPipelineChangeControllerCalendarNotifications1AFBE6E9:
     Type: Custom::S3BucketNotifications
     Properties:
@@ -4273,6 +3900,15 @@ Resources:
       - CodeCommitPipelineChangeControllerCalendarAllowBucketNotificationsTodelivlibtestCodeCommitPipelineChangeControllerFunction83CC56EB3330DA3F
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/ChangeController/Calendar/Notifications/Resource
+  CodeCommitPipelineChangeControllerCalendar94B1DEA8:
+    Type: AWS::S3::Bucket
+    Properties:
+      VersioningConfiguration:
+        Status: Enabled
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
+    Metadata:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/ChangeController/Calendar/Resource
   CodeCommitPipelineChangeControllerCalendarAllowBucketNotificationsTodelivlibtestCodeCommitPipelineChangeControllerFunction83CC56EB3330DA3F:
     Type: AWS::Lambda::Permission
     Properties:
@@ -4350,7 +3986,7 @@ Resources:
     Properties:
       Code:
         S3Bucket: cdk-hnb659fds-assets-712950704752-us-east-1
-        S3Key: ca50c9b7760151d8e8ce6e39851032d4eff4836ea1ee806eaa944aaef110a353.zip
+        S3Key: e19d749b07bbd934525eb394410d55ee53675290fe2eef6ca5eafb1ea78764bc.zip
       Role:
         Fn::GetAtt:
           - CodeCommitPipelineChangeControllerFunctionServiceRoleF02841DB
@@ -4692,7 +4328,7 @@ Resources:
               - s3:GetBucket*
               - s3:List*
               - s3:DeleteObject*
-              - s3:PutObject*
+              - s3:PutObject
               - s3:Abort*
             Effect: Allow
             Resource:
@@ -4757,7 +4393,7 @@ Resources:
     Properties:
       Code:
         S3Bucket: cdk-hnb659fds-assets-712950704752-us-east-1
-        S3Key: 15684a15d07860e99d2a8079150ad33dd2cb743677fcd7016dd07345e1b69538.zip
+        S3Key: 1f7e277bd526ebce1983fa1e7a84a5281ec533d9187caaebb773681bbf7bf4c1.zip
       Timeout: 900
       MemorySize: 128
       Handler: __entrypoint__.handler
@@ -4781,22 +4417,7 @@ Resources:
     Properties:
       KeyPolicy:
         Statement:
-          - Action:
-              - kms:Create*
-              - kms:Describe*
-              - kms:Enable*
-              - kms:List*
-              - kms:Put*
-              - kms:Update*
-              - kms:Revoke*
-              - kms:Disable*
-              - kms:Get*
-              - kms:Delete*
-              - kms:ScheduleKeyDeletion
-              - kms:CancelKeyDeletion
-              - kms:GenerateDataKey
-              - kms:TagResource
-              - kms:UntagResource
+          - Action: kms:*
             Effect: Allow
             Principal:
               AWS:
@@ -4999,42 +4620,45 @@ Resources:
 
           s3 = boto3.client("s3")
 
-          EVENTBRIDGE_CONFIGURATION = 'EventBridgeConfiguration'
-
           CONFIGURATION_TYPES = ["TopicConfigurations", "QueueConfigurations", "LambdaFunctionConfigurations"]
 
           def handler(event: dict, context):
-            response_status = "SUCCESS"
-            error_message = ""
-            try:
-              props = event["ResourceProperties"]
-              bucket = props["BucketName"]
-              notification_configuration = props["NotificationConfiguration"]
-              request_type = event["RequestType"]
-              managed = props.get('Managed', 'true').lower() == 'true'
-              stack_id = event['StackId']
+              response_status = "SUCCESS"
+              error_message = ""
+              try:
+                  props = event["ResourceProperties"]
+                  bucket = props["BucketName"]
+                  notification_configuration = props["NotificationConfiguration"]
+                  request_type = event["RequestType"]
+                  managed = props.get('Managed', 'true').lower() == 'true'
+                  stack_id = event['StackId']
 
-              if managed:
-                config = handle_managed(request_type, notification_configuration)
-              else:
-                config = handle_unmanaged(bucket, stack_id, request_type, notification_configuration)
+                  if managed:
+                    config = handle_managed(request_type, notification_configuration)
+                  else:
+                    config = handle_unmanaged(bucket, stack_id, request_type, notification_configuration)
 
-              put_bucket_notification_configuration(bucket, config)
-            except Exception as e:
-              logging.exception("Failed to put bucket notification configuration")
-              response_status = "FAILED"
-              error_message = f"Error: {str(e)}. "
-            finally:
-              submit_response(event, context, response_status, error_message)
+                  put_bucket_notification_configuration(bucket, config)
+              except Exception as e:
+                  logging.exception("Failed to put bucket notification configuration")
+                  response_status = "FAILED"
+                  error_message = f"Error: {str(e)}. "
+              finally:
+                  submit_response(event, context, response_status, error_message)
+
 
           def handle_managed(request_type, notification_configuration):
             if request_type == 'Delete':
               return {}
             return notification_configuration
 
+
           def handle_unmanaged(bucket, stack_id, request_type, notification_configuration):
+
+            # find external notifications
             external_notifications = find_external_notifications(bucket, stack_id)
 
+            # if delete, that's all we need
             if request_type == 'Delete':
               return external_notifications
 
@@ -5042,56 +4666,54 @@ Resources:
               notification['Id'] = f"{stack_id}-{hash(json.dumps(notification, sort_keys=True))}"
               return notification
 
+            # otherwise, merge external with incoming config and augment with id
             notifications = {}
             for t in CONFIGURATION_TYPES:
               external = external_notifications.get(t, [])
               incoming = [with_id(n) for n in notification_configuration.get(t, [])]
               notifications[t] = external + incoming
-
-            if EVENTBRIDGE_CONFIGURATION in notification_configuration:
-              notifications[EVENTBRIDGE_CONFIGURATION] = notification_configuration[EVENTBRIDGE_CONFIGURATION]
-            elif EVENTBRIDGE_CONFIGURATION in external_notifications:
-              notifications[EVENTBRIDGE_CONFIGURATION] = external_notifications[EVENTBRIDGE_CONFIGURATION]
-
             return notifications
+
 
           def find_external_notifications(bucket, stack_id):
             existing_notifications = get_bucket_notification_configuration(bucket)
             external_notifications = {}
             for t in CONFIGURATION_TYPES:
+              # if the notification was created by us, we know what id to expect
+              # so we can filter by it.
               external_notifications[t] = [n for n in existing_notifications.get(t, []) if not n['Id'].startswith(f"{stack_id}-")]
 
-            if EVENTBRIDGE_CONFIGURATION in existing_notifications:
-              external_notifications[EVENTBRIDGE_CONFIGURATION] = existing_notifications[EVENTBRIDGE_CONFIGURATION]
-
             return external_notifications
+
 
           def get_bucket_notification_configuration(bucket):
             return s3.get_bucket_notification_configuration(Bucket=bucket)
 
+
           def put_bucket_notification_configuration(bucket, notification_configuration):
             s3.put_bucket_notification_configuration(Bucket=bucket, NotificationConfiguration=notification_configuration)
 
+
           def submit_response(event: dict, context, response_status: str, error_message: str):
-            response_body = json.dumps(
-              {
-                "Status": response_status,
-                "Reason": f"{error_message}See the details in CloudWatch Log Stream: {context.log_stream_name}",
-                "PhysicalResourceId": event.get("PhysicalResourceId") or event["LogicalResourceId"],
-                "StackId": event["StackId"],
-                "RequestId": event["RequestId"],
-                "LogicalResourceId": event["LogicalResourceId"],
-                "NoEcho": False,
-              }
-            ).encode("utf-8")
-            headers = {"content-type": "", "content-length": str(len(response_body))}
-            try:
-              req = urllib.request.Request(url=event["ResponseURL"], headers=headers, data=response_body, method="PUT")
-              with urllib.request.urlopen(req) as response:
-                print(response.read().decode("utf-8"))
-              print("Status code: " + response.reason)
-            except Exception as e:
-                print("send(..) failed executing request.urlopen(..): " + str(e))
+              response_body = json.dumps(
+                  {
+                      "Status": response_status,
+                      "Reason": f"{error_message}See the details in CloudWatch Log Stream: {context.log_stream_name}",
+                      "PhysicalResourceId": event.get("PhysicalResourceId") or event["LogicalResourceId"],
+                      "StackId": event["StackId"],
+                      "RequestId": event["RequestId"],
+                      "LogicalResourceId": event["LogicalResourceId"],
+                      "NoEcho": False,
+                  }
+              ).encode("utf-8")
+              headers = {"content-type": "", "content-length": str(len(response_body))}
+              try:
+                  req = urllib.request.Request(url=event["ResponseURL"], headers=headers, data=response_body, method="PUT")
+                  with urllib.request.urlopen(req) as response:
+                      print(response.read().decode("utf-8"))
+                  print("Status code: " + response.reason)
+              except Exception as e:
+                  print("send(..) failed executing request.urlopen(..): " + str(e))
       Handler: index.handler
       Role:
         Fn::GetAtt:

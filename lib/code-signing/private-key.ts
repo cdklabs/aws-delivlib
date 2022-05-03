@@ -1,11 +1,12 @@
 import * as path from 'path';
 import {
-  Construct, Duration, RemovalPolicy, Stack,
-  aws_cloudformation as cfn,
+  Duration, RemovalPolicy, Stack,
+  ArnFormat, CustomResource,
   aws_iam as iam,
   aws_kms as kms,
   aws_lambda as lambda,
-} from 'monocdk';
+} from 'aws-cdk-lib';
+import { Construct } from 'constructs';
 import { hashFileOrDirectory } from '../util';
 import { CertificateSigningRequest, DistinguishedName } from './certificate-signing-request';
 
@@ -79,7 +80,7 @@ export class RsaPrivateKeySecret extends Construct {
     this.secretArnLike = Stack.of(this).formatArn({
       service: 'secretsmanager',
       resource: 'secret',
-      sep: ':',
+      arnFormat: ArnFormat.COLON_RESOURCE_NAME,
       // The ARN of a secret has "-" followed by 6 random characters appended at the end
       resourceName: `${props.secretName}-??????`,
     });
@@ -109,9 +110,10 @@ export class RsaPrivateKeySecret extends Construct {
       }));
     }
 
-    const privateKey = new cfn.CustomResource(this, 'Resource', {
-      provider: cfn.CustomResourceProvider.lambda(customResource),
+    const privateKey = new CustomResource(this, 'Resource', {
+      serviceToken: customResource.functionArn,
       resourceType: 'Custom::RsaPrivateKeySecret',
+      pascalCaseProperties: true,
       properties: {
         resourceVersion: hashFileOrDirectory(codeLocation),
         description: props.description,
@@ -174,7 +176,7 @@ export class RsaPrivateKeySecret extends Construct {
    * @param grantee the principal to which permissions should be granted.
    */
   public grantGetSecretValue(grantee: iam.IPrincipal): void {
-    grantee.addToPolicy(new iam.PolicyStatement({
+    grantee.addToPrincipalPolicy(new iam.PolicyStatement({
       actions: ['secretsmanager:GetSecretValue'],
       resources: [this.secretArn],
     }));
@@ -193,7 +195,7 @@ export class RsaPrivateKeySecret extends Construct {
           },
         },
       }));
-      grantee.addToPolicy(new iam.PolicyStatement({
+      grantee.addToPrincipalPolicy(new iam.PolicyStatement({
         actions: ['kms:Decrypt'],
         resources: [this.masterKey.keyArn],
         conditions: {

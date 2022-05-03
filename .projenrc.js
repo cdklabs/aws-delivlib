@@ -1,6 +1,6 @@
-const { typescript: { TypeScriptProject } } = require('projen');
+const { typescript, javascript } = require('projen');
 
-const project = new TypeScriptProject({
+const project = new typescript.TypeScriptProject({
   name: 'aws-delivlib',
   description: 'A fabulous library for defining continuous pipelines for building, testing and releasing code libraries.',
   repository: 'https://github.com/cdklabs/aws-delivlib.git',
@@ -8,6 +8,7 @@ const project = new TypeScriptProject({
   projenUpgradeSecret: 'PROJEN_GITHUB_TOKEN',
   authorName: 'Amazon Web Services',
   authorUrl: 'https://aws.amazon.com',
+  minNodeVersion: '14.17.0',
   keywords: [
     'aws-cdk',
     'continuous-delivery',
@@ -16,7 +17,6 @@ const project = new TypeScriptProject({
   ],
   deps: ['changelog-parser'],
   devDeps: [
-    '@monocdk-experiment/assert',
     '@types/aws-lambda',
     '@types/fs-extra',
     '@types/tar',
@@ -24,7 +24,7 @@ const project = new TypeScriptProject({
     'aws-cdk',
     'jest-create-mock-instance',
     'constructs',
-    'monocdk',
+    'aws-cdk-lib',
     'standard-version',
     'ts-jest',
     'typescript',
@@ -40,7 +40,7 @@ const project = new TypeScriptProject({
   ],
   peerDeps: [
     'constructs',
-    'monocdk',
+    'aws-cdk-lib',
   ],
   srcdir: 'lib',
   testdir: 'lib/__tests__',

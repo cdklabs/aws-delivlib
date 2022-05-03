@@ -1,10 +1,11 @@
 import {
-  Construct, CfnOutput, IConstruct, RemovalPolicy, Stack,
+  CfnOutput, RemovalPolicy, Stack,
   aws_iam as iam,
   aws_kms as kms,
   aws_secretsmanager as secretsManager,
   aws_ssm as ssm,
-} from 'monocdk';
+} from 'aws-cdk-lib';
+import { Construct, IConstruct } from 'constructs';
 import { ICredentialPair } from '../credential-pair';
 import * as permissions from '../permissions';
 import { DistinguishedName } from './certificate-signing-request';
@@ -118,7 +119,7 @@ export class CodeSigningCertificate extends Construct implements ICodeSigningCer
 
     this.credential = secretsManager.Secret.fromSecretAttributes(this, 'Credential', {
       encryptionKey: props.secretEncryptionKey,
-      secretArn: privateKey.secretArn,
+      secretCompleteArn: privateKey.secretArn,
     });
 
     let certificate = props.pemCertificate;
@@ -158,7 +159,7 @@ export class CodeSigningCertificate extends Construct implements ICodeSigningCer
       secretArn: this.credential.secretArn,
     }, principal);
 
-    principal.addToPolicy(new iam.PolicyStatement({
+    principal.addToPrincipalPolicy(new iam.PolicyStatement({
       actions: ['ssm:GetParameter'],
       resources: [Stack.of(this).formatArn({
         // TODO: This is a workaround until https://github.com/awslabs/aws-cdk/pull/1726 is released

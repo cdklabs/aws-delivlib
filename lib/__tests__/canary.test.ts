@@ -1,6 +1,6 @@
 import * as path from 'path';
-import * as assert from '@monocdk-experiment/assert';
-import { App, Stack, aws_events as events } from 'monocdk';
+import { App, Stack, aws_events as events } from 'aws-cdk-lib';
+import { Template } from 'aws-cdk-lib/assertions';
 import { Canary } from '../../lib';
 
 
@@ -15,8 +15,9 @@ test('correctly creates canary', () => {
     scriptDirectory: testDir,
     entrypoint: 'test.sh',
   });
+  const template = Template.fromStack(stack);
   // THEN
-  assert.expect(stack).to(assert.haveResourceLike('AWS::CloudWatch::Alarm', {
+  template.hasResourceProperties('AWS::CloudWatch::Alarm', {
     ComparisonOperator: 'GreaterThanOrEqualToThreshold',
     EvaluationPeriods: 1,
     Threshold: 1,
@@ -31,9 +32,9 @@ test('correctly creates canary', () => {
     Statistic: 'Sum',
     TreatMissingData: 'ignore',
     Period: 300,
-  }));
+  });
 
-  assert.expect(stack).to(assert.haveResourceLike('AWS::Events::Rule', {
+  template.hasResourceProperties('AWS::Events::Rule', {
     ScheduleExpression: 'rate(1 minute)',
     State: 'ENABLED',
     Targets: [{
@@ -43,6 +44,7 @@ test('correctly creates canary', () => {
           'Arn',
         ],
       },
+      Id: 'Target0',
       RoleArn: {
         'Fn::GetAtt': [
           'CanaryShellableEventsRoleC4030D0D',
@@ -50,9 +52,9 @@ test('correctly creates canary', () => {
         ],
       },
     }],
-  }));
+  });
 
-  assert.expect(stack).to(assert.haveResourceLike('AWS::CodeBuild::Project', {
+  template.hasResourceProperties('AWS::CodeBuild::Project', {
     Artifacts: {
       Type: 'NO_ARTIFACTS',
     },
@@ -66,45 +68,13 @@ test('correctly creates canary', () => {
           Name: 'SCRIPT_S3_BUCKET',
           Type: 'PLAINTEXT',
           Value: {
-            Ref: 'AssetParameters3d34b07ba871989d030649c646b3096ba7c78ca531897bcdb0670774d2f9d3e4S3BucketDA91EFBC',
+            'Fn::Sub': 'cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}',
           },
         },
         {
           Name: 'SCRIPT_S3_KEY',
           Type: 'PLAINTEXT',
-          Value: {
-            'Fn::Join': [
-              '',
-              [
-                {
-                  'Fn::Select': [
-                    0,
-                    {
-                      'Fn::Split': [
-                        '||',
-                        {
-                          Ref: 'AssetParameters3d34b07ba871989d030649c646b3096ba7c78ca531897bcdb0670774d2f9d3e4S3VersionKeyF3F83F76',
-                        },
-                      ],
-                    },
-                  ],
-                },
-                {
-                  'Fn::Select': [
-                    1,
-                    {
-                      'Fn::Split': [
-                        '||',
-                        {
-                          Ref: 'AssetParameters3d34b07ba871989d030649c646b3096ba7c78ca531897bcdb0670774d2f9d3e4S3VersionKeyF3F83F76',
-                        },
-                      ],
-                    },
-                  ],
-                },
-              ],
-            ],
-          },
+          Value: '3d34b07ba871989d030649c646b3096ba7c78ca531897bcdb0670774d2f9d3e4.zip',
         },
         {
           Name: 'IS_CANARY',
@@ -123,5 +93,5 @@ test('correctly creates canary', () => {
       // tslint:disable-next-line:max-line-length
       BuildSpec: '{\n  "version": "0.2",\n  "phases": {\n    "pre_build": {\n      "commands": [\n        "echo \\"Downloading scripts from s3://${SCRIPT_S3_BUCKET}/${SCRIPT_S3_KEY}\\"",\n        "aws s3 cp s3://${SCRIPT_S3_BUCKET}/${SCRIPT_S3_KEY} /tmp",\n        "mkdir -p /tmp/scriptdir",\n        "unzip /tmp/$(basename $SCRIPT_S3_KEY) -d /tmp/scriptdir"\n      ]\n    },\n    "build": {\n      "commands": [\n        "export SCRIPT_DIR=/tmp/scriptdir",\n        "echo \\"Running test.sh\\"",\n        "/bin/bash /tmp/scriptdir/test.sh"\n      ]\n    }\n  }\n}',
     },
-  }));
+  });
 });

@@ -1,8 +1,8 @@
 import {
-  Construct,
   aws_codebuild as codebuild,
   aws_s3_assets as s3Assets,
-} from 'monocdk';
+} from 'aws-cdk-lib';
+import { Construct } from 'constructs';
 
 export interface MirrorSourceBindOptions {
   /**

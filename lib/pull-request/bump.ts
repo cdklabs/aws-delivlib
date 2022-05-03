@@ -1,4 +1,4 @@
-import * as cdk from 'monocdk';
+import { Construct } from 'constructs';
 import { WritableGitHubRepo } from '../repo';
 import { AutoPullRequest, AutoPullRequestOptions } from './pr';
 
@@ -84,14 +84,14 @@ export interface AutoBumpProps extends AutoPullRequestOptions {
   readonly projectDescription?: string;
 }
 
-export class AutoBump extends cdk.Construct {
+export class AutoBump extends Construct {
 
   /**
    * The underlying AutoPullRequest construct.
    */
   public readonly pr: AutoPullRequest;
 
-  constructor(parent: cdk.Construct, id: string, props: AutoBumpProps) {
+  constructor(parent: Construct, id: string, props: AutoBumpProps) {
     super(parent, id);
 
     const branchName = props.head?.name ?? 'bump/$VERSION';

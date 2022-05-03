@@ -4,7 +4,7 @@ import {
   aws_events as events,
   aws_iam as iam,
   aws_kms as kms,
-} from 'monocdk';
+} from 'aws-cdk-lib';
 import * as delivlib from '../../lib';
 
 
@@ -62,7 +62,7 @@ export class TestStack extends Stack {
 
     const role = new iam.Role(this, 'AssumeMe', {
       assumedBy: new iam.AccountPrincipal(Stack.of(this).account),
-      externalId,
+      externalIds: [externalId],
     });
 
     pipeline.addTest('AssumeRole', {

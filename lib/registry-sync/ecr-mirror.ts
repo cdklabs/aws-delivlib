@@ -1,5 +1,5 @@
 import {
-  Construct, IAspect, IConstruct, Lazy, Stack, Token,
+  IAspect, Lazy, Stack, Token,
   aws_ecr as ecr,
   aws_codebuild as codebuild,
   aws_events as events,
@@ -7,7 +7,8 @@ import {
   aws_s3_assets as s3Assets,
   aws_secretsmanager as sm,
   custom_resources as cr,
-} from 'monocdk';
+} from 'aws-cdk-lib';
+import { Construct, IConstruct } from 'constructs';
 import { MirrorSource } from './mirror-source';
 
 /**
@@ -184,7 +185,7 @@ export class EcrMirror extends Construct {
           physicalResourceId: cr.PhysicalResourceId.of('EcrRegistryExecution'),
 
           // need since the default reponse if greater than the 4k limit for custom resources.
-          outputPath: 'build.id',
+          outputPaths: ['build.id'],
         },
       });
     }

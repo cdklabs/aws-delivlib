@@ -1,4 +1,4 @@
-import * as cdk from 'monocdk';
+import { Construct } from 'constructs';
 import { WritableGitHubRepo } from '../repo';
 import * as pr from './pr';
 
@@ -99,14 +99,14 @@ export interface AutoMergeBackProps extends AutoMergeBackOptions {
   repo: WritableGitHubRepo;
 }
 
-export class AutoMergeBack extends cdk.Construct {
+export class AutoMergeBack extends Construct {
 
   /**
    * The underlying AutoPullRequest construct.
    */
   public readonly pr: pr.AutoPullRequest;
 
-  constructor(parent: cdk.Construct, id: string, props: AutoMergeBackProps) {
+  constructor(parent: Construct, id: string, props: AutoMergeBackProps) {
     super(parent, id);
 
     const versionCommand = props.versionCommand ?? 'git describe';

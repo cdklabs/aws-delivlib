@@ -55,13 +55,7 @@ else
     # Prepare environment variables with flags to GPG
     #        --passphrase-fd 0 \
     #        ${EXTRA_GPG_OPTS} \
-    GPG_PASSPHRASE_FROM_STDIN="--passphrase-fd 0"
-    if [[ "$(uname)" == "Darwin" ]]; then
-        # On Mac, we must pass this to disable a prompt for
-        # passphrase, but option is not recognized on Linux.
-        GPG_PASSPHRASE_FROM_STDIN="${GPG_PASSPHRASE_FROM_STDIN} --pinentry-mode loopback"
-    fi
-    export GPG_PASSPHRASE_FROM_STDIN
+    export GPG_PASSPHRASE_FROM_STDIN="--passphrase-fd 0 --pinentry-mode loopback"
 
     export KEY_AVAILABLE=true
 fi

@@ -1,5 +1,5 @@
 import {
-  Construct, Duration, IConstruct,
+  Duration,
   aws_cloudwatch as cloudwatch,
   aws_codebuild as cbuild,
   aws_codepipeline as cpipeline,
@@ -9,7 +9,8 @@ import {
   aws_iam as iam, aws_s3 as s3,
   aws_sns as sns,
   aws_sns_subscriptions as sns_subs,
-} from 'monocdk';
+} from 'aws-cdk-lib';
+import { Construct, IConstruct } from 'constructs';
 
 import { AutoBuild, AutoBuildOptions } from './auto-build';
 import { createBuildEnvironment } from './build-env';
@@ -481,7 +482,7 @@ export class Pipeline extends Construct {
     return new cloudwatch.Metric({
       namespace: METRIC_NAMESPACE,
       metricName: FAILURE_METRIC_NAME,
-      dimensions: {
+      dimensionsMap: {
         Pipeline: this.pipeline.pipelineName,
       },
       statistic: 'Sum',
@@ -497,7 +498,7 @@ export class Pipeline extends Construct {
       return new cloudwatch.Metric({
         namespace: METRIC_NAMESPACE,
         metricName: FAILURE_METRIC_NAME,
-        dimensions: {
+        dimensionsMap: {
           Pipeline: this.pipeline.pipelineName,
           Action: action.actionProperties.actionName,
         },
