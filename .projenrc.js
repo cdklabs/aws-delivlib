@@ -16,6 +16,9 @@ const project = new typescript.TypeScriptProject({
     'ci-cd',
   ],
   deps: ['changelog-parser'],
+  depsUpgradeOptions: {
+    exclude: ['aws-cdk-lib', 'constructs'],
+  },
   devDeps: [
     '@types/aws-lambda',
     '@types/fs-extra',
