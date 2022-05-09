@@ -262,25 +262,25 @@
           "exec": "yarn upgrade npm-check-updates"
         },
         {
-          "exec": "npm-check-updates --dep dev --upgrade --target=minor"
+          "exec": "npm-check-updates --dep dev --upgrade --target=minor --reject='aws-cdk-lib,constructs'"
         },
         {
-          "exec": "npm-check-updates --dep optional --upgrade --target=minor"
+          "exec": "npm-check-updates --dep optional --upgrade --target=minor --reject='aws-cdk-lib,constructs'"
         },
         {
-          "exec": "npm-check-updates --dep peer --upgrade --target=minor"
+          "exec": "npm-check-updates --dep peer --upgrade --target=minor --reject='aws-cdk-lib,constructs'"
         },
         {
-          "exec": "npm-check-updates --dep prod --upgrade --target=minor"
+          "exec": "npm-check-updates --dep prod --upgrade --target=minor --reject='aws-cdk-lib,constructs'"
         },
         {
-          "exec": "npm-check-updates --dep bundle --upgrade --target=minor"
+          "exec": "npm-check-updates --dep bundle --upgrade --target=minor --reject='aws-cdk-lib,constructs'"
         },
         {
           "exec": "yarn install --check-files"
         },
         {
-          "exec": "yarn upgrade"
+          "exec": "yarn upgrade @types/adm-zip @types/aws-lambda @types/fs-extra @types/jest @types/node @types/tar @typescript-eslint/eslint-plugin @typescript-eslint/parser adm-zip aws-cdk aws-sdk aws-sdk-mock esbuild eslint-import-resolver-node eslint-import-resolver-typescript eslint-plugin-import eslint fs-extra jest-create-mock-instance jest-junit jest json-schema JSONStream node-ical npm-check-updates projen rrule standard-version tar ts-jest typescript changelog-parser"
         },
         {
           "exec": "npx projen"
