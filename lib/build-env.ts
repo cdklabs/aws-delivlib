@@ -14,7 +14,7 @@ export function createBuildEnvironment(props: BuildEnvironmentProps) {
     computeType: props.computeType || cbuild.ComputeType.SMALL,
     privileged: props.privileged,
     environmentVariables: renderEnvironmentVariables({ ...props.environment, ...props.env }),
-    buildImage: props.buildImage || cbuild.LinuxBuildImage.fromDockerRegistry('jsii/superchain:latest'),
+    buildImage: props.buildImage || cbuild.LinuxBuildImage.fromDockerRegistry('jsii/superchain:1-buster-slim'),
   };
 
   return environment;
