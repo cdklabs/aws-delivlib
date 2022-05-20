@@ -996,7 +996,7 @@ Resources:
           - Name: DELIVLIB_ENV_TEST
             Type: PLAINTEXT
             Value: MAGIC_1924
-        Image: jsii/superchain:latest
+        Image: jsii/superchain:1-buster-slim
         ImagePullCredentialsType: SERVICE_ROLE
         PrivilegedMode: false
         Type: LINUX_CONTAINER
@@ -3707,7 +3707,7 @@ Resources:
         Type: NO_ARTIFACTS
       Environment:
         ComputeType: BUILD_GENERAL1_SMALL
-        Image: jsii/superchain:latest
+        Image: jsii/superchain:1-buster-slim
         ImagePullCredentialsType: SERVICE_ROLE
         PrivilegedMode: false
         Type: LINUX_CONTAINER
@@ -3837,7 +3837,7 @@ Resources:
         Type: NO_ARTIFACTS
       Environment:
         ComputeType: BUILD_GENERAL1_SMALL
-        Image: jsii/superchain:latest
+        Image: jsii/superchain:1-buster-slim
         ImagePullCredentialsType: SERVICE_ROLE
         PrivilegedMode: false
         Type: LINUX_CONTAINER
