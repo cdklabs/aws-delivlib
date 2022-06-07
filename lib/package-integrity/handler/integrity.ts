@@ -1,10 +1,11 @@
 import { execSync } from 'child_process';
 import type { RequestOptions, IncomingMessage } from 'http';
-import * as https from 'https';
 import * as os from 'os';
 import * as path from 'path';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import AdmZip from 'adm-zip';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import * as follow from 'follow-redirects';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import * as fs from 'fs-extra';
 // eslint-disable-next-line import/no-extraneous-dependencies
@@ -301,7 +302,7 @@ export async function get(
   options: RequestOptions = {}) {
 
   return new Promise((ok, ko) => {
-    const request = https.get(url, options, (res: IncomingMessage) => {
+    const request = follow.https.get(url, options, (res: IncomingMessage) => {
       if (res.statusCode !== 200) {
         const error = new Error(`GET ${url} - HTTP ${res.statusCode} (${res.statusMessage})`);
         Error.captureStackTrace(error);
