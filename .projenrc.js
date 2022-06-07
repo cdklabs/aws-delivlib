@@ -78,6 +78,15 @@ integUpdate.exec('/bin/bash ./lib/__tests__/run-test.sh update');
 project.testTask.env('TZ', 'UTC');
 project.testTask.spawn(integDiff);
 
+// Run yarn install in the github publisher directory
+const buildGithubPublisher = project.addTask('build:publishing/github');
+buildGithubPublisher.exec('yarn install --frozen-lockfile', { cwd: 'lib/publishing/github' });
+buildGithubPublisher.exec('yarn tsc --build', { cwd: 'lib/publishing/github' });
+project.compileTask.prependSpawn(buildGithubPublisher);
+// Exclude the publisher from the root tsconfig, but add a reference to it
+project.tsconfig.addExclude('lib/publishing/github');
+project.tsconfig.file.addOverride('references', [{ path: 'lib/publishing/github' }]);
+
 const compileCustomResourceHandlers = project.addTask('compile:custom-resource-handlers');
 compileCustomResourceHandlers.exec('/bin/bash ./build-custom-resource-handlers.sh');
 
