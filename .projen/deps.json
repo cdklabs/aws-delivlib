@@ -9,6 +9,10 @@
       "type": "build"
     },
     {
+      "name": "@types/follow-redirects",
+      "type": "build"
+    },
+    {
       "name": "@types/fs-extra",
       "type": "build"
     },
@@ -78,6 +82,10 @@
     {
       "name": "eslint",
       "version": "^8",
+      "type": "build"
+    },
+    {
+      "name": "follow-redirects",
       "type": "build"
     },
     {
