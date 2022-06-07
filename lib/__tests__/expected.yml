@@ -52,6 +52,33 @@ Resources:
     DeletionPolicy: Retain
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/BuildPipeline/ArtifactsBucket/Resource
+  CodeCommitPipelineBuildPipelineArtifactsBucketPolicy97EF6204:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket:
+        Ref: CodeCommitPipelineBuildPipelineArtifactsBucketED2813B3
+      PolicyDocument:
+        Statement:
+          - Action: s3:*
+            Condition:
+              Bool:
+                aws:SecureTransport: "false"
+            Effect: Deny
+            Principal:
+              AWS: "*"
+            Resource:
+              - Fn::GetAtt:
+                  - CodeCommitPipelineBuildPipelineArtifactsBucketED2813B3
+                  - Arn
+              - Fn::Join:
+                  - ""
+                  - - Fn::GetAtt:
+                        - CodeCommitPipelineBuildPipelineArtifactsBucketED2813B3
+                        - Arn
+                    - /*
+        Version: "2012-10-17"
+    Metadata:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/BuildPipeline/ArtifactsBucket/Policy/Resource
   CodeCommitPipelineBuildPipelineRole1843599A:
     Type: AWS::IAM::Role
     Properties:
@@ -75,6 +102,10 @@ Resources:
               - s3:List*
               - s3:DeleteObject*
               - s3:PutObject
+              - s3:PutObjectLegalHold
+              - s3:PutObjectRetention
+              - s3:PutObjectTagging
+              - s3:PutObjectVersionTagging
               - s3:Abort*
             Effect: Allow
             Resource:
@@ -946,6 +977,10 @@ Resources:
               - s3:List*
               - s3:DeleteObject*
               - s3:PutObject
+              - s3:PutObjectLegalHold
+              - s3:PutObjectRetention
+              - s3:PutObjectTagging
+              - s3:PutObjectVersionTagging
               - s3:Abort*
             Effect: Allow
             Resource:
@@ -1006,6 +1041,8 @@ Resources:
           - Arn
       Source:
         Type: CODEPIPELINE
+      Cache:
+        Type: NO_CACHE
       EncryptionKey:
         Fn::GetAtt:
           - CodeCommitPipelineBuildPipelineArtifactsBucketEncryptionKey05A62A83
@@ -1255,6 +1292,10 @@ Resources:
               - s3:List*
               - s3:DeleteObject*
               - s3:PutObject
+              - s3:PutObjectLegalHold
+              - s3:PutObjectRetention
+              - s3:PutObjectTagging
+              - s3:PutObjectVersionTagging
               - s3:Abort*
             Effect: Allow
             Resource:
@@ -1339,6 +1380,8 @@ Resources:
             }
           }
         Type: NO_SOURCE
+      Cache:
+        Type: NO_CACHE
       EncryptionKey:
         Fn::GetAtt:
           - CodeCommitPipelineBuildPipelineArtifactsBucketEncryptionKey05A62A83
@@ -1456,6 +1499,10 @@ Resources:
               - s3:List*
               - s3:DeleteObject*
               - s3:PutObject
+              - s3:PutObjectLegalHold
+              - s3:PutObjectRetention
+              - s3:PutObjectTagging
+              - s3:PutObjectVersionTagging
               - s3:Abort*
             Effect: Allow
             Resource:
@@ -1538,6 +1585,8 @@ Resources:
             }
           }
         Type: NO_SOURCE
+      Cache:
+        Type: NO_CACHE
       EncryptionKey:
         Fn::GetAtt:
           - CodeCommitPipelineBuildPipelineArtifactsBucketEncryptionKey05A62A83
@@ -1661,6 +1710,10 @@ Resources:
               - s3:List*
               - s3:DeleteObject*
               - s3:PutObject
+              - s3:PutObjectLegalHold
+              - s3:PutObjectRetention
+              - s3:PutObjectTagging
+              - s3:PutObjectVersionTagging
               - s3:Abort*
             Effect: Allow
             Resource:
@@ -1762,6 +1815,8 @@ Resources:
                   }
                 }
         Type: NO_SOURCE
+      Cache:
+        Type: NO_CACHE
       EncryptionKey:
         Fn::GetAtt:
           - CodeCommitPipelineBuildPipelineArtifactsBucketEncryptionKey05A62A83
@@ -1879,6 +1934,10 @@ Resources:
               - s3:List*
               - s3:DeleteObject*
               - s3:PutObject
+              - s3:PutObjectLegalHold
+              - s3:PutObjectRetention
+              - s3:PutObjectTagging
+              - s3:PutObjectVersionTagging
               - s3:Abort*
             Effect: Allow
             Resource:
@@ -1982,6 +2041,8 @@ Resources:
             }
           }
         Type: NO_SOURCE
+      Cache:
+        Type: NO_CACHE
       EncryptionKey:
         Fn::GetAtt:
           - CodeCommitPipelineBuildPipelineArtifactsBucketEncryptionKey05A62A83
@@ -2126,6 +2187,8 @@ Resources:
             }
           }
         Type: NO_SOURCE
+      Cache:
+        Type: NO_CACHE
       EncryptionKey: alias/aws/s3
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/CanaryHelloCanary/Shellable/Resource/Resource
@@ -2361,6 +2424,8 @@ Resources:
             }
           }
         Type: NO_SOURCE
+      Cache:
+        Type: NO_CACHE
       EncryptionKey:
         Fn::GetAtt:
           - CodeCommitPipelineBuildPipelineArtifactsBucketEncryptionKey05A62A83
@@ -2578,6 +2643,8 @@ Resources:
             }
           }
         Type: NO_SOURCE
+      Cache:
+        Type: NO_CACHE
       EncryptionKey:
         Fn::GetAtt:
           - CodeCommitPipelineBuildPipelineArtifactsBucketEncryptionKey05A62A83
@@ -2791,6 +2858,8 @@ Resources:
             }
           }
         Type: NO_SOURCE
+      Cache:
+        Type: NO_CACHE
       EncryptionKey:
         Fn::GetAtt:
           - CodeCommitPipelineBuildPipelineArtifactsBucketEncryptionKey05A62A83
@@ -2961,7 +3030,7 @@ Resources:
             Value: cdk-hnb659fds-assets-712950704752-us-east-1
           - Name: SCRIPT_S3_KEY
             Type: PLAINTEXT
-            Value: 7bfdb1075bf8728fe236bcef49fbf08ac3ead6c9947f5d65f25b5a7c09758bb1.zip
+            Value: 913f58db1d9c6ec6c47a25df05cd634bb9ac31aae25b7fb761bb66400ec31bb6.zip
           - Name: BUILD_MANIFEST
             Type: PLAINTEXT
             Value: ./build.json
@@ -3026,6 +3095,8 @@ Resources:
             }
           }
         Type: NO_SOURCE
+      Cache:
+        Type: NO_CACHE
       EncryptionKey:
         Fn::GetAtt:
           - CodeCommitPipelineBuildPipelineArtifactsBucketEncryptionKey05A62A83
@@ -3227,6 +3298,8 @@ Resources:
             }
           }
         Type: NO_SOURCE
+      Cache:
+        Type: NO_CACHE
       EncryptionKey:
         Fn::GetAtt:
           - CodeCommitPipelineBuildPipelineArtifactsBucketEncryptionKey05A62A83
@@ -3413,6 +3486,8 @@ Resources:
             }
           }
         Type: NO_SOURCE
+      Cache:
+        Type: NO_CACHE
       EncryptionKey:
         Fn::GetAtt:
           - CodeCommitPipelineBuildPipelineArtifactsBucketEncryptionKey05A62A83
@@ -3608,6 +3683,8 @@ Resources:
             }
           }
         Type: NO_SOURCE
+      Cache:
+        Type: NO_CACHE
       EncryptionKey:
         Fn::GetAtt:
           - CodeCommitPipelineBuildPipelineArtifactsBucketEncryptionKey05A62A83
@@ -3750,6 +3827,8 @@ Resources:
         Location: https://github.com/awslabs/aws-delivlib-sample.git
         ReportBuildStatus: false
         Type: GITHUB
+      Cache:
+        Type: NO_CACHE
       Description: Release awslabs/aws-delivlib-sample, branch master
       EncryptionKey: alias/aws/s3
       Triggers:
@@ -3850,6 +3929,8 @@ Resources:
         ReportBuildStatus: true
         Type: GITHUB
       BadgeEnabled: true
+      Cache:
+        Type: NO_CACHE
       Description: Automatic PR build for awslabs/aws-delivlib-sample
       EncryptionKey: alias/aws/s3
       Triggers:
@@ -3873,6 +3954,15 @@ Resources:
         GitHubOAuthToken: "{{resolve:secretsmanager:arn:aws:secretsmanager:us-east-1:712950704752:secret:github-token-QDP6QX:SecretString:::}}"
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/AutoBuild/GitHubCodeBuildLogsSAR
+  CodeCommitPipelineChangeControllerCalendar94B1DEA8:
+    Type: AWS::S3::Bucket
+    Properties:
+      VersioningConfiguration:
+        Status: Enabled
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
+    Metadata:
+      aws:cdk:path: delivlib-test/CodeCommitPipeline/ChangeController/Calendar/Resource
   CodeCommitPipelineChangeControllerCalendarNotifications1AFBE6E9:
     Type: Custom::S3BucketNotifications
     Properties:
@@ -3900,15 +3990,6 @@ Resources:
       - CodeCommitPipelineChangeControllerCalendarAllowBucketNotificationsTodelivlibtestCodeCommitPipelineChangeControllerFunction83CC56EB3330DA3F
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/ChangeController/Calendar/Notifications/Resource
-  CodeCommitPipelineChangeControllerCalendar94B1DEA8:
-    Type: AWS::S3::Bucket
-    Properties:
-      VersioningConfiguration:
-        Status: Enabled
-    UpdateReplacePolicy: Delete
-    DeletionPolicy: Delete
-    Metadata:
-      aws:cdk:path: delivlib-test/CodeCommitPipeline/ChangeController/Calendar/Resource
   CodeCommitPipelineChangeControllerCalendarAllowBucketNotificationsTodelivlibtestCodeCommitPipelineChangeControllerFunction83CC56EB3330DA3F:
     Type: AWS::Lambda::Permission
     Properties:
@@ -4329,6 +4410,10 @@ Resources:
               - s3:List*
               - s3:DeleteObject*
               - s3:PutObject
+              - s3:PutObjectLegalHold
+              - s3:PutObjectRetention
+              - s3:PutObjectTagging
+              - s3:PutObjectVersionTagging
               - s3:Abort*
             Effect: Allow
             Resource:
@@ -4393,7 +4478,7 @@ Resources:
     Properties:
       Code:
         S3Bucket: cdk-hnb659fds-assets-712950704752-us-east-1
-        S3Key: 1f7e277bd526ebce1983fa1e7a84a5281ec533d9187caaebb773681bbf7bf4c1.zip
+        S3Key: 0758db37a61ce7177f50559cad0340df233a2001b5880615afa517203dd67c21.zip
       Timeout: 900
       MemorySize: 128
       Handler: __entrypoint__.handler
@@ -4620,45 +4705,42 @@ Resources:
 
           s3 = boto3.client("s3")
 
+          EVENTBRIDGE_CONFIGURATION = 'EventBridgeConfiguration'
+
           CONFIGURATION_TYPES = ["TopicConfigurations", "QueueConfigurations", "LambdaFunctionConfigurations"]
 
           def handler(event: dict, context):
-              response_status = "SUCCESS"
-              error_message = ""
-              try:
-                  props = event["ResourceProperties"]
-                  bucket = props["BucketName"]
-                  notification_configuration = props["NotificationConfiguration"]
-                  request_type = event["RequestType"]
-                  managed = props.get('Managed', 'true').lower() == 'true'
-                  stack_id = event['StackId']
+            response_status = "SUCCESS"
+            error_message = ""
+            try:
+              props = event["ResourceProperties"]
+              bucket = props["BucketName"]
+              notification_configuration = props["NotificationConfiguration"]
+              request_type = event["RequestType"]
+              managed = props.get('Managed', 'true').lower() == 'true'
+              stack_id = event['StackId']
 
-                  if managed:
-                    config = handle_managed(request_type, notification_configuration)
-                  else:
-                    config = handle_unmanaged(bucket, stack_id, request_type, notification_configuration)
+              if managed:
+                config = handle_managed(request_type, notification_configuration)
+              else:
+                config = handle_unmanaged(bucket, stack_id, request_type, notification_configuration)
 
-                  put_bucket_notification_configuration(bucket, config)
-              except Exception as e:
-                  logging.exception("Failed to put bucket notification configuration")
-                  response_status = "FAILED"
-                  error_message = f"Error: {str(e)}. "
-              finally:
-                  submit_response(event, context, response_status, error_message)
-
+              put_bucket_notification_configuration(bucket, config)
+            except Exception as e:
+              logging.exception("Failed to put bucket notification configuration")
+              response_status = "FAILED"
+              error_message = f"Error: {str(e)}. "
+            finally:
+              submit_response(event, context, response_status, error_message)
 
           def handle_managed(request_type, notification_configuration):
             if request_type == 'Delete':
               return {}
             return notification_configuration
 
-
           def handle_unmanaged(bucket, stack_id, request_type, notification_configuration):
-
-            # find external notifications
             external_notifications = find_external_notifications(bucket, stack_id)
 
-            # if delete, that's all we need
             if request_type == 'Delete':
               return external_notifications
 
@@ -4666,54 +4748,56 @@ Resources:
               notification['Id'] = f"{stack_id}-{hash(json.dumps(notification, sort_keys=True))}"
               return notification
 
-            # otherwise, merge external with incoming config and augment with id
             notifications = {}
             for t in CONFIGURATION_TYPES:
               external = external_notifications.get(t, [])
               incoming = [with_id(n) for n in notification_configuration.get(t, [])]
               notifications[t] = external + incoming
-            return notifications
 
+            if EVENTBRIDGE_CONFIGURATION in notification_configuration:
+              notifications[EVENTBRIDGE_CONFIGURATION] = notification_configuration[EVENTBRIDGE_CONFIGURATION]
+            elif EVENTBRIDGE_CONFIGURATION in external_notifications:
+              notifications[EVENTBRIDGE_CONFIGURATION] = external_notifications[EVENTBRIDGE_CONFIGURATION]
+
+            return notifications
 
           def find_external_notifications(bucket, stack_id):
             existing_notifications = get_bucket_notification_configuration(bucket)
             external_notifications = {}
             for t in CONFIGURATION_TYPES:
-              # if the notification was created by us, we know what id to expect
-              # so we can filter by it.
               external_notifications[t] = [n for n in existing_notifications.get(t, []) if not n['Id'].startswith(f"{stack_id}-")]
 
-            return external_notifications
+            if EVENTBRIDGE_CONFIGURATION in existing_notifications:
+              external_notifications[EVENTBRIDGE_CONFIGURATION] = existing_notifications[EVENTBRIDGE_CONFIGURATION]
 
+            return external_notifications
 
           def get_bucket_notification_configuration(bucket):
             return s3.get_bucket_notification_configuration(Bucket=bucket)
 
-
           def put_bucket_notification_configuration(bucket, notification_configuration):
             s3.put_bucket_notification_configuration(Bucket=bucket, NotificationConfiguration=notification_configuration)
 
-
           def submit_response(event: dict, context, response_status: str, error_message: str):
-              response_body = json.dumps(
-                  {
-                      "Status": response_status,
-                      "Reason": f"{error_message}See the details in CloudWatch Log Stream: {context.log_stream_name}",
-                      "PhysicalResourceId": event.get("PhysicalResourceId") or event["LogicalResourceId"],
-                      "StackId": event["StackId"],
-                      "RequestId": event["RequestId"],
-                      "LogicalResourceId": event["LogicalResourceId"],
-                      "NoEcho": False,
-                  }
-              ).encode("utf-8")
-              headers = {"content-type": "", "content-length": str(len(response_body))}
-              try:
-                  req = urllib.request.Request(url=event["ResponseURL"], headers=headers, data=response_body, method="PUT")
-                  with urllib.request.urlopen(req) as response:
-                      print(response.read().decode("utf-8"))
-                  print("Status code: " + response.reason)
-              except Exception as e:
-                  print("send(..) failed executing request.urlopen(..): " + str(e))
+            response_body = json.dumps(
+              {
+                "Status": response_status,
+                "Reason": f"{error_message}See the details in CloudWatch Log Stream: {context.log_stream_name}",
+                "PhysicalResourceId": event.get("PhysicalResourceId") or event["LogicalResourceId"],
+                "StackId": event["StackId"],
+                "RequestId": event["RequestId"],
+                "LogicalResourceId": event["LogicalResourceId"],
+                "NoEcho": False,
+              }
+            ).encode("utf-8")
+            headers = {"content-type": "", "content-length": str(len(response_body))}
+            try:
+              req = urllib.request.Request(url=event["ResponseURL"], headers=headers, data=response_body, method="PUT")
+              with urllib.request.urlopen(req) as response:
+                print(response.read().decode("utf-8"))
+              print("Status code: " + response.reason)
+            except Exception as e:
+                print("send(..) failed executing request.urlopen(..): " + str(e))
       Handler: index.handler
       Role:
         Fn::GetAtt:
