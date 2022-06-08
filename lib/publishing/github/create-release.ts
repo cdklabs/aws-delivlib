@@ -81,12 +81,25 @@ async function main() {
       continue;
     }
     console.log(`Uploading asset '${assetName}' from ${assetPath}`);
-    // Note: using client.request here so we can pass the body as a stream instead of as a string
+    await client.rest.repos.uploadReleaseAsset({
+      owner,
+      repo,
+      release_id: release.id,
+      name: assetName,
+      // Note: Cheating here to send the data in streamng mode.
+      //       When doing so, we need to specify the content-length header.
+      // See: https://github.com/octokit/octokit.js/discussions/2087
+      data: createReadStream(assetPath) as unknown as string,
+      headers: {
+        'content-type': 'application/octet-stream',
+        'content-length': (await fs.stat(assetPath)).size,
+      },
+    });
     await client.request({
       url: release.upload_url,
       method: 'POST',
       name: assetName,
-      data: createReadStream(assetPath),
+      data: await fs.readFile(assetPath),
     });
   }
 
