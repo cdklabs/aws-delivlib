@@ -1151,7 +1151,7 @@ Resources:
           METRIC_NAMESPACE: CDK/Delivlib
           METRIC_NAME: Failures
       Handler: watcher-handler.handler
-      Runtime: nodejs12.x
+      Runtime: nodejs14.x
     DependsOn:
       - CodeCommitPipelinePipelineWatcherPollerServiceRoleDefaultPolicyE2104AD1
       - CodeCommitPipelinePipelineWatcherPollerServiceRole0A1D8005
@@ -2612,7 +2612,7 @@ Resources:
             Type: PLAINTEXT
             Value:
               Ref: X509CodeSigningKey8DE65BF8
-        Image: jsii/superchain
+        Image: jsii/superchain:1-buster-slim
         ImagePullCredentialsType: SERVICE_ROLE
         PrivilegedMode: false
         Type: LINUX_CONTAINER
@@ -2827,7 +2827,7 @@ Resources:
           - Name: MAVEN_ENDPOINT
             Type: PLAINTEXT
             Value: https://aws.oss.sonatype.org:443/
-        Image: jsii/superchain
+        Image: jsii/superchain:1-buster-slim
         ImagePullCredentialsType: SERVICE_ROLE
         PrivilegedMode: false
         Type: LINUX_CONTAINER
@@ -4083,7 +4083,7 @@ Resources:
           STAGE_NAME: Publish
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
       Handler: index.handler
-      Runtime: nodejs12.x
+      Runtime: nodejs14.x
       Timeout: 300
     DependsOn:
       - CodeCommitPipelineChangeControllerFunctionServiceRoleDefaultPolicy315F7AF5
@@ -4374,7 +4374,7 @@ Resources:
       Handler: index.handler
       Layers:
         - Ref: X509CodeSigningKeyRSAPrivateKeyOpenSslCliLayer3F0C7B04
-      Runtime: nodejs12.x
+      Runtime: nodejs14.x
       Timeout: 300
     DependsOn:
       - RSAPrivateKey72FD327D38134632934028EC437AA486ServiceRoleDefaultPolicy487DB1EA
@@ -4452,7 +4452,7 @@ Resources:
       Handler: index.handler
       Layers:
         - Ref: X509CodeSigningKeyRSAPrivateKeyCertificateSigningRequestOpenSslCliLayer61AF8E77
-      Runtime: nodejs12.x
+      Runtime: nodejs14.x
       Timeout: 300
     DependsOn:
       - CreateCSR541F67826DCF49A78C5A67715ADD9E4CServiceRoleDefaultPolicyC0800208
@@ -4653,7 +4653,7 @@ Resources:
       Handler: index.handler
       Layers:
         - Ref: CodeSignGpgLayer4D38F47B
-      Runtime: nodejs12.x
+      Runtime: nodejs14.x
       Timeout: 300
     DependsOn:
       - SingletonLambdaf25803d3054b44fc985f4860d7d6ee74ServiceRoleDefaultPolicyA8FDF5BD

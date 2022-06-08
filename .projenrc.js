@@ -99,7 +99,7 @@ const bundlePackageIntegrity = project.addTask('bundle:package-integrity', {
     'esbuild',
     '--bundle',
     'lib/package-integrity/handler/validate.js',
-    '--target="node12"',
+    '--target="node14"',
     '--platform="node"',
     '--outfile="lib/package-integrity/handler/validate.bundle.js"',
     '--sourcemap=inline',
