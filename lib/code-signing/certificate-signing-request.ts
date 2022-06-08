@@ -61,7 +61,7 @@ export class CertificateSigningRequest extends Construct {
       uuid: '541F6782-6DCF-49A7-8C5A-67715ADD9E4C',
       lambdaPurpose: 'CreateCSR',
       description: 'Creates a Certificate Signing Request document for an x509 certificate',
-      runtime: lambda.Runtime.NODEJS_12_X,
+      runtime: lambda.Runtime.NODEJS_14_X,
       handler: 'index.handler',
       code: new lambda.AssetCode(codeLocation),
       timeout: Duration.seconds(300),
