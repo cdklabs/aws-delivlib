@@ -95,12 +95,6 @@ async function main() {
         'content-length': (await fs.stat(assetPath)).size,
       },
     });
-    await client.request({
-      url: release.upload_url,
-      method: 'POST',
-      name: assetName,
-      data: await fs.readFile(assetPath),
-    });
   }
 
   console.log('✅ done');
