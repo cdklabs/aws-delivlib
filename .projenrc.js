@@ -108,4 +108,23 @@ const bundlePackageIntegrity = project.addTask('bundle:package-integrity', {
 
 project.compileTask.spawn(bundlePackageIntegrity);
 
+// The npmignore file includes original source files, which is undesirable.
+project.npmignore.exclude(
+  '/lib/**/*.ts',
+);
+project.npmignore.include(
+  '/lib/**/*.d.ts',
+  '/lib/**/node_modules/**',
+);
+// Also includes other undesirable assets.
+project.npmignore.exclude(
+  '/lib/__tests__/',
+  'tsconfig.json',
+  'tsconfig.dev.json',
+  'tsconfig.tsbuildinfo',
+  '/build-*.sh',
+  'cdk.out/',
+  'cdk.json',
+);
+
 project.synth();
