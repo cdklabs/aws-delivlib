@@ -68,6 +68,7 @@ async function main() {
       owner,
       repo,
       tag_name,
+      name: tag_name,
       target_commitish: commit,
       body: release_notes,
     })).data;
