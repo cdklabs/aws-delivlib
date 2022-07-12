@@ -93,17 +93,16 @@
       "type": "build"
     },
     {
+      "name": "jest",
+      "type": "build"
+    },
+    {
       "name": "jest-create-mock-instance",
       "type": "build"
     },
     {
       "name": "jest-junit",
       "version": "^13",
-      "type": "build"
-    },
-    {
-      "name": "jest",
-      "version": "^27",
       "type": "build"
     },
     {

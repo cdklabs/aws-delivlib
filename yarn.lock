@@ -5003,10 +5003,10 @@ progress@^2.0.3:
   resolved "https://registry.npmjs.org/progress/-/progress-2.0.3.tgz"
   integrity sha512-7PiHtLll5LdnKIMw100I+8xJXR5gW2QwWYkT6iJva0bXitZKa/XMrSbdmg3r2Xnaidz9Qumd0VPaMrZlF9V9sA==
 
-projen@^0.57.9:
-  version "0.57.9"
-  resolved "https://registry.yarnpkg.com/projen/-/projen-0.57.9.tgz#a75a131f3240611becd11221e8540b9e7a8069f4"
-  integrity sha512-DO2m8xUtWQS7R/aPbyqStzHxVJv3aMgXwkq3FvPzdPBe08mthNe73qgZfF+y4Y7E8pPhvl/UvvG1YkKsxfYBQw==
+projen@^0.58.27:
+  version "0.58.27"
+  resolved "https://registry.yarnpkg.com/projen/-/projen-0.58.27.tgz#dd35daa2edfe6e099e0d45470d175fda011fcf3a"
+  integrity sha512-xNeWZ5tBH+bz50Dz4rznwfyqnrbC1pguX2VdjpaU6+RVX3ooTgdSSKItJgPx3Dx2S8sQcRfZpEVDbRjpAkMCgw==
   dependencies:
     "@iarna/toml" "^2.2.5"
     case "^1.6.3"
