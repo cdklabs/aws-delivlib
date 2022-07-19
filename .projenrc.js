@@ -42,6 +42,7 @@ const project = new typescript.TypeScriptProject({
     'adm-zip',
     'JSONStream',
     'follow-redirects',
+    'minipass@3.2.1', // temporary (hopefully) workaround for https://github.com/DefinitelyTyped/DefinitelyTyped/discussions/60901
   ],
   peerDeps: [
     'constructs',
