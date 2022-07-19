@@ -47,6 +47,7 @@ junit.xml
 !/lib/
 /lib/**/*.js
 /lib/**/*.d.ts
+/lib/**/*.d.ts.map
 /dist/
 !/.projen/jest-snapshot-resolver.js
 !/.eslintrc.json
