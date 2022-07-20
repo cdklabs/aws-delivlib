@@ -1,5 +1,5 @@
 import {
-  Token, SecretValue,
+  SecretValue,
   aws_codebuild as codebuild,
   aws_sam as serverless,
 } from 'aws-cdk-lib';
@@ -126,7 +126,7 @@ export class AutoBuild extends Construct {
           CodeBuildProjectName: this.project.projectName,
           DeletePreviousComments: (props.deletePreviousPublicLogsLinks ?? true).toString(),
           CommentOnSuccess: (props.publicLogsOnSuccess ?? true).toString(),
-          ...githubToken ? { GitHubOAuthToken: Token.asString(githubToken) } : undefined,
+          ...githubToken ? { GitHubOAuthToken: githubToken.unsafeUnwrap() } : undefined,
         },
       });
     }
