@@ -114,12 +114,17 @@
       "type": "build"
     },
     {
+      "name": "minipass",
+      "version": "3.2.1",
+      "type": "build"
+    },
+    {
       "name": "node-ical",
       "type": "build"
     },
     {
       "name": "npm-check-updates",
-      "version": "^12",
+      "version": "^15",
       "type": "build"
     },
     {
