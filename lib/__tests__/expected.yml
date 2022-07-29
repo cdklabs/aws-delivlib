@@ -3030,7 +3030,7 @@ Resources:
             Value: cdk-hnb659fds-assets-712950704752-us-east-1
           - Name: SCRIPT_S3_KEY
             Type: PLAINTEXT
-            Value: f0620994294527c16394eb4f4a8142348196769a06c07fc49377381e63cad7bd.zip
+            Value: 28ed7545304da71085137c3a0c5d74261ff16535861b391285d463d97b259488.zip
           - Name: BUILD_MANIFEST
             Type: PLAINTEXT
             Value: ./build.json
@@ -4067,7 +4067,7 @@ Resources:
     Properties:
       Code:
         S3Bucket: cdk-hnb659fds-assets-712950704752-us-east-1
-        S3Key: 0bcf59aae47c8446547d454e528740da857dea44e5773ebf848eb3a379a27b2e.zip
+        S3Key: e6caea4cff9ba12c2a0061459aeb4918124334988033447e64d19b2c1e351dfa.zip
       Role:
         Fn::GetAtt:
           - CodeCommitPipelineChangeControllerFunctionServiceRoleF02841DB
