@@ -34,7 +34,7 @@ const project = new typescript.TypeScriptProject({
     'typescript',
     'aws-sdk',
     'aws-sdk-mock',
-    'node-ical',
+    'node-ical@0.15.1', // need to pin due to https://github.com/axios/axios/issues/5101
     'rrule',
     'esbuild',
     'fs-extra',
@@ -57,7 +57,6 @@ const project = new typescript.TypeScriptProject({
     secret: 'GITHUB_TOKEN',
   },
   autoApproveUpgrades: true,
-
   releaseToNpm: true,
 });
 

@@ -120,6 +120,7 @@
     },
     {
       "name": "node-ical",
+      "version": "0.15.1",
       "type": "build"
     },
     {
