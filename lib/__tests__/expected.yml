@@ -3030,7 +3030,7 @@ Resources:
             Value: cdk-hnb659fds-assets-712950704752-us-east-1
           - Name: SCRIPT_S3_KEY
             Type: PLAINTEXT
-            Value: b3f7aafc87c19d93a325d3a974036bda91fc216fa88e1c6ab3995827d7d293aa.zip
+            Value: 297e1b6ca9a84a359f6cce8d60965c13e23916b0cc546381f87c006d2cd931ac.zip
           - Name: BUILD_MANIFEST
             Type: PLAINTEXT
             Value: ./build.json
