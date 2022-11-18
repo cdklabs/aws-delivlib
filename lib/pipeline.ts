@@ -241,6 +241,7 @@ export class Pipeline extends Construct {
       environment: this.buildEnvironment,
       buildSpec: this.buildSpec,
       timeout: props.buildTimeout ?? Duration.hours(8),
+      ssmSessionPermissions: true,
     });
 
     this.buildRole = this.buildProject.role;

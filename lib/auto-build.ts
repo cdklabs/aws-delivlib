@@ -111,6 +111,7 @@ export class AutoBuild extends Construct {
       environment: createBuildEnvironment(props.environment ?? {}),
       badge: props.repo.allowsBadge,
       buildSpec: props.buildSpec,
+      ssmSessionPermissions: true,
     });
 
     const publicLogs = props.publicLogs !== undefined ? props.publicLogs : false;

@@ -453,6 +453,21 @@ test('environment variables', () => {
         },
         {
           Action: [
+            'ssmmessages:CreateControlChannel',
+            'ssmmessages:CreateDataChannel',
+            'ssmmessages:OpenControlChannel',
+            'ssmmessages:OpenDataChannel',
+            'logs:DescribeLogGroups',
+            'logs:CreateLogStream',
+            'logs:PutLogEvents',
+            's3:GetEncryptionConfiguration',
+            's3:PutObject',
+          ],
+          Effect: 'Allow',
+          Resource: '*',
+        },
+        {
+          Action: [
             's3:GetObject*',
             's3:GetBucket*',
             's3:List*',
