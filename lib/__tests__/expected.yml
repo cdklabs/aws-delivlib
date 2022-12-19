@@ -3150,7 +3150,7 @@ Resources:
             Value: cdk-hnb659fds-assets-712950704752-us-east-1
           - Name: SCRIPT_S3_KEY
             Type: PLAINTEXT
-            Value: 615ec3e84ce2828c10ffd7d8ff837ef724bd434f32c4c8256f5bfd7057d19bae.zip
+            Value: 14932d7dceb369225616f9aadecfd9a73d45967aef95fa07a823e587670628e1.zip
           - Name: BUILD_MANIFEST
             Type: PLAINTEXT
             Value: ./build.json
@@ -4247,7 +4247,7 @@ Resources:
     Properties:
       Code:
         S3Bucket: cdk-hnb659fds-assets-712950704752-us-east-1
-        S3Key: 5326102e16b8fee14cc365492b15e72983f7dada24f75f8233793f2d9d81d220.zip
+        S3Key: b8c24173126feec0cd13254cf2396e6dfa10dfa377178102b06a3a7582044616.zip
       Role:
         Fn::GetAtt:
           - CodeCommitPipelineChangeControllerFunctionServiceRoleF02841DB
@@ -4983,7 +4983,7 @@ Resources:
         Fn::GetAtt:
           - BucketNotificationsHandler050a0587b7544547bf325f094a3db834RoleB6FB88EC
           - Arn
-      Runtime: python3.7
+      Runtime: python3.9
       Timeout: 300
     DependsOn:
       - BucketNotificationsHandler050a0587b7544547bf325f094a3db834RoleDefaultPolicy2CF63D36
