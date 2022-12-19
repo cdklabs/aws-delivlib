@@ -972,6 +972,18 @@ Resources:
                   - Ref: CodeCommitPipelineBuildProject9F59E8AA
                   - -*
           - Action:
+              - ssmmessages:CreateControlChannel
+              - ssmmessages:CreateDataChannel
+              - ssmmessages:OpenControlChannel
+              - ssmmessages:OpenDataChannel
+              - logs:DescribeLogGroups
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+              - s3:GetEncryptionConfiguration
+              - s3:PutObject
+            Effect: Allow
+            Resource: "*"
+          - Action:
               - s3:GetObject*
               - s3:GetBucket*
               - s3:List*
@@ -1271,6 +1283,18 @@ Resources:
                   - Ref: CodeCommitPipelineHelloLinuxCB82AB68
                   - -*
           - Action:
+              - ssmmessages:CreateControlChannel
+              - ssmmessages:CreateDataChannel
+              - ssmmessages:OpenControlChannel
+              - ssmmessages:OpenDataChannel
+              - logs:DescribeLogGroups
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+              - s3:GetEncryptionConfiguration
+              - s3:PutObject
+            Effect: Allow
+            Resource: "*"
+          - Action:
               - s3:GetObject*
               - s3:GetBucket*
               - s3:List*
@@ -1478,6 +1502,18 @@ Resources:
                   - Ref: CodeCommitPipelineHelloWindows61CA8F73
                   - -*
           - Action:
+              - ssmmessages:CreateControlChannel
+              - ssmmessages:CreateDataChannel
+              - ssmmessages:OpenControlChannel
+              - ssmmessages:OpenDataChannel
+              - logs:DescribeLogGroups
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+              - s3:GetEncryptionConfiguration
+              - s3:PutObject
+            Effect: Allow
+            Resource: "*"
+          - Action:
               - s3:GetObject*
               - s3:GetBucket*
               - s3:List*
@@ -1682,6 +1718,18 @@ Resources:
                   - :codebuild:us-east-1:712950704752:report-group/
                   - Ref: CodeCommitPipelineAssumeRole05A76F51
                   - -*
+          - Action:
+              - ssmmessages:CreateControlChannel
+              - ssmmessages:CreateDataChannel
+              - ssmmessages:OpenControlChannel
+              - ssmmessages:OpenDataChannel
+              - logs:DescribeLogGroups
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+              - s3:GetEncryptionConfiguration
+              - s3:PutObject
+            Effect: Allow
+            Resource: "*"
           - Action:
               - s3:GetObject*
               - s3:GetBucket*
@@ -1913,6 +1961,18 @@ Resources:
                   - Ref: CodeCommitPipelineGenerateTwoArtifactsA9DAD33B
                   - -*
           - Action:
+              - ssmmessages:CreateControlChannel
+              - ssmmessages:CreateDataChannel
+              - ssmmessages:OpenControlChannel
+              - ssmmessages:OpenDataChannel
+              - logs:DescribeLogGroups
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+              - s3:GetEncryptionConfiguration
+              - s3:PutObject
+            Effect: Allow
+            Resource: "*"
+          - Action:
               - s3:GetObject*
               - s3:GetBucket*
               - s3:List*
@@ -2118,6 +2178,18 @@ Resources:
                   - Ref: CodeCommitPipelineCanaryHelloCanaryShellableC8458471
                   - -*
           - Action:
+              - ssmmessages:CreateControlChannel
+              - ssmmessages:CreateDataChannel
+              - ssmmessages:OpenControlChannel
+              - ssmmessages:OpenDataChannel
+              - logs:DescribeLogGroups
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+              - s3:GetEncryptionConfiguration
+              - s3:PutObject
+            Effect: Allow
+            Resource: "*"
+          - Action:
               - s3:GetObject*
               - s3:GetBucket*
               - s3:List*
@@ -2306,6 +2378,18 @@ Resources:
                   - :codebuild:us-east-1:712950704752:report-group/
                   - Ref: CodeCommitPipelineNpm0D31AEFC
                   - -*
+          - Action:
+              - ssmmessages:CreateControlChannel
+              - ssmmessages:CreateDataChannel
+              - ssmmessages:OpenControlChannel
+              - ssmmessages:OpenDataChannel
+              - logs:DescribeLogGroups
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+              - s3:GetEncryptionConfiguration
+              - s3:PutObject
+            Effect: Allow
+            Resource: "*"
           - Action:
               - s3:GetObject*
               - s3:GetBucket*
@@ -2500,6 +2584,18 @@ Resources:
                   - :codebuild:us-east-1:712950704752:report-group/
                   - Ref: CodeCommitPipelineNuGet67CE1BA7
                   - -*
+          - Action:
+              - ssmmessages:CreateControlChannel
+              - ssmmessages:CreateDataChannel
+              - ssmmessages:OpenControlChannel
+              - ssmmessages:OpenDataChannel
+              - logs:DescribeLogGroups
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+              - s3:GetEncryptionConfiguration
+              - s3:PutObject
+            Effect: Allow
+            Resource: "*"
           - Action:
               - s3:GetObject*
               - s3:GetBucket*
@@ -2719,6 +2815,18 @@ Resources:
                   - :codebuild:us-east-1:712950704752:report-group/
                   - Ref: CodeCommitPipelineMavenB7154296
                   - -*
+          - Action:
+              - ssmmessages:CreateControlChannel
+              - ssmmessages:CreateDataChannel
+              - ssmmessages:OpenControlChannel
+              - ssmmessages:OpenDataChannel
+              - logs:DescribeLogGroups
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+              - s3:GetEncryptionConfiguration
+              - s3:PutObject
+            Effect: Allow
+            Resource: "*"
           - Action:
               - s3:GetObject*
               - s3:GetBucket*
@@ -2943,6 +3051,18 @@ Resources:
                   - Ref: CodeCommitPipelineGitHub0797840C
                   - -*
           - Action:
+              - ssmmessages:CreateControlChannel
+              - ssmmessages:CreateDataChannel
+              - ssmmessages:OpenControlChannel
+              - ssmmessages:OpenDataChannel
+              - logs:DescribeLogGroups
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+              - s3:GetEncryptionConfiguration
+              - s3:PutObject
+            Effect: Allow
+            Resource: "*"
+          - Action:
               - s3:GetObject*
               - s3:GetBucket*
               - s3:List*
@@ -3030,7 +3150,7 @@ Resources:
             Value: cdk-hnb659fds-assets-712950704752-us-east-1
           - Name: SCRIPT_S3_KEY
             Type: PLAINTEXT
-            Value: 5b4c3208faf624cf3937e6efef3baa1023d2c199c1f2892827796c5b7b188771.zip
+            Value: 14932d7dceb369225616f9aadecfd9a73d45967aef95fa07a823e587670628e1.zip
           - Name: BUILD_MANIFEST
             Type: PLAINTEXT
             Value: ./build.json
@@ -3171,6 +3291,18 @@ Resources:
                   - :codebuild:us-east-1:712950704752:report-group/
                   - Ref: CodeCommitPipelineGitHubPages53B77CF6
                   - -*
+          - Action:
+              - ssmmessages:CreateControlChannel
+              - ssmmessages:CreateDataChannel
+              - ssmmessages:OpenControlChannel
+              - ssmmessages:OpenDataChannel
+              - logs:DescribeLogGroups
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+              - s3:GetEncryptionConfiguration
+              - s3:PutObject
+            Effect: Allow
+            Resource: "*"
           - Action:
               - s3:GetObject*
               - s3:GetBucket*
@@ -3375,6 +3507,18 @@ Resources:
                   - Ref: CodeCommitPipelinePyPI2C59CE7B
                   - -*
           - Action:
+              - ssmmessages:CreateControlChannel
+              - ssmmessages:CreateDataChannel
+              - ssmmessages:OpenControlChannel
+              - ssmmessages:OpenDataChannel
+              - logs:DescribeLogGroups
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+              - s3:GetEncryptionConfiguration
+              - s3:PutObject
+            Effect: Allow
+            Resource: "*"
+          - Action:
               - s3:GetObject*
               - s3:GetBucket*
               - s3:List*
@@ -3562,6 +3706,18 @@ Resources:
                   - :codebuild:us-east-1:712950704752:report-group/
                   - Ref: CodeCommitPipelineGolangBDFA17A1
                   - -*
+          - Action:
+              - ssmmessages:CreateControlChannel
+              - ssmmessages:CreateDataChannel
+              - ssmmessages:OpenControlChannel
+              - ssmmessages:OpenDataChannel
+              - logs:DescribeLogGroups
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+              - s3:GetEncryptionConfiguration
+              - s3:PutObject
+            Effect: Allow
+            Resource: "*"
           - Action:
               - s3:GetObject*
               - s3:GetBucket*
@@ -3760,6 +3916,18 @@ Resources:
                   - Ref: CodeCommitPipelineAutoBumpAutoPullRequest033F6993
                   - -*
           - Action:
+              - ssmmessages:CreateControlChannel
+              - ssmmessages:CreateDataChannel
+              - ssmmessages:OpenControlChannel
+              - ssmmessages:OpenDataChannel
+              - logs:DescribeLogGroups
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+              - s3:GetEncryptionConfiguration
+              - s3:PutObject
+            Effect: Allow
+            Resource: "*"
+          - Action:
               - secretsmanager:ListSecrets
               - secretsmanager:DescribeSecret
               - secretsmanager:GetSecretValue
@@ -3903,6 +4071,18 @@ Resources:
                   - :codebuild:us-east-1:712950704752:report-group/
                   - Ref: CodeCommitPipelineAutoBuildProject5D212EE9
                   - -*
+          - Action:
+              - ssmmessages:CreateControlChannel
+              - ssmmessages:CreateDataChannel
+              - ssmmessages:OpenControlChannel
+              - ssmmessages:OpenDataChannel
+              - logs:DescribeLogGroups
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+              - s3:GetEncryptionConfiguration
+              - s3:PutObject
+            Effect: Allow
+            Resource: "*"
         Version: "2012-10-17"
       PolicyName: CodeCommitPipelineAutoBuildProjectRoleDefaultPolicyFF5563AC
       Roles:
@@ -4478,7 +4658,7 @@ Resources:
     Properties:
       Code:
         S3Bucket: cdk-hnb659fds-assets-712950704752-us-east-1
-        S3Key: 0758db37a61ce7177f50559cad0340df233a2001b5880615afa517203dd67c21.zip
+        S3Key: 3f51abb709b8e65167a45aeed02bab11540603d909005d7148230ba5ce6c74d7.zip
       Timeout: 900
       MemorySize: 128
       Handler: __entrypoint__.handler
@@ -4486,7 +4666,7 @@ Resources:
         Fn::GetAtt:
           - CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092
           - Arn
-      Runtime: nodejs12.x
+      Runtime: nodejs14.x
       Description:
         Fn::Join:
           - ""
@@ -4803,7 +4983,7 @@ Resources:
         Fn::GetAtt:
           - BucketNotificationsHandler050a0587b7544547bf325f094a3db834RoleB6FB88EC
           - Arn
-      Runtime: python3.7
+      Runtime: python3.9
       Timeout: 300
     DependsOn:
       - BucketNotificationsHandler050a0587b7544547bf325f094a3db834RoleDefaultPolicy2CF63D36
@@ -4840,5 +5020,4 @@ Rules:
                   - "5"
                 - Ref: BootstrapVersion
         AssertDescription: CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI.
-
 

@@ -136,6 +136,7 @@ export class EcrMirror extends Construct {
           };
         },
       })),
+      ssmSessionPermissions: true,
     });
 
     for (const image of props.sources) {

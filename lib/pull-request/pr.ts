@@ -296,6 +296,7 @@ export class AutoPullRequest extends Construct {
           build: { commands },
         },
       }),
+      ssmSessionPermissions: true,
     });
 
     if (this.project.role) {

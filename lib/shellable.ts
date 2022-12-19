@@ -288,6 +288,7 @@ export class Shellable extends Construct {
       },
       timeout: props.timeout,
       buildSpec: cbuild.BuildSpec.fromObject(this.buildSpec.render({ primaryArtifactName: this.outputArtifactName })),
+      ssmSessionPermissions: true,
     });
 
     this.role = this.project.role!; // not undefined, as it's a new Project
