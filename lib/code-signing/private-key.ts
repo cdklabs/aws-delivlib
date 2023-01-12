@@ -7,8 +7,8 @@ import {
   aws_lambda as lambda,
 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import { hashFileOrDirectory } from '../util';
 import { CertificateSigningRequest, DistinguishedName } from './certificate-signing-request';
+import { hashFileOrDirectory } from '../util';
 
 
 export interface RsaPrivateKeySecretProps {

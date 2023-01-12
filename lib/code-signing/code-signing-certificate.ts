@@ -6,10 +6,10 @@ import {
   aws_ssm as ssm,
 } from 'aws-cdk-lib';
 import { Construct, IConstruct } from 'constructs';
-import { ICredentialPair } from '../credential-pair';
-import * as permissions from '../permissions';
 import { DistinguishedName } from './certificate-signing-request';
 import { RsaPrivateKeySecret } from './private-key';
+import { ICredentialPair } from '../credential-pair';
+import * as permissions from '../permissions';
 
 
 export { DistinguishedName } from './certificate-signing-request';

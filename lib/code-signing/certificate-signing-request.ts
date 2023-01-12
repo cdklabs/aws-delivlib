@@ -7,8 +7,8 @@ import {
   RemovalPolicy,
 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import { hashFileOrDirectory } from '../util';
 import { RsaPrivateKeySecret } from './private-key';
+import { hashFileOrDirectory } from '../util';
 
 
 export interface CertificateSigningRequestProps {
