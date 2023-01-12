@@ -1,6 +1,6 @@
 import { Construct } from 'constructs';
-import { WritableGitHubRepo } from '../repo';
 import { AutoPullRequest, AutoPullRequestOptions } from './pr';
+import { WritableGitHubRepo } from '../repo';
 
 /**
  * Properties for configuring the head branch of the bump PR.

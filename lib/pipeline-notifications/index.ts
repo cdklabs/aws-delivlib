@@ -1,6 +1,6 @@
-import { IPipelineNotification } from '../pipeline';
 import { ChimeNotification, ChimeNotificationProps } from './chime';
 import { SlackNotification, SlackNotificationProps } from './slack';
+import { IPipelineNotification } from '../pipeline';
 
 export class PipelineNotification {
   public static slack(props: SlackNotificationProps): IPipelineNotification {
