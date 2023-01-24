@@ -288,7 +288,7 @@ scripts are packaged as part of your delivlib CDK app.
 
 ```ts
 delivlib.addTest('MyTest', {
-  platform: delivlib.ShellPlatform.LinuxUbuntu(), // or `ShellPlatform.Windows()`
+  platform: delivlib.ShellPlatform.LinuxUbuntu, // or `ShellPlatform.Windows`
   scriptDirectory: 'path/to/local/directory/with/tests',
   entrypoint: 'run.sh',
 });
