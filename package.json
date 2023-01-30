@@ -67,7 +67,7 @@
     "minipass": "3.2.1",
     "node-ical": "0.15.1",
     "npm-check-updates": "^16",
-    "projen": "^0.67.20",
+    "projen": "^0.67.21",
     "rrule": "^2.7.1",
     "standard-version": "^9",
     "tar": "^6.1.13",
