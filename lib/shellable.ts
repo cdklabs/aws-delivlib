@@ -265,6 +265,7 @@ export class Shellable extends Construct {
     }
 
     this.buildSpec = BuildSpec.simple({
+      install: this.platform.installCommands(),
       preBuild: this.platform.prebuildCommands(props.assumeRole, props.useRegionalStsEndpoints),
       build: this.platform.buildCommands(props.entrypoint),
     }).merge(props.buildSpec || BuildSpec.empty());
@@ -387,6 +388,11 @@ export abstract class ShellPlatform {
   }
 
   /**
+   * Retrn commands to prepare the host for the shellable.
+   */
+  public abstract installCommands(): string[] | undefined;
+
+  /**
    * Return commands to download the script bundle
    */
   public abstract prebuildCommands(assumeRole?: AssumeRole, useRegionalStsEndpoints?: boolean): string[];
@@ -407,6 +413,10 @@ export abstract class ShellPlatform {
  */
 export class LinuxPlatform extends ShellPlatform {
   public readonly platformType = PlatformType.Linux;
+
+  public installCommands(): string[] | undefined {
+    return undefined;
+  }
 
   public prebuildCommands(assumeRole?: AssumeRole, useRegionalStsEndpoints?: boolean): string[] {
     const lines = new Array<string>();
@@ -475,6 +485,14 @@ export class LinuxPlatform extends ShellPlatform {
  */
 export class WindowsPlatform extends ShellPlatform {
   public readonly platformType = PlatformType.Windows;
+
+  public installCommands(): string[] | undefined {
+    return [
+      // Update the image's nodejs to the latest LTS release.
+      'Import-Module "C:\\ProgramData\\chocolatey\\helpers\\chocolateyProfile.psm1"',
+      'C:\\ProgramData\\chocolatey\\bin\\choco.exe upgrade nodejs-lts -y',
+    ];
+  }
 
   public prebuildCommands(assumeRole?: AssumeRole, _useRegionalStsEndpoints?: boolean): string[] {
     if (assumeRole) {
