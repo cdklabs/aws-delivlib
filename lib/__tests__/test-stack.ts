@@ -5,6 +5,7 @@ import {
   aws_iam as iam,
   aws_kms as kms,
 } from 'aws-cdk-lib';
+import { LinuxBuildImage } from 'aws-cdk-lib/aws-codebuild';
 import * as delivlib from '../../lib';
 
 
@@ -38,6 +39,7 @@ export class TestStack extends Stack {
         DELIVLIB_ENV_TEST: 'MAGIC_1924',
       },
       dryRun: true,
+      buildImage: LinuxBuildImage.fromDockerRegistry('public.ecr.aws/s9s5g8n5/superchain:1-buster-slim-node18'),
     });
 
     //
