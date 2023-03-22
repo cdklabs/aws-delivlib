@@ -1,4 +1,3 @@
-import { LinuxBuildImage } from 'aws-cdk-lib/aws-codebuild';
 import * as path from 'path';
 import {
   App, Stack, StackProps,
@@ -6,6 +5,7 @@ import {
   aws_iam as iam,
   aws_kms as kms,
 } from 'aws-cdk-lib';
+import { LinuxBuildImage } from 'aws-cdk-lib/aws-codebuild';
 import * as delivlib from '../../lib';
 
 
