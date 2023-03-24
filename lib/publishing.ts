@@ -255,13 +255,7 @@ export class PublishToNuGetProject extends Construct implements IPublisher {
     if (props.codeSign) {
       environment.CODE_SIGNING_SECRET_ID = props.codeSign.credential.secretArn;
       environment.CODE_SIGNING_PARAMETER_NAME = props.codeSign.principal.parameterName;
-
-      if (props.codeSign.certificateBucket) {
-        shellable.role.addToPrincipalPolicy(new iam.PolicyStatement({
-          actions: ['s3:GetObject'],
-          resources: [`${props.codeSign.certificateBucket.bucketArn}/*`],
-        }));
-      }
+      props.codeSign.certificateBucket?.grantRead(shellable.role);
     }
 
     if (shellable.role) {
