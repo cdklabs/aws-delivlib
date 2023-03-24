@@ -1043,7 +1043,7 @@ Resources:
           - Name: DELIVLIB_ENV_TEST
             Type: PLAINTEXT
             Value: MAGIC_1924
-        Image: jsii/superchain:1-buster-slim
+        Image: public.ecr.aws/s9s5g8n5/superchain:1-buster-slim-node18
         ImagePullCredentialsType: SERVICE_ROLE
         PrivilegedMode: false
         Type: LINUX_CONTAINER
@@ -1605,6 +1605,12 @@ Resources:
           {
             "version": "0.2",
             "phases": {
+              "install": {
+                "commands": [
+                  "Import-Module \"C:\\ProgramData\\chocolatey\\helpers\\chocolateyProfile.psm1\"",
+                  "C:\\ProgramData\\chocolatey\\bin\\choco.exe upgrade nodejs-lts -y"
+                ]
+              },
               "pre_build": {
                 "commands": []
               },
@@ -2612,6 +2618,15 @@ Resources:
                   - - "arn:"
                     - Ref: AWS::Partition
                     - :s3:::cdk-hnb659fds-assets-712950704752-us-east-1/*
+          - Action: s3:GetObject
+            Effect: Allow
+            Resource:
+              Fn::Join:
+                - ""
+                - - Fn::GetAtt:
+                      - X509CodeSigningKeyRSAPrivateKeyCertificateSigningRequestBucketD81FB261
+                      - Arn
+                  - /*
           - Action:
               - secretsmanager:ListSecrets
               - secretsmanager:DescribeSecret
@@ -2688,7 +2703,7 @@ Resources:
             Value: cdk-hnb659fds-assets-712950704752-us-east-1
           - Name: SCRIPT_S3_KEY
             Type: PLAINTEXT
-            Value: b331bddd4fcb3d1d466ddd4c30728608b3a013016e6ed325e4b11d73b7b8cf57.zip
+            Value: 66a63786c570ced320dd48c3922fc8e5fd9c9393e5959b984f3c7e1cb7ac5f14.zip
           - Name: FOR_REAL
             Type: PLAINTEXT
             Value: "false"
@@ -2698,16 +2713,6 @@ Resources:
           - Name: NUGET_SECRET_ID
             Type: PLAINTEXT
             Value: arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/nuget-jDbgrN
-          - Name: CODE_SIGNING_SECRET_ID
-            Type: PLAINTEXT
-            Value:
-              Fn::GetAtt:
-                - X509CodeSigningKeyRSAPrivateKeyE5980A70
-                - SecretArn
-          - Name: CODE_SIGNING_PARAMETER_NAME
-            Type: PLAINTEXT
-            Value:
-              Ref: X509CodeSigningKey8DE65BF8
         Image: jsii/superchain:1-buster-slim
         ImagePullCredentialsType: SERVICE_ROLE
         PrivilegedMode: false
@@ -3150,7 +3155,7 @@ Resources:
             Value: cdk-hnb659fds-assets-712950704752-us-east-1
           - Name: SCRIPT_S3_KEY
             Type: PLAINTEXT
-            Value: 14932d7dceb369225616f9aadecfd9a73d45967aef95fa07a823e587670628e1.zip
+            Value: 77c01be30057eccc49cd418417db0a116759fa5a6c1705ae32c97901d228c8ca.zip
           - Name: BUILD_MANIFEST
             Type: PLAINTEXT
             Value: ./build.json
@@ -4096,7 +4101,7 @@ Resources:
         Type: NO_ARTIFACTS
       Environment:
         ComputeType: BUILD_GENERAL1_SMALL
-        Image: jsii/superchain:1-buster-slim
+        Image: public.ecr.aws/s9s5g8n5/superchain:1-buster-slim-node18
         ImagePullCredentialsType: SERVICE_ROLE
         PrivilegedMode: false
         Type: LINUX_CONTAINER
@@ -4247,7 +4252,7 @@ Resources:
     Properties:
       Code:
         S3Bucket: cdk-hnb659fds-assets-712950704752-us-east-1
-        S3Key: b8c24173126feec0cd13254cf2396e6dfa10dfa377178102b06a3a7582044616.zip
+        S3Key: 96398aae0b5918cde6e86a7c00ecfb4e4ac990db8d0fc8112703a48e9565bd1d.zip
       Role:
         Fn::GetAtt:
           - CodeCommitPipelineChangeControllerFunctionServiceRoleF02841DB
