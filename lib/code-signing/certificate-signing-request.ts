@@ -53,6 +53,11 @@ export class CertificateSigningRequest extends Construct {
    */
   public readonly selfSignedPemCertificate: string;
 
+  /**
+   * The S3 bucket where the self-signed certificate is stored.
+   */
+  public readonly outputBucket: s3.IBucket;
+
   constructor(parent: Construct, id: string, props: CertificateSigningRequestProps) {
     super(parent, id);
 
@@ -79,6 +84,7 @@ export class CertificateSigningRequest extends Construct {
       enforceSSL: true,
     });
     outputBucket.grantReadWrite(customResource);
+    this.outputBucket = outputBucket;
 
     const csr = new CustomResource(this, 'Resource', {
       serviceToken: customResource.functionArn,

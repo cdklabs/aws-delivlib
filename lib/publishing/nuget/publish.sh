@@ -39,7 +39,8 @@ if [ -n "${CODE_SIGNING_SECRET_ID:-}" ]; then
     # Prepare the PEM encoded certificate for sign.sh to use
     echo "Reading certificate from SSM parameter: ${CODE_SIGNING_PARAMETER_NAME}"
     signcode_spc="${cert}/certificate.spc"
-    aws ssm get-parameter --name "${CODE_SIGNING_PARAMETER_NAME}" | jq -r '.Parameter.Value' > "${signcode_spc}.pem"
+    CERTIFICATE_LOCATION=$(aws ssm get-parameter --name "/delivlib-test/X509CodeSigningKey/Certificate" | jq -r '.Parameter.Value')
+    aws s3 cp "${CERTIFICATE_LOCATION}" "${signcode_spc}.pem"
     openssl crl2pkcs7 -nocrl -certfile "${signcode_spc}.pem" -outform DER -out "${signcode_spc}"
     echo "Successfully converted certificate from PEM to DER (.spc)"
 

@@ -2,11 +2,12 @@ import {
   CfnOutput, RemovalPolicy, Stack,
   aws_iam as iam,
   aws_kms as kms,
+  aws_s3 as s3,
   aws_secretsmanager as secretsManager,
   aws_ssm as ssm,
 } from 'aws-cdk-lib';
 import { Construct, IConstruct } from 'constructs';
-import { DistinguishedName } from './certificate-signing-request';
+import { CertificateSigningRequest, DistinguishedName } from './certificate-signing-request';
 import { RsaPrivateKeySecret } from './private-key';
 import { ICredentialPair } from '../credential-pair';
 import * as permissions from '../permissions';
@@ -70,6 +71,11 @@ interface CodeSigningCertificateProps {
 
 export interface ICodeSigningCertificate extends IConstruct, ICredentialPair {
   /**
+   * The S3 bucket where the self-signed certificate is stored.
+   */
+  readonly certificateBucket?: s3.IBucket;
+
+  /**
    * Grant the IAM principal permissions to read the private key and
    * certificate.
    */
@@ -102,6 +108,11 @@ export class CodeSigningCertificate extends Construct implements ICodeSigningCer
    */
   public readonly principal: ssm.IStringParameter;
 
+  /**
+   * The S3 bucket where the self-signed certificate is stored.
+   */
+  public readonly certificateBucket?: s3.IBucket;
+
   constructor(parent: Construct, id: string, props: CodeSigningCertificateProps) {
     super(parent, id);
 
@@ -125,10 +136,12 @@ export class CodeSigningCertificate extends Construct implements ICodeSigningCer
     let certificate = props.pemCertificate;
 
     if (!certificate || props.forceCertificateSigningRequest) {
-      const csr = privateKey.newCertificateSigningRequest('CertificateSigningRequest',
+      const csr: CertificateSigningRequest = privateKey.newCertificateSigningRequest('CertificateSigningRequest',
         props.distinguishedName,
         'critical,digitalSignature',
         'critical,codeSigning');
+
+      this.certificateBucket = csr.outputBucket;
 
       new CfnOutput(this, 'CSR', {
         description: 'A PEM-encoded Certificate Signing Request for a Code-Signing Certificate',

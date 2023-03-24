@@ -245,17 +245,18 @@ export class PublishToNuGetProject extends Construct implements IPublisher {
 
     environment.NUGET_SECRET_ID = props.nugetApiKeySecret.secretArn;
 
-    if (props.codeSign) {
-      environment.CODE_SIGNING_SECRET_ID = props.codeSign.credential.secretArn;
-      environment.CODE_SIGNING_PARAMETER_NAME = props.codeSign.principal.parameterName;
-    }
-
     const shellable = new Shellable(this, 'Default', {
       platform: new LinuxPlatform(props.buildImage ?? cbuild.LinuxBuildImage.fromDockerRegistry('jsii/superchain:1-buster-slim')),
       scriptDirectory: path.join(__dirname, 'publishing', 'nuget'),
       entrypoint: 'publish.sh',
       environment,
     });
+
+    if (props.codeSign) {
+      environment.CODE_SIGNING_SECRET_ID = props.codeSign.credential.secretArn;
+      environment.CODE_SIGNING_PARAMETER_NAME = props.codeSign.principal.parameterName;
+      props.codeSign.certificateBucket?.grantRead(shellable.role);
+    }
 
     if (shellable.role) {
       if (props.nugetApiKeySecret.assumeRoleArn) {
