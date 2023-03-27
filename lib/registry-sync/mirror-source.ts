@@ -65,8 +65,23 @@ export abstract class MirrorSource {
    *
    * @param image e.g jsii/superchain
    * @param tag optional, defaults to 'latest'
+   *
+   * @deprecated This method's name inaccurately expresses that the image comes
+   * from DockerHub, when any publicly-accessible repository can be used. Prefer
+   * using `fromImageName(string, string?)` instead, which is more aptly named.
    */
   public static fromDockerHub(image: string, tag: string = 'latest'): MirrorSource {
+    return this.fromPublicImage(image, tag);
+  }
+
+  /**
+   * Configure an image from DockerHub or a repository-qualified image name.
+   *
+   * @param image e.g public.ecr.aws/jsii/superchain
+   * @param tag optional, defaults to 'latest'
+   * @param ecrRepositoryName the name of the ECR Repository to use (e.g: jsii/superchain)
+   */
+  public static fromPublicImage(image: string, tag: string = 'latest', ecrRepositoryName: string = image.includes('/') ? image : `library/${image}`): MirrorSource {
     class DockerHubMirrorSource extends MirrorSource {
       constructor() {
         if (image.includes(':')) {
@@ -74,17 +89,17 @@ export abstract class MirrorSource {
         }
         // simulates DockerHub by perfixing library/ to official images
         const repositoryName = image.includes('/') ? image : `library/${image}`;
-        super(repositoryName, tag, undefined);
+        super(repositoryName, tag, undefined, ecrRepositoryName);
       }
 
-      public bind(options: MirrorSourceBindOptions) {
-        const ecrImageUri = `${options.ecrRegistry}/${this.repositoryName}:${this.tag}`;
+      public bind(options: MirrorSourceBindOptions): MirrorSourceConfig {
+        const ecrImageUri = `${options.ecrRegistry}/${this.ecrRepositoryName}:${this.tag}`;
         return {
           commands: [
             `docker pull ${this.repositoryName}:${this.tag}`,
             `docker tag ${this.repositoryName}:${this.tag} ${ecrImageUri}`,
           ],
-          repositoryName: this.repositoryName,
+          repositoryName: this.ecrRepositoryName,
           tag: this.tag,
         };
       }
@@ -114,12 +129,12 @@ export abstract class MirrorSource {
         super(repositoryName, opts.tag ?? 'latest', directory);
       }
 
-      public bind(options: MirrorSourceBindOptions) {
+      public bind(options: MirrorSourceBindOptions): MirrorSourceConfig {
         const asset = new s3Assets.Asset(options.scope, `BuildContext${this.directory}${JSON.stringify(opts.buildArgs ?? {})}`, { path: this.directory! });
         if (options.syncJob) {
           asset.grantRead(options.syncJob);
         }
-        const ecrImageUri = `${options.ecrRegistry}/${this.repositoryName}:${this.tag}`;
+        const ecrImageUri = `${options.ecrRegistry}/${this.ecrRepositoryName}:${this.tag}`;
         const cmdFlags = [];
         cmdFlags.push('--pull');
         cmdFlags.push('-t', ecrImageUri);
@@ -138,7 +153,7 @@ export abstract class MirrorSource {
             `unzip ${zipFile} -d ${tmpDir}`,
             `docker build ${cmdFlags.join(' ')} ${tmpDir}`,
           ],
-          repositoryName: this.repositoryName,
+          repositoryName: this.ecrRepositoryName,
           tag: this.tag,
         };
       }
@@ -146,7 +161,12 @@ export abstract class MirrorSource {
     return new DirectoryMirrorSource();
   }
 
-  private constructor(protected readonly repositoryName: string, protected readonly tag: string, protected readonly directory?: string) {
+  private constructor(
+    protected readonly repositoryName: string,
+    protected readonly tag: string,
+    protected readonly directory?: string,
+    protected readonly ecrRepositoryName = repositoryName,
+  ) {
   }
 
   /**

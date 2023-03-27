@@ -6,8 +6,8 @@ import {
 import { Template, Match } from 'aws-cdk-lib/assertions';
 import { MirrorSource } from '../../../lib/registry-sync';
 
-describe('RegistryImageSource', () => {
-  describe('fromDockerHub()', () => {
+describe(MirrorSource, () => {
+  describe(MirrorSource.fromDockerHub, () => {
     test('default', () => {
       // GIVEN
       const stack = new Stack();
@@ -75,7 +75,96 @@ describe('RegistryImageSource', () => {
     });
   });
 
-  describe('fromDirectory()', () => {
+  describe(MirrorSource.fromPublicImage, () => {
+    test('default', () => {
+      // GIVEN
+      const stack = new Stack();
+      const ecrRegistry = 'myregistry';
+      const source = MirrorSource.fromPublicImage('jsii/superchain');
+
+      // WHEN
+      const result = source.bind({
+        scope: stack,
+        ecrRegistry,
+      });
+
+      // THEN
+      expect(result.repositoryName).toEqual('jsii/superchain');
+      expect(result.tag).toEqual('latest');
+      expect(result.commands).toEqual([
+        'docker pull jsii/superchain:latest',
+        'docker tag jsii/superchain:latest myregistry/jsii/superchain:latest',
+      ]);
+    });
+
+    test('ECR Public image with custom output repository name', () => {
+      // GIVEN
+      const stack = new Stack();
+      const ecrRegistry = 'myregistry';
+      const source = MirrorSource.fromPublicImage('public.ecr.aws/jsii/superchain', '1-buster-slim', 'jsii/superchain');
+
+      // WHEN
+      const result = source.bind({
+        scope: stack,
+        ecrRegistry,
+      });
+
+      // THEN
+      expect(result.repositoryName).toEqual('jsii/superchain');
+      expect(result.tag).toEqual('1-buster-slim');
+      expect(result.commands).toEqual([
+        'docker pull public.ecr.aws/jsii/superchain:1-buster-slim',
+        'docker tag public.ecr.aws/jsii/superchain:1-buster-slim myregistry/jsii/superchain:1-buster-slim',
+      ]);
+    });
+
+    test('explicit tag', () => {
+      // GIVEN
+      const stack = new Stack();
+      const ecrRegistry = 'myregistry';
+      const source = MirrorSource.fromPublicImage('jsii/superchain', 'mytag');
+
+      // WHEN
+      const result = source.bind({
+        scope: stack,
+        ecrRegistry,
+      });
+
+      // THEN
+      expect(result.repositoryName).toEqual('jsii/superchain');
+      expect(result.tag).toEqual('mytag');
+      expect(result.commands).toEqual([
+        'docker pull jsii/superchain:mytag',
+        'docker tag jsii/superchain:mytag myregistry/jsii/superchain:mytag',
+      ]);
+    });
+
+    test('official image', () => {
+      // GIVEN
+      const stack = new Stack();
+      const ecrRegistry = 'myregistry';
+      const source = MirrorSource.fromPublicImage('superchain');
+
+      // WHEN
+      const result = source.bind({
+        scope: stack,
+        ecrRegistry,
+      });
+
+      // THEN
+      expect(result.repositoryName).toEqual('library/superchain');
+      expect(result.commands).toEqual([
+        'docker pull library/superchain:latest',
+        'docker tag library/superchain:latest myregistry/library/superchain:latest',
+      ]);
+    });
+
+    test('fails if image includes tag', () => {
+      expect(() => MirrorSource.fromPublicImage('superchain:latest')).toThrow(/image must not include tag/);
+    });
+  });
+
+  describe(MirrorSource.fromDir, () => {
     test('default', () => {
       // GIVEN
       const app = new App();
