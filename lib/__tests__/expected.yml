@@ -1043,7 +1043,7 @@ Resources:
           - Name: DELIVLIB_ENV_TEST
             Type: PLAINTEXT
             Value: MAGIC_1924
-        Image: public.ecr.aws/s9s5g8n5/superchain:1-buster-slim-node18
+        Image: public.ecr.aws/jsii/superchain:1-buster-slim-node18
         ImagePullCredentialsType: SERVICE_ROLE
         PrivilegedMode: false
         Type: LINUX_CONTAINER
@@ -2618,15 +2618,21 @@ Resources:
                   - - "arn:"
                     - Ref: AWS::Partition
                     - :s3:::cdk-hnb659fds-assets-712950704752-us-east-1/*
-          - Action: s3:GetObject
+          - Action:
+              - s3:GetObject*
+              - s3:GetBucket*
+              - s3:List*
             Effect: Allow
             Resource:
-              Fn::Join:
-                - ""
-                - - Fn::GetAtt:
-                      - X509CodeSigningKeyRSAPrivateKeyCertificateSigningRequestBucketD81FB261
-                      - Arn
-                  - /*
+              - Fn::GetAtt:
+                  - X509CodeSigningKeyRSAPrivateKeyCertificateSigningRequestBucketD81FB261
+                  - Arn
+              - Fn::Join:
+                  - ""
+                  - - Fn::GetAtt:
+                        - X509CodeSigningKeyRSAPrivateKeyCertificateSigningRequestBucketD81FB261
+                        - Arn
+                    - /*
           - Action:
               - secretsmanager:ListSecrets
               - secretsmanager:DescribeSecret
@@ -3155,7 +3161,7 @@ Resources:
             Value: cdk-hnb659fds-assets-712950704752-us-east-1
           - Name: SCRIPT_S3_KEY
             Type: PLAINTEXT
-            Value: 77c01be30057eccc49cd418417db0a116759fa5a6c1705ae32c97901d228c8ca.zip
+            Value: e449ed654aa21e23a39b20237b24d1e7ee76956d00a908005ed695aea81397b1.zip
           - Name: BUILD_MANIFEST
             Type: PLAINTEXT
             Value: ./build.json
@@ -4101,7 +4107,7 @@ Resources:
         Type: NO_ARTIFACTS
       Environment:
         ComputeType: BUILD_GENERAL1_SMALL
-        Image: public.ecr.aws/s9s5g8n5/superchain:1-buster-slim-node18
+        Image: public.ecr.aws/jsii/superchain:1-buster-slim-node18
         ImagePullCredentialsType: SERVICE_ROLE
         PrivilegedMode: false
         Type: LINUX_CONTAINER
