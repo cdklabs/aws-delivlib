@@ -79,27 +79,32 @@ END:VEVENT
 END:VCALENDAR
 `;
 
-test('non blocked time before all events', () => {
+// The tests below can only run if TZ=UTC due to an issue in `node-ical`.
+const test_ = new Date().getTimezoneOffset() !== 0
+  ? test.skip
+  : test;
+
+test_('non blocked time before all events', () => {
   const x = shouldBlockPipeline(ics, new Date('2019-02-03T07:00:00.000Z'), 300);
   expect(x).toBeUndefined();
 });
 
-test('non blocked time in between events', () => {
+test_('non blocked time in between events', () => {
   const x = shouldBlockPipeline(ics, new Date('2017-07-12T07:00:00.000Z'));
   expect(x).toBeUndefined();
 });
 
-test('left edge', () => {
+test_('left edge', () => {
   const x = shouldBlockPipeline(ics, new Date('2017-04-12T07:00:00.000Z'));
   expect(x && x.summary).toBe('Block1');
 });
 
-test('right edge', () => {
+test_('right edge', () => {
   const x = shouldBlockPipeline(ics, new Date('2017-11-27T08:00:00.000Z'));
   expect(x && x.summary).toBe('Block2');
 });
 
-test('a blocked window starts AND finishes within margin', () => {
+test_('a blocked window starts AND finishes within margin', () => {
   // Using 72 hours padding to widely overlap Block3
   const x = shouldBlockPipeline(ics, new Date('2019-02-03T07:00:00.000Z'), 72 * 3_600);
   expect(x && x.summary).toBe('Block3');
@@ -107,21 +112,21 @@ test('a blocked window starts AND finishes within margin', () => {
 
 // Test that the initial event in a recurring series blocks the pipeline when
 // the left edge aligns with the current time.
-test('current time aligns with the left edge of the first event in a series blocks pipeline', () => {
+test_('current time aligns with the left edge of the first event in a series blocks pipeline', () => {
   const x = shouldBlockPipeline(recurringIcs, new Date('2020-05-01T22:00:00.000Z'));
   expect(x && x.summary).toBe('RecurringBlock1');
 });
 
 // Test that a future event in a recurring series blocks the pipeline when
 // the left edge aligns with the current time.
-test('current time aligns with the left edge of future event in a series blocks pipeline', () => {
+test_('current time aligns with the left edge of future event in a series blocks pipeline', () => {
   const x = shouldBlockPipeline(recurringIcs, new Date('2020-05-22T22:00:00.000Z'));
   expect(x && x.summary).toBe('RecurringBlock1');
 });
 
 // Test that the initial event in a recurring series blocks the pipeline when
 // the right edge aligns with the current time.
-test('current time aligns with the right edge of the first occurrence blocks pipeline', () => {
+test_('current time aligns with the right edge of the first occurrence blocks pipeline', () => {
   const x = shouldBlockPipeline(recurringIcs, new Date('2020-05-06T04:00:00.000Z'));
   expect(x && x.summary).toBe('RecurringBlock2');
 });
@@ -129,13 +134,13 @@ test('current time aligns with the right edge of the first occurrence blocks pip
 
 // Test that a future event in a recurring series blocks the pipeline when
 // the right edge aligns with the current time.
-test('current time aligns with the right edge of future event in series blocks pipeline', () => {
+test_('current time aligns with the right edge of future event in series blocks pipeline', () => {
   const x = shouldBlockPipeline(recurringIcs, new Date('2020-05-27T04:00:00.000Z'));
   expect(x && x.summary).toBe('RecurringBlock2');
 });
 
 // Test that we do not block between events in a recurring series.
-test('current time is between future events in recurring series does not block pipeline', () => {
+test_('current time is between future events in recurring series does not block pipeline', () => {
   const x = shouldBlockPipeline(recurringIcs, new Date('2020-05-14T00:00:00.000Z'));
   expect(x).toBeUndefined();
 });

@@ -36,7 +36,7 @@ describe('EcrMirror', () => {
             Value: '123aass:password-key:AWSCURRENT',
           },
         ],
-        Image: 'jsii/superchain:1-buster-slim',
+        Image: 'public.ecr.aws/jsii/superchain:1-buster-slim',
         RegistryCredential: {
           Credential: '123aass',
           CredentialProvider: 'SECRETS_MANAGER',
@@ -55,7 +55,7 @@ describe('EcrMirror', () => {
               {
                 Ref: 'AWS::Region',
               },
-              '.amazonaws.com",\n        "docker pull library/docker-image:latest",\n        "docker tag library/docker-image:latest ',
+              '.amazonaws.com",\n        "aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws",\n        "docker pull library/docker-image:latest",\n        "docker tag library/docker-image:latest ',
               {
                 Ref: 'AWS::AccountId',
               },
