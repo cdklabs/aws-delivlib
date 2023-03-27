@@ -206,15 +206,15 @@ export class EcrMirror extends Construct {
     }
   }
 
-  private createMirrorRepo(repositoryName: string) {
-    if (this._repos.get(repositoryName)) {
+  private createMirrorRepo(ecrRepositoryName: string) {
+    if (this._repos.get(ecrRepositoryName)) {
       return;
     }
 
-    const repository = new ecr.Repository(this, `Repo${repositoryName}`, {
-      repositoryName: repositoryName,
+    const repository = new ecr.Repository(this, `Repo${ecrRepositoryName}`, {
+      repositoryName: ecrRepositoryName,
     });
-    this._repos.set(repositoryName, repository);
+    this._repos.set(ecrRepositoryName, repository);
   }
 
   /**
