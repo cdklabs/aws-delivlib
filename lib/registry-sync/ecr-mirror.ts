@@ -4,6 +4,7 @@ import {
   aws_codebuild as codebuild,
   aws_events as events,
   aws_events_targets as targets,
+  aws_iam as iam,
   aws_s3_assets as s3Assets,
   aws_secretsmanager as sm,
   custom_resources as cr,
@@ -102,7 +103,7 @@ export class EcrMirror extends Construct {
     this._project = new codebuild.Project(this, 'EcrPushImages', {
       environment: {
         privileged: true,
-        buildImage: codebuild.LinuxBuildImage.fromDockerRegistry('jsii/superchain:1-buster-slim', {
+        buildImage: codebuild.LinuxBuildImage.fromDockerRegistry('public.ecr.aws/jsii/superchain:1-buster-slim', {
           secretsManagerCredentials: props.dockerHubCredentials.secret,
         }),
       },
@@ -129,6 +130,9 @@ export class EcrMirror extends Construct {
                   // login to ecr so we can push to it
                   `aws ecr get-login-password | docker login --username AWS --password-stdin ${ecrRegistry}`,
 
+                  // login to ecr-public so we can pull from it with improved rate limits
+                  'aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws',
+
                   ...commands,
                 ],
               },
@@ -138,6 +142,9 @@ export class EcrMirror extends Construct {
       })),
       ssmSessionPermissions: true,
     });
+
+    // Ensure the runner has PULL access to ECR-Public.
+    this._project.role!.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonElasticContainerRegistryPublicReadOnly'));
 
     for (const image of props.sources) {
       const result = image.bind({

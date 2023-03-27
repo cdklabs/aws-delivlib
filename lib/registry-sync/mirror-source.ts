@@ -65,8 +65,22 @@ export abstract class MirrorSource {
    *
    * @param image e.g jsii/superchain
    * @param tag optional, defaults to 'latest'
+   *
+   * @deprecated This method's name inaccurately expresses that the image comes
+   * from DockerHub, when any publicly-accessible repository can be used. Prefer
+   * using `fromImageName(string, string?)` instead, which is more aptly named.
    */
   public static fromDockerHub(image: string, tag: string = 'latest'): MirrorSource {
+    return this.fromImageName(image, tag);
+  }
+
+  /**
+   * Configure an image from DockerHub or a repository-qualified image name.
+   *
+   * @param image e.g public.ecr.aws/jsii/superchain
+   * @param tag optional, defaults to 'latest'
+   */
+  public static fromImageName(image: string, tag: string = 'latest'): MirrorSource {
     class DockerHubMirrorSource extends MirrorSource {
       constructor() {
         if (image.includes(':')) {
