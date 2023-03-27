@@ -71,7 +71,7 @@ export abstract class MirrorSource {
    * using `fromImageName(string, string?)` instead, which is more aptly named.
    */
   public static fromDockerHub(image: string, tag: string = 'latest'): MirrorSource {
-    return this.fromImageName(image, tag);
+    return this.fromPublicImage(image, tag);
   }
 
   /**
@@ -81,7 +81,7 @@ export abstract class MirrorSource {
    * @param tag optional, defaults to 'latest'
    * @param ecrRepositoryName the name of the ECR Repository to use (e.g: jsii/superchain)
    */
-  public static fromImageName(image: string, tag: string = 'latest', ecrRepositoryName: string = image.includes('/') ? image : `library/${image}`): MirrorSource {
+  public static fromPublicImage(image: string, tag: string = 'latest', ecrRepositoryName: string = image.includes('/') ? image : `library/${image}`): MirrorSource {
     class DockerHubMirrorSource extends MirrorSource {
       constructor() {
         if (image.includes(':')) {

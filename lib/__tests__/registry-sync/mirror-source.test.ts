@@ -75,12 +75,12 @@ describe(MirrorSource, () => {
     });
   });
 
-  describe(MirrorSource.fromImageName, () => {
+  describe(MirrorSource.fromPublicImage, () => {
     test('default', () => {
       // GIVEN
       const stack = new Stack();
       const ecrRegistry = 'myregistry';
-      const source = MirrorSource.fromImageName('jsii/superchain');
+      const source = MirrorSource.fromPublicImage('jsii/superchain');
 
       // WHEN
       const result = source.bind({
@@ -101,7 +101,7 @@ describe(MirrorSource, () => {
       // GIVEN
       const stack = new Stack();
       const ecrRegistry = 'myregistry';
-      const source = MirrorSource.fromImageName('public.ecr.aws/jsii/superchain', '1-buster-slim', 'jsii/superchain');
+      const source = MirrorSource.fromPublicImage('public.ecr.aws/jsii/superchain', '1-buster-slim', 'jsii/superchain');
 
       // WHEN
       const result = source.bind({
@@ -122,7 +122,7 @@ describe(MirrorSource, () => {
       // GIVEN
       const stack = new Stack();
       const ecrRegistry = 'myregistry';
-      const source = MirrorSource.fromImageName('jsii/superchain', 'mytag');
+      const source = MirrorSource.fromPublicImage('jsii/superchain', 'mytag');
 
       // WHEN
       const result = source.bind({
@@ -143,7 +143,7 @@ describe(MirrorSource, () => {
       // GIVEN
       const stack = new Stack();
       const ecrRegistry = 'myregistry';
-      const source = MirrorSource.fromImageName('superchain');
+      const source = MirrorSource.fromPublicImage('superchain');
 
       // WHEN
       const result = source.bind({
@@ -160,7 +160,7 @@ describe(MirrorSource, () => {
     });
 
     test('fails if image includes tag', () => {
-      expect(() => MirrorSource.fromImageName('superchain:latest')).toThrow(/image must not include tag/);
+      expect(() => MirrorSource.fromPublicImage('superchain:latest')).toThrow(/image must not include tag/);
     });
   });
 
