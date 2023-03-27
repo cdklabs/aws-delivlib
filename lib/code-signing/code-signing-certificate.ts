@@ -180,5 +180,7 @@ export class CodeSigningCertificate extends Construct implements ICodeSigningCer
         resource: `parameter${this.principal.parameterName}`,
       })],
     }));
+
+    this.certificateBucket?.grantRead(principal);
   }
 }
