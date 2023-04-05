@@ -170,6 +170,15 @@ export interface ShellableProps extends ShellableOptions {
    * Filename of the initial script to start, relative to scriptDirectory.
    */
   entrypoint: string;
+
+  /**
+   * Additional arguments to pass to the entrypoint script.
+   *
+   * (NOTE: not named 'arguments' because that's a reserved identifier in JavaScript)
+   *
+   * @default No arguments
+   */
+  readonly args?: string[];
 }
 
 export interface AssumeRole {
@@ -432,7 +441,7 @@ export abstract class ShellPlatform {
   /**
    * Return commands to start the entrypoint script
    */
-  public abstract buildCommands(entrypoint: string): string[];
+  public abstract buildCommands(entrypoint: string, args?: string[]): string[];
 
   /**
    * Type of platform
@@ -503,11 +512,11 @@ export class LinuxPlatform extends ShellPlatform {
     return lines;
   }
 
-  public buildCommands(entrypoint: string): string[] {
+  public buildCommands(entrypoint: string, args?: string[]): string[] {
     return [
       'export SCRIPT_DIR=/tmp/scriptdir',
       `echo "Running ${entrypoint}"`,
-      `/bin/bash /tmp/scriptdir/${entrypoint}`,
+      `/bin/bash /tmp/scriptdir/${entrypoint} ${(args ?? []).join(' ')}`.trimRight(),
     ];
   }
 }
@@ -539,14 +548,14 @@ export class WindowsPlatform extends ShellPlatform {
     ];
   }
 
-  public buildCommands(entrypoint: string): string[] {
+  public buildCommands(entrypoint: string, args?: string[]): string[] {
     return [
       'Set-Variable -Name TEMPDIR -Value (New-TemporaryFile).DirectoryName',
       `aws s3 cp s3://$env:${S3_BUCKET_ENV}/$env:${S3_KEY_ENV} $TEMPDIR\\scripts.zip`,
       'New-Item -ItemType Directory -Path $TEMPDIR\\scriptdir',
       'Expand-Archive -Path $TEMPDIR/scripts.zip -DestinationPath $TEMPDIR\\scriptdir',
       '$env:SCRIPT_DIR = "$TEMPDIR\\scriptdir"',
-      `& $TEMPDIR\\scriptdir\\${entrypoint}`,
+      `& $TEMPDIR\\scriptdir\\${entrypoint} ${(args ?? []).join(' ')}`.trimRight(),
     ];
   }
 }
