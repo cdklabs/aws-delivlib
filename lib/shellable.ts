@@ -14,6 +14,10 @@ const S3_BUCKET_ENV = 'SCRIPT_S3_BUCKET';
 const S3_KEY_ENV = 'SCRIPT_S3_KEY';
 
 export interface ShellableOptions {
+  /**
+   * Description for the CodeBuild Project
+   */
+  readonly description?: string;
 
   /**
    * Source for the CodeBuild project
@@ -128,6 +132,27 @@ export interface ShellableOptions {
   alarmEvaluationPeriods?: number;
 
   secondaryArtifactNames?: string[];
+
+  /**
+   * Clarify whether this Shellable produces any artifacts
+   *
+   * @default true
+   */
+  readonly producesArtifacts?: boolean;
+
+  /**
+   * Namespace to use when adding as an action to the pipeline
+   *
+   * @default No namespace
+   */
+  readonly actionNamespace?: string;
+
+  /**
+   * Additional environment variables to set from the pipeline action
+   *
+   * @default No environment variables
+   */
+  readonly pipelineEnvironmentVars?: Record<string, string>;
 }
 
 /**
@@ -243,9 +268,9 @@ export class Shellable extends Construct {
   private readonly platform: ShellPlatform;
   private readonly buildSpec: BuildSpec;
 
-  private readonly outputArtifactName: string;
+  private readonly outputArtifactName?: string;
 
-  constructor(parent: Construct, id: string, props: ShellableProps) {
+  constructor(parent: Construct, id: string, private readonly props: ShellableProps) {
     super(parent, id);
 
     this.platform = props.platform || ShellPlatform.LinuxUbuntu;
@@ -259,8 +284,8 @@ export class Shellable extends Construct {
       path: props.scriptDirectory,
     });
 
-    this.outputArtifactName = `Artifact_${this.node.addr}`;
-    if (this.outputArtifactName.length > 100) {
+    this.outputArtifactName = (props.producesArtifacts ?? true) ? `Artifact_${this.node.addr}` : undefined;
+    if (this.outputArtifactName && this.outputArtifactName.length > 100) {
       throw new Error(`Whoops, too long: ${this.outputArtifactName}`);
     }
 
@@ -274,6 +299,7 @@ export class Shellable extends Construct {
 
     this.project = new cbuild.Project(this, 'Resource', {
       projectName: props.buildProjectName,
+      description: props.description,
       source: props.source,
       environment: {
         buildImage: this.platform.buildImage,
@@ -330,8 +356,14 @@ export class Shellable extends Construct {
       project: this.project,
       runOrder,
       input: inputArtifact,
-      outputs: [new cpipeline.Artifact(this.outputArtifactName)].concat(
-        this.buildSpec.additionalArtifactNames.map(artifactName => new cpipeline.Artifact(artifactName))),
+      variablesNamespace: this.props.actionNamespace,
+      environmentVariables: this.props.pipelineEnvironmentVars
+        ? Object.fromEntries(Object.entries(this.props.pipelineEnvironmentVars)
+          .map(([k, v]) => ([k, { type: cbuild.BuildEnvironmentVariableType.PLAINTEXT, value: v }] as const)))
+        : undefined,
+      outputs: this.outputArtifactName
+        ? [this.outputArtifactName, ...this.buildSpec.additionalArtifactNames ?? []].map(n => new cpipeline.Artifact(n))
+        : undefined,
     });
     stage.addAction(codeBuildAction);
     return codeBuildAction;
