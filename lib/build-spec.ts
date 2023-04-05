@@ -191,6 +191,7 @@ export interface BuildSpecStruct {
 export interface EnvStruct {
   variables?: {[key: string]: string};
   'parameter-store'?: {[key: string]: string};
+  'exported-variables'?: string[];
 }
 
 export interface PhaseStruct {
