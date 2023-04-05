@@ -162,7 +162,7 @@ export class PublishToNpmProject extends Construct implements IPublisher {
     const access = props.access ?? NpmAccess.PUBLIC;
 
     const shellable = new Shellable(this, 'Default', {
-      platform: new LinuxPlatform(cbuild.LinuxBuildImage.STANDARD_5_0),
+      platform: new LinuxPlatform(cbuild.LinuxBuildImage.STANDARD_6_0),
       scriptDirectory: path.join(__dirname, 'publishing', 'npm'),
       entrypoint: 'publish.sh',
       environment: {
@@ -322,7 +322,7 @@ export class PublishDocsToGitHubProject extends Construct implements IPublisher 
     const forReal = props.dryRun === undefined ? 'false' : (!props.dryRun).toString();
 
     const shellable = new Shellable(this, 'Default', {
-      platform: new LinuxPlatform(cbuild.LinuxBuildImage.STANDARD_5_0),
+      platform: new LinuxPlatform(cbuild.LinuxBuildImage.STANDARD_6_0),
       scriptDirectory: path.join(__dirname, 'publishing', 'docs'),
       entrypoint: 'publish.sh',
       environment: {
@@ -427,7 +427,7 @@ export class PublishToGitHub extends Construct implements IPublisher {
     }
 
     const shellable = new Shellable(this, 'Default', {
-      platform: new LinuxPlatform(cbuild.LinuxBuildImage.STANDARD_5_0),
+      platform: new LinuxPlatform(cbuild.LinuxBuildImage.STANDARD_6_0),
       scriptDirectory: path.join(__dirname, 'publishing', 'github'),
       entrypoint: 'publish.sh',
       environment: noUndefined({
@@ -494,7 +494,7 @@ export class PublishToS3 extends Construct implements IPublisher {
     const forReal = props.dryRun === undefined ? 'false' : (!props.dryRun).toString();
 
     const shellable = new Shellable(this, 'Default', {
-      platform: new LinuxPlatform(cbuild.LinuxBuildImage.STANDARD_5_0),
+      platform: new LinuxPlatform(cbuild.LinuxBuildImage.STANDARD_6_0),
       scriptDirectory: path.join(__dirname, 'publishing', 's3'),
       entrypoint: 'publish.sh',
       environment: {
@@ -548,7 +548,7 @@ export class PublishToPyPi extends Construct {
     const forReal = props.dryRun === undefined ? 'false' : (!props.dryRun).toString();
 
     const shellable = new Shellable(this, 'Default', {
-      platform: new LinuxPlatform(cbuild.LinuxBuildImage.STANDARD_5_0),
+      platform: new LinuxPlatform(cbuild.LinuxBuildImage.STANDARD_6_0),
       scriptDirectory: path.join(__dirname, 'publishing', 'pypi'),
       entrypoint: 'publish.sh',
       environment: {
@@ -639,7 +639,7 @@ export class PublishToGolang extends Construct {
     const dryRun = props.dryRun ?? false;
 
     const shellable = new Shellable(this, 'Default', {
-      platform: new LinuxPlatform(cbuild.LinuxBuildImage.STANDARD_5_0),
+      platform: new LinuxPlatform(cbuild.LinuxBuildImage.STANDARD_6_0),
       scriptDirectory: path.join(__dirname, 'publishing', 'golang'),
       entrypoint: 'publish.sh',
       environment: {

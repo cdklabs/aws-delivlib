@@ -373,7 +373,7 @@ export abstract class ShellPlatform {
    */
   public static get LinuxUbuntu(): ShellPlatform {
     // Cannot be static member because of initialization order
-    return new LinuxPlatform(cbuild.LinuxBuildImage.STANDARD_4_0);
+    return new LinuxPlatform(cbuild.LinuxBuildImage.STANDARD_6_0);
   }
 
   /**
