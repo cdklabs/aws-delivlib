@@ -1450,10 +1450,10 @@ aws-cdk-lib@^2.54.0:
     semver "^7.3.8"
     yaml "1.10.2"
 
-aws-cdk@^2.72.1:
-  version "2.72.1"
-  resolved "https://registry.yarnpkg.com/aws-cdk/-/aws-cdk-2.72.1.tgz#5c8dc41239ed7f47d2dd2f54afb980df2a58a24b"
-  integrity sha512-Noihlxyurq9ecz/aTx+j3raeedI0hcPaYFKqS1CkFDoOEvLHIuIEB6regoJHWy9GER/yYYgKu68c7xYo3LaZPA==
+aws-cdk@^2.73.0:
+  version "2.73.0"
+  resolved "https://registry.yarnpkg.com/aws-cdk/-/aws-cdk-2.73.0.tgz#f7e1f1b6ef943dd560f6a2a2b2cfa2941ce62089"
+  integrity sha512-4ZnY+OS83goCzv+1sCEpNTNiXWjY6KBzic2RNUObzpHjUskRSwUCtaeiv6OyZ55DZoP0tneAmWIBXHfixJ7iQw==
   optionalDependencies:
     fsevents "2.3.2"
 
@@ -1466,10 +1466,10 @@ aws-sdk-mock@^5.8.0:
     sinon "^14.0.1"
     traverse "^0.6.6"
 
-aws-sdk@^2.1231.0, aws-sdk@^2.1351.0:
-  version "2.1351.0"
-  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.1351.0.tgz#d691555150791b0957c4b9715cd15a901a86e013"
-  integrity sha512-/Hj9lmxFO2eBipUGY2CL5rNhoZO4PrXOYQ6C+nQ0ffzp+bmYc0nzKwO7xrGreVIefrVbbikQyItiDL3PmBRnGw==
+aws-sdk@^2.1231.0, aws-sdk@^2.1352.0:
+  version "2.1352.0"
+  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.1352.0.tgz#4d947c53cc520ace2ffa340f8a7862a50c6cdcbb"
+  integrity sha512-8btLGkv1ynfpmODRP5rk/dli+3SWpE9wfKkDYlbEGMja1+bREbVmePR7JBjC4ls3UMgOziHflNjngu0/RHSFDQ==
   dependencies:
     buffer "4.9.2"
     events "1.1.1"
@@ -2334,9 +2334,9 @@ eastasianwidth@^0.2.0:
   integrity sha512-I88TYZWc9XiYHRQ4/3c5rjjfgkjhLyW2luGIheGERbNQ6OY7yTybanSpDXZa8y7VUP9YmDcYa+eyq4ca7iLqWA==
 
 electron-to-chromium@^1.4.284:
-  version "1.4.353"
-  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.353.tgz#20e9cb4c83a08e35b3314d3fa8988764c105e6b7"
-  integrity sha512-IdJVpMHJoBT/nn0GQ02wPfbhogDVpd1ud95lP//FTf5l35wzxKJwibB4HBdY7Q+xKPA1nkZ0UDLOMyRj5U5IAQ==
+  version "1.4.355"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.355.tgz#539484310e5a94133bc3df8ba4b6a9dde7a506a4"
+  integrity sha512-056hxzEE4l667YeOccgjhRr5fTiwZ6EIJ4FpzGps4k3YcS8iAhiaBYUBrv5E2LDQJsussscv9EEUwAYKnv+ZKg==
 
 emittery@^0.8.1:
   version "0.8.1"
@@ -5288,10 +5288,10 @@ progress@^2.0.3:
   resolved "https://registry.yarnpkg.com/progress/-/progress-2.0.3.tgz#7e8cf8d8f5b8f239c1bc68beb4eb78567d572ef8"
   integrity sha512-7PiHtLll5LdnKIMw100I+8xJXR5gW2QwWYkT6iJva0bXitZKa/XMrSbdmg3r2Xnaidz9Qumd0VPaMrZlF9V9sA==
 
-projen@^0.70.14:
-  version "0.70.14"
-  resolved "https://registry.yarnpkg.com/projen/-/projen-0.70.14.tgz#07f29700f5d975b8b03002cc3e829880cd967b52"
-  integrity sha512-aNMfkKx2U4frRUH93BtsL2sjd8CpUSpb94fU7EgVt6VwdE70Gn3bscIdy36Csaea1q0ipb2DMv/TjeKdyMkYAQ==
+projen@^0.71.0:
+  version "0.71.0"
+  resolved "https://registry.yarnpkg.com/projen/-/projen-0.71.0.tgz#bb06a89fd6c68f02a3e58e315e9c07ba26449830"
+  integrity sha512-/0ZmTk5mT/FAQWU59Ffc3IyYmv3he1k2zx3Id1+aZ1QGVm02/Bk5YqWhSKz+FWrzP7r4QUUzzSv0Xo56BCnDxQ==
   dependencies:
     "@iarna/toml" "^2.2.5"
     case "^1.6.3"
