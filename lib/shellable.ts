@@ -301,7 +301,7 @@ export class Shellable extends Construct {
     this.buildSpec = BuildSpec.simple({
       install: this.platform.installCommands(),
       preBuild: this.platform.prebuildCommands(props.assumeRole, props.useRegionalStsEndpoints),
-      build: this.platform.buildCommands(props.entrypoint),
+      build: this.platform.buildCommands(props.entrypoint, props.args),
     }).merge(props.buildSpec || BuildSpec.empty());
 
     const environmentSecretsAsSecretNames = this.convertEnvironmentSecretArnsToSecretNames(props.environmentSecrets);
