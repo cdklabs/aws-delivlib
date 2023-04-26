@@ -76,6 +76,17 @@ echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 found=false
 for pom in $(find ./java -name '*.pom'); do
     found=true
+
+    source_arg=""
+    if [[ -f ${pom/.pom/-sources.jar} ]]; then
+      source_arg="-Dsources=${pom/.pom/-sources.jar}"
+    fi
+
+    javadoc_arg=""
+    if [[ -f ${pom/.pom/-javadoc.jar} ]]; then
+      javadoc_arg="-Djavadoc=${pom/.pom/-javadoc.jar}"
+    fi
+
     $mvn --settings=${mvn_settings} gpg:sign-and-deploy-file                        \
             -Durl=file://${staging}                                                 \
             -DrepositoryId=maven-central                                            \
@@ -84,8 +95,8 @@ for pom in $(find ./java -name '*.pom'); do
             -Dgpg.passphrase=${KEY_PASSPHRASE}                                      \
             -DpomFile=${pom}                                                        \
             -Dfile=${pom/.pom/.jar}                                                 \
-            -Dsources=${pom/.pom/-sources.jar}                                      \
-            -Djavadoc=${pom/.pom/-javadoc.jar}
+            $source_arg                                                             \
+            $javadoc_arg
 done
 
 if ! $found; then
