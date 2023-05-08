@@ -8,7 +8,7 @@ const project = new typescript.TypeScriptProject({
   projenUpgradeSecret: 'PROJEN_GITHUB_TOKEN',
   authorName: 'Amazon Web Services',
   authorUrl: 'https://aws.amazon.com',
-  minNodeVersion: '14.18.0',
+  minNodeVersion: '16.0.0',
   keywords: [
     'aws-cdk',
     'continuous-delivery',
