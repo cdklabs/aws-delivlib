@@ -38,7 +38,14 @@ function generateProject(fixture: string): string {
   const isProjen = fs.existsSync(path.join(repoDir, '.projenrc.js'));
 
   if (isProjen) {
-    projen();
+    // project is created with only .projenrc.js and sometimes it doesn't
+    // yarn install correctly, if this happens try to yarn install again
+    try {
+      projen();
+    } catch (e) {
+      shell('yarn install --check-files');
+      projen();
+    }
   }
 
   return repoDir;

@@ -36,7 +36,7 @@ describe('EcrMirror', () => {
             Value: '123aass:password-key:AWSCURRENT',
           },
         ],
-        Image: 'public.ecr.aws/jsii/superchain:1-buster-slim',
+        Image: 'jsii/superchain:1-buster-slim',
         RegistryCredential: {
           Credential: '123aass',
           CredentialProvider: 'SECRETS_MANAGER',
