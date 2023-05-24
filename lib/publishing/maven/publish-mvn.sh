@@ -154,26 +154,12 @@ cat > ${release_pom} <<HERE
   <groupId>dummy</groupId>
   <artifactId>dummy</artifactId>
   <version>0.0.0</version>
-  
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.sonatype.plugins</groupId>
-        <artifactId>nexus-staging-maven-plugin</artifactId>
-        <version>${nexus_staging_maven_plugin_version}</version>
-        <configuration>
-          <argLine>
-            --add-opens java.base/java.util=ALL-UNNAMED
-          </argLine>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
 </project>
 HERE
 
 # Release!
 release_output="${workdir}/release-output.txt"
+export MAVEN_OPTS="--add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.text=ALL-UNNAMED --add-opens=java.desktop/java.awt.font=ALL-UNNAMED"
 $mvn --settings ${mvn_settings} -f ${release_pom} \
     org.sonatype.plugins:nexus-staging-maven-plugin:${nexus_staging_maven_plugin_version}:release \
     -DserverId=ossrh \
