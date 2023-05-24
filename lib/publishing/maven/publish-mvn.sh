@@ -154,6 +154,21 @@ cat > ${release_pom} <<HERE
   <groupId>dummy</groupId>
   <artifactId>dummy</artifactId>
   <version>0.0.0</version>
+  
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.sonatype.plugins</groupId>
+        <artifactId>nexus-staging-maven-plugin</artifactId>
+        <version>${nexus_staging_maven_plugin_version}</version>
+        <configuration>
+          <argLine>
+            --add-opens java.base/java.util=ALL-UNNAMED
+          </argLine>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>
 HERE
 
