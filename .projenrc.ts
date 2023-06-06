@@ -1,11 +1,11 @@
-const { typescript, javascript } = require('projen');
+import { typescript } from 'projen';
 
 const project = new typescript.TypeScriptProject({
   name: 'aws-delivlib',
+  projenrcTs: true,
   description: 'A fabulous library for defining continuous pipelines for building, testing and releasing code libraries.',
   repository: 'https://github.com/cdklabs/aws-delivlib.git',
   defaultReleaseBranch: 'main',
-  projenUpgradeSecret: 'PROJEN_GITHUB_TOKEN',
   authorName: 'Amazon Web Services',
   authorUrl: 'https://aws.amazon.com',
   minNodeVersion: '16.14.0',
@@ -84,8 +84,8 @@ buildGithubPublisher.exec('yarn install --frozen-lockfile', { cwd: 'lib/publishi
 buildGithubPublisher.exec('yarn tsc --build', { cwd: 'lib/publishing/github' });
 project.compileTask.prependSpawn(buildGithubPublisher);
 // Exclude the publisher from the root tsconfig, but add a reference to it
-project.tsconfig.addExclude('lib/publishing/github');
-project.tsconfig.file.addOverride('references', [{ path: 'lib/publishing/github' }]);
+project.tsconfig?.addExclude('lib/publishing/github');
+project.tsconfig?.file.addOverride('references', [{ path: 'lib/publishing/github' }]);
 
 const compileCustomResourceHandlers = project.addTask('compile:custom-resource-handlers');
 compileCustomResourceHandlers.exec('/bin/bash ./build-custom-resource-handlers.sh');
@@ -109,15 +109,15 @@ const bundlePackageIntegrity = project.addTask('bundle:package-integrity', {
 project.compileTask.spawn(bundlePackageIntegrity);
 
 // The npmignore file includes original source files, which is undesirable.
-project.npmignore.exclude(
+project.npmignore?.exclude(
   '/lib/**/*.ts',
 );
-project.npmignore.include(
+project.npmignore?.include(
   '/lib/**/*.d.ts',
   '/lib/**/node_modules/**',
 );
 // Also includes other undesirable assets.
-project.npmignore.exclude(
+project.npmignore?.exclude(
   '/lib/__tests__/',
   'tsconfig.json',
   'tsconfig.dev.json',
