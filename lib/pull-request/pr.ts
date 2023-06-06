@@ -4,6 +4,7 @@ import {
   aws_codebuild as cbuild,
   aws_events as events,
   aws_events_targets as events_targets,
+  aws_iam as iam,
 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { BuildEnvironmentProps, createBuildEnvironment } from '../build-env';
@@ -299,12 +300,12 @@ export class AutoPullRequest extends Construct {
       ssmSessionPermissions: true,
     });
 
-    if (this.project.role) {
-      permissions.grantSecretRead(sshKeySecret, this.project.role);
-
-      if (needsGitHubTokenSecret) {
-        permissions.grantSecretRead({ secretArn: props.repo.tokenSecretArn }, this.project.role);
-      }
+    // Always exists as the project is not a reference
+    const projectRole = this.project.role!;
+    projectRole.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonElasticContainerRegistryPublicReadOnly'));
+    permissions.grantSecretRead(sshKeySecret, projectRole);
+    if (needsGitHubTokenSecret) {
+      permissions.grantSecretRead({ secretArn: props.repo.tokenSecretArn }, projectRole);
     }
 
     if (props.scheduleExpression) {

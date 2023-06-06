@@ -87,7 +87,7 @@ export abstract class MirrorSource {
         if (image.includes(':')) {
           throw new Error('image must not include tag');
         }
-        // simulates DockerHub by perfixing library/ to official images
+        // simulates DockerHub by prefixing library/ to official images
         const repositoryName = image.includes('/') ? image : `library/${image}`;
         super(repositoryName, tag, undefined, ecrRepositoryName);
       }
