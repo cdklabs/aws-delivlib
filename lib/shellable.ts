@@ -328,6 +328,7 @@ export class Shellable extends Construct {
     });
 
     this.role = this.project.role!; // not undefined, as it's a new Project
+    this.role.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonElasticContainerRegistryPublicReadOnly'));
     asset.grantRead(this.role);
 
     // Grant read access to secrets
@@ -414,7 +415,7 @@ export abstract class ShellPlatform {
    */
   public static get LinuxUbuntu(): ShellPlatform {
     // Cannot be static member because of initialization order
-    return new LinuxPlatform(cbuild.LinuxBuildImage.STANDARD_6_0);
+    return new LinuxPlatform(cbuild.LinuxBuildImage.STANDARD_7_0);
   }
 
   /**
@@ -456,7 +457,9 @@ export class LinuxPlatform extends ShellPlatform {
   public readonly platformType = PlatformType.Linux;
 
   public installCommands(): string[] | undefined {
-    return undefined;
+    return [
+      'command -v yarn > /dev/null || npm install --global yarn',
+    ];
   }
 
   public prebuildCommands(assumeRole?: AssumeRole, useRegionalStsEndpoints?: boolean): string[] {

@@ -1,6 +1,7 @@
 import {
   SecretValue,
   aws_codebuild as codebuild,
+  aws_iam as iam,
   aws_sam as serverless,
 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
@@ -113,6 +114,7 @@ export class AutoBuild extends Construct {
       buildSpec: props.buildSpec,
       ssmSessionPermissions: true,
     });
+    this.project.role!.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonElasticContainerRegistryPublicReadOnly'));
 
     const publicLogs = props.publicLogs !== undefined ? props.publicLogs : false;
     const githubToken = props.repo.tokenSecretArn ? SecretValue.secretsManager(props.repo.tokenSecretArn) : undefined;
