@@ -60,7 +60,7 @@ test('correctly creates canary', () => {
     },
     Environment: {
       ComputeType: 'BUILD_GENERAL1_MEDIUM',
-      Image: 'aws/codebuild/standard:6.0',
+      Image: 'aws/codebuild/standard:7.0',
       PrivilegedMode: false,
       Type: 'LINUX_CONTAINER',
       EnvironmentVariables: [
@@ -91,7 +91,7 @@ test('correctly creates canary', () => {
     },
     Source: {
       // tslint:disable-next-line:max-line-length
-      BuildSpec: '{\n  "version": "0.2",\n  "phases": {\n    "pre_build": {\n      "commands": [\n        "echo \\"Downloading scripts from s3://${SCRIPT_S3_BUCKET}/${SCRIPT_S3_KEY}\\"",\n        "aws s3 cp s3://${SCRIPT_S3_BUCKET}/${SCRIPT_S3_KEY} /tmp",\n        "mkdir -p /tmp/scriptdir",\n        "unzip /tmp/$(basename $SCRIPT_S3_KEY) -d /tmp/scriptdir"\n      ]\n    },\n    "build": {\n      "commands": [\n        "export SCRIPT_DIR=/tmp/scriptdir",\n        "echo \\"Running test.sh\\"",\n        "/bin/bash /tmp/scriptdir/test.sh"\n      ]\n    }\n  }\n}',
+      BuildSpec: '{\n  "version": "0.2",\n  "phases": {\n    "install": {\n      "commands": [\n        "command -v yarn > /dev/null || npm install --global yarn"\n      ]\n    },\n    "pre_build": {\n      "commands": [\n        "echo \\"Downloading scripts from s3://${SCRIPT_S3_BUCKET}/${SCRIPT_S3_KEY}\\"",\n        "aws s3 cp s3://${SCRIPT_S3_BUCKET}/${SCRIPT_S3_KEY} /tmp",\n        "mkdir -p /tmp/scriptdir",\n        "unzip /tmp/$(basename $SCRIPT_S3_KEY) -d /tmp/scriptdir"\n      ]\n    },\n    "build": {\n      "commands": [\n        "export SCRIPT_DIR=/tmp/scriptdir",\n        "echo \\"Running test.sh\\"",\n        "/bin/bash /tmp/scriptdir/test.sh"\n      ]\n    }\n  }\n}',
     },
   });
 });

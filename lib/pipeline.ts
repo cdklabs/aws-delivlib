@@ -245,6 +245,7 @@ export class Pipeline extends Construct {
     });
 
     this.buildRole = this.buildProject.role;
+    this.buildRole!.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonElasticContainerRegistryPublicReadOnly'));
 
     const buildStage = this.getOrCreateStage('Build');
     const buildOutput = new cpipeline.Artifact();
