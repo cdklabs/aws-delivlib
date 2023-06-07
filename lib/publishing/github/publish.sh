@@ -67,7 +67,9 @@ fi
 
 # --------------------------------------------------------------------------------------------------
 # install npm deps
-(cd ${scriptdir} && npm i)
+NODE_ENV=production
+(cd ${scriptdir} && npm ci)
+(cd ${scriptdir} && npm ls)
 
 heading "Creating release"
 ls ${workdir}
