@@ -11,7 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "changelog-parser": "^2.8.1",
-    "octokit": "^2.0.11"
+    "octokit": "^2.0.19"
   },
   "devDependencies": {
     "@types/changelog-parser": "^2.8.1",
