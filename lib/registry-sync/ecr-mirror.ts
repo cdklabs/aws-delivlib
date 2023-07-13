@@ -103,9 +103,7 @@ export class EcrMirror extends Construct {
     this._project = new codebuild.Project(this, 'EcrPushImages', {
       environment: {
         privileged: true,
-        buildImage: codebuild.LinuxBuildImage.fromDockerRegistry('public.ecr.aws/jsii/superchain:1-buster-slim-node18', {
-          secretsManagerCredentials: props.dockerHubCredentials.secret,
-        }),
+        buildImage: codebuild.LinuxBuildImage.fromDockerRegistry('public.ecr.aws/jsii/superchain:1-buster-slim-node18'),
       },
       environmentVariables: {
         // DockerHub credentials to avoid throttling
@@ -145,6 +143,10 @@ export class EcrMirror extends Construct {
 
     // Ensure the runner has PULL access to ECR-Public.
     this._project.role!.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonElasticContainerRegistryPublicReadOnly'));
+
+    // Give the project access to the Docker Hub credentials
+    // Required for access to private images and to avoid throttling of unauthorized requests
+    props.dockerHubCredentials.secret.grantRead(this._project);
 
     for (const image of props.sources) {
       const result = image.bind({
