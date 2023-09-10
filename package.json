@@ -37,7 +37,7 @@
     "organization": false
   },
   "devDependencies": {
-    "@types/adm-zip": "^0.5.0",
+    "@types/adm-zip": "^0.5.1",
     "@types/aws-lambda": "^8.10.119",
     "@types/follow-redirects": "^1.14.1",
     "@types/fs-extra": "^9.0.13",
@@ -47,7 +47,7 @@
     "@typescript-eslint/eslint-plugin": "^6",
     "@typescript-eslint/parser": "^6",
     "adm-zip": "^0.5.10",
-    "aws-cdk": "^2.95.0",
+    "aws-cdk": "^2.95.1",
     "aws-cdk-lib": "^2.76.0",
     "aws-sdk": "^2.1454.0",
     "aws-sdk-mock": "^5.8.0",
@@ -66,7 +66,7 @@
     "minipass": "3.2.1",
     "node-ical": "0.15.1",
     "npm-check-updates": "^16",
-    "projen": "^0.73.12",
+    "projen": "^0.73.15",
     "rrule": "^2.7.2",
     "standard-version": "^9",
     "tar": "^6.2.0",
