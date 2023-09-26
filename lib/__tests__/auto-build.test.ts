@@ -1,8 +1,8 @@
 import { App, Stack } from 'aws-cdk-lib';
 import { Template } from 'aws-cdk-lib/assertions';
 import { Artifacts } from 'aws-cdk-lib/aws-codebuild';
-import { AutoBuild, GitHubRepo } from '../../lib';
 import { Bucket } from 'aws-cdk-lib/aws-s3';
+import { AutoBuild, GitHubRepo } from '../../lib';
 
 let app: App;
 let stack: Stack;
