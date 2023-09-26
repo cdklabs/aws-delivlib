@@ -1,6 +1,8 @@
 import { App, Stack } from 'aws-cdk-lib';
 import { Template } from 'aws-cdk-lib/assertions';
+import { Artifacts } from 'aws-cdk-lib/aws-codebuild';
 import { AutoBuild, GitHubRepo } from '../../lib';
+import { Bucket } from 'aws-cdk-lib/aws-s3';
 
 let app: App;
 let stack: Stack;
@@ -124,6 +126,30 @@ test('can disable webhooks', () => {
   template.hasResourceProperties('AWS::CodeBuild::Project', {
     Triggers: {
       Webhook: false,
+    },
+  });
+});
+
+test('can enable artifacts', () => {
+  new AutoBuild(stack, 'AutoBuild', {
+    repo: new GitHubRepo({
+      repository: 'some-repo',
+      tokenSecretArn: 'arn:aws:secretsmanager:someregion:someaccount:secret:sometoken',
+    }),
+    artifacts: Artifacts.s3({
+      bucket: new Bucket(stack, 'artifactBucket'),
+      name: 'artifact-name',
+    }),
+  });
+  const template = Template.fromStack(stack);
+
+  template.hasResourceProperties('AWS::CodeBuild::Project', {
+    Artifacts: {
+      Location: { Ref: 'artifactBucket27548F83' },
+      Name: 'artifact-name',
+      NamespaceType: 'BUILD_ID',
+      Packaging: 'ZIP',
+      Type: 'S3',
     },
   });
 });

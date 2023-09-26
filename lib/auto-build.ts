@@ -65,6 +65,11 @@ export interface AutoBuildOptions {
    */
   readonly buildSpec?: codebuild.BuildSpec;
   /* tslint:enable:max-line-length */
+
+  /**
+   * ARTIFACTS
+   */
+  readonly artifacts?: codebuild.IArtifacts;
 }
 
 export interface AutoBuildProps extends AutoBuildOptions {
@@ -112,6 +117,7 @@ export class AutoBuild extends Construct {
       environment: createBuildEnvironment(props.environment ?? {}),
       badge: props.repo.allowsBadge,
       buildSpec: props.buildSpec,
+      artifacts: props.artifacts,
       ssmSessionPermissions: true,
     });
     this.project.role!.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonElasticContainerRegistryPublicReadOnly'));
