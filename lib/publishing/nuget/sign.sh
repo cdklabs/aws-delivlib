@@ -47,7 +47,7 @@ fi
 
 NUGET_PACKAGE=$(cd $(dirname $1) && echo $PWD)/$(basename $1)
 
-echo echo "🔑 Applying authenticode signatures to assemblies in ${NUGET_PACKAGE}"
+echo "🔑 Applying authenticode signatures to assemblies in ${NUGET_PACKAGE}"
 if [[ "${ENV}" == "dev" ]]
 then
   for file in ${NUGET_PACKAGE}/*.zip
