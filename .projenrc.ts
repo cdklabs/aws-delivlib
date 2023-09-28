@@ -8,7 +8,7 @@ const project = new typescript.TypeScriptProject({
   defaultReleaseBranch: 'main',
   authorName: 'Amazon Web Services',
   authorUrl: 'https://aws.amazon.com',
-  minNodeVersion: '16.14.0',
+  minNodeVersion: '16.17.0',
   keywords: [
     'aws-cdk',
     'continuous-delivery',
