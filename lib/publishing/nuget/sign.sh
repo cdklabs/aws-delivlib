@@ -58,20 +58,20 @@ then
     version_id=$(aws s3api put-object \
       --bucket ${SIGNING_BUCKET_NAME:-} \
       --key unsigned/${file} \
-      --body ${file} | jq -r '.VersionId' )
+      --body ${file} | jq -r '.VersionId')
     # invoke signer lambda
     aws lambda invoke \
       --function-name ${SIGNING_LAMBDA_NAME:-} \
       --invocation-type RequestResponse \
       --cli-binary-format raw-in-base64-out \
       --payload '{ "artifactKey": "'"unsigned/${file}"'", "artifactVersion": "'"${version_id}"'" }' \
-      ${tmp}/response.json
+      ${tmp}/response.json >/dev/null
     signed_artifact_key=$(cat ${tmp}/response.json | jq -r '.signedArtifactKey')
     # download signed zip from signer bucket
     aws s3api get-object \
       --bucket ${SIGNING_BUCKET_NAME:-} \
       --key ${signed_artifact_key} \
-      nuget-package-signed/artifact.zip
+      nuget-package-signed/artifact.zip >/dev/null
     # clean up temporary directory
     rm -rf ${tmp}
   done
@@ -88,20 +88,20 @@ else
     version_id=$(aws s3api put-object \
       --bucket ${SIGNING_BUCKET_NAME:-} \
       --key unsigned/${file} \
-      --body ${file} | jq -r '.VersionId' )
+      --body ${file} | jq -r '.VersionId')
     # invoke signer lambda
     aws lambda invoke \
       --function-name ${SIGNING_LAMBDA_NAME:-} \
       --invocation-type RequestResponse \
       --cli-binary-format raw-in-base64-out \
       --payload '{ "artifactKey": "'"unsigned/${file}"'", "artifactVersion": "'"${version_id}"'" }' \
-      ${tmp}/response.json
+      ${tmp}/response.json >/dev/null
     signed_artifact_key=$(cat ${tmp}/response.json | jq -r '.signedArtifactKey')
     # download signed dll from signer bucket
     aws s3api get-object \
       --bucket ${SIGNING_BUCKET_NAME:-} \
       --key ${signed_artifact_key} \
-      ${tmp}/${file}
+      ${tmp}/${file} >/dev/null
     # replace the dll in the nuget package
     (
       cd ${tmp}
