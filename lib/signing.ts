@@ -46,7 +46,7 @@ export interface SignNuGetWithSignerProps {
   readonly signingAccessRole: IRole;
 
   /**
-   * The build image to do the publishing in
+   * The build image to do the signing in
    *
    * Needs to have NuGet preinstalled.
    *
