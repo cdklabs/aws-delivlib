@@ -23,9 +23,11 @@ import { AutoBump, AutoMergeBack, AutoBumpProps } from './pull-request';
 import { AutoMergeBackPipelineOptions } from './pull-request/merge-back';
 import { IRepo, WritableGitHubRepo } from './repo';
 import { Shellable, ShellableProps } from './shellable';
+import * as signing from './signing';
 import { determineRunOrder, flatMap } from './util';
 
 const PUBLISH_STAGE_NAME = 'Publish';
+const SIGINING_STAGE_NAME = 'Sign';
 const TEST_STAGE_NAME = 'Test';
 const METRIC_NAMESPACE = 'CDK/Delivlib';
 const FAILURE_METRIC_NAME = 'Failures';
@@ -355,6 +357,21 @@ export class Pipeline extends Construct {
       ...options,
       pipelineStage: publishStage,
     });
+  }
+
+  public addSigning(signer: signing.ISigner, options: signing.AddSigningOptions = {}) {
+    const signingStageName = options.stageName ?? SIGINING_STAGE_NAME;
+    const stage = this.getOrCreateStage(signingStageName);
+    signer.addToPipeline(stage, `${signer.node.id}Sign`, {
+      inputArtifact: options.inputArtifact || this.buildOutput,
+      runOrder: this.determineRunOrderForNewAction(stage),
+    });
+  }
+
+  public signNuGetWithSigner(options: signing.SignNuGetWithSignerProps & signing.AddSigningOptions) {
+    this.addSigning(new signing.SignNuGetWithSigner(this, 'NuGetSigning', {
+      ...options,
+    })), options;
   }
 
   public publishToNpm(options: publishing.PublishToNpmProjectProps & AddPublishOptions) {
