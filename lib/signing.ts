@@ -22,14 +22,7 @@ export interface AddSigningOptions {
   readonly inputArtifact?: Artifact;
 
   /**
-   * Stage name to add publishing job to
-   *
-   * By default, this will be the stage name `'Publish'`, but if you want to
-   * separate out the publishing actions into different stages (in order to
-   * block/unblock them separately for example) you can change this.
-   *
-   * Stages appear in the pipeline in the order they are referenced for
-   * the first time.
+   * Stage name to add signing job to
    *
    * @default "Sign"
    */
