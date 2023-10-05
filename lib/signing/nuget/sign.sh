@@ -26,7 +26,7 @@ for nuget_package_path in $(find dotnet -name *.nupkg -not -iname *.symbols.nupk
     echo "📄 Assembly: ${file}"
     tmp=$(mktemp -d)
     # extract the dll from the zip file
-    unzip -q ${NUGET_PACKAGE} -d ${tmp} ${file}
+    unzip -q ${nuget_package_path} -d ${tmp} ${file}
     # need to set appropriate permissions, otherwise the file has none
     chmod u+rw ${tmp}/${file}
     # upload dll to signer bucket
@@ -50,7 +50,7 @@ for nuget_package_path in $(find dotnet -name *.nupkg -not -iname *.symbols.nupk
     # replace the dll in the nuget package
     (
       cd ${tmp}
-      zip -qfr ${NUGET_PACKAGE} ${file}
+      zip -qfr ${nuget_package_path} ${file}
     )
     # clean up temporary directory
     rm -rf ${tmp}
