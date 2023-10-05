@@ -11,8 +11,8 @@ else
     echo "!!! Neither an apt nor yum distribution - could not install jq, things might break!"
 fi
 
-if [ -n "${SIGNER_ACCESS_ROLE_ARN:-}" ]; then
-  ROLE=$(aws sts assume-role --role-arn "${SIGNER_ACCESS_ROLE_ARN:-}" --role-session-name "signer_access")
+if [ -n "${SIGNING_ACCESS_ROLE_ARN:-}" ]; then
+  ROLE=$(aws sts assume-role --role-arn "${SIGNING_ACCESS_ROLE_ARN:-}" --role-session-name "signer_access")
   export AWS_ACCESS_KEY_ID=$(echo $ROLE | jq -r .Credentials.AccessKeyId)
   export AWS_SECRET_ACCESS_KEY=$(echo $ROLE | jq -r .Credentials.SecretAccessKey)
   export AWS_SESSION_TOKEN=$(echo $ROLE | jq -r .Credentials.SessionToken)
@@ -31,12 +31,12 @@ for nuget_package_path in $(find dotnet -name *.nupkg -not -iname *.symbols.nupk
     chmod u+rw ${tmp}/${file}
     # upload dll to signer bucket
     version_id=$(aws s3api put-object \
-      --bucket ${SIGNING_BUCKET_NAME:-} \
+      --bucket ${SIGNING_BUCKET_ARN:-} \
       --key unsigned/${file} \
       --body ${file} | jq -r '.VersionId')
     # invoke signer lambda
     aws lambda invoke \
-      --function-name ${SIGNING_LAMBDA_NAME:-} \
+      --function-name ${SIGNING_LAMBDA_ARN:-} \
       --invocation-type RequestResponse \
       --cli-binary-format raw-in-base64-out \
       --payload '{ "artifactKey": "'"unsigned/${file}"'", "artifactVersion": "'"${version_id}"'" }' \
@@ -44,7 +44,7 @@ for nuget_package_path in $(find dotnet -name *.nupkg -not -iname *.symbols.nupk
     signed_artifact_key=$(cat ${tmp}/response.json | jq -r '.signedArtifactKey')
     # download signed dll from signer bucket
     aws s3api get-object \
-      --bucket ${SIGNING_BUCKET_NAME:-} \
+      --bucket ${SIGNING_BUCKET_ARN:-} \
       --key ${signed_artifact_key} \
       ${tmp}/${file} >/dev/null
     # replace the dll in the nuget package
