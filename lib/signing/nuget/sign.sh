@@ -23,9 +23,13 @@ for nuget_package_path in $(find dotnet -name *.nupkg -not -iname *.symbols.nupk
   found=true
   echo "🔑 Applying authenticode signatures to assemblies in ${nuget_package_path}"
   for file in $(unzip -Z1 ${nuget_package_path} '*.dll'); do
-    echo "📄 Assemby: ${file}"
+    echo "📄 Assembly: ${file}"
     tmp=$(mktemp -d)
-    # upload zip to signer bucket
+    # extract the dll from the zip file
+    unzip -q ${NUGET_PACKAGE} -d ${tmp} ${file}
+    # need to set appropriate permissions, otherwise the file has none
+    chmod u+rw ${tmp}/${file}
+    # upload dll to signer bucket
     version_id=$(aws s3api put-object \
       --bucket ${SIGNING_BUCKET_NAME:-} \
       --key unsigned/${file} \
@@ -38,15 +42,15 @@ for nuget_package_path in $(find dotnet -name *.nupkg -not -iname *.symbols.nupk
       --payload '{ "artifactKey": "'"unsigned/${file}"'", "artifactVersion": "'"${version_id}"'" }' \
       ${tmp}/response.json >/dev/null
     signed_artifact_key=$(cat ${tmp}/response.json | jq -r '.signedArtifactKey')
-    # download signed zip from signer bucket
+    # download signed dll from signer bucket
     aws s3api get-object \
       --bucket ${SIGNING_BUCKET_NAME:-} \
       --key ${signed_artifact_key} \
-      nuget-package-signed/artifact.zip >/dev/null
+      ${tmp}/${file} >/dev/null
     # replace the dll in the nuget package
     (
       cd ${tmp}
-      zip -qfr ${nuget_package_path} ${file}
+      zip -qfr ${NUGET_PACKAGE} ${file}
     )
     # clean up temporary directory
     rm -rf ${tmp}
