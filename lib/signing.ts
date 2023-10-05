@@ -63,7 +63,7 @@ export class SignNuGetWithSigner extends Construct implements ISigner {
     super(scope, id);
 
     const environment = {
-      SIGNING_BUCKET_ARN: props.signingBucket.bucketArn,
+      SIGNING_BUCKET_NAME: props.signingBucket.bucketName,
       SIGNING_LAMBDA_ARN: props.signingLambda.functionArn,
       SIGNING_ACCESS_ROLE_ARN: props.signingAccessRole.roleArn,
     };

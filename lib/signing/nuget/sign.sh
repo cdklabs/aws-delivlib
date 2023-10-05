@@ -31,7 +31,7 @@ for nuget_package_path in $(find dotnet -name *.nupkg -not -iname *.symbols.nupk
     chmod u+rw ${tmp}/${file}
     # upload dll to signer bucket
     version_id=$(aws s3api put-object \
-      --bucket ${SIGNING_BUCKET_ARN:-} \
+      --bucket ${SIGNING_BUCKET_NAME:-} \
       --key unsigned/${file} \
       --body ${file} | jq -r '.VersionId')
     # invoke signer lambda
@@ -44,7 +44,7 @@ for nuget_package_path in $(find dotnet -name *.nupkg -not -iname *.symbols.nupk
     signed_artifact_key=$(cat ${tmp}/response.json | jq -r '.signedArtifactKey')
     # download signed dll from signer bucket
     aws s3api get-object \
-      --bucket ${SIGNING_BUCKET_ARN:-} \
+      --bucket ${SIGNING_BUCKET_NAME:-} \
       --key ${signed_artifact_key} \
       ${tmp}/${file} >/dev/null
     # replace the dll in the nuget package
