@@ -208,6 +208,7 @@ export class Pipeline extends Construct {
   private readonly branch: string;
   private readonly notify?: sns.Topic;
   private stages: { [name: string]: cpipeline.IStage } = { };
+  private _signingOutput?: cpipeline.Artifact;
 
   private readonly concurrency?: number;
   private readonly repo: IRepo;
@@ -282,6 +283,13 @@ export class Pipeline extends Construct {
     if (props.autoBuild) {
       this.autoBuildProject = this.autoBuild(props.autoBuildOptions).project;
     }
+  }
+
+  /**
+   * Signing output artifact
+   */
+  public get signingOutput() {
+    return this._signingOutput;
   }
 
   public notifyOnFailure(notification: IPipelineNotification) {
@@ -362,7 +370,8 @@ export class Pipeline extends Construct {
   public addSigning(signer: signing.ISigner, options: signing.AddSigningOptions = {}) {
     const signingStageName = options.stageName ?? SIGINING_STAGE_NAME;
     const stage = this.getOrCreateStage(signingStageName);
-    signer.addToPipeline(stage, `${signer.node.id}Sign`, {
+
+    this._signingOutput = signer.addToPipeline(stage, `${signer.node.id}Sign`, {
       inputArtifact: options.inputArtifact || this.buildOutput,
       runOrder: this.determineRunOrderForNewAction(stage),
     });
@@ -371,7 +380,7 @@ export class Pipeline extends Construct {
   public signNuGetWithSigner(options: signing.SignNuGetWithSignerProps & signing.AddSigningOptions) {
     this.addSigning(new signing.SignNuGetWithSigner(this, 'NuGetSigning', {
       ...options,
-    })), options;
+    }), options);
   }
 
   public publishToNpm(options: publishing.PublishToNpmProjectProps & AddPublishOptions) {

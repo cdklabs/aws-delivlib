@@ -10,7 +10,7 @@ import { AddToPipelineOptions } from './pipeline';
 import { LinuxPlatform, Shellable } from './shellable';
 
 export interface ISigner extends IConstruct {
-  addToPipeline(stage: IStage, id: string, options: AddToPipelineOptions): void;
+  addToPipeline(stage: IStage, id: string, options: AddToPipelineOptions): Artifact;
 }
 
 export interface AddSigningOptions {
@@ -80,11 +80,17 @@ export class SignNuGetWithSigner extends Construct implements ISigner {
   }
 
   public addToPipeline(stage: IStage, id: string, options: AddToPipelineOptions) {
+    const signingInput = options.inputArtifact || new Artifact();
+    const signingOutput = new Artifact();
+
     stage.addAction(new CodeBuildAction({
       actionName: id,
-      input: options.inputArtifact || new Artifact(),
+      input: signingInput,
       runOrder: options.runOrder,
       project: this.project,
+      outputs: [signingOutput],
     }));
+
+    return signingOutput;
   }
 }
