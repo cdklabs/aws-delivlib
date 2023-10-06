@@ -23,9 +23,11 @@ import { AutoBump, AutoMergeBack, AutoBumpProps } from './pull-request';
 import { AutoMergeBackPipelineOptions } from './pull-request/merge-back';
 import { IRepo, WritableGitHubRepo } from './repo';
 import { Shellable, ShellableProps } from './shellable';
+import * as signing from './signing';
 import { determineRunOrder, flatMap } from './util';
 
 const PUBLISH_STAGE_NAME = 'Publish';
+const SIGINING_STAGE_NAME = 'Sign';
 const TEST_STAGE_NAME = 'Test';
 const METRIC_NAMESPACE = 'CDK/Delivlib';
 const FAILURE_METRIC_NAME = 'Failures';
@@ -206,6 +208,7 @@ export class Pipeline extends Construct {
   private readonly branch: string;
   private readonly notify?: sns.Topic;
   private stages: { [name: string]: cpipeline.IStage } = { };
+  private _signingOutput?: cpipeline.Artifact;
 
   private readonly concurrency?: number;
   private readonly repo: IRepo;
@@ -282,6 +285,13 @@ export class Pipeline extends Construct {
     }
   }
 
+  /**
+   * Signing output artifact
+   */
+  public get signingOutput() {
+    return this._signingOutput;
+  }
+
   public notifyOnFailure(notification: IPipelineNotification) {
     notification.bind({
       pipeline: this,
@@ -355,6 +365,22 @@ export class Pipeline extends Construct {
       ...options,
       pipelineStage: publishStage,
     });
+  }
+
+  public addSigning(signer: signing.ISigner, options: signing.AddSigningOptions = {}) {
+    const signingStageName = options.stageName ?? SIGINING_STAGE_NAME;
+    const stage = this.getOrCreateStage(signingStageName);
+
+    this._signingOutput = signer.addToPipeline(stage, `${signer.node.id}Sign`, {
+      inputArtifact: options.inputArtifact || this.buildOutput,
+      runOrder: this.determineRunOrderForNewAction(stage),
+    });
+  }
+
+  public signNuGetWithSigner(options: signing.SignNuGetWithSignerProps & signing.AddSigningOptions) {
+    this.addSigning(new signing.SignNuGetWithSigner(this, 'NuGetSigning', {
+      ...options,
+    }), options);
   }
 
   public publishToNpm(options: publishing.PublishToNpmProjectProps & AddPublishOptions) {
