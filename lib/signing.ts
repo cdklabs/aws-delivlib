@@ -6,6 +6,7 @@ import { IRole } from 'aws-cdk-lib/aws-iam';
 import { IFunction } from 'aws-cdk-lib/aws-lambda';
 import { IBucket } from 'aws-cdk-lib/aws-s3';
 import { Construct, IConstruct } from 'constructs';
+import { BuildSpec } from './build-spec';
 import { AddToPipelineOptions } from './pipeline';
 import { LinuxPlatform, Shellable } from './shellable';
 
@@ -72,6 +73,13 @@ export class SignNuGetWithSigner extends Construct implements ISigner {
       platform: new LinuxPlatform(props.buildImage ?? LinuxBuildImage.fromDockerRegistry('public.ecr.aws/jsii/superchain:1-buster-slim-node18')),
       scriptDirectory: path.join(__dirname, 'signing', 'nuget'),
       entrypoint: 'sign.sh',
+      buildSpec: BuildSpec.literal({
+        version: '0.2',
+        artifacts: {
+          files: ['**/*'],
+          ['base-directory']: 'dist',
+        },
+      }),
       environment,
     });
 
