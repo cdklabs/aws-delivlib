@@ -77,7 +77,7 @@ export class SignNuGetWithSigner extends Construct implements ISigner {
         version: '0.2',
         artifacts: {
           files: ['**/*'],
-          ['base-directory']: '../src',
+          ['base-directory']: '.',
         },
       }),
       environment,
