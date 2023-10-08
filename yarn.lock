@@ -1178,9 +1178,9 @@
   integrity sha512-axdPBuLuEJt0c4yI5OZssC19K2Mq1uKdrfZBzuxLvaztgqUtFYZUNw7lETExPYJR9jdEoIg4mb7RQKRQzOkeGQ==
 
 "@types/yargs@^17.0.8":
-  version "17.0.27"
-  resolved "https://registry.yarnpkg.com/@types/yargs/-/yargs-17.0.27.tgz#a0508217c6a920ff54f272042ed91753480342d7"
-  integrity sha512-J+a6bwjDa0ezk5jBUR/iAHH2xm0gIf4YzsS4QINYTQ42bTiz/Szt5ZSLNLyHospoUAQ6EanoD4NztoJBLACHoQ==
+  version "17.0.28"
+  resolved "https://registry.yarnpkg.com/@types/yargs/-/yargs-17.0.28.tgz#d106e4301fbacde3d1796ab27374dd16588ec851"
+  integrity sha512-N3e3fkS86hNhtk6BEnc0rj3zcehaxx8QWhCROJkqpl5Zaoi7nAic3jH8q94jVD3zu5LGk+PUB6KAiDmimYOEQw==
   dependencies:
     "@types/yargs-parser" "*"
 
@@ -4223,9 +4223,9 @@ just-extend@^4.0.2:
   integrity sha512-g3UB796vUFIY90VIv/WX3L2c8CS2MdWUww3CNrYmqza1Fg0DURc2K/O4YrnklBdQarSJ/y8JnJYDGc+1iumQjg==
 
 keyv@^4.5.3:
-  version "4.5.3"
-  resolved "https://registry.yarnpkg.com/keyv/-/keyv-4.5.3.tgz#00873d2b046df737963157bd04f294ca818c9c25"
-  integrity sha512-QCiSav9WaX1PgETJ+SpNnx2PRRapJ/oRSXM4VO5OGYGSjrxbKPVFVhB3l2OCbLCk329N8qyAtsJjSjvVBWzEug==
+  version "4.5.4"
+  resolved "https://registry.yarnpkg.com/keyv/-/keyv-4.5.4.tgz#a879a99e29452f942439f2a405e3af8b31d4de93"
+  integrity sha512-oxVHkHR/EJf2CNXnWxRLW6mg7JyCCUcG0DtEGmL2ctUo1PNTin1PUil+r/+4r5MpVgC/fn1kjsx7mjSujKqIpw==
   dependencies:
     json-buffer "3.0.1"
 
@@ -5180,10 +5180,10 @@ progress@^2.0.3:
   resolved "https://registry.yarnpkg.com/progress/-/progress-2.0.3.tgz#7e8cf8d8f5b8f239c1bc68beb4eb78567d572ef8"
   integrity sha512-7PiHtLll5LdnKIMw100I+8xJXR5gW2QwWYkT6iJva0bXitZKa/XMrSbdmg3r2Xnaidz9Qumd0VPaMrZlF9V9sA==
 
-projen@^0.74.4:
-  version "0.74.4"
-  resolved "https://registry.yarnpkg.com/projen/-/projen-0.74.4.tgz#2c487ac77d412d3ffb001019b2227e6c442304d8"
-  integrity sha512-Eart6IluMywPXlWxX25cDF0PLVoKjbf+1fkZP8yJxbP5KCWQpoXtM8LouMH6MUlgk9wws9unXoycBUBI+ILRKg==
+projen@^0.74.5:
+  version "0.74.5"
+  resolved "https://registry.yarnpkg.com/projen/-/projen-0.74.5.tgz#78944419498f36ceb67fbd9aed0f3a18564200ed"
+  integrity sha512-8SgABHSu1BSSFeLZ4XtXUm4aEpBdq5JqPPrTQ/hmz1x77Ep9bcUhL3wW6LkT/Ww7e0HkvgIss1czGwDGx7Cabw==
   dependencies:
     "@iarna/toml" "^2.2.5"
     case "^1.6.3"
