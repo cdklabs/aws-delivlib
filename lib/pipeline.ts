@@ -27,7 +27,7 @@ import * as signing from './signing';
 import { determineRunOrder, flatMap } from './util';
 
 const PUBLISH_STAGE_NAME = 'Publish';
-const SIGINING_STAGE_NAME = 'Sign';
+const SIGNING_STAGE_NAME = 'Sign';
 const TEST_STAGE_NAME = 'Test';
 const METRIC_NAMESPACE = 'CDK/Delivlib';
 const FAILURE_METRIC_NAME = 'Failures';
@@ -370,7 +370,7 @@ export class Pipeline extends Construct {
   }
 
   public addSigning(signer: signing.ISigner, options: signing.AddSigningOptions = {}) {
-    const signingStageName = options.stageName ?? SIGINING_STAGE_NAME;
+    const signingStageName = options.stageName ?? SIGNING_STAGE_NAME;
     const stage = this.getOrCreateStage(signingStageName);
 
     this._signingOutput = signer.addToPipeline(stage, `${signer.node.id}Sign`, {
