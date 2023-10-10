@@ -626,7 +626,9 @@ export interface AddPublishOptions {
   /**
    * The input artifact to use
    *
-   * @default Build output artifact
+   * @default Signing output artifact when a signing stage is added to the
+   * pipeline via `addSigning` or `signNuGetWithSigner`. Otherwise, the default
+   * will be the build output artifact.
    */
   inputArtifact?: cpipeline.Artifact;
 
@@ -663,7 +665,9 @@ export interface AddShellableOptions extends ShellableProps {
   /**
    * The input artifact to use
    *
-   * @default Build output artifact
+   * @default Signing output artifact when a signing stage is added to the
+   * pipeline via `addSigning` or `signNuGetWithSigner`. Otherwise, the default
+   * will be the build output artifact.
    */
   inputArtifact?: cpipeline.Artifact;
 }
