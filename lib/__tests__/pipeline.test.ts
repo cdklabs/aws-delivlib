@@ -7,6 +7,9 @@ import {
   aws_codepipeline_actions as cpipeline_actions,
 } from 'aws-cdk-lib';
 import { Capture, Template, Match } from 'aws-cdk-lib/assertions';
+import { Role } from 'aws-cdk-lib/aws-iam';
+import { Function } from 'aws-cdk-lib/aws-lambda';
+import { Bucket } from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
 import * as delivlib from '../../lib';
 import { determineRunOrder } from '../../lib/util';
@@ -334,6 +337,104 @@ test('metricActionFailures', () => {
   });
 
   expect(stack.resolve(pipeline.metricActionFailures({}))).toEqual(expectedMetrics);
+});
+
+test('signing output artifact is used as input artifact for all stages after signing stage', () => {
+  // GIVEN
+  const app = new App();
+  const stack = new Stack(app, 'TestStack');
+  const signingLambda = Function.fromFunctionName(stack, 'SigningLambda', 'signing-lambda');
+  const signingBucket = Bucket.fromBucketName(stack, 'SigningBucket', 'signing-bucket');
+  const signingAccessRole = Role.fromRoleName(stack, 'SigningAccessRole', 'signing-access-role');
+  const pipeline = new delivlib.Pipeline(stack, 'Pipeline', {
+    repo: createTestRepo(stack),
+    pipelineName: 'TestPipeline',
+  });
+
+  // WHEN
+  pipeline.signNuGetWithSigner({
+    signingLambda,
+    signingBucket,
+    signingAccessRole,
+  });
+
+  pipeline.publishToNpm({
+    npmTokenSecret: {
+      secretArn: 'arn:aws:secretsmanager:us-east-1:123456789012:secret:npm-token-secret',
+    },
+  });
+
+  pipeline.addTest('test1', {
+    scriptDirectory: path.join(__dirname, 'delivlib-tests/assume-role'),
+    entrypoint: 'test.sh',
+  });
+
+  // THEN
+  Template.fromStack(stack).hasResourceProperties('AWS::CodePipeline::Pipeline', {
+    Stages: [
+      {
+        Actions: [
+          Match.objectLike({
+            InputArtifacts: Match.absent(),
+            OutputArtifacts: [
+              { Name: 'Source' },
+            ],
+          }),
+        ],
+        Name: 'Source',
+      },
+      {
+        Actions: [
+          Match.objectLike({
+            InputArtifacts: [
+              { Name: 'Source' },
+            ],
+            OutputArtifacts: [
+              { Name: 'Artifact_Build_Build' },
+            ],
+          }),
+        ],
+        Name: 'Build',
+      },
+      {
+        Actions: [
+          Match.objectLike({
+            InputArtifacts: [
+              { Name: 'Artifact_Build_Build' },
+            ],
+            OutputArtifacts: [
+              { Name: 'Artifact_Sign_NuGetSigningSign' },
+            ],
+          }),
+        ],
+        Name: 'Sign',
+      },
+      {
+        Actions: [
+          Match.objectLike({
+            InputArtifacts: [
+              { Name: 'Artifact_Sign_NuGetSigningSign' },
+            ],
+            OutputArtifacts: Match.absent(),
+          }),
+        ],
+        Name: 'Publish',
+      },
+      {
+        Actions: [
+          Match.objectLike({
+            InputArtifacts: [
+              { Name: 'Artifact_Sign_NuGetSigningSign' },
+            ],
+            OutputArtifacts: [
+              { Name: 'Artifact_c8383dfefa10c0c326ab2bfac48dcf263ea515d7e1' },
+            ],
+          }),
+        ],
+        Name: 'Test',
+      },
+    ],
+  });
 });
 
 function createTestPipelineForConcurrencyTests(stack: Stack, props?: delivlib.PipelineProps) {
