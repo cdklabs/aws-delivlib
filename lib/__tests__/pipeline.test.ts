@@ -345,7 +345,7 @@ test('signing output artifact is used as input artifact for all stages after sig
   const stack = new Stack(app, 'TestStack');
   const signingLambda = Function.fromFunctionName(stack, 'SigningLambda', 'signing-lambda');
   const signingBucket = Bucket.fromBucketName(stack, 'SigningBucket', 'signing-bucket');
-  const signingAccessRole = Role.fromRoleName(stack, 'SigningAccessRole', 'signing-access-role');
+  const accessRole = Role.fromRoleName(stack, 'AccessRole', 'access-role');
   const pipeline = new delivlib.Pipeline(stack, 'Pipeline', {
     repo: createTestRepo(stack),
     pipelineName: 'TestPipeline',
@@ -355,12 +355,12 @@ test('signing output artifact is used as input artifact for all stages after sig
   pipeline.signNuGetWithSigner({
     signingLambda,
     signingBucket,
-    signingAccessRole,
+    accessRole,
   });
 
-  pipeline.publishToNpm({
-    npmTokenSecret: {
-      secretArn: 'arn:aws:secretsmanager:us-east-1:123456789012:secret:npm-token-secret',
+  pipeline.publishToNuGet({
+    nugetApiKeySecret: {
+      secretArn: 'arn:aws:secretsmanager:us-east-1:123456789012:secret:nuget-secret',
     },
   });
 

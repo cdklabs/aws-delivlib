@@ -23,13 +23,13 @@ describe('with standard pipeline', () => {
     // GIVEN
     const signingBucket = Bucket.fromBucketName(stack, 'SigningBucket', 'signing-bucket');
     const signingLambda = Function.fromFunctionName(stack, 'SigningLambda', 'signing-lambda');
-    const signingAccessRole = Role.fromRoleName(stack, 'SigningAccessRole', 'signing-access-role');
+    const accessRole = Role.fromRoleName(stack, 'AccessRole', 'access-role');
 
     // WHEN
     pipeline.signNuGetWithSigner({
       signingBucket,
       signingLambda,
-      signingAccessRole,
+      accessRole,
     });
 
     // THEN
@@ -51,7 +51,7 @@ describe('with standard pipeline', () => {
           {
             Name: 'SCRIPT_S3_KEY',
             Type: 'PLAINTEXT',
-            Value: '1ccec5da3e38e2c229307a68b2feb159deb67f714ce2209b3c680115486b707f.zip',
+            Value: '304990045086f467d5effaa1d1aa90d3f19411750a41f9cb37ab387399f92e39.zip',
           },
           {
             Name: 'SIGNING_BUCKET_NAME',
@@ -83,7 +83,7 @@ describe('with standard pipeline', () => {
             },
           },
           {
-            Name: 'SIGNING_ACCESS_ROLE_ARN',
+            Name: 'ACCESS_ROLE_ARN',
             Type: 'PLAINTEXT',
             Value: {
               'Fn::Join': [
@@ -97,7 +97,7 @@ describe('with standard pipeline', () => {
                   {
                     Ref: 'AWS::AccountId',
                   },
-                  ':role/signing-access-role',
+                  ':role/access-role',
                 ],
               ],
             },
