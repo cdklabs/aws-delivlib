@@ -44,7 +44,7 @@ export interface SignNuGetWithSignerProps {
   /**
    * A role used provide access to the signing bucket and signing lambda
    */
-  readonly signingAccessRole: IRole;
+  readonly accessRole: IRole;
 
   /**
    * The build image to do the signing in
@@ -66,7 +66,7 @@ export class SignNuGetWithSigner extends Construct implements ISigner {
     const environment = {
       SIGNING_BUCKET_NAME: props.signingBucket.bucketName,
       SIGNING_LAMBDA_ARN: props.signingLambda.functionArn,
-      SIGNING_ACCESS_ROLE_ARN: props.signingAccessRole.roleArn,
+      ACCESS_ROLE_ARN: props.accessRole.roleArn,
     };
 
     const shellable = new Shellable(this, 'Default', {

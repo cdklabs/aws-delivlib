@@ -27,7 +27,7 @@ import * as signing from './signing';
 import { determineRunOrder, flatMap } from './util';
 
 const PUBLISH_STAGE_NAME = 'Publish';
-const SIGINING_STAGE_NAME = 'Sign';
+const SIGNING_STAGE_NAME = 'Sign';
 const TEST_STAGE_NAME = 'Test';
 const METRIC_NAMESPACE = 'CDK/Delivlib';
 const FAILURE_METRIC_NAME = 'Failures';
@@ -207,6 +207,7 @@ export class Pipeline extends Construct {
   public readonly pipeline: cpipeline.Pipeline;
   private readonly branch: string;
   private readonly notify?: sns.Topic;
+  private defaultArtifact: cpipeline.Artifact;
   private stages: { [name: string]: cpipeline.IStage } = { };
   private _signingOutput?: cpipeline.Artifact;
 
@@ -259,6 +260,7 @@ export class Pipeline extends Construct {
       outputs: [buildOutput],
     }));
     this.buildOutput = buildOutput;
+    this.defaultArtifact = buildOutput;
 
     if (props.notificationEmail) {
       this.notify = new sns.Topic(this, 'NotificationsTopic');
@@ -311,7 +313,7 @@ export class Pipeline extends Construct {
     const action = sh.addToPipeline(
       stage,
       options.actionName || `Action${id}`,
-      options.inputArtifact || this.buildOutput,
+      options.inputArtifact || this.defaultArtifact,
       this.determineRunOrderForNewAction(stage));
 
     if (options.failureNotification) {
@@ -346,7 +348,7 @@ export class Pipeline extends Construct {
     const stage = this.getOrCreateStage(publishStageName);
 
     publisher.addToPipeline(stage, `${publisher.node.id}Publish`, {
-      inputArtifact: options.inputArtifact || this.buildOutput,
+      inputArtifact: options.inputArtifact || this.defaultArtifact,
       runOrder: this.determineRunOrderForNewAction(stage),
     });
   }
@@ -368,13 +370,14 @@ export class Pipeline extends Construct {
   }
 
   public addSigning(signer: signing.ISigner, options: signing.AddSigningOptions = {}) {
-    const signingStageName = options.stageName ?? SIGINING_STAGE_NAME;
+    const signingStageName = options.stageName ?? SIGNING_STAGE_NAME;
     const stage = this.getOrCreateStage(signingStageName);
 
     this._signingOutput = signer.addToPipeline(stage, `${signer.node.id}Sign`, {
-      inputArtifact: options.inputArtifact || this.buildOutput,
+      inputArtifact: options.inputArtifact || this.defaultArtifact,
       runOrder: this.determineRunOrderForNewAction(stage),
     });
+    this.defaultArtifact = this._signingOutput;
   }
 
   public signNuGetWithSigner(options: signing.SignNuGetWithSignerProps & signing.AddSigningOptions) {
@@ -623,7 +626,9 @@ export interface AddPublishOptions {
   /**
    * The input artifact to use
    *
-   * @default Build output artifact
+   * @default Signing output artifact when a signing stage is added to the
+   * pipeline via `addSigning` or `signNuGetWithSigner`. Otherwise, the default
+   * will be the build output artifact.
    */
   inputArtifact?: cpipeline.Artifact;
 
@@ -660,7 +665,9 @@ export interface AddShellableOptions extends ShellableProps {
   /**
    * The input artifact to use
    *
-   * @default Build output artifact
+   * @default Signing output artifact when a signing stage is added to the
+   * pipeline via `addSigning` or `signNuGetWithSigner`. Otherwise, the default
+   * will be the build output artifact.
    */
   inputArtifact?: cpipeline.Artifact;
 }

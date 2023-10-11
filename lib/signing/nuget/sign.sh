@@ -11,8 +11,8 @@ else
     echo "!!! Neither an apt nor yum distribution - could not install jq, things might break!"
 fi
 
-if [ -n "${SIGNING_ACCESS_ROLE_ARN:-}" ]; then
-  ROLE=$(aws sts assume-role --role-arn "${SIGNING_ACCESS_ROLE_ARN:-}" --role-session-name "signer_access")
+if [ -n "${ACCESS_ROLE_ARN:-}" ]; then
+  ROLE=$(aws sts assume-role --role-arn "${ACCESS_ROLE_ARN:-}" --role-session-name "signer_access")
   export AWS_ACCESS_KEY_ID=$(echo $ROLE | jq -r .Credentials.AccessKeyId)
   export AWS_SECRET_ACCESS_KEY=$(echo $ROLE | jq -r .Credentials.SecretAccessKey)
   export AWS_SESSION_TOKEN=$(echo $ROLE | jq -r .Credentials.SessionToken)
