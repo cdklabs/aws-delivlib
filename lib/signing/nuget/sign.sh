@@ -33,13 +33,13 @@ for nuget_package_path in $(find dotnet -name *.nupkg -not -iname *.symbols.nupk
     version_id=$(aws s3api put-object \
       --bucket ${SIGNING_BUCKET_NAME:-} \
       --key unsigned/${file} \
-      --body ${file} | jq -r '.VersionId')
+      --body ${tmp}/${file} | jq -r '.VersionId')
     # invoke signer lambda
     aws lambda invoke \
       --function-name ${SIGNING_LAMBDA_ARN:-} \
       --invocation-type RequestResponse \
       --cli-binary-format raw-in-base64-out \
-      --payload '{ "artifactKey": "'"unsigned/${file}"'", "artifactVersion": "'"${version_id}"'" }' \
+      --payload '{ "artifactKey": "'"unsigned/${file}"'", "artifactVersion": "'"${version_id}"'", "profileName": "'"${SIGNER_PROFILE_NAME:-}"'", "profileOwner": "'"${SIGNER_PROFILE_OWNER:-}"'" }' \
       ${tmp}/response.json >/dev/null
     signed_artifact_key=$(cat ${tmp}/response.json | jq -r '.signedArtifactKey')
     # download signed dll from signer bucket

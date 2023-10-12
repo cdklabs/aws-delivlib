@@ -1,5 +1,5 @@
 import { App, Stack } from 'aws-cdk-lib';
-import { Template } from 'aws-cdk-lib/assertions';
+import { Match, Template } from 'aws-cdk-lib/assertions';
 import { Repository } from 'aws-cdk-lib/aws-codecommit';
 import { Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
 import { Function } from 'aws-cdk-lib/aws-lambda';
@@ -51,7 +51,7 @@ describe('with standard pipeline', () => {
           {
             Name: 'SCRIPT_S3_KEY',
             Type: 'PLAINTEXT',
-            Value: '304990045086f467d5effaa1d1aa90d3f19411750a41f9cb37ab387399f92e39.zip',
+            Value: '57b2661c55d0400ef7c5db10e1d13ea42db5520c0338de4ca7cf407f8cc325e2.zip',
           },
           {
             Name: 'SIGNING_BUCKET_NAME',
@@ -236,6 +236,101 @@ describe('with standard pipeline', () => {
         },
       ],
     });
+  });
+
+  test('can specify signerProfileName and signerProfileOwner for environment variables', () => {
+    // GIVEN
+    const signingBucket = Bucket.fromBucketName(stack, 'SigningBucket', 'signing-bucket');
+    const signingLambda = Function.fromFunctionName(stack, 'SigningLambda', 'signing-lambda');
+    const accessRole = Role.fromRoleName(stack, 'AccessRole', 'access-role');
+
+    // WHEN
+    pipeline.signNuGetWithSigner({
+      signingBucket,
+      signingLambda,
+      accessRole,
+      signerProfileName: 'test-profile-name',
+      signerProfileOwner: 'test-profile-owner',
+    });
+
+    // THEN
+    Template.fromStack(stack).hasResourceProperties('AWS::CodeBuild::Project', Match.objectLike({
+      Environment: Match.objectLike({
+        EnvironmentVariables: [
+          {
+            Name: 'SCRIPT_S3_BUCKET',
+            Type: 'PLAINTEXT',
+            Value: {
+              'Fn::Sub': 'cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}',
+            },
+          },
+          {
+            Name: 'SCRIPT_S3_KEY',
+            Type: 'PLAINTEXT',
+            Value: '57b2661c55d0400ef7c5db10e1d13ea42db5520c0338de4ca7cf407f8cc325e2.zip',
+          },
+          {
+            Name: 'SIGNING_BUCKET_NAME',
+            Type: 'PLAINTEXT',
+            Value: 'signing-bucket',
+          },
+          {
+            Name: 'SIGNING_LAMBDA_ARN',
+            Type: 'PLAINTEXT',
+            Value: {
+              'Fn::Join': [
+                '',
+                [
+                  'arn:',
+                  {
+                    Ref: 'AWS::Partition',
+                  },
+                  ':lambda:',
+                  {
+                    Ref: 'AWS::Region',
+                  },
+                  ':',
+                  {
+                    Ref: 'AWS::AccountId',
+                  },
+                  ':function:signing-lambda',
+                ],
+              ],
+            },
+          },
+          {
+            Name: 'ACCESS_ROLE_ARN',
+            Type: 'PLAINTEXT',
+            Value: {
+              'Fn::Join': [
+                '',
+                [
+                  'arn:',
+                  {
+                    Ref: 'AWS::Partition',
+                  },
+                  ':iam::',
+                  {
+                    Ref: 'AWS::AccountId',
+                  },
+                  ':role/access-role',
+                ],
+              ],
+            },
+          },
+          {
+            Name: 'SIGNER_PROFILE_NAME',
+            Type: 'PLAINTEXT',
+            Value: 'test-profile-name',
+          },
+          {
+            Name: 'SIGNER_PROFILE_OWNER',
+            Type: 'PLAINTEXT',
+            Value: 'test-profile-owner',
+          },
+        ],
+      }),
+    }));
   });
 
   test('can provide a service role used for signing codebuild operations', () => {
