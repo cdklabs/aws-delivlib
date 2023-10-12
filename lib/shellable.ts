@@ -6,6 +6,7 @@ import {
   aws_codepipeline as cpipeline, aws_codepipeline_actions as cpipeline_actions,
   aws_iam as iam, aws_s3_assets as assets, aws_secretsmanager, aws_ssm,
 } from 'aws-cdk-lib';
+import { IRole } from 'aws-cdk-lib/aws-iam';
 import { Construct } from 'constructs';
 import { BuildSpec } from './build-spec';
 import { renderEnvironmentVariables } from './util';
@@ -153,6 +154,13 @@ export interface ShellableOptions {
    * @default No environment variables
    */
   readonly pipelineEnvironmentVars?: Record<string, string>;
+
+  /**
+   * The service role to assume while running the build
+   *
+   * @default A role will be created
+   */
+  readonly serviceRole?: IRole;
 }
 
 /**

@@ -47,6 +47,14 @@ export interface SignNuGetWithSignerProps {
   readonly accessRole: IRole;
 
   /**
+   * The service role that will be used to allow CodeBuild to perform operations
+   * on your behalf.
+   *
+   * @default A role will be created
+   */
+  readonly serviceRole?: IRole;
+
+  /**
    * The build image to do the signing in
    *
    * Needs to have NuGet preinstalled.
