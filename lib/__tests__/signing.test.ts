@@ -243,7 +243,7 @@ describe('with standard pipeline', () => {
     const signingBucket = Bucket.fromBucketName(stack, 'SigningBucket', 'signing-bucket');
     const signingLambda = Function.fromFunctionName(stack, 'SigningLambda', 'signing-lambda');
     const accessRole = Role.fromRoleName(stack, 'AccessRole', 'access-role');
-    
+
     // WHEN
     pipeline.signNuGetWithSigner({
       signingBucket,
@@ -252,7 +252,7 @@ describe('with standard pipeline', () => {
       signerProfileName: 'test-profile-name',
       signerProfileOwner: 'test-profile-owner',
     });
-    
+
     // THEN
     Template.fromStack(stack).hasResourceProperties('AWS::CodeBuild::Project', Match.objectLike({
       Environment: Match.objectLike({
@@ -332,7 +332,7 @@ describe('with standard pipeline', () => {
       }),
     }));
   });
-  
+
   test('can provide a service role used for signing codebuild operations', () => {
     // GIVEN
     const signingBucket = Bucket.fromBucketName(stack, 'SigningBucket', 'signing-bucket');

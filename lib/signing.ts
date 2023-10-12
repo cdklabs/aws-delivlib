@@ -59,7 +59,7 @@ export interface SignNuGetWithSignerProps {
    * @default no signing profile owner
    */
   readonly signerProfileOwner?: string;
-  
+
   /*
    * The service role that will be used to allow CodeBuild to perform operations
    * on your behalf.
