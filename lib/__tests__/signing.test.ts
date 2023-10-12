@@ -1,7 +1,7 @@
 import { App, Stack } from 'aws-cdk-lib';
 import { Match, Template } from 'aws-cdk-lib/assertions';
 import { Repository } from 'aws-cdk-lib/aws-codecommit';
-import { Role } from 'aws-cdk-lib/aws-iam';
+import { Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
 import { Function } from 'aws-cdk-lib/aws-lambda';
 import { Bucket } from 'aws-cdk-lib/aws-s3';
 import { Pipeline } from '../pipeline';
@@ -243,7 +243,7 @@ describe('with standard pipeline', () => {
     const signingBucket = Bucket.fromBucketName(stack, 'SigningBucket', 'signing-bucket');
     const signingLambda = Function.fromFunctionName(stack, 'SigningLambda', 'signing-lambda');
     const accessRole = Role.fromRoleName(stack, 'AccessRole', 'access-role');
-
+    
     // WHEN
     pipeline.signNuGetWithSigner({
       signingBucket,
@@ -252,7 +252,7 @@ describe('with standard pipeline', () => {
       signerProfileName: 'test-profile-name',
       signerProfileOwner: 'test-profile-owner',
     });
-
+    
     // THEN
     Template.fromStack(stack).hasResourceProperties('AWS::CodeBuild::Project', Match.objectLike({
       Environment: Match.objectLike({
@@ -331,5 +331,55 @@ describe('with standard pipeline', () => {
         ],
       }),
     }));
+  });
+  
+  test('can provide a service role used for signing codebuild operations', () => {
+    // GIVEN
+    const signingBucket = Bucket.fromBucketName(stack, 'SigningBucket', 'signing-bucket');
+    const signingLambda = Function.fromFunctionName(stack, 'SigningLambda', 'signing-lambda');
+    const accessRole = Role.fromRoleName(stack, 'AccessRole', 'access-role');
+    const serviceRole = new Role(stack, 'ServiceRole', {
+      roleName: 'signing-codebuild-role',
+      assumedBy: new ServicePrincipal('codebuild.amazonaws.com'),
+    });
+
+    // WHEN
+    pipeline.signNuGetWithSigner({
+      signingBucket,
+      signingLambda,
+      accessRole,
+      serviceRole,
+    });
+
+    // THEN
+    Template.fromStack(stack).hasResourceProperties('AWS::IAM::Role', {
+      AssumeRolePolicyDocument: {
+        Statement: [
+          {
+            Action: 'sts:AssumeRole',
+            Effect: 'Allow',
+            Principal: {
+              Service: 'codebuild.amazonaws.com',
+            },
+          },
+        ],
+        Version: '2012-10-17',
+      },
+      ManagedPolicyArns: [
+        {
+          'Fn::Join': [
+            '',
+            [
+              'arn:',
+              {
+                Ref: 'AWS::Partition',
+              },
+              ':iam::aws:policy/AmazonElasticContainerRegistryPublicReadOnly',
+            ],
+          ],
+        },
+      ],
+      RoleName: 'signing-codebuild-role',
+    });
   });
 });
