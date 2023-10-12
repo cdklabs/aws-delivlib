@@ -47,6 +47,14 @@ export interface SignNuGetWithSignerProps {
   readonly accessRole: IRole;
 
   /**
+   * The service role that will be used to allow CodeBuild to perform operations
+   * on your behalf.
+   *
+   * @default A role will be created
+   */
+  readonly serviceRole?: IRole;
+
+  /**
    * The build image to do the signing in
    *
    * Needs to have NuGet preinstalled.
@@ -73,6 +81,7 @@ export class SignNuGetWithSigner extends Construct implements ISigner {
       platform: new LinuxPlatform(props.buildImage ?? LinuxBuildImage.fromDockerRegistry('public.ecr.aws/jsii/superchain:1-buster-slim-node18')),
       scriptDirectory: path.join(__dirname, 'signing', 'nuget'),
       entrypoint: 'sign.sh',
+      serviceRole: props.serviceRole,
       buildSpec: BuildSpec.literal({
         version: '0.2',
         artifacts: {
