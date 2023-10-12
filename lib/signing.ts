@@ -47,6 +47,20 @@ export interface SignNuGetWithSignerProps {
   readonly accessRole: IRole;
 
   /**
+   * The name of the signer profile to use for signing
+   *
+   * @default profile-name
+   */
+  readonly signerProfileName?: string;
+
+  /**
+   * The owner of the signer profile to use for signing
+   *
+   * @default profile-owner
+   */
+  readonly signerProfileOwner?: string;
+
+  /**
    * The build image to do the signing in
    *
    * Needs to have NuGet preinstalled.
@@ -67,6 +81,8 @@ export class SignNuGetWithSigner extends Construct implements ISigner {
       SIGNING_BUCKET_NAME: props.signingBucket.bucketName,
       SIGNING_LAMBDA_ARN: props.signingLambda.functionArn,
       ACCESS_ROLE_ARN: props.accessRole.roleArn,
+      SIGNER_PROFILE_NAME: props.signerProfileName ?? 'profile-name',
+      SIGNER_PROFILE_OWNER: props.signerProfileOwner ?? 'profile-owner',
     };
 
     const shellable = new Shellable(this, 'Default', {

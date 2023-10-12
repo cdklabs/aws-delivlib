@@ -1,5 +1,5 @@
 import { App, Stack } from 'aws-cdk-lib';
-import { Template } from 'aws-cdk-lib/assertions';
+import { Match, Template } from 'aws-cdk-lib/assertions';
 import { Repository } from 'aws-cdk-lib/aws-codecommit';
 import { Role } from 'aws-cdk-lib/aws-iam';
 import { Function } from 'aws-cdk-lib/aws-lambda';
@@ -51,7 +51,7 @@ describe('with standard pipeline', () => {
           {
             Name: 'SCRIPT_S3_KEY',
             Type: 'PLAINTEXT',
-            Value: '304990045086f467d5effaa1d1aa90d3f19411750a41f9cb37ab387399f92e39.zip',
+            Value: '66e3222b91cee523319206cf101a1193eaf9183d5b9f37546df8cba771ca079e.zip',
           },
           {
             Name: 'SIGNING_BUCKET_NAME',
@@ -101,6 +101,16 @@ describe('with standard pipeline', () => {
                 ],
               ],
             },
+          },
+          {
+            Name: 'SIGNER_PROFILE_NAME',
+            Type: 'PLAINTEXT',
+            Value: 'profile-name',
+          },
+          {
+            Name: 'SIGNER_PROFILE_OWNER',
+            Type: 'PLAINTEXT',
+            Value: 'profile-owner',
           },
         ],
         Image: 'public.ecr.aws/jsii/superchain:1-buster-slim-node18',
@@ -236,5 +246,100 @@ describe('with standard pipeline', () => {
         },
       ],
     });
+  });
+
+  test('can specify signerProfileName and signerProfileOwner for environment variables', () => {
+    // GIVEN
+    const signingBucket = Bucket.fromBucketName(stack, 'SigningBucket', 'signing-bucket');
+    const signingLambda = Function.fromFunctionName(stack, 'SigningLambda', 'signing-lambda');
+    const accessRole = Role.fromRoleName(stack, 'AccessRole', 'access-role');
+
+    // WHEN
+    pipeline.signNuGetWithSigner({
+      signingBucket,
+      signingLambda,
+      accessRole,
+      signerProfileName: 'test-profile-name',
+      signerProfileOwner: 'test-profile-owner',
+    });
+
+    // THEN
+    Template.fromStack(stack).hasResourceProperties('AWS::CodeBuild::Project', Match.objectLike({
+      Environment: Match.objectLike({
+        EnvironmentVariables: [
+          {
+            Name: 'SCRIPT_S3_BUCKET',
+            Type: 'PLAINTEXT',
+            Value: {
+              'Fn::Sub': 'cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}',
+            },
+          },
+          {
+            Name: 'SCRIPT_S3_KEY',
+            Type: 'PLAINTEXT',
+            Value: '66e3222b91cee523319206cf101a1193eaf9183d5b9f37546df8cba771ca079e.zip',
+          },
+          {
+            Name: 'SIGNING_BUCKET_NAME',
+            Type: 'PLAINTEXT',
+            Value: 'signing-bucket',
+          },
+          {
+            Name: 'SIGNING_LAMBDA_ARN',
+            Type: 'PLAINTEXT',
+            Value: {
+              'Fn::Join': [
+                '',
+                [
+                  'arn:',
+                  {
+                    Ref: 'AWS::Partition',
+                  },
+                  ':lambda:',
+                  {
+                    Ref: 'AWS::Region',
+                  },
+                  ':',
+                  {
+                    Ref: 'AWS::AccountId',
+                  },
+                  ':function:signing-lambda',
+                ],
+              ],
+            },
+          },
+          {
+            Name: 'ACCESS_ROLE_ARN',
+            Type: 'PLAINTEXT',
+            Value: {
+              'Fn::Join': [
+                '',
+                [
+                  'arn:',
+                  {
+                    Ref: 'AWS::Partition',
+                  },
+                  ':iam::',
+                  {
+                    Ref: 'AWS::AccountId',
+                  },
+                  ':role/access-role',
+                ],
+              ],
+            },
+          },
+          {
+            Name: 'SIGNER_PROFILE_NAME',
+            Type: 'PLAINTEXT',
+            Value: 'test-profile-name',
+          },
+          {
+            Name: 'SIGNER_PROFILE_OWNER',
+            Type: 'PLAINTEXT',
+            Value: 'test-profile-owner',
+          },
+        ],
+      }),
+    }));
   });
 });
