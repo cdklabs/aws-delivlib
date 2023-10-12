@@ -51,7 +51,7 @@ describe('with standard pipeline', () => {
           {
             Name: 'SCRIPT_S3_KEY',
             Type: 'PLAINTEXT',
-            Value: '66e3222b91cee523319206cf101a1193eaf9183d5b9f37546df8cba771ca079e.zip',
+            Value: '57b2661c55d0400ef7c5db10e1d13ea42db5520c0338de4ca7cf407f8cc325e2.zip',
           },
           {
             Name: 'SIGNING_BUCKET_NAME',
@@ -101,16 +101,6 @@ describe('with standard pipeline', () => {
                 ],
               ],
             },
-          },
-          {
-            Name: 'SIGNER_PROFILE_NAME',
-            Type: 'PLAINTEXT',
-            Value: 'profile-name',
-          },
-          {
-            Name: 'SIGNER_PROFILE_OWNER',
-            Type: 'PLAINTEXT',
-            Value: 'profile-owner',
           },
         ],
         Image: 'public.ecr.aws/jsii/superchain:1-buster-slim-node18',
@@ -277,7 +267,7 @@ describe('with standard pipeline', () => {
           {
             Name: 'SCRIPT_S3_KEY',
             Type: 'PLAINTEXT',
-            Value: '66e3222b91cee523319206cf101a1193eaf9183d5b9f37546df8cba771ca079e.zip',
+            Value: '57b2661c55d0400ef7c5db10e1d13ea42db5520c0338de4ca7cf407f8cc325e2.zip',
           },
           {
             Name: 'SIGNING_BUCKET_NAME',

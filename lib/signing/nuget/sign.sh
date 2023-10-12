@@ -33,7 +33,7 @@ for nuget_package_path in $(find dotnet -name *.nupkg -not -iname *.symbols.nupk
     version_id=$(aws s3api put-object \
       --bucket ${SIGNING_BUCKET_NAME:-} \
       --key unsigned/${file} \
-      --body ${file} | jq -r '.VersionId')
+      --body ${tmp}/${file} | jq -r '.VersionId')
     # invoke signer lambda
     aws lambda invoke \
       --function-name ${SIGNING_LAMBDA_ARN:-} \
