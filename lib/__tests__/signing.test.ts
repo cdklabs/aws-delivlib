@@ -51,7 +51,7 @@ describe('with standard pipeline', () => {
           {
             Name: 'SCRIPT_S3_KEY',
             Type: 'PLAINTEXT',
-            Value: '57b2661c55d0400ef7c5db10e1d13ea42db5520c0338de4ca7cf407f8cc325e2.zip',
+            Value: 'a04bdf56b18c26031d8d67e4d1f9acbd9f2f0126d20ae0bb88be1491f63b18bf.zip',
           },
           {
             Name: 'SIGNING_BUCKET_NAME',
@@ -267,7 +267,7 @@ describe('with standard pipeline', () => {
           {
             Name: 'SCRIPT_S3_KEY',
             Type: 'PLAINTEXT',
-            Value: '57b2661c55d0400ef7c5db10e1d13ea42db5520c0338de4ca7cf407f8cc325e2.zip',
+            Value: 'a04bdf56b18c26031d8d67e4d1f9acbd9f2f0126d20ae0bb88be1491f63b18bf.zip',
           },
           {
             Name: 'SIGNING_BUCKET_NAME',
