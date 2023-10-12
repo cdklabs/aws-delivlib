@@ -92,11 +92,11 @@ export class SignNuGetWithSigner extends Construct implements ISigner {
     };
 
     if (props.signerProfileName) {
-      environment.SIGNER_PROFILE_NAME = props.signerProfileName;
+      environment['SIGNER_PROFILE_NAME'] = props.signerProfileName;
     }
 
     if (props.signerProfileOwner) {
-      environment.SIGNER_PROFILE_OWNER = props.signerProfileOwner;
+      environment['SIGNER_PROFILE_OWNER'] = props.signerProfileOwner;
     }
 
     const shellable = new Shellable(this, 'Default', {
