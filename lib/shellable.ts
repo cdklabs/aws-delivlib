@@ -318,6 +318,7 @@ export class Shellable extends Construct {
       projectName: props.buildProjectName,
       description: props.description,
       source: props.source,
+      role: props.serviceRole,
       environment: {
         buildImage: this.platform.buildImage,
         computeType: props.computeType || cbuild.ComputeType.MEDIUM,
