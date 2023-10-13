@@ -21,12 +21,13 @@ fi
 found=false
 for nuget_package_path in $(find dotnet -name *.nupkg -not -iname *.symbols.nupkg); do
   found=true
-  echo "🔑 Applying authenticode signatures to assemblies in ${nuget_package_path}"
-  for file in $(unzip -Z1 ${nuget_package_path} '*.dll'); do
+  nuget_package=$(cd $(dirname ${nuget_package_path}) && echo $PWD)/$(basename ${nuget_package_path})
+  echo "🔑 Applying authenticode signatures to assemblies in ${nuget_package}"
+  for file in $(unzip -Z1 ${nuget_package} '*.dll'); do
     echo "📄 Assembly: ${file}"
     tmp=$(mktemp -d)
     # extract the dll from the zip file
-    unzip -q ${nuget_package_path} -d ${tmp} ${file}
+    unzip -q ${nuget_package} -d ${tmp} ${file}
     # need to set appropriate permissions, otherwise the file has none
     chmod u+rw ${tmp}/${file}
     # upload dll to signer bucket
@@ -50,7 +51,7 @@ for nuget_package_path in $(find dotnet -name *.nupkg -not -iname *.symbols.nupk
     # replace the dll in the nuget package
     (
       cd ${tmp}
-      zip -qfr ${nuget_package_path} ${file}
+      zip -qfr ${nuget_package} ${file}
     )
     # clean up temporary directory
     rm -rf ${tmp}
