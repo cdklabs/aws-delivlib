@@ -61,6 +61,7 @@
     },
     {
       "name": "constructs",
+      "version": "^10.0.0",
       "type": "build"
     },
     {
