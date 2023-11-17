@@ -103,7 +103,7 @@ export class EcrMirror extends Construct {
     this._project = new codebuild.Project(this, 'EcrPushImages', {
       environment: {
         privileged: true,
-        buildImage: codebuild.LinuxBuildImage.fromDockerRegistry('public.ecr.aws/jsii/superchain:1-buster-slim-node18'),
+        buildImage: codebuild.LinuxBuildImage.fromDockerRegistry('public.ecr.aws/jsii/superchain:1-bullseye-slim-node18'),
       },
       environmentVariables: {
         // DockerHub credentials to avoid throttling

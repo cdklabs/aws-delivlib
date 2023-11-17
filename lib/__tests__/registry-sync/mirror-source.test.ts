@@ -101,7 +101,7 @@ describe(MirrorSource, () => {
       // GIVEN
       const stack = new Stack();
       const ecrRegistry = 'myregistry';
-      const source = MirrorSource.fromPublicImage('public.ecr.aws/jsii/superchain', '1-buster-slim', 'jsii/superchain');
+      const source = MirrorSource.fromPublicImage('public.ecr.aws/jsii/superchain', '1-bullseye-slim', 'jsii/superchain');
 
       // WHEN
       const result = source.bind({
@@ -111,10 +111,10 @@ describe(MirrorSource, () => {
 
       // THEN
       expect(result.repositoryName).toEqual('jsii/superchain');
-      expect(result.tag).toEqual('1-buster-slim');
+      expect(result.tag).toEqual('1-bullseye-slim');
       expect(result.commands).toEqual([
-        'docker pull public.ecr.aws/jsii/superchain:1-buster-slim',
-        'docker tag public.ecr.aws/jsii/superchain:1-buster-slim myregistry/jsii/superchain:1-buster-slim',
+        'docker pull public.ecr.aws/jsii/superchain:1-bullseye-slim',
+        'docker tag public.ecr.aws/jsii/superchain:1-bullseye-slim myregistry/jsii/superchain:1-bullseye-slim',
       ]);
     });
 
