@@ -1043,7 +1043,7 @@ Resources:
           - Name: DELIVLIB_ENV_TEST
             Type: PLAINTEXT
             Value: MAGIC_1924
-        Image: public.ecr.aws/jsii/superchain:1-buster-slim-node18
+        Image: public.ecr.aws/jsii/superchain:1-bullseye-slim-node18
         ImagePullCredentialsType: SERVICE_ROLE
         PrivilegedMode: false
         Type: LINUX_CONTAINER
@@ -2719,7 +2719,7 @@ Resources:
           - Name: NUGET_SECRET_ID
             Type: PLAINTEXT
             Value: arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/nuget-jDbgrN
-        Image: jsii/superchain:1-buster-slim
+        Image: jsii/superchain:1-bullseye-slim
         ImagePullCredentialsType: SERVICE_ROLE
         PrivilegedMode: false
         Type: LINUX_CONTAINER
@@ -2946,7 +2946,7 @@ Resources:
           - Name: MAVEN_ENDPOINT
             Type: PLAINTEXT
             Value: https://aws.oss.sonatype.org:443/
-        Image: jsii/superchain:1-buster-slim
+        Image: jsii/superchain:1-bullseye-slim
         ImagePullCredentialsType: SERVICE_ROLE
         PrivilegedMode: false
         Type: LINUX_CONTAINER
@@ -3963,7 +3963,7 @@ Resources:
         Type: NO_ARTIFACTS
       Environment:
         ComputeType: BUILD_GENERAL1_SMALL
-        Image: jsii/superchain:1-buster-slim
+        Image: jsii/superchain:1-bullseye-slim
         ImagePullCredentialsType: SERVICE_ROLE
         PrivilegedMode: false
         Type: LINUX_CONTAINER
@@ -4107,7 +4107,7 @@ Resources:
         Type: NO_ARTIFACTS
       Environment:
         ComputeType: BUILD_GENERAL1_SMALL
-        Image: public.ecr.aws/jsii/superchain:1-buster-slim-node18
+        Image: public.ecr.aws/jsii/superchain:1-bullseye-slim-node18
         ImagePullCredentialsType: SERVICE_ROLE
         PrivilegedMode: false
         Type: LINUX_CONTAINER

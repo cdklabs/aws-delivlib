@@ -794,7 +794,7 @@ a local ECR registry in the AWS account.
 ```ts
 new EcrMirror(this, 'RegistrySync', {
   sources: [
-    MirrorSource.fromDockerHub('jsii/superchain:1-buster-slim'),
+    MirrorSource.fromDockerHub('jsii/superchain:1-bullseye-slim'),
     MirrorSource.fromDockerHub('python:3.6'),
   ],
   dockerhubCredentials: // ...

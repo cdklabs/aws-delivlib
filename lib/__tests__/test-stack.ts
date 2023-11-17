@@ -39,7 +39,7 @@ export class TestStack extends Stack {
         DELIVLIB_ENV_TEST: 'MAGIC_1924',
       },
       dryRun: true,
-      buildImage: LinuxBuildImage.fromDockerRegistry('public.ecr.aws/jsii/superchain:1-buster-slim-node18'),
+      buildImage: LinuxBuildImage.fromDockerRegistry('public.ecr.aws/jsii/superchain:1-bullseye-slim-node18'),
     });
 
     //

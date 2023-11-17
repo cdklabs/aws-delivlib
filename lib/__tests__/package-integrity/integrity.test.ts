@@ -12,7 +12,7 @@ test('creates a codebuild project that triggers daily and runs the integrity han
   const token = sm.Secret.fromSecretCompleteArn(stack, 'GitHubSecret', 'arn:aws:secretsmanager:us-east-1:123456789123:secret:github-token-000000');
 
   new PackageIntegrityValidation(stack, 'Integrity', {
-    buildPlatform: new LinuxPlatform(codebuild.LinuxBuildImage.fromDockerRegistry('jsii/superchain:1-buster-slim-node14')),
+    buildPlatform: new LinuxPlatform(codebuild.LinuxBuildImage.fromDockerRegistry('jsii/superchain:1-bullseye-slim-node14')),
     githubTokenSecret: token,
     repository: 'cdklabs/some-repo',
   });
