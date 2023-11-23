@@ -285,16 +285,13 @@
       },
       "steps": [
         {
-          "exec": "yarn upgrade npm-check-updates"
-        },
-        {
-          "exec": "npm-check-updates --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=@types/adm-zip,@types/aws-lambda,@types/follow-redirects,@types/fs-extra,@types/jest,@types/node,@types/tar,@typescript-eslint/eslint-plugin,@typescript-eslint/parser,adm-zip,aws-cdk,aws-sdk,aws-sdk-mock,esbuild,eslint-import-resolver-typescript,eslint-plugin-import,eslint,follow-redirects,fs-extra,jest,jest-create-mock-instance,jest-junit,JSONStream,npm-check-updates,projen,rrule,standard-version,tar,ts-jest,ts-node,typescript,changelog-parser"
+          "exec": "npx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=@types/adm-zip,@types/aws-lambda,@types/follow-redirects,@types/fs-extra,@types/jest,@types/node,@types/tar,@typescript-eslint/eslint-plugin,@typescript-eslint/parser,adm-zip,aws-cdk,aws-sdk,aws-sdk-mock,esbuild,eslint-import-resolver-typescript,eslint-plugin-import,eslint,follow-redirects,fs-extra,jest,jest-create-mock-instance,jest-junit,JSONStream,projen,rrule,standard-version,tar,ts-jest,ts-node,typescript,changelog-parser"
         },
         {
           "exec": "yarn install --check-files"
         },
         {
-          "exec": "yarn upgrade @types/adm-zip @types/aws-lambda @types/follow-redirects @types/fs-extra @types/jest @types/node @types/tar @typescript-eslint/eslint-plugin @typescript-eslint/parser adm-zip aws-cdk aws-sdk aws-sdk-mock esbuild eslint-import-resolver-typescript eslint-plugin-import eslint follow-redirects fs-extra jest jest-create-mock-instance jest-junit JSONStream npm-check-updates projen rrule standard-version tar ts-jest ts-node typescript changelog-parser"
+          "exec": "yarn upgrade @types/adm-zip @types/aws-lambda @types/follow-redirects @types/fs-extra @types/jest @types/node @types/tar @typescript-eslint/eslint-plugin @typescript-eslint/parser adm-zip aws-cdk aws-sdk aws-sdk-mock esbuild eslint-import-resolver-typescript eslint-plugin-import eslint follow-redirects fs-extra jest jest-create-mock-instance jest-junit JSONStream projen rrule standard-version tar ts-jest ts-node typescript changelog-parser"
         },
         {
           "exec": "npx projen"
