@@ -4,7 +4,7 @@ import {
   Duration,
   aws_cloudwatch as cloudwatch, aws_codebuild as cbuild,
   aws_codepipeline as cpipeline, aws_codepipeline_actions as cpipeline_actions,
-  aws_iam as iam, aws_s3_assets as assets, aws_secretsmanager, aws_ssm,
+  aws_iam as iam, aws_s3_assets as assets, aws_secretsmanager, aws_ssm, IgnoreMode,
 } from 'aws-cdk-lib';
 import { IRole } from 'aws-cdk-lib/aws-iam';
 import { Construct } from 'constructs';
@@ -170,9 +170,14 @@ export interface ShellableProps extends ShellableOptions {
   /**
    * Directory with the scripts.
    *
-   * The whole directory will be uploaded.
+   * By default the whole directory will be uploaded. Use `excludeFilePatterns` to ignore files.
    */
   scriptDirectory: string;
+
+  /**
+   * File paths matching the glob patterns will be excluded from the script dir.
+   */
+  excludeFilePatterns?: string[];
 
   /**
    * Filename of the initial script to start, relative to scriptDirectory.
@@ -299,6 +304,8 @@ export class Shellable extends Construct {
 
     const asset = new assets.Asset(this, 'ScriptDirectory', {
       path: props.scriptDirectory,
+      exclude: props.excludeFilePatterns,
+      ignoreMode: IgnoreMode.GLOB,
     });
 
     this.outputArtifactName = (props.producesArtifacts ?? true) ? `Artifact_${this.node.addr}` : undefined;
