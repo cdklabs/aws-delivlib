@@ -38,7 +38,7 @@
   },
   "devDependencies": {
     "@types/adm-zip": "^0.5.5",
-    "@types/aws-lambda": "^8.10.129",
+    "@types/aws-lambda": "^8.10.130",
     "@types/follow-redirects": "^1.14.4",
     "@types/fs-extra": "^9.0.13",
     "@types/jest": "^29.5.10",
@@ -49,7 +49,7 @@
     "adm-zip": "^0.5.10",
     "aws-cdk": "^2.111.0",
     "aws-cdk-lib": "^2.76.0",
-    "aws-sdk": "^2.1507.0",
+    "aws-sdk": "^2.1509.0",
     "aws-sdk-mock": "^5.8.0",
     "constructs": "^10.1.31",
     "esbuild": "^0.19.8",
