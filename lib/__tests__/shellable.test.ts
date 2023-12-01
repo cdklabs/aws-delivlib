@@ -555,3 +555,36 @@ test('environment variables', () => {
     ],
   });
 });
+
+test('can exclude files from scriptDirectory', () => {
+  const app = new cdk.App();
+  const stack = new cdk.Stack(app, 'TestStack');
+
+  new Shellable(stack, 'EnvironmentVariables', {
+    scriptDirectory: path.join(__dirname, 'delivlib-tests/linux'),
+    // This should result in only `test.sh` being included
+    excludeFilePatterns: ['*.sh', '**/README', '!test.sh'],
+    entrypoint: 'test.sh',
+  });
+
+  const template = Template.fromStack(stack);
+  template.hasResourceProperties('AWS::CodeBuild::Project', {
+    Environment: {
+      EnvironmentVariables: [
+        {
+          Name: 'SCRIPT_S3_BUCKET',
+          Type: 'PLAINTEXT',
+          Value: {
+            'Fn::Sub': 'cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}',
+          },
+        },
+        {
+          Name: 'SCRIPT_S3_KEY',
+          Type: 'PLAINTEXT',
+          // This is the hash of a directory with only `test.sh` included
+          Value: 'f2ad7bd80137ae8bf3e86164ae8943f7ffbe8b99470f91eb3f24c3b83873a089.zip',
+        },
+      ],
+    },
+  });
+});
