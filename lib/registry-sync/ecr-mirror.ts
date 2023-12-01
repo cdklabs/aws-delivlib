@@ -183,6 +183,7 @@ export class EcrMirror extends Construct {
 
     if (props.autoStart) {
       new cr.AwsCustomResource(this, 'BuildExecution', {
+        installLatestAwsSdk: false,
         policy: cr.AwsCustomResourcePolicy.fromSdkCalls({ resources: [this._project.projectArn] }),
         onUpdate: {
           action: 'startBuild',
