@@ -42,7 +42,7 @@
     "@types/follow-redirects": "^1.14.4",
     "@types/fs-extra": "^9.0.13",
     "@types/jest": "^29.5.11",
-    "@types/node": "^16",
+    "@types/node": "^18",
     "@types/tar": "^6.1.10",
     "@typescript-eslint/eslint-plugin": "^6",
     "@typescript-eslint/parser": "^6",
@@ -86,7 +86,7 @@
     "continuous-integration"
   ],
   "engines": {
-    "node": ">= 16.17.0"
+    "node": ">= 18.12.0"
   },
   "main": "lib/index.js",
   "license": "Apache-2.0",
