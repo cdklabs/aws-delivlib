@@ -877,7 +877,7 @@
   dependencies:
     "@types/node" "*"
 
-"@types/aws-lambda@^8.10.130":
+"@types/aws-lambda@^8.10.131":
   version "8.10.131"
   resolved "https://registry.yarnpkg.com/@types/aws-lambda/-/aws-lambda-8.10.131.tgz#76fcd36e6a4a4666c7ea7503bf0e3e86c0a9cdb2"
   integrity sha512-IWmFpqnVDvskYWnNSiu/qlRn80XlIOU0Gy5rKCl/NjhnI95pV8qIHs6L5b+bpHhyzuOSzjLgBcwgFSXrC1nZWA==
@@ -1007,7 +1007,7 @@
   resolved "https://registry.yarnpkg.com/@types/stack-utils/-/stack-utils-2.0.3.tgz#6209321eb2c1712a7e7466422b8cb1fc0d9dd5d8"
   integrity sha512-9aEbYZ3TbYMznPdcdr3SmIrLXwC/AKZXQeCf9Pgao5CKb8CyHuEX5jzWPTkvregvhRJHcpRO6BFoGW9ycaOkYw==
 
-"@types/tar@^6.1.10":
+"@types/tar@^6.1.11":
   version "6.1.11"
   resolved "https://registry.yarnpkg.com/@types/tar/-/tar-6.1.11.tgz#48de9ccee8db37efb0d5a9f288567fc0378cb734"
   integrity sha512-ThA1WD8aDdVU4VLuyq5NEqriwXErF5gEIJeyT6gHBWU7JtSmW2a5qjNv3/vR82O20mW+1vhmeZJfBQPT3HCugg==
@@ -1339,14 +1339,14 @@ aws-cdk-lib@^2.76.0:
     table "^6.8.1"
     yaml "1.10.2"
 
-aws-cdk@^2.115.0:
+aws-cdk@^2.123.0:
   version "2.123.0"
   resolved "https://registry.yarnpkg.com/aws-cdk/-/aws-cdk-2.123.0.tgz#996914032768578693815ae07b50f1dc4c596c3c"
   integrity sha512-JvGNN1FobSaGwirJJQZ1oIkaHFfQoLbRyuxzFNQSs2wlVltwFb1VdR7FNxh0sVzugM2RsYQu8xQPUa53ZnDlyg==
   optionalDependencies:
     fsevents "2.3.2"
 
-aws-sdk-mock@^5.8.0:
+aws-sdk-mock@^5.9.0:
   version "5.9.0"
   resolved "https://registry.yarnpkg.com/aws-sdk-mock/-/aws-sdk-mock-5.9.0.tgz#80e5cdef33a8357899c77d1378316e9ed777b4fa"
   integrity sha512-kTUXaQQ1CTn3Cwxa2g1XqtCDq+FTEbPl/zgaYCok357f7gbWkeYEegqa5RziTRb11oNIUHrLp9DSHwZT3XdBkA==
@@ -1355,7 +1355,7 @@ aws-sdk-mock@^5.8.0:
     sinon "^17.0.0"
     traverse "^0.6.6"
 
-aws-sdk@^2.1231.0, aws-sdk@^2.1520.0:
+aws-sdk@^2.1231.0, aws-sdk@^2.1544.0:
   version "2.1544.0"
   resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.1544.0.tgz#ba93d31d08a77e502378910d639248ce35427786"
   integrity sha512-R0C9bonDL0IQ/j0tq6Xaq5weFiaiSOj6KGRseHy+78zdbP1tsG2LZSoN3J5RqjjLHA5/fTMwXO1IuW/4eCNLAg==
@@ -2110,7 +2110,7 @@ es-to-primitive@^1.2.1:
     is-date-object "^1.0.1"
     is-symbol "^1.0.2"
 
-esbuild@^0.19.9:
+esbuild@^0.19.12:
   version "0.19.12"
   resolved "https://registry.yarnpkg.com/esbuild/-/esbuild-0.19.12.tgz#dc82ee5dc79e82f5a5c3b4323a2a641827db3e04"
   integrity sha512-aARqgq8roFBj054KvQr5f1sFu0D65G+miZRCuJyJ0G13Zwx7vRar5Zhn2tkQNzIXcBrNVsv/8stehpj+GAjgbg==
@@ -2450,7 +2450,7 @@ flatted@^3.2.9:
   resolved "https://registry.yarnpkg.com/flatted/-/flatted-3.2.9.tgz#7eb4c67ca1ba34232ca9d2d93e9886e611ad7daf"
   integrity sha512-36yxDn5H7OFZQla0/jFJmbIKTdZAQHngCedGxiMmpNfEZM0sdEeT+WczLQrjK6D7o2aiyLYDnkw0R3JK0Qv1RQ==
 
-follow-redirects@^1.14.8, follow-redirects@^1.15.3:
+follow-redirects@^1.14.8, follow-redirects@^1.15.5:
   version "1.15.5"
   resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.15.5.tgz#54d4d6d062c0fa7d9d17feb008461550e3ba8020"
   integrity sha512-vSFWUON1B+yAw1VN4xMfxgn5fTUiaOzAJCKBwIIgT/+7CuGy9+r+5gITvP62j3RmaD5Ph65UaERdOSRGUzZtgw==
@@ -4197,10 +4197,10 @@ process-nextick-args@~2.0.0:
   resolved "https://registry.yarnpkg.com/process-nextick-args/-/process-nextick-args-2.0.1.tgz#7820d9b16120cc55ca9ae7792680ae7dba6d7fe2"
   integrity sha512-3ouUOpQhtgrbOa17J7+uxOTpITYWaGP7/AhoR3+A+/1e9skrzelGi/dXzEYyvbxubEF6Wn2ypscTKiKJFFn1ag==
 
-projen@^0.77.6:
-  version "0.77.6"
-  resolved "https://registry.yarnpkg.com/projen/-/projen-0.77.6.tgz#480c1af4246bba55e8d0732ff7a9d1804ce414be"
-  integrity sha512-nXbbDr81UjfLjCfVfHGfGPIjiN7INSyMUa52FYupX0TmybMq+CnvX8o0O45feOLLhsifNq7EHXtF+hgBtpBb8A==
+projen@^0.79.3:
+  version "0.79.3"
+  resolved "https://registry.yarnpkg.com/projen/-/projen-0.79.3.tgz#385761af74b8df15f58eef21022eb7d3645b2690"
+  integrity sha512-nmYW1YXFNdZNNDlfHsT4sMfE5vMgMbpG061RT+gtuvGkhm+6nYd8+kWo6xk+2J/egoNvXyS5kEbh4fFc41I5hA==
   dependencies:
     "@iarna/toml" "^2.2.5"
     case "^1.6.3"
@@ -4885,7 +4885,7 @@ ts-api-utils@^1.0.1:
   resolved "https://registry.yarnpkg.com/ts-api-utils/-/ts-api-utils-1.0.3.tgz#f12c1c781d04427313dbac808f453f050e54a331"
   integrity sha512-wNMeqtMz5NtwpT/UZGY5alT+VoKdSsOOP/kqHFcUW1P/VRhH2wJ48+DN2WwUliNbQ976ETwDL0Ifd2VVvgonvg==
 
-ts-jest@^29.1.1:
+ts-jest@^29.1.2:
   version "29.1.2"
   resolved "https://registry.yarnpkg.com/ts-jest/-/ts-jest-29.1.2.tgz#7613d8c81c43c8cb312c6904027257e814c40e09"
   integrity sha512-br6GJoH/WUX4pu7FbZXuWGKGNDuU7b8Uj77g/Sp7puZV6EXzuByl6JrECvm0MzVzSTkSHWTihsXt+5XYER5b+g==

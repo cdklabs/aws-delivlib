@@ -27,3 +27,5 @@ tsconfig.tsbuildinfo
 /build-*.sh
 cdk.out/
 cdk.json
+/.gitattributes
+/.projenrc.ts
