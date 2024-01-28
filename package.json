@@ -52,7 +52,7 @@
     "aws-sdk": "^2.1545.0",
     "aws-sdk-mock": "^5.9.0",
     "constructs": "^10.1.31",
-    "esbuild": "^0.19.12",
+    "esbuild": "^0.20.0",
     "eslint": "^8",
     "eslint-import-resolver-typescript": "^2.7.1",
     "eslint-plugin-import": "^2.29.1",
