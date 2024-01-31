@@ -979,16 +979,16 @@
   integrity sha512-hov8bUuiLiyFPGyFPE1lwWhmzYbirOXQNNo40+y3zow8aFVTeyn3VWL0VFFfdNddA8S4Vf0Tc062rzyNr7Paag==
 
 "@types/node@*":
-  version "20.11.10"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-20.11.10.tgz#6c3de8974d65c362f82ee29db6b5adf4205462f9"
-  integrity sha512-rZEfe/hJSGYmdfX9tvcPMYeYPW2sNl50nsw4jZmRcaG0HIAb0WYEpsB05GOb53vjqpyE9GUhlDQ4jLSoB5q9kg==
+  version "20.11.13"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-20.11.13.tgz#188263ee2c8d590e181d3f5bfa7e485a932957cb"
+  integrity sha512-5G4zQwdiQBSWYTDAH1ctw2eidqdhMJaNsiIDKHFr55ihz5Trl2qqR8fdrT732yPBho5gkNxXm67OxWFBqX9aPg==
   dependencies:
     undici-types "~5.26.4"
 
 "@types/node@^18":
-  version "18.19.10"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-18.19.10.tgz#4de314ab66faf6bc8ba691021a091ddcdf13a158"
-  integrity sha512-IZD8kAM02AW1HRDTPOlz3npFava678pr8Ie9Vp8uRhBROXAv8MXT2pCnGZZAKYdromsNQLHQcfWQ6EOatVLtqA==
+  version "18.19.11"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-18.19.11.tgz#355cf2a28a8c2edf154b275a5715401b18fe0b63"
+  integrity sha512-hzdHPKpDdp5bEcRq1XTlZ2ntVjLcHCTV73dEcGg02eSY/+9AZ+jlfz6i00+zOrunMWenjHuI49J8J7Y9uz50JQ==
   dependencies:
     undici-types "~5.26.4"
 
@@ -1355,10 +1355,10 @@ aws-sdk-mock@^5.9.0:
     sinon "^17.0.0"
     traverse "^0.6.6"
 
-aws-sdk@^2.1231.0, aws-sdk@^2.1546.0:
-  version "2.1546.0"
-  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.1546.0.tgz#8f561643e2795ba04d6f5b0042fe22646ac57e21"
-  integrity sha512-v9fZehIMQRCvojbD1BNN4YiUjoj/KtD0/7KUPEyTQpuzpD8/QI6CSJx71hC8ad1y8ObDf+OntPvmtvXBnPES5g==
+aws-sdk@^2.1231.0, aws-sdk@^2.1547.0:
+  version "2.1547.0"
+  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.1547.0.tgz#c953888fb2111e6dddc77265ef442f13beb88329"
+  integrity sha512-jk7u3KtDZ5F20k2X6D2FhndpLGkt3ZuNfRU5crp+fI6B/GFj/S91GJDoZh/Yw3rW+CemY1sFmdFT8ReA2G8WkA==
   dependencies:
     buffer "4.9.2"
     events "1.1.1"
@@ -2019,9 +2019,9 @@ dotgitignore@^2.1.0:
     minimatch "^3.0.4"
 
 electron-to-chromium@^1.4.648:
-  version "1.4.650"
-  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.650.tgz#b38ef9de16991b9f7b924246770576ab91ab3d64"
-  integrity sha512-sYSQhJCJa4aGA1wYol5cMQgekDBlbVfTRavlGZVr3WZpDdOPcp6a6xUnFfrt8TqZhsBYYbDxJZCjGfHuGupCRQ==
+  version "1.4.651"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.651.tgz#ef1e822233c6fc953df3caf943f78c21b254a080"
+  integrity sha512-jjks7Xx+4I7dslwsbaFocSwqBbGHQmuXBJUK9QBZTIrzPq3pzn6Uf2szFSP728FtLYE3ldiccmlkOM/zhGKCpA==
 
 emittery@^0.13.1:
   version "0.13.1"
