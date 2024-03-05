@@ -547,11 +547,7 @@ export class WindowsPlatform extends ShellPlatform {
   public readonly platformType = PlatformType.Windows;
 
   public installCommands(): string[] | undefined {
-    return [
-      // Update the image's nodejs to the latest LTS release.
-      'Import-Module "C:\\ProgramData\\chocolatey\\helpers\\chocolateyProfile.psm1"',
-      'C:\\ProgramData\\chocolatey\\bin\\choco.exe upgrade nodejs-lts -y',
-    ];
+    return undefined;
   }
 
   public prebuildCommands(assumeRole?: AssumeRole, _useRegionalStsEndpoints?: boolean): string[] {
