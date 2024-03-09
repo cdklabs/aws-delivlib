@@ -49,7 +49,7 @@
     "adm-zip": "^0.5.10",
     "aws-cdk": "^2.131.0",
     "aws-cdk-lib": "^2.76.0",
-    "aws-sdk": "^2.1573.0",
+    "aws-sdk": "^2.1574.0",
     "aws-sdk-mock": "^5.9.0",
     "constructs": "^10.1.31",
     "esbuild": "^0.20.1",
