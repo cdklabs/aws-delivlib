@@ -286,7 +286,7 @@
       },
       "steps": [
         {
-          "exec": "npx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=@types/adm-zip,@types/aws-lambda,@types/follow-redirects,@types/fs-extra,@types/jest,@types/tar,adm-zip,aws-cdk,aws-sdk,aws-sdk-mock,esbuild,eslint-import-resolver-typescript,eslint-plugin-import,follow-redirects,fs-extra,jest,jest-create-mock-instance,JSONStream,minipass,node-ical,projen,rrule,tar,ts-jest,ts-node,typescript,changelog-parser"
+          "exec": "npx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=@types/adm-zip,@types/aws-lambda,@types/follow-redirects,@types/fs-extra,@types/jest,@types/tar,adm-zip,aws-cdk,aws-sdk,aws-sdk-mock,esbuild,eslint-import-resolver-typescript,eslint-plugin-import,follow-redirects,fs-extra,jest,jest-create-mock-instance,JSONStream,projen,rrule,tar,ts-jest,ts-node,typescript,changelog-parser"
         },
         {
           "exec": "yarn install --check-files"
