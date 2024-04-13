@@ -1361,10 +1361,10 @@ aws-sdk-mock@^5.9.0:
     sinon "^17.0.0"
     traverse "^0.6.6"
 
-aws-sdk@^2.1231.0, aws-sdk@^2.1598.0:
-  version "2.1598.0"
-  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.1598.0.tgz#da81c4b2e453da70717fad0631394cfa7c023e8e"
-  integrity sha512-/oPetmY5v62lAt2jTRfIEHrdrg8hfz5KI8qvvP/jhFdNJfLZ85nsn3+fSS8i3FgfeWXIS5yv4ZPpA+JNAnBwdQ==
+aws-sdk@^2.1231.0, aws-sdk@^2.1599.0:
+  version "2.1599.0"
+  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.1599.0.tgz#701850e6baabf6e796169e0894f062eee4509fba"
+  integrity sha512-jPb1LAN+s1TLTK+VR3TTJLr//sb3AhhT60Bm9jxB5G/fVeeRczXtBtixNpQ00gksQdkstILYLc9S6MuKMsksxA==
   dependencies:
     buffer "4.9.2"
     events "1.1.1"
@@ -1550,9 +1550,9 @@ camelcase@^6.2.0:
   integrity sha512-Gmy6FhYlCY7uOElZUSbxo2UCDH8owEk996gkbrpsgGtrJLM3J7jGxl9Ic7Qwwj4ivOE5AWZWRMecDdF7hqGjFA==
 
 caniuse-lite@^1.0.30001587:
-  version "1.0.30001608"
-  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001608.tgz#7ae6e92ffb300e4b4ec2f795e0abab456ec06cc0"
-  integrity sha512-cjUJTQkk9fQlJR2s4HMuPMvTiRggl0rAVMtthQuyOlDWuqHXqN8azLq+pi8B2TjwKJ32diHjUqRIKeFX4z1FoA==
+  version "1.0.30001609"
+  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001609.tgz#fc34fad75c0c6d6d6303bdbceec2da8f203dabd6"
+  integrity sha512-JFPQs34lHKx1B5t1EpQpWH4c+29zIyn/haGsbpfq3suuV9v56enjFt23zqijxGTMwy1p/4H2tjnQMY+p1WoAyA==
 
 case@1.6.3, case@^1.6.3:
   version "1.6.3"
@@ -2054,9 +2054,9 @@ dotgitignore@^2.1.0:
     minimatch "^3.0.4"
 
 electron-to-chromium@^1.4.668:
-  version "1.4.734"
-  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.734.tgz#6e0083e1a6be06b2df4c849ba1534d86f30a6738"
-  integrity sha512-pYfGUc+ll8AOzLbLC0lfgwkvCZIV+sKGuFFsSNuF3K3ujrmem8jIjg/t6DNq0J7biTSS1hCt/Hts0nmA3ZyprQ==
+  version "1.4.736"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.736.tgz#ecb4348f4d5c70fb1e31c347e5bad6b751066416"
+  integrity sha512-Rer6wc3ynLelKNM4lOCg7/zPQj8tPOCB2hzD32PX9wd3hgRRi9MxEbmkFCokzcEhRVMiOVLjnL9ig9cefJ+6+Q==
 
 emittery@^0.13.1:
   version "0.13.1"
