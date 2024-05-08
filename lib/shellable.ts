@@ -550,7 +550,7 @@ export class WindowsPlatform extends ShellPlatform {
     return [
       // Update the image's nodejs to the latest LTS release.
       'Import-Module "C:\\ProgramData\\chocolatey\\helpers\\chocolateyProfile.psm1"',
-      'C:\\ProgramData\\chocolatey\\bin\\choco.exe upgrade nodejs-lts -y',
+      'C:\\ProgramData\\chocolatey\\bin\\choco.exe upgrade nodejs-lts -y --version 20.12.2',
     ];
   }
 
