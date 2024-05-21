@@ -1356,10 +1356,10 @@ aws-sdk-mock@^5.9.0:
     sinon "^17.0.0"
     traverse "^0.6.6"
 
-aws-sdk@^2.1231.0, aws-sdk@^2.1623.0:
-  version "2.1623.0"
-  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.1623.0.tgz#d797fea335266c1c639d31a2e4a53b4f2cee5e42"
-  integrity sha512-SFPc+QJqoghsE0nn6YSmrDDDPpWc3m4rcDQYg6W3GQek+f1v6kycxM5+N58pMZ2iWhRSOTf9NQRcZj0ZU3PklQ==
+aws-sdk@^2.1231.0, aws-sdk@^2.1624.0:
+  version "2.1624.0"
+  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.1624.0.tgz#09a55b1e4da21e9b09048ca72c006d7f598c7d05"
+  integrity sha512-SxBGDkdmsQTXLKPaY+hLqjlQyZBaGaFD34EhTd4aYuuqT952sxYeDt7w75py4o4O5z4hUUTccqTF9dtpxCPJfg==
   dependencies:
     buffer "4.9.2"
     events "1.1.1"
@@ -2049,9 +2049,9 @@ dotgitignore@^2.1.0:
     minimatch "^3.0.4"
 
 electron-to-chromium@^1.4.668:
-  version "1.4.774"
-  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.774.tgz#1017d1758aaeeefe5423aa9d67b4b1e5d1d0a856"
-  integrity sha512-132O1XCd7zcTkzS3FgkAzKmnBuNJjK8WjcTtNuoylj7MYbqw5eXehjQ5OK91g0zm7OTKIPeaAG4CPoRfD9M1Mg==
+  version "1.4.775"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.775.tgz#176e9cc439b76a4c768f44c821eaedd32d055503"
+  integrity sha512-JpOfl1aNAiZ88wFzjPczTLwYIoPIsij8S9/XQH9lqMpiJOf23kxea68B8wje4f68t4rOIq4Bh+vP4I65njiJBw==
 
 emittery@^0.13.1:
   version "0.13.1"
