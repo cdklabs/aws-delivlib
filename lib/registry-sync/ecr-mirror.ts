@@ -80,7 +80,8 @@ export class EcrMirror extends Construct {
 
   private readonly _repos: Map<string, ecr.Repository> = new Map();
   private readonly _repoTagsSeen = new Set<string>();
-  private readonly _project: codebuild.Project;
+
+  public readonly project: codebuild.Project;
 
   constructor(scope: Construct, id: string, props: EcrMirrorProps) {
     super(scope, id);
@@ -100,7 +101,7 @@ export class EcrMirror extends Construct {
     const username = codeBuildSecretValue(props.dockerHubCredentials.usernameKey, props.dockerHubCredentials);
     const password = codeBuildSecretValue(props.dockerHubCredentials.passwordKey, props.dockerHubCredentials);
 
-    this._project = new codebuild.Project(this, 'EcrPushImages', {
+    this.project = new codebuild.Project(this, 'EcrPushImages', {
       environment: {
         privileged: true,
         buildImage: codebuild.LinuxBuildImage.fromDockerRegistry('public.ecr.aws/jsii/superchain:1-bullseye-slim-node18'),
@@ -142,17 +143,17 @@ export class EcrMirror extends Construct {
     });
 
     // Ensure the runner has PULL access to ECR-Public.
-    this._project.role!.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonElasticContainerRegistryPublicReadOnly'));
+    this.project.role!.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonElasticContainerRegistryPublicReadOnly'));
 
     // Give the project access to the Docker Hub credentials
     // Required for access to private images and to avoid throttling of unauthorized requests
-    props.dockerHubCredentials.secret.grantRead(this._project);
+    props.dockerHubCredentials.secret.grantRead(this.project);
 
     for (const image of props.sources) {
       const result = image.bind({
         scope: this,
         ecrRegistry,
-        syncJob: this._project,
+        syncJob: this.project,
       });
       commands.push(...result.commands);
 
@@ -173,23 +174,23 @@ export class EcrMirror extends Construct {
     }
 
     // CodeBuild needs to read the secret to resolve environment variables
-    props.dockerHubCredentials.secret.grantRead(this._project);
+    props.dockerHubCredentials.secret.grantRead(this.project);
 
-    ecr.AuthorizationToken.grantRead(this._project);
-    this._repos.forEach((r, _) => r.grantPullPush(this._project));
+    ecr.AuthorizationToken.grantRead(this.project);
+    this._repos.forEach((r, _) => r.grantPullPush(this.project));
 
     // this project needs to download the assets so it can build them
-    assets.forEach(a => a.grantRead(this._project));
+    assets.forEach(a => a.grantRead(this.project));
 
     if (props.autoStart) {
       new cr.AwsCustomResource(this, 'BuildExecution', {
         installLatestAwsSdk: false,
-        policy: cr.AwsCustomResourcePolicy.fromSdkCalls({ resources: [this._project.projectArn] }),
+        policy: cr.AwsCustomResourcePolicy.fromSdkCalls({ resources: [this.project.projectArn] }),
         onUpdate: {
           action: 'startBuild',
           service: 'CodeBuild',
           parameters: {
-            projectName: this._project.projectName,
+            projectName: this.project.projectName,
             // to tigger the build on every update
             idempotencyToken: `${Date.now()}`,
           },
@@ -204,7 +205,7 @@ export class EcrMirror extends Construct {
     if (props.schedule) {
       new events.Rule(this, 'ScheduledTrigger', {
         schedule: props.schedule,
-        targets: [new targets.CodeBuildProject(this._project)],
+        targets: [new targets.CodeBuildProject(this.project)],
       });
     }
   }
