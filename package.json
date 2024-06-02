@@ -46,7 +46,7 @@
     "@types/tar": "^6.1.13",
     "@typescript-eslint/eslint-plugin": "^6",
     "@typescript-eslint/parser": "^6",
-    "adm-zip": "^0.5.12",
+    "adm-zip": "^0.5.13",
     "aws-cdk": "^2.144.0",
     "aws-cdk-lib": "^2.76.0",
     "aws-sdk": "^2.1632.0",
