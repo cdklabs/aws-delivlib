@@ -1328,10 +1328,10 @@ aws-cdk-lib@^2.76.0:
     table "^6.8.1"
     yaml "1.10.2"
 
-aws-cdk@^2.145.0:
-  version "2.145.0"
-  resolved "https://registry.yarnpkg.com/aws-cdk/-/aws-cdk-2.145.0.tgz#497b8a5c9b14434e29bb2bd7f3235bdbf2e1b2d3"
-  integrity sha512-Jdw7nbrXiihYM/jReXK0/i8a+W/o+fLcn1f8Yzvns1jP58KBGQygqyiv5Dm+uqzS3D8/ZZnfPu3ph6aOVLPNSA==
+aws-cdk@^2.146.0:
+  version "2.146.0"
+  resolved "https://registry.yarnpkg.com/aws-cdk/-/aws-cdk-2.146.0.tgz#eda95c23b96ccd132086fabd2e7a086040cf6c22"
+  integrity sha512-uLotAflIqQn8rskLC1r2NGNMaTwDgW8Vq016QiACmatIcp2n/hfNlwazg+hRlSzq2FwGda6Qht2aOlsGm0QcBw==
   optionalDependencies:
     fsevents "2.3.2"
 
@@ -1344,10 +1344,10 @@ aws-sdk-mock@^5.9.0:
     sinon "^17.0.0"
     traverse "^0.6.6"
 
-aws-sdk@^2.1231.0, aws-sdk@^2.1640.0:
-  version "2.1640.0"
-  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.1640.0.tgz#ef7fe7c6060c8c98d28c48245197a8349fd90c18"
-  integrity sha512-B4ipyAKMPjTMWyVG4wx57V9Ws9anAGTCtR6jTGfIA6wSjrMNeNVohwROe4E4CZDcNiWBPhZjNus/9uupdsW8vg==
+aws-sdk@^2.1231.0, aws-sdk@^2.1641.0:
+  version "2.1641.0"
+  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.1641.0.tgz#fc515dfb1cef3106a5ce90d370016442483b8d0a"
+  integrity sha512-XkKbVu4VKFjY7wsTSWEYxBR2fVN8gUovAvRrHuJt9mMDdDh/wPkBZ04ayGT+Bd5bgmmIeE3sk3UMokKQEudJEQ==
   dependencies:
     buffer "4.9.2"
     events "1.1.1"
@@ -1533,9 +1533,9 @@ camelcase@^6.2.0:
   integrity sha512-Gmy6FhYlCY7uOElZUSbxo2UCDH8owEk996gkbrpsgGtrJLM3J7jGxl9Ic7Qwwj4ivOE5AWZWRMecDdF7hqGjFA==
 
 caniuse-lite@^1.0.30001629:
-  version "1.0.30001632"
-  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001632.tgz#964207b7cba5851701afb4c8afaf1448db3884b6"
-  integrity sha512-udx3o7yHJfUxMLkGohMlVHCvFvWmirKh9JAH/d7WOLPetlH+LTL5cocMZ0t7oZx/mdlOWXti97xLZWc8uURRHg==
+  version "1.0.30001633"
+  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001633.tgz#45a4ade9fb9ec80a06537a6271ac1e0afadcb324"
+  integrity sha512-6sT0yf/z5jqf8tISAgpJDrmwOpLsrpnyCdD/lOZKvKkkJK4Dn0X5i7KF7THEZhOq+30bmhwBlNEaqPUiHiKtZg==
 
 case@1.6.3, case@^1.6.3:
   version "1.6.3"
@@ -2037,9 +2037,9 @@ dotgitignore@^2.1.0:
     minimatch "^3.0.4"
 
 electron-to-chromium@^1.4.796:
-  version "1.4.800"
-  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.800.tgz#8044d38c05b0b2014cd6747523ebfca4203177c7"
-  integrity sha512-G8yyAReBP8m0XaW9BBH5NOJe4ZGYDDsPYkgLCG8xU6HwGKzrT0Jj51uAHkt1D+9ZxHPoGFSSZqqSN7HxAiP+0g==
+  version "1.4.802"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.802.tgz#49b397eadc95a49b1ac33eebee146b8e5a93773f"
+  integrity sha512-TnTMUATbgNdPXVSHsxvNVSG0uEd6cSZsANjm8c9HbvflZVVn1yTRcmVXYT1Ma95/ssB/Dcd30AHweH2TE+dNpA==
 
 emittery@^0.13.1:
   version "0.13.1"
