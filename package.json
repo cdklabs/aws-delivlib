@@ -38,7 +38,7 @@
   },
   "devDependencies": {
     "@types/adm-zip": "^0.5.5",
-    "@types/aws-lambda": "^8.10.140",
+    "@types/aws-lambda": "^8.10.141",
     "@types/follow-redirects": "^1.14.4",
     "@types/fs-extra": "^9.0.13",
     "@types/jest": "^29.5.12",
@@ -47,9 +47,9 @@
     "@typescript-eslint/eslint-plugin": "^7",
     "@typescript-eslint/parser": "^7",
     "adm-zip": "^0.5.14",
-    "aws-cdk": "^2.148.0",
+    "aws-cdk": "^2.150.0",
     "aws-cdk-lib": "^2.76.0",
-    "aws-sdk": "^2.1655.0",
+    "aws-sdk": "^2.1661.0",
     "aws-sdk-mock": "^5.9.0",
     "constructs": "^10.1.31",
     "esbuild": "^0.23.0",
@@ -64,11 +64,11 @@
     "JSONStream": "^1.3.5",
     "minipass": "3.2.1",
     "node-ical": "0.15.1",
-    "projen": "^0.84.0",
+    "projen": "^0.84.8",
     "rrule": "^2.8.1",
     "standard-version": "^9",
     "tar": "^6.2.1",
-    "ts-jest": "^29.1.5",
+    "ts-jest": "^29.2.3",
     "ts-node": "^10.9.2",
     "typescript": "~4.9.5"
   },
@@ -97,7 +97,10 @@
   "jest": {
     "coverageProvider": "v8",
     "testMatch": [
-      "**/lib/__tests__/**/?(*.)+(spec|test).js?(x)"
+      "<rootDir>/@(lib/__tests__)/**/*(*.)@(spec|test).js?(x)",
+      "<rootDir>/@(lib/__tests__)/**/__tests__/**/*.js?(x)",
+      "<rootDir>/@(projenrc)/**/*(*.)@(spec|test).ts?(x)",
+      "<rootDir>/@(projenrc)/**/__tests__/**/*.ts?(x)"
     ],
     "clearMocks": true,
     "collectCoverage": true,
