@@ -53,7 +53,7 @@ export class PipelineWatcher extends Construct {
 
     const pipelineWatcher = new lambda.Function(this, 'Poller', {
       handler: 'watcher-handler.handler',
-      runtime: lambda.Runtime.NODEJS_14_X,
+      runtime: lambda.Runtime.NODEJS_20_X,
       code: lambda.Code.fromAsset(path.join(__dirname, 'handler')),
       environment: {
         METRIC_NAMESPACE: props.metricNamespace,

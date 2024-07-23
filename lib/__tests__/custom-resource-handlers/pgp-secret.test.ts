@@ -50,7 +50,7 @@ jest.spyOn(fs, 'mkdtemp')
 const writeFile = fs.writeFile = jest.fn().mockName('fs.writeFile')
   .mockImplementation((_pth, _data, _opts, cb) => cb()) as any;
 jest.mock('../../custom-resource-handlers/src/_exec', () => async (cmd: string, ...args: string[]) => {
-  await expect(cmd).toBe('/opt/gpg');
+  await expect(cmd).toBe('gpg');
   const process = require('process');
   await expect(process.env.GNUPGHOME).toBe(mockTmpDir);
   await expect(args).toContain('--batch');

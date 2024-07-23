@@ -67,13 +67,13 @@ export class RsaPrivateKeySecret extends Construct {
       lambdaPurpose: 'RSAPrivate-Key',
       uuid: '72FD327D-3813-4632-9340-28EC437AA486',
       description: 'Generates an RSA Private Key and stores it in AWS Secrets Manager',
-      runtime: lambda.Runtime.NODEJS_14_X,
+      runtime: lambda.Runtime.NODEJS_20_X,
       handler: 'index.handler',
       code: new lambda.AssetCode(codeLocation),
       timeout: Duration.seconds(300),
       // add the layer that contains the OpenSSL CLI binary
       layers: [new lambda.LayerVersion(this, 'OpenSslCliLayer', {
-        code: lambda.Code.fromAsset(path.join(__dirname, '..', 'custom-resource-handlers', 'layers', 'openssl-cli-layer.zip')),
+        code: lambda.Code.fromAsset(path.join(__dirname, '..', 'custom-resource-handlers', 'layers', 'openssl-cli-al2023.zip')),
       })],
     });
 

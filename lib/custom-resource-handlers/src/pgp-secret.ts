@@ -21,6 +21,10 @@ const ssm = new aws.SSM();
 
 exports.handler = cfn.customResourceHandler(handleEvent);
 
+// Used to be /opt/gpg, but now is just plain gpg
+const GPG_BIN = 'gpg';
+
+
 interface ResourceAttributes extends cfn.ResourceAttributes {
   SecretArn: string;
   PublicKey: string;
@@ -88,9 +92,9 @@ async function _createNewKey(event: cfn.CreateEvent | cfn.UpdateEvent, context: 
     ].join('\n'), { encoding: 'utf8' });
 
     const gpgCommonArgs = [`--homedir=${tempDir}`, '--agent-program=/opt/gpg-agent'];
-    await _exec('/opt/gpg', ...gpgCommonArgs, '--batch', '--gen-key', keyConfig);
-    const keyMaterial = await _exec('/opt/gpg', ...gpgCommonArgs, '--batch', '--yes', '--export-secret-keys', '--armor');
-    const publicKey = await _exec('/opt/gpg', ...gpgCommonArgs, '--batch', '--yes', '--export', '--armor');
+    await _exec(GPG_BIN, ...gpgCommonArgs, '--batch', '--gen-key', keyConfig);
+    const keyMaterial = await _exec(GPG_BIN, ...gpgCommonArgs, '--batch', '--yes', '--export-secret-keys', '--armor');
+    const publicKey = await _exec(GPG_BIN, ...gpgCommonArgs, '--batch', '--yes', '--export', '--armor');
     const secretOpts = {
       ClientRequestToken: context.awsRequestId,
       Description: event.ResourceProperties.Description,
@@ -153,8 +157,8 @@ async function _getPublicKey(secretArn: string): Promise<string> {
     await writeFile(privateKeyFile, keyData.PrivateKey, { encoding: 'utf-8' });
     const gpgCommonArgs = [`--homedir=${tempDir}`, '--agent-program=/opt/gpg-agent'];
     // Note: importing a private key does NOT require entering it's passphrase!
-    await _exec('/opt/gpg', ...gpgCommonArgs, '--batch', '--yes', '--import', privateKeyFile);
-    return await _exec('/opt/gpg', ...gpgCommonArgs, '--batch', '--yes', '--export', '--armor');
+    await _exec(GPG_BIN, ...gpgCommonArgs, '--batch', '--yes', '--import', privateKeyFile);
+    return await _exec(GPG_BIN, ...gpgCommonArgs, '--batch', '--yes', '--export', '--armor');
   } finally {
     await _rmrf(tempDir);
   }
