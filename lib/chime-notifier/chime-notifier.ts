@@ -56,7 +56,7 @@ export class ChimeNotifier extends Construct {
         handler: 'index.handler',
         uuid: '0f4a3ee0-692e-4249-932f-a46a833886d8',
         code: lambda.Code.fromAsset(path.join(__dirname, 'handler')),
-        runtime: lambda.Runtime.NODEJS_14_X,
+        runtime: lambda.Runtime.NODEJS_LATEST,
         timeout: Duration.minutes(5),
       });
 
