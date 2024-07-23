@@ -1,9 +1,8 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
 import fs = require('fs');
 import path = require('path');
-import aws = require('aws-sdk');
+import { PutObjectCommandInput } from '@aws-sdk/client-s3';
 import awsMock = require('aws-sdk-mock');
-import { createMockInstance } from 'jest-create-mock-instance';
 import cfn = require('../../custom-resource-handlers/src/_cloud-formation');
 import lambda = require('../../custom-resource-handlers/src/_lambda');
 
@@ -76,11 +75,7 @@ fs.readFile = jest.fn().mockName('fs.readFile')
   }) as any;
 const mockWriteFile = fs.writeFile = jest.fn().mockName('fs.writeFile')
   .mockImplementation((_pth, _data, _opts, cb) => cb()) as any;
-const mockSecretsManager = createMockInstance(aws.SecretsManager);
-aws.SecretsManager = jest.fn().mockName('SecretsManager')
-  .mockImplementation(() => mockSecretsManager) as any;
-mockSecretsManager.getSecretValue = jest.fn().mockName('SecretsManager.getSecretValue')
-  .mockImplementation(() => ({ promise: () => Promise.resolve({ SecretString: mockPrivateKey }) })) as any;
+
 const mockExec = jest.fn().mockName('_exec').mockRejectedValue(new Error('Unexpected call!'));
 jest.mock('../../custom-resource-handlers/src/_exec', () => mockExec);
 jest.mock('../../custom-resource-handlers/src/_rmrf', () => mockRmrf);
@@ -90,7 +85,7 @@ jest.mock('../../custom-resource-handlers/src/_rmrf', () => mockRmrf);
 jest.spyOn(cfn, 'sendResponse').mockName('cfn.sendResponse').mockResolvedValue(Promise.resolve());
 
 const mockPutObject = jest.fn().mockName('S3.putObject').mockImplementation(
-  (request: aws.S3.PutObjectRequest) => {
+  (request: PutObjectCommandInput) => {
     expect(request.Bucket).toBe(outputBucketName);
     expect(request.ContentType).toBe('application/x-pem-file');
     switch (request.Key) {
@@ -108,13 +103,48 @@ const mockPutObject = jest.fn().mockName('S3.putObject').mockImplementation(
   },
 );
 
-beforeEach(() => {
-  awsMock.setSDKInstance(aws as any);
-  jest.clearAllMocks();
+const mockSecretsManagerClient = {
+  getSecretValue: jest.fn().mockName('SecretsManager.getSecretValue'),
+};
+
+const mockS3Client = {
+  putObject: jest.fn().mockName('S3.putObject'),
+};
+
+jest.mock('@aws-sdk/client-secrets-manager', () => {
+  return {
+    SecretsManager: jest.fn().mockImplementation(() => {
+      return mockSecretsManagerClient;
+    }),
+  };
 });
 
-afterEach(() => {
-  awsMock.restore();
+jest.mock('@aws-sdk/client-s3', () => {
+  return {
+    S3: jest.fn().mockImplementation(() => {
+      return mockS3Client;
+    }),
+  };
+});
+
+beforeEach(() => {
+  mockSecretsManagerClient.getSecretValue.mockImplementation(() => Promise.resolve({ SecretString: mockPrivateKey }));
+  mockS3Client.putObject.mockImplementation((request: PutObjectCommandInput) => {
+    expect(request.Bucket).toBe(outputBucketName);
+    expect(request.ContentType).toBe('application/x-pem-file');
+    switch (request.Key) {
+      case 'certificate-signing-request.pem':
+        expect(request.Body).toBe(mockCsr);
+        break;
+      case 'self-signed-certificate.pem':
+        expect(request.Body).toBe(mockCertificate);
+        break;
+      default:
+        return Promise.reject(`Unexpected object key requested: ${request.Key}`);
+    }
+
+    return Promise.resolve();
+  });
 });
 
 test('Create', async () => {
@@ -125,16 +155,16 @@ test('Create', async () => {
   };
 
   mockExec.mockImplementation(async (cmd: string, ...args: string[]) => {
-    await expect(cmd).toBe('/opt/openssl');
+    expect(cmd).toBe('/opt/openssl');
     switch (args[0]) {
       case 'req':
-        await expect(args).toEqual(['req', '-config', require('path').join(mockTmpDir, 'csr.config'),
+        expect(args).toEqual(['req', '-config', require('path').join(mockTmpDir, 'csr.config'),
           '-key', require('path').join(mockTmpDir, 'private_key.pem'),
           '-out', require('path').join(mockTmpDir, 'csr.pem'),
           '-new']);
         break;
       case 'x509':
-        await expect(args).toEqual(['x509', '-in', require('path').join(mockTmpDir, 'csr.pem'),
+        expect(args).toEqual(['x509', '-in', require('path').join(mockTmpDir, 'csr.pem'),
           '-out', require('path').join(mockTmpDir, 'cert.pem'),
           '-req',
           '-signkey', require('path').join(mockTmpDir, 'private_key.pem'),
@@ -151,20 +181,20 @@ test('Create', async () => {
   const { handler } = require('../../custom-resource-handlers/src/certificate-signing-request');
   await expect(handler(event, context)).resolves.toBe(undefined);
 
-  await expect(mockWriteFile)
-    .toBeCalledWith(path.join(mockTmpDir, 'csr.config'),
+  expect(mockWriteFile)
+    .toHaveBeenCalledWith(path.join(mockTmpDir, 'csr.config'),
       csrDocument,
       expect.anything(),
       expect.any(Function));
-  await expect(mockWriteFile)
-    .toBeCalledWith(path.join(mockTmpDir, 'private_key.pem'),
+  expect(mockWriteFile)
+    .toHaveBeenCalledWith(path.join(mockTmpDir, 'private_key.pem'),
       mockPrivateKey,
       expect.anything(),
       expect.any(Function));
   expect(mockPutObject).toHaveBeenCalledTimes(2);
-  await expect(mockRmrf).toBeCalledWith(mockTmpDir);
+  expect(mockRmrf).toHaveBeenCalledWith(mockTmpDir);
   return expect(cfn.sendResponse)
-    .toBeCalledWith(event,
+    .toHaveBeenCalledWith(event,
       cfn.Status.SUCCESS,
       event.LogicalResourceId,
       { Ref: event.LogicalResourceId, CSR: `s3://${outputBucketName}/certificate-signing-request.pem`, SelfSignedCertificate: `s3://${outputBucketName}/self-signed-certificate.pem` });
@@ -179,16 +209,16 @@ test('Update', async () => {
   };
 
   mockExec.mockImplementation(async (cmd: string, ...args: string[]) => {
-    await expect(cmd).toBe('/opt/openssl');
+    expect(cmd).toBe('/opt/openssl');
     switch (args[0]) {
       case 'req':
-        await expect(args).toEqual(['req', '-config', require('path').join(mockTmpDir, 'csr.config'),
+        expect(args).toEqual(['req', '-config', require('path').join(mockTmpDir, 'csr.config'),
           '-key', require('path').join(mockTmpDir, 'private_key.pem'),
           '-out', require('path').join(mockTmpDir, 'csr.pem'),
           '-new']);
         break;
       case 'x509':
-        await expect(args).toEqual(['x509', '-in', require('path').join(mockTmpDir, 'csr.pem'),
+        expect(args).toEqual(['x509', '-in', require('path').join(mockTmpDir, 'csr.pem'),
           '-out', require('path').join(mockTmpDir, 'cert.pem'),
           '-req',
           '-signkey', require('path').join(mockTmpDir, 'private_key.pem'),
@@ -205,20 +235,20 @@ test('Update', async () => {
   const { handler } = require('../../custom-resource-handlers/src/certificate-signing-request');
   await expect(handler(event, context)).resolves.toBe(undefined);
 
-  await expect(mockWriteFile)
-    .toBeCalledWith(path.join(mockTmpDir, 'csr.config'),
+  expect(mockWriteFile)
+    .toHaveBeenCalledWith(path.join(mockTmpDir, 'csr.config'),
       csrDocument,
       expect.anything(),
       expect.any(Function));
-  await expect(mockWriteFile)
-    .toBeCalledWith(path.join(mockTmpDir, 'private_key.pem'),
+  expect(mockWriteFile)
+    .toHaveBeenCalledWith(path.join(mockTmpDir, 'private_key.pem'),
       mockPrivateKey,
       expect.anything(),
       expect.any(Function));
   expect(mockPutObject).toHaveBeenCalledTimes(2);
-  await expect(mockRmrf).toBeCalledWith(mockTmpDir);
+  expect(mockRmrf).toHaveBeenCalledWith(mockTmpDir);
   return expect(cfn.sendResponse)
-    .toBeCalledWith(event,
+    .toHaveBeenCalledWith(event,
       cfn.Status.SUCCESS,
       event.LogicalResourceId,
       { Ref: event.LogicalResourceId, CSR: `s3://${outputBucketName}/certificate-signing-request.pem`, SelfSignedCertificate: `s3://${outputBucketName}/self-signed-certificate.pem` });
@@ -235,7 +265,7 @@ test('Delete', async () => {
   await expect(handler(event, context)).resolves.toBe(undefined);
 
   return expect(cfn.sendResponse)
-    .toBeCalledWith(event,
+    .toHaveBeenCalledWith(event,
       cfn.Status.SUCCESS,
       event.LogicalResourceId,
       { Ref: event.LogicalResourceId });

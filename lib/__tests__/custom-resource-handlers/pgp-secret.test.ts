@@ -96,11 +96,6 @@ beforeEach(() => {
   mockSecretsManagerClient.deleteSecret.mockImplementation(() => ({ promise: () => Promise.resolve() }));
 });
 
-
-afterEach(() => {
-  //jest.resetAllMocks();
-});
-
 const mockSendResponse = jest.spyOn(cfn, 'sendResponse').mockName('cfn.sendResponse').mockResolvedValue(Promise.resolve());
 const mockRmrf = jest.fn().mockName('_rmrf').mockResolvedValue(undefined);
 jest.mock('../../custom-resource-handlers/src/_rmrf', () => mockRmrf);
