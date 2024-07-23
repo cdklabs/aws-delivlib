@@ -79,7 +79,7 @@ export class ChangeController extends Construct {
     const fn = new nodejs.NodejsFunction(this, 'Function', {
       description: `Enforces a Change Control Policy into CodePipeline's ${props.pipelineStage.stageName} stage`,
       entry: path.join(__dirname, 'change-control-lambda', 'index.ts'),
-      runtime: lambda.Runtime.NODEJS_LATEST,
+      runtime: lambda.Runtime.NODEJS_20_X,
       environment: {
         // CAPITAL punishment 👌🏻
         CHANGE_CONTROL_BUCKET_NAME: changeControlBucket.bucketName,
