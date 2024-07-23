@@ -1,6 +1,22 @@
 {
   "dependencies": [
     {
+      "name": "@aws-sdk/client-codepipeline",
+      "type": "build"
+    },
+    {
+      "name": "@aws-sdk/client-s3",
+      "type": "build"
+    },
+    {
+      "name": "@aws-sdk/client-secrets-manager",
+      "type": "build"
+    },
+    {
+      "name": "@aws-sdk/client-ssm",
+      "type": "build"
+    },
+    {
       "name": "@types/adm-zip",
       "type": "build"
     },
@@ -49,10 +65,6 @@
     },
     {
       "name": "aws-cdk-lib",
-      "type": "build"
-    },
-    {
-      "name": "aws-sdk",
       "type": "build"
     },
     {

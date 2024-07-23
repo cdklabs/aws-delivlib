@@ -33,7 +33,10 @@ const project = new typescript.TypeScriptProject({
     'standard-version',
     'ts-jest',
     'typescript',
-    'aws-sdk',
+    '@aws-sdk/client-s3',
+    '@aws-sdk/client-ssm',
+    '@aws-sdk/client-secrets-manager',
+    '@aws-sdk/client-codepipeline',
     'aws-sdk-mock',
     'node-ical@0.15.1', // need to pin due to https://github.com/axios/axios/issues/5101
     'rrule',
