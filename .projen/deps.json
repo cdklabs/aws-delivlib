@@ -68,7 +68,7 @@
       "type": "build"
     },
     {
-      "name": "aws-sdk-mock",
+      "name": "aws-sdk",
       "type": "build"
     },
     {
@@ -103,10 +103,6 @@
     },
     {
       "name": "jest",
-      "type": "build"
-    },
-    {
-      "name": "jest-create-mock-instance",
       "type": "build"
     },
     {

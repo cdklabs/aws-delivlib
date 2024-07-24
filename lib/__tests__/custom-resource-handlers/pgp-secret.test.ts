@@ -93,7 +93,7 @@ beforeEach(() => {
       Passphrase: passphrase.toString('base64'),
     }),
   }));
-  mockSecretsManagerClient.deleteSecret.mockImplementation(() => ({ promise: () => Promise.resolve() }));
+  mockSecretsManagerClient.deleteSecret.mockImplementation(() => Promise.resolve());
 });
 
 const mockSendResponse = jest.spyOn(cfn, 'sendResponse').mockName('cfn.sendResponse').mockResolvedValue(Promise.resolve());
