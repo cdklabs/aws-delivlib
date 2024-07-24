@@ -2,7 +2,6 @@
 import fs = require('fs');
 import path = require('path');
 import { PutObjectCommandInput } from '@aws-sdk/client-s3';
-import awsMock = require('aws-sdk-mock');
 import cfn = require('../../custom-resource-handlers/src/_cloud-formation');
 import lambda = require('../../custom-resource-handlers/src/_lambda');
 
@@ -84,25 +83,6 @@ const mockRmrf = jest.fn().mockName('_rmrf')
 jest.mock('../../custom-resource-handlers/src/_rmrf', () => mockRmrf);
 jest.spyOn(cfn, 'sendResponse').mockName('cfn.sendResponse').mockResolvedValue(Promise.resolve());
 
-const mockPutObject = jest.fn().mockName('S3.putObject').mockImplementation(
-  (request: PutObjectCommandInput) => {
-    expect(request.Bucket).toBe(outputBucketName);
-    expect(request.ContentType).toBe('application/x-pem-file');
-    switch (request.Key) {
-      case 'certificate-signing-request.pem':
-        expect(request.Body).toBe(mockCsr);
-        break;
-      case 'self-signed-certificate.pem':
-        expect(request.Body).toBe(mockCertificate);
-        break;
-      default:
-        return { promise: () => Promise.reject(`Unexpected object key requested: ${request.Key}`) };
-    }
-
-    return { promise: () => Promise.resolve() };
-  },
-);
-
 const mockSecretsManagerClient = {
   getSecretValue: jest.fn().mockName('SecretsManager.getSecretValue'),
 };
@@ -176,8 +156,6 @@ test('Create', async () => {
     return '';
   });
 
-  awsMock.mock('S3', 'putObject', mockPutObject);
-
   const { handler } = require('../../custom-resource-handlers/src/certificate-signing-request');
   await expect(handler(event, context)).resolves.toBe(undefined);
 
@@ -191,7 +169,7 @@ test('Create', async () => {
       mockPrivateKey,
       expect.anything(),
       expect.any(Function));
-  expect(mockPutObject).toHaveBeenCalledTimes(2);
+  expect(mockS3Client.putObject).toHaveBeenCalledTimes(2);
   expect(mockRmrf).toHaveBeenCalledWith(mockTmpDir);
   return expect(cfn.sendResponse)
     .toHaveBeenCalledWith(event,
@@ -230,8 +208,6 @@ test('Update', async () => {
     return '';
   });
 
-  awsMock.mock('S3', 'putObject', mockPutObject);
-
   const { handler } = require('../../custom-resource-handlers/src/certificate-signing-request');
   await expect(handler(event, context)).resolves.toBe(undefined);
 
@@ -245,7 +221,7 @@ test('Update', async () => {
       mockPrivateKey,
       expect.anything(),
       expect.any(Function));
-  expect(mockPutObject).toHaveBeenCalledTimes(2);
+  expect(mockS3Client.putObject).toHaveBeenCalledTimes(2);
   expect(mockRmrf).toHaveBeenCalledWith(mockTmpDir);
   return expect(cfn.sendResponse)
     .toHaveBeenCalledWith(event,
