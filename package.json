@@ -37,6 +37,7 @@
     "organization": false
   },
   "devDependencies": {
+    "@aws-sdk/client-cloudwatch": "^3.616.0",
     "@aws-sdk/client-codepipeline": "^3.616.0",
     "@aws-sdk/client-s3": "^3.616.0",
     "@aws-sdk/client-secrets-manager": "^3.616.0",
@@ -99,7 +100,10 @@
   "jest": {
     "coverageProvider": "v8",
     "testMatch": [
-      "**/lib/__tests__/**/?(*.)+(spec|test).js?(x)"
+      "<rootDir>/@(lib/__tests__)/**/*(*.)@(spec|test).js?(x)",
+      "<rootDir>/@(lib/__tests__)/**/__tests__/**/*.js?(x)",
+      "<rootDir>/@(projenrc)/**/*(*.)@(spec|test).ts?(x)",
+      "<rootDir>/@(projenrc)/**/__tests__/**/*.ts?(x)"
     ],
     "clearMocks": true,
     "collectCoverage": true,

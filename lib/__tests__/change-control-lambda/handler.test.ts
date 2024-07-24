@@ -10,22 +10,33 @@ import * as timeWindow from '../../change-control-lambda/time-window';
 //                | |
 //                |_|
 
-jest.mock('aws-sdk', () => {
+const mockS3Client = {
+  getObject: jest.fn().mockName('S3.GetObject'),
+};
+
+//const mockCodePipelineClient = {
+//};
+
+jest.mock('@aws-sdk/client-s3', () => {
   return {
-    S3: jest.fn(() => {
-      return {
-        getObject: mockGetObject,
-      };
-    }).mockName('AWS.S3'),
-    CodePipeline: jest.fn(() => {
-      return {};
-    }).mockName('AWS.CodePipeline'),
+    S3: jest.fn().mockImplementation(() => {
+      return mockS3Client;
+    }),
   };
 });
+
+/*
+jest.mock('@aws-sdk/client-codepipeline', () => {
+  return {
+    CodePipeline: jest.fn().mockImplementation(() => {
+      return mockCodePipelineClient;
+    }),
+  };
+});
+*/
+
 jest.mock('../../change-control-lambda/disable-transition');
 jest.mock('../../change-control-lambda/time-window');
-
-const mockGetObject = jest.fn().mockName('AWS.S3.getObject');
 
 const mockEnableTransition =
   jest.fn((_pipeline: string, _stage: string) => Promise.resolve(undefined))
@@ -87,9 +98,7 @@ describe('handler', () => {
     test('when S3 access fails', async () => {
       // GIVEN
       const e = new Error('S3 Not Working - the apocalypse has begun');
-      mockGetObject.mockImplementationOnce(() => ({
-        promise: () => Promise.reject(e),
-      }));
+      mockS3Client.getObject.mockImplementationOnce(() => Promise.reject(e));
 
       // THEN
       return expect(handler()).rejects.toThrow(e);
@@ -99,9 +108,7 @@ describe('handler', () => {
   for (const cause of ['NoSuchKey', 'NoSuchBucket']) {
     test(`when no calendar is found (due to ${cause})`, async () => {
       // GIVEN
-      mockGetObject.mockImplementationOnce(() => ({
-        promise: () => Promise.reject({ code: cause, message: cause }),
-      }));
+      mockS3Client.getObject.mockImplementationOnce(() => Promise.reject({ code: cause, message: cause }));
       mockShouldBlockPipeline.mockReturnValueOnce({
         summary: 'Blocked by default',
         // Other properties - values irrelevant
@@ -117,10 +124,10 @@ describe('handler', () => {
       await expect(handler()).resolves.toBeUndefined();
 
       // THEN
-      await expect(mockGetObject)
+      expect(mockS3Client.getObject)
         .toHaveBeenCalledWith({ Bucket: bucketName, Key: objectKey });
 
-      await expect(mockShouldBlockPipeline)
+      expect(mockShouldBlockPipeline)
         .toHaveBeenCalledWith(expect.stringContaining('No change control calendar was found'),
           expect.any(Date));
 
@@ -132,19 +139,17 @@ describe('handler', () => {
   test('when the window is open', async () => {
     // GIVEN
     const iCalBody = 'Some iCal document (obviously, this is a fake one!)';
-    mockGetObject.mockImplementationOnce(() => ({
-      promise: () => Promise.resolve({ Body: iCalBody }),
-    }));
+    mockS3Client.getObject.mockImplementationOnce(() => Promise.resolve({ Body: iCalBody }));
     mockShouldBlockPipeline.mockReturnValueOnce(undefined);
 
     // WHEN
     await expect(handler()).resolves.toBeUndefined();
 
     // THEN
-    await expect(mockGetObject)
+    expect(mockS3Client.getObject)
       .toHaveBeenCalledWith({ Bucket: bucketName, Key: objectKey });
 
-    await expect(mockShouldBlockPipeline)
+    expect(mockShouldBlockPipeline)
       .toHaveBeenCalledWith(iCalBody, expect.any(Date));
 
     return expect(mockEnableTransition)

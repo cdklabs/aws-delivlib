@@ -1,5 +1,7 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
-import * as AWS from 'aws-sdk';
+
+
+import { CloudWatch, Dimension, PutMetricDataCommandInput } from '@aws-sdk/client-cloudwatch';
 
 // Partial type for the 'detail' section of an event from Amazon EventBridge for 'CodePipeline Execution State Change'
 // See https://docs.aws.amazon.com/eventbridge/latest/userguide/event-types.html#codepipeline-event-type
@@ -19,7 +21,7 @@ export type LambdaActionStateChangeEvent = AWSLambda.EventBridgeEvent<'CodePipel
 export type EventType = LambdaExecutionStateChangeEvent | LambdaActionStateChangeEvent;
 
 // export for tests
-export const cloudwatch = new AWS.CloudWatch();
+export const cloudwatch = new CloudWatch();
 const logger = {
   log: (line: string) => process.stdout.write(line),
 };
@@ -79,7 +81,7 @@ async function handleActionChange(event: LambdaActionStateChangeEvent) {
   logger.log('Done');
 }
 
-async function putMetric(event: EventType, value: number, dimensions: AWS.CloudWatch.Dimensions) {
+async function putMetric(event: EventType, value: number, dimensions: Array<Dimension>) {
   const metricNamespace = process.env.METRIC_NAMESPACE;
   const metricName = process.env.METRIC_NAME;
   const time = new Date(event.time);
@@ -88,7 +90,7 @@ async function putMetric(event: EventType, value: number, dimensions: AWS.CloudW
     throw new Error('Both METRIC_NAMESPACE and METRIC_NAME environment variables must be set.');
   }
 
-  const input: AWS.CloudWatch.PutMetricDataInput = {
+  const input: PutMetricDataCommandInput = {
     Namespace: metricNamespace,
     MetricData: [
       {
@@ -102,5 +104,5 @@ async function putMetric(event: EventType, value: number, dimensions: AWS.CloudW
 
   logger.log(`Calling PutMetricData with payload: ${JSON.stringify(input)}`);
 
-  await cloudwatch.putMetricData(input).promise();
+  await cloudwatch.putMetricData(input);
 }

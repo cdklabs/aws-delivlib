@@ -1,6 +1,10 @@
 {
   "dependencies": [
     {
+      "name": "@aws-sdk/client-cloudwatch",
+      "type": "build"
+    },
+    {
       "name": "@aws-sdk/client-codepipeline",
       "type": "build"
     },
