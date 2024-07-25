@@ -1,6 +1,7 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 
 
+// eslint-disable-next-line import/no-extraneous-dependencies
 import { CloudWatch, Dimension, PutMetricDataCommandInput } from '@aws-sdk/client-cloudwatch';
 
 // Partial type for the 'detail' section of an event from Amazon EventBridge for 'CodePipeline Execution State Change'
