@@ -14,9 +14,6 @@ const mockS3Client = {
   getObject: jest.fn().mockName('S3.GetObject'),
 };
 
-//const mockCodePipelineClient = {
-//};
-
 jest.mock('@aws-sdk/client-s3', () => {
   return {
     S3: jest.fn().mockImplementation(() => {
@@ -24,16 +21,6 @@ jest.mock('@aws-sdk/client-s3', () => {
     }),
   };
 });
-
-/*
-jest.mock('@aws-sdk/client-codepipeline', () => {
-  return {
-    CodePipeline: jest.fn().mockImplementation(() => {
-      return mockCodePipelineClient;
-    }),
-  };
-});
-*/
 
 jest.mock('../../change-control-lambda/disable-transition');
 jest.mock('../../change-control-lambda/time-window');

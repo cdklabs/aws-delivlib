@@ -1,30 +1,26 @@
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 
 
-import AWS_client_codepipeline = require('@aws-sdk/client-codepipeline');
-import EnableStageTransitionCommandInput = AWS_client_codepipeline.EnableStageTransitionCommandInput;
-import DisableStageTransitionCommandInput = AWS_client_codepipeline.DisableStageTransitionCommandInput;
-
-const mockDisableStageTransition = jest.fn((_params: DisableStageTransitionCommandInput) => {
-  return { promise: () => Promise.resolve({}) };
-}).mockName('AWS.CodePipeline.disableStageTransition');
-
-const mockEnableStageTransition = jest.fn((_params: EnableStageTransitionCommandInput) => {
-  return { promise: () => Promise.resolve({}) };
-}).mockName('AWS.CodePipeline.enableStageTransition');
-
 const pipelineName = 'MyPipeline';
 const stageName = 'MyStage';
 
-jest.mock('aws-sdk', () => {
+const mockCodePipelineClient = {
+  disableStageTransition: jest.fn().mockName('CodePipeline.disableStageTransition'),
+  enableStageTransition: jest.fn().mockName('CodePipeline.enableStageTransition'),
+
+};
+
+jest.mock('@aws-sdk/client-codepipeline', () => {
   return {
-    CodePipeline: jest.fn(() => {
-      return {
-        disableStageTransition: mockDisableStageTransition,
-        enableStageTransition: mockEnableStageTransition,
-      };
+    CodePipeline: jest.fn().mockImplementation(() => {
+      return mockCodePipelineClient;
     }),
   };
+});
+
+beforeEach(() => {
+  mockCodePipelineClient.disableStageTransition.mockImplementation(() => Promise.resolve({}));
+  mockCodePipelineClient.enableStageTransition.mockImplementation(() => Promise.resolve({}));
 });
 
 describe('disableTransition', () => {
@@ -38,7 +34,7 @@ describe('disableTransition', () => {
     await expect(disableTransition(pipelineName, stageName, reason))
       .resolves.toBeUndefined();
     // THEN
-    expect(mockDisableStageTransition)
+    expect(mockCodePipelineClient.disableStageTransition)
       .toHaveBeenCalledWith({ pipelineName, stageName, reason, transitionType: 'Inbound' });
   });
 
@@ -50,7 +46,7 @@ describe('disableTransition', () => {
       .resolves.toBeUndefined();
     // THEN
     const cleanReason = reason.replace(/[^a-zA-Z0-9!@ \(\)\.\*\?\-]/g, '-');
-    expect(mockDisableStageTransition)
+    expect(mockCodePipelineClient.disableStageTransition)
       .toHaveBeenCalledWith({ pipelineName, stageName, reason: cleanReason, transitionType: 'Inbound' });
   });
 
@@ -62,7 +58,7 @@ describe('disableTransition', () => {
       .resolves.toBeUndefined();
     // THEN
     const cleanReason = reason.slice(0, 300);
-    expect(mockDisableStageTransition)
+    expect(mockCodePipelineClient.disableStageTransition)
       .toHaveBeenCalledWith({ pipelineName, stageName, reason: cleanReason, transitionType: 'Inbound' });
   });
 });
@@ -72,9 +68,9 @@ test('enableTransition', async () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const enableTransition = require('../../change-control-lambda/disable-transition').enableTransition;
   // WHEN
-  await expect(() => enableTransition(pipelineName, stageName))
+  expect(() => enableTransition(pipelineName, stageName))
     .not.toThrow();
   // THEN
-  expect(mockEnableStageTransition)
+  expect(mockCodePipelineClient.enableStageTransition)
     .toHaveBeenCalledWith({ pipelineName, stageName, transitionType: 'Inbound' });
 });
