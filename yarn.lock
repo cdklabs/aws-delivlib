@@ -881,10 +881,10 @@
   dependencies:
     "@types/node" "*"
 
-"@types/aws-lambda@^8.10.141":
-  version "8.10.141"
-  resolved "https://registry.yarnpkg.com/@types/aws-lambda/-/aws-lambda-8.10.141.tgz#f4d2fddf2bda51c4b2885b1abc3d1e9a1d6d2a7a"
-  integrity sha512-SMWlRBukG9KV8ZNjwemp2AzDibp/czIAeKKTw09nCPbWxVskIxactCJCGOp4y6I1hCMY7T7UGfySvBLXNeUbEw==
+"@types/aws-lambda@^8.10.142":
+  version "8.10.142"
+  resolved "https://registry.yarnpkg.com/@types/aws-lambda/-/aws-lambda-8.10.142.tgz#cb1d90bc45095e4f59e4ddfbb34a2e29c28d66b4"
+  integrity sha512-wy2y/2hQKrS6myOS++koXg3N1Hg+LLyPjaggCFajczSHZPqBnOMuT2sdH3kiASrmdBYyM3pmjyz5SoWraRllCQ==
 
 "@types/babel__core@^7.1.14":
   version "7.20.5"
@@ -1356,10 +1356,10 @@ aws-sdk-mock@^5.9.0:
     sinon "^17.0.0"
     traverse "^0.6.6"
 
-aws-sdk@^2.1231.0, aws-sdk@^2.1662.0:
-  version "2.1662.0"
-  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.1662.0.tgz#d187d413bdd08a24e9d6142712666d9d29e95b4e"
-  integrity sha512-ISKN3yxjQtjIMOBU2b3zO8Qrxd9UqdYlJlxSQUn5/4jfqCSad/s1mF66Cwzl5UByJtvFn0xoJORIZ7K6BTLuuw==
+aws-sdk@^2.1231.0, aws-sdk@^2.1663.0:
+  version "2.1663.0"
+  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.1663.0.tgz#43a0f64dd5817fd3da11949f62bf55c3c17bd8a0"
+  integrity sha512-zgXHOw0sBhYcw/yC2YKPLEMNTLnglYLB5UzhAYYShFgOng2NvxkrkuqGFFQ9+haMx2zx6t6CgeqQ7nT0TFUf/g==
   dependencies:
     buffer "4.9.2"
     events "1.1.1"
@@ -4297,10 +4297,10 @@ process-nextick-args@~2.0.0:
   resolved "https://registry.yarnpkg.com/process-nextick-args/-/process-nextick-args-2.0.1.tgz#7820d9b16120cc55ca9ae7792680ae7dba6d7fe2"
   integrity sha512-3ouUOpQhtgrbOa17J7+uxOTpITYWaGP7/AhoR3+A+/1e9skrzelGi/dXzEYyvbxubEF6Wn2ypscTKiKJFFn1ag==
 
-projen@^0.84.8:
-  version "0.84.8"
-  resolved "https://registry.yarnpkg.com/projen/-/projen-0.84.8.tgz#65f9f652a45ff08570532d2879f6496170911fa4"
-  integrity sha512-3MS0c+mPg/mNcKzzo68awTyCcjEweTDrQBnrzReqnoPQwUaQpV6kOalZfWCIEWkRj74f5fXxJkSeSLiLTBLP5g==
+projen@^0.84.9:
+  version "0.84.9"
+  resolved "https://registry.yarnpkg.com/projen/-/projen-0.84.9.tgz#fb354f9fd886fb11ed7faaf95afe7f7daa007321"
+  integrity sha512-+WED4Wi77iWTIieBWosf5vsRySQbkKMCNYKLjTrx04+X1pnrWInh22Ts6YtZrt8ruV3nQCefTI6AtpsHH269dw==
   dependencies:
     "@iarna/toml" "^2.2.5"
     case "^1.6.3"
@@ -5367,9 +5367,9 @@ yaml@1.10.2:
   integrity sha512-r3vXyErRCYJ7wg28yvBY5VSoAF8ZvlcW9/BwUzEtUsjvX/DKs24dIkuwjtuprwJJHsbyUbLApepYTR1BN4uHrg==
 
 yaml@^2.2.2:
-  version "2.4.5"
-  resolved "https://registry.yarnpkg.com/yaml/-/yaml-2.4.5.tgz#60630b206dd6d84df97003d33fc1ddf6296cca5e"
-  integrity sha512-aBx2bnqDzVOyNKfsysjA2ms5ZlnjSAW2eG3/L5G/CSujfjLJTJsEw1bGw8kCf04KodQWk1pxlGnZ56CRxiawmg==
+  version "2.5.0"
+  resolved "https://registry.yarnpkg.com/yaml/-/yaml-2.5.0.tgz#c6165a721cf8000e91c36490a41d7be25176cf5d"
+  integrity sha512-2wWLbGbYDiSqqIKoPjar3MPgB94ErzCtrNE1FdqGuaO0pi2JGjmE8aW8TDZwzU7vuxcGRdL/4gPQwQ7hD5AMSw==
 
 yargs-parser@^20.2.2, yargs-parser@^20.2.3:
   version "20.2.9"
