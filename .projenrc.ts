@@ -18,7 +18,7 @@ const project = new typescript.TypeScriptProject({
   ],
   deps: ['changelog-parser'],
   depsUpgradeOptions: {
-    //exclude: ['aws-cdk-lib', 'constructs'],
+    exclude: ['aws-cdk-lib', 'constructs'],
   },
   devDeps: [
     '@types/aws-lambda',
@@ -32,7 +32,6 @@ const project = new typescript.TypeScriptProject({
     'standard-version',
     'ts-jest',
     'typescript',
-    'aws-sdk',
     '@aws-sdk/client-s3',
     '@aws-sdk/client-ssm',
     '@aws-sdk/client-secrets-manager',
