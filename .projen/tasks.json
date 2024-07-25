@@ -286,13 +286,13 @@
       },
       "steps": [
         {
-          "exec": "npx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=@types/adm-zip,@types/aws-lambda,@types/follow-redirects,@types/fs-extra,@types/jest,@types/tar,adm-zip,aws-cdk,aws-sdk,aws-sdk-mock,esbuild,eslint-import-resolver-typescript,eslint-plugin-import,follow-redirects,fs-extra,jest,jest-create-mock-instance,JSONStream,projen,rrule,tar,ts-jest,ts-node,typescript,changelog-parser"
+          "exec": "npx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=@aws-sdk/client-cloudwatch,@aws-sdk/client-codepipeline,@aws-sdk/client-s3,@aws-sdk/client-secrets-manager,@aws-sdk/client-ssm,@types/adm-zip,@types/aws-lambda,@types/follow-redirects,@types/fs-extra,@types/jest,@types/tar,adm-zip,aws-cdk,esbuild,eslint-import-resolver-typescript,eslint-plugin-import,follow-redirects,fs-extra,jest,JSONStream,projen,rrule,tar,ts-jest,ts-node,typescript,changelog-parser"
         },
         {
           "exec": "yarn install --check-files"
         },
         {
-          "exec": "yarn upgrade @types/adm-zip @types/aws-lambda @types/follow-redirects @types/fs-extra @types/jest @types/node @types/tar @typescript-eslint/eslint-plugin @typescript-eslint/parser adm-zip aws-cdk aws-sdk aws-sdk-mock esbuild eslint-import-resolver-typescript eslint-plugin-import eslint follow-redirects fs-extra jest jest-create-mock-instance jest-junit JSONStream minipass node-ical projen rrule standard-version tar ts-jest ts-node typescript changelog-parser"
+          "exec": "yarn upgrade @aws-sdk/client-cloudwatch @aws-sdk/client-codepipeline @aws-sdk/client-s3 @aws-sdk/client-secrets-manager @aws-sdk/client-ssm @types/adm-zip @types/aws-lambda @types/follow-redirects @types/fs-extra @types/jest @types/node @types/tar @typescript-eslint/eslint-plugin @typescript-eslint/parser adm-zip aws-cdk esbuild eslint-import-resolver-typescript eslint-plugin-import eslint follow-redirects fs-extra jest jest-junit JSONStream minipass node-ical projen rrule standard-version tar ts-jest ts-node typescript changelog-parser"
         },
         {
           "exec": "npx projen"

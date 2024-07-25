@@ -3,7 +3,9 @@ import * as os from 'os';
 import * as path from 'path';
 import * as util from 'util';
 // eslint-disable-next-line import/no-extraneous-dependencies
-import * as aws from 'aws-sdk';
+import { S3 } from '@aws-sdk/client-s3';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { SecretsManager } from '@aws-sdk/client-secrets-manager';
 
 import * as cfn from './_cloud-formation';
 // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -16,7 +18,7 @@ const mkdtemp = util.promisify(fs.mkdtemp);
 const readFile = util.promisify(fs.readFile);
 const writeFile = util.promisify(fs.writeFile);
 
-const secretsManager = new aws.SecretsManager();
+const secretsManager = new SecretsManager();
 
 exports.handler = cfn.customResourceHandler(handleEvent);
 
@@ -69,20 +71,20 @@ async function _createSelfSignedCertificate(event: cfn.Event): Promise<ResourceA
       '-signkey', pkeyFile,
       '-days', '365');
 
-    const s3 = new aws.S3();
+    const s3 = new S3();
     const bucketName: string = event.ResourceProperties.OutputBucket;
     await s3.putObject({
       Bucket: bucketName,
       Key: 'certificate-signing-request.pem',
       Body: await readFile(csrFile, { encoding: 'utf8' }),
       ContentType: 'application/x-pem-file',
-    }).promise();
+    });
     await s3.putObject({
       Bucket: bucketName,
       Key: 'self-signed-certificate.pem',
       Body: await readFile(certFile, { encoding: 'utf8' }),
       ContentType: 'application/x-pem-file',
-    }).promise();
+    });
 
     return {
       Ref: event.LogicalResourceId,
@@ -127,7 +129,7 @@ async function _retrievePrivateKey(event: cfn.Event, dir: string): Promise<strin
   const secret = await secretsManager.getSecretValue({
     SecretId: event.ResourceProperties.PrivateKeySecretId,
     VersionStage: 'AWSCURRENT',
-  }).promise();
+  });
   await writeFile(file, secret.SecretString!, { encoding: 'utf8' });
   return file;
 }

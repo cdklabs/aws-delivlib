@@ -1,10 +1,13 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
-import * as AWS from 'aws-sdk';
+
+
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { S3 } from '@aws-sdk/client-s3';
 import { disableTransition, enableTransition } from './disable-transition';
 import { shouldBlockPipeline } from './time-window';
 
 // tslint:disable:no-console
-const s3 = new AWS.S3();
+const s3 = new S3();
 
 /**
  * Handler for a lambda function that can be called periodically in order to enforce Change Control calendars. It
@@ -53,9 +56,9 @@ function env(name: string) {
 
 async function tryGetCalendarData(Bucket: string, Key: string) {
   try {
-    const icsFile = await s3.getObject({ Bucket, Key }).promise();
+    const icsFile = await s3.getObject({ Bucket, Key });
     console.log(`Calendar object version ID: ${icsFile.VersionId || '<unversioned>'}`);
-    return icsFile.Body!.toString('utf8');
+    return icsFile.Body!.toString();
   } catch (e: any) {
     // If the bucket or key don't exist, default to closed all the time!
     if (e.code === 'NoSuchBucket' || e.code === 'NoSuchKey') {

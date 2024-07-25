@@ -1,10 +1,10 @@
 import * as https from 'https';
 // eslint-disable-next-line import/no-extraneous-dependencies
-import * as AWS from 'aws-sdk';
+import { ArtifactRevision, CodePipeline } from '@aws-sdk/client-codepipeline';
 
 
 // export for tests
-export const codePipeline = new AWS.CodePipeline();
+export const codePipeline = new CodePipeline();
 
 /**
  * Lambda handler for the codepipeline state change events
@@ -48,13 +48,13 @@ export async function handler(event: any) {
   }
 
   // Describe the revision that caused the pipeline to fail
-  const response = await codePipeline.getPipelineExecution({ pipelineName, pipelineExecutionId }).promise();
+  const response = await codePipeline.getPipelineExecution({ pipelineName, pipelineExecutionId });
   process.stdout.write(`${JSON.stringify(response)}\n`);
-  const firstArtifact: AWS.CodePipeline.ArtifactRevision | undefined = (response.pipelineExecution?.artifactRevisions ?? [])[0];
+  const firstArtifact: ArtifactRevision | undefined = (response.pipelineExecution?.artifactRevisions ?? [])[0];
   const revisionSummary = firstArtifact?.revisionSummary ?? firstArtifact?.revisionId ?? `execution ${pipelineExecutionId}`;
 
   // Find the action that caused the pipeline to fail (no pagination for now)
-  const actionResponse = await codePipeline.listActionExecutions({ pipelineName, filter: { pipelineExecutionId } }).promise();
+  const actionResponse = await codePipeline.listActionExecutions({ pipelineName, filter: { pipelineExecutionId } });
   process.stdout.write(`${JSON.stringify(actionResponse)}\n`);
   const failingActionDetails = actionResponse.actionExecutionDetails?.find(d => d.status === 'Failed');
   const failingAction = failingActionDetails?.actionName || 'UNKNOWN';

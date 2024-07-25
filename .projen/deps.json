@@ -1,6 +1,26 @@
 {
   "dependencies": [
     {
+      "name": "@aws-sdk/client-cloudwatch",
+      "type": "build"
+    },
+    {
+      "name": "@aws-sdk/client-codepipeline",
+      "type": "build"
+    },
+    {
+      "name": "@aws-sdk/client-s3",
+      "type": "build"
+    },
+    {
+      "name": "@aws-sdk/client-secrets-manager",
+      "type": "build"
+    },
+    {
+      "name": "@aws-sdk/client-ssm",
+      "type": "build"
+    },
+    {
       "name": "@types/adm-zip",
       "type": "build"
     },
@@ -52,14 +72,6 @@
       "type": "build"
     },
     {
-      "name": "aws-sdk",
-      "type": "build"
-    },
-    {
-      "name": "aws-sdk-mock",
-      "type": "build"
-    },
-    {
       "name": "constructs",
       "version": "^10.0.0",
       "type": "build"
@@ -91,10 +103,6 @@
     },
     {
       "name": "jest",
-      "type": "build"
-    },
-    {
-      "name": "jest-create-mock-instance",
       "type": "build"
     },
     {
