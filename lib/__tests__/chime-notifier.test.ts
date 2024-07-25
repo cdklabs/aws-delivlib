@@ -51,7 +51,7 @@ test('call codepipeline and then post to webhooks', async () => {
   );
 
   codePipeline.listActionExecutions = jest.fn().mockReturnValue(
-    () => Promise.resolve({
+    Promise.resolve({
       actionExecutionDetails: [
         {
           stageName: 'Source',
