@@ -95,7 +95,8 @@ async function _createNewKey(event: cfn.CreateEvent | cfn.UpdateEvent, context: 
 
     const gpgCommonArgs = [`--homedir=${tempDir}`, '--agent-program=/opt/gpg-agent'];
     await _exec(GPG_BIN, ...gpgCommonArgs, '--batch', '--gen-key', keyConfig);
-    const keyMaterial = await _exec(GPG_BIN, ...gpgCommonArgs, '--batch', '--yes', '--export-secret-keys', '--armor');
+    // Need the passphrase to export the private key
+    const keyMaterial = await _exec(GPG_BIN, ...gpgCommonArgs, '--batch', '--yes', '--export-secret-keys', '--armor', '--pinentry-mode=loopback', `--passphrase=${passPhrase}`);
     const publicKey = await _exec(GPG_BIN, ...gpgCommonArgs, '--batch', '--yes', '--export', '--armor');
     const secretOpts = {
       ClientRequestToken: context.awsRequestId,
