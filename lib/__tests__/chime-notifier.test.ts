@@ -31,8 +31,8 @@ jest.mock('https', () => {
 const mockHttpsWrite = jest.fn();
 
 test('call codepipeline and then post to webhooks', async () => {
-  codePipeline.getPipelineExecution = jest.fn().mockReturnValue({
-    promise: () => Promise.resolve({
+  codePipeline.getPipelineExecution = jest.fn().mockReturnValue(
+    Promise.resolve({
       pipelineExecution: {
         pipelineExecutionId: 'xyz',
         pipelineVersion: 1,
@@ -48,10 +48,10 @@ test('call codepipeline and then post to webhooks', async () => {
         ],
       },
     }),
-  });
+  );
 
-  codePipeline.listActionExecutions = jest.fn().mockReturnValue({
-    promise: () => Promise.resolve({
+  codePipeline.listActionExecutions = jest.fn().mockReturnValue(
+    Promise.resolve({
       actionExecutionDetails: [
         {
           stageName: 'Source',
@@ -75,7 +75,7 @@ test('call codepipeline and then post to webhooks', async () => {
         },
       ],
     }),
-  });
+  );
 
   await handler({
     webhookUrls: ['https://my.url/'],

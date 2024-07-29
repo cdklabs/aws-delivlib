@@ -4,7 +4,9 @@ import * as os from 'os';
 import * as path from 'path';
 import * as util from 'util';
 // eslint-disable-next-line import/no-extraneous-dependencies
-import * as aws from 'aws-sdk';
+import { SecretsManager } from '@aws-sdk/client-secrets-manager';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { SSM } from '@aws-sdk/client-ssm';
 
 import * as cfn from './_cloud-formation';
 // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -16,8 +18,8 @@ import _rmrf = require('./_rmrf');
 const mkdtemp = util.promisify(fs.mkdtemp);
 const writeFile = util.promisify(fs.writeFile);
 
-const secretsManager = new aws.SecretsManager();
-const ssm = new aws.SSM();
+const secretsManager = new SecretsManager();
+const ssm = new SSM();
 
 exports.handler = cfn.customResourceHandler(handleEvent);
 
@@ -106,8 +108,8 @@ async function _createNewKey(event: cfn.CreateEvent | cfn.UpdateEvent, context: 
       }),
     };
     const secret = event.RequestType === cfn.RequestType.CREATE
-      ? await secretsManager.createSecret({ ...secretOpts, Name: event.ResourceProperties.SecretName }).promise()
-      : await secretsManager.updateSecret({ ...secretOpts, SecretId: event.PhysicalResourceId }).promise();
+      ? await secretsManager.createSecret({ ...secretOpts, Name: event.ResourceProperties.SecretName })
+      : await secretsManager.updateSecret({ ...secretOpts, SecretId: event.PhysicalResourceId });
 
     return {
       Ref: secret.ARN!,
@@ -126,16 +128,16 @@ async function _updateExistingKey(event: cfn.UpdateEvent, context: lambda.Contex
     Description: event.ResourceProperties.Description,
     KmsKeyId: event.ResourceProperties.KeyArn,
     SecretId: event.PhysicalResourceId,
-  }).promise();
+  });
 
   if (event.OldResourceProperties.ParameterName) {
     // Migrating from a version that did create the SSM Parameter from the Custom Resource, so we'll delete that now in
     // order to allow the "external" creation to happen without problems...
     try {
-      await ssm.deleteParameter({ Name: event.OldResourceProperties.ParameterName }).promise();
+      await ssm.deleteParameter({ Name: event.OldResourceProperties.ParameterName });
     } catch (e: any) {
       // Allow the parameter to already not exist, just in case!
-      if (e.code !== 'ParameterNotFound') {
+      if (e.name !== 'ParameterNotFound') {
         throw e;
       }
     }
@@ -149,7 +151,7 @@ async function _updateExistingKey(event: cfn.UpdateEvent, context: lambda.Contex
 }
 
 async function _getPublicKey(secretArn: string): Promise<string> {
-  const secretValue = await secretsManager.getSecretValue({ SecretId: secretArn }).promise();
+  const secretValue = await secretsManager.getSecretValue({ SecretId: secretArn });
   const keyData = JSON.parse(secretValue.SecretString!);
   const tempDir = await mkdtemp(path.join(os.tmpdir(), 'OpenPGP-'));
   try {
@@ -169,6 +171,6 @@ async function _deleteSecret(event: cfn.DeleteEvent): Promise<cfn.ResourceAttrib
   await secretsManager.deleteSecret({
     SecretId: event.PhysicalResourceId,
     ForceDeleteWithoutRecovery: !!event.ResourceProperties.DeleteImmediately,
-  }).promise();
+  });
   return { Ref: event.PhysicalResourceId };
 }
