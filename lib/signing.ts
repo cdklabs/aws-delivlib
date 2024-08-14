@@ -100,7 +100,7 @@ export class SignNuGetWithSigner extends Construct implements ISigner {
     }
 
     const shellable = new Shellable(this, 'Default', {
-      platform: new LinuxPlatform(props.buildImage ?? LinuxBuildImage.fromDockerRegistry('public.ecr.aws/jsii/superchain:1-bullseye-slim-node18')),
+      platform: new LinuxPlatform(props.buildImage ?? LinuxBuildImage.fromDockerRegistry('public.ecr.aws/jsii/superchain:1-bookworm-slim')),
       scriptDirectory: path.join(__dirname, 'signing', 'nuget'),
       entrypoint: 'sign.sh',
       serviceRole: props.serviceRole,

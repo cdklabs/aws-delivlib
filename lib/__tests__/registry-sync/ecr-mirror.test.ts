@@ -36,7 +36,7 @@ describe('EcrMirror', () => {
             Value: '123aass:password-key:AWSCURRENT',
           },
         ],
-        Image: 'public.ecr.aws/jsii/superchain:1-bullseye-slim-node18',
+        Image: 'public.ecr.aws/jsii/superchain:1-bookworm-slim',
       },
       Source: {
         BuildSpec: {

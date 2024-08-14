@@ -1043,7 +1043,7 @@ Resources:
           - Name: DELIVLIB_ENV_TEST
             Type: PLAINTEXT
             Value: MAGIC_1924
-        Image: public.ecr.aws/jsii/superchain:1-bullseye-slim-node18
+        Image: public.ecr.aws/jsii/superchain:1-bookworm-slim
         ImagePullCredentialsType: SERVICE_ROLE
         PrivilegedMode: false
         Type: LINUX_CONTAINER
@@ -4107,7 +4107,7 @@ Resources:
         Type: NO_ARTIFACTS
       Environment:
         ComputeType: BUILD_GENERAL1_SMALL
-        Image: public.ecr.aws/jsii/superchain:1-bullseye-slim-node18
+        Image: public.ecr.aws/jsii/superchain:1-bookworm-slim
         ImagePullCredentialsType: SERVICE_ROLE
         PrivilegedMode: false
         Type: LINUX_CONTAINER
@@ -4136,7 +4136,7 @@ Resources:
     Properties:
       Location:
         ApplicationId: arn:aws:serverlessrepo:us-east-1:277187709615:applications/github-codebuild-logs
-        SemanticVersion: 1.4.0
+        SemanticVersion: 1.6.0
       Parameters:
         CodeBuildProjectName:
           Ref: CodeCommitPipelineAutoBuildProject5D212EE9
