@@ -1,0 +1,15 @@
+FROM public.ecr.aws/lambda/nodejs:20-x86_64
+
+# install openssel and
+RUN dnf install -y openssl
+ENV LD_LIBRARY_PATH=""
+RUN openssl version
+
+# install gpg-agent
+RUN rpm -e gnupg2-minimal --nodeps && dnf -y install gnupg2-full  && gpg-agent --daemon
+
+# copy pgp-secret to LAMBDA_TASK_ROOT directory
+COPY bin/private-key/* /var/task/
+
+# Set the CMD to the function handler
+CMD [ "index.handler" ]

@@ -27,7 +27,7 @@ const secretArn = 'arn::::::secret';
 
 cfn.sendResponse = jest.fn().mockName('cfn.sendResponse').mockResolvedValue(undefined);
 jest.mock('../../custom-resource-handlers/src/_exec', () => async (cmd: string, ...args: string[]) => {
-  expect(cmd).toBe('/opt/openssl');
+  expect(cmd).toBe('openssl');
   expect(args).toEqual(['genrsa', '-out', require('path').join(mockTmpDir, 'private_key.pem'), mockKeySize]);
   return '';
 });

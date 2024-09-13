@@ -210,6 +210,17 @@ Resources:
   CodeCommitPipelineBuildPipeline656B8CCB:
     Type: AWS::CodePipeline::Pipeline
     Properties:
+      ArtifactStore:
+        EncryptionKey:
+          Id:
+            Fn::GetAtt:
+              - CodeCommitPipelineBuildPipelineArtifactsBucketEncryptionKey05A62A83
+              - Arn
+          Type: KMS
+        Location:
+          Ref: CodeCommitPipelineBuildPipelineArtifactsBucketED2813B3
+        Type: S3
+      RestartExecutionOnUpdate: true
       RoleArn:
         Fn::GetAtt:
           - CodeCommitPipelineBuildPipelineRole1843599A
@@ -444,17 +455,6 @@ Resources:
                   - Arn
               RunOrder: 1
           Name: Publish
-      ArtifactStore:
-        EncryptionKey:
-          Id:
-            Fn::GetAtt:
-              - CodeCommitPipelineBuildPipelineArtifactsBucketEncryptionKey05A62A83
-              - Arn
-          Type: KMS
-        Location:
-          Ref: CodeCommitPipelineBuildPipelineArtifactsBucketED2813B3
-        Type: S3
-      RestartExecutionOnUpdate: true
     DependsOn:
       - CodeCommitPipelineBuildPipelineRoleDefaultPolicy94C30F44
       - CodeCommitPipelineBuildPipelineRole1843599A
@@ -469,11 +469,11 @@ Resources:
       Filters:
         - JsonPath: $.ref
           MatchEquals: refs/heads/{Branch}
+      RegisterWithThirdParty: true
       TargetAction: Pull
       TargetPipeline:
         Ref: CodeCommitPipelineBuildPipeline656B8CCB
       TargetPipelineVersion: 1
-      RegisterWithThirdParty: true
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/BuildPipeline/Source/Pull/WebhookResource
   CodeCommitPipelineBuildPipelineBuildCodePipelineActionRoleF95CDA16:
@@ -930,6 +930,12 @@ Resources:
             Principal:
               Service: codebuild.amazonaws.com
         Version: "2012-10-17"
+      ManagedPolicyArns:
+        - Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :iam::aws:policy/AmazonElasticContainerRegistryPublicReadOnly
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/BuildProject/Role/Resource
   CodeCommitPipelineBuildProjectRoleDefaultPolicy1184486E:
@@ -1037,6 +1043,12 @@ Resources:
     Properties:
       Artifacts:
         Type: CODEPIPELINE
+      Cache:
+        Type: NO_CACHE
+      EncryptionKey:
+        Fn::GetAtt:
+          - CodeCommitPipelineBuildPipelineArtifactsBucketEncryptionKey05A62A83
+          - Arn
       Environment:
         ComputeType: BUILD_GENERAL1_SMALL
         EnvironmentVariables:
@@ -1053,12 +1065,6 @@ Resources:
           - Arn
       Source:
         Type: CODEPIPELINE
-      Cache:
-        Type: NO_CACHE
-      EncryptionKey:
-        Fn::GetAtt:
-          - CodeCommitPipelineBuildPipelineArtifactsBucketEncryptionKey05A62A83
-          - Arn
       TimeoutInMinutes: 480
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/BuildProject/Resource
@@ -1090,10 +1096,10 @@ Resources:
   CodeCommitPipelineNotificationsTopicawscdkdevdelivlibtestamazoncom7F5014D8:
     Type: AWS::SNS::Subscription
     Properties:
+      Endpoint: aws-cdk-dev+delivlib-test@amazon.com
       Protocol: email
       TopicArn:
         Ref: CodeCommitPipelineNotificationsTopic36C2D667
-      Endpoint: aws-cdk-dev+delivlib-test@amazon.com
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/NotificationsTopic/aws-cdk-dev+delivlib-test@amazon.com/Resource
   CodeCommitPipelineNotificationsTopicPolicyBBE90C33:
@@ -1153,17 +1159,17 @@ Resources:
     Properties:
       Code:
         S3Bucket: cdk-hnb659fds-assets-712950704752-us-east-1
-        S3Key: 724c32a4245b8249d4f1c1f94df218273cc0e3bee1755fa7db527a9a8fcbe495.zip
-      Role:
-        Fn::GetAtt:
-          - CodeCommitPipelinePipelineWatcherPollerServiceRole0A1D8005
-          - Arn
+        S3Key: 53aa582de8394f0c03fbf115a5f8e5fc68947ec12efb9f6c3bb0b48973398c9c.zip
       Environment:
         Variables:
           METRIC_NAMESPACE: CDK/Delivlib
           METRIC_NAME: Failures
       Handler: watcher-handler.handler
-      Runtime: nodejs14.x
+      Role:
+        Fn::GetAtt:
+          - CodeCommitPipelinePipelineWatcherPollerServiceRole0A1D8005
+          - Arn
+      Runtime: nodejs20.x
     DependsOn:
       - CodeCommitPipelinePipelineWatcherPollerServiceRoleDefaultPolicyE2104AD1
       - CodeCommitPipelinePipelineWatcherPollerServiceRole0A1D8005
@@ -1216,13 +1222,13 @@ Resources:
   CodeCommitPipelinePipelineWatcherAlarm73779F48:
     Type: AWS::CloudWatch::Alarm
     Properties:
-      ComparisonOperator: GreaterThanOrEqualToThreshold
-      EvaluationPeriods: 1
       AlarmDescription: Pipeline aws-delivlib test pipeline has failed stages
+      ComparisonOperator: GreaterThanOrEqualToThreshold
       Dimensions:
         - Name: Pipeline
           Value:
             Ref: CodeCommitPipelineBuildPipeline656B8CCB
+      EvaluationPeriods: 1
       MetricName: Failures
       Namespace: CDK/Delivlib
       Period: 300
@@ -1241,6 +1247,12 @@ Resources:
             Principal:
               Service: codebuild.amazonaws.com
         Version: "2012-10-17"
+      ManagedPolicyArns:
+        - Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :iam::aws:policy/AmazonElasticContainerRegistryPublicReadOnly
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/HelloLinux/Resource/Role/Resource
   CodeCommitPipelineHelloLinuxRoleDefaultPolicy234DABC6:
@@ -1364,6 +1376,12 @@ Resources:
     Properties:
       Artifacts:
         Type: NO_ARTIFACTS
+      Cache:
+        Type: NO_CACHE
+      EncryptionKey:
+        Fn::GetAtt:
+          - CodeCommitPipelineBuildPipelineArtifactsBucketEncryptionKey05A62A83
+          - Arn
       Environment:
         ComputeType: BUILD_GENERAL1_MEDIUM
         EnvironmentVariables:
@@ -1373,7 +1391,7 @@ Resources:
           - Name: SCRIPT_S3_KEY
             Type: PLAINTEXT
             Value: 3d34b07ba871989d030649c646b3096ba7c78ca531897bcdb0670774d2f9d3e4.zip
-        Image: aws/codebuild/standard:4.0
+        Image: aws/codebuild/standard:7.0
         ImagePullCredentialsType: CODEBUILD
         PrivilegedMode: false
         Type: LINUX_CONTAINER
@@ -1386,6 +1404,11 @@ Resources:
           {
             "version": "0.2",
             "phases": {
+              "install": {
+                "commands": [
+                  "command -v yarn > /dev/null || npm install --global yarn"
+                ]
+              },
               "pre_build": {
                 "commands": [
                   "echo \"Downloading scripts from s3://${SCRIPT_S3_BUCKET}/${SCRIPT_S3_KEY}\"",
@@ -1404,12 +1427,6 @@ Resources:
             }
           }
         Type: NO_SOURCE
-      Cache:
-        Type: NO_CACHE
-      EncryptionKey:
-        Fn::GetAtt:
-          - CodeCommitPipelineBuildPipelineArtifactsBucketEncryptionKey05A62A83
-          - Arn
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/HelloLinux/Resource/Resource
   CodeCommitPipelineHelloLinuxOnBuildFailedD96AF043:
@@ -1437,11 +1454,11 @@ Resources:
     Type: AWS::CloudWatch::Alarm
     Properties:
       ComparisonOperator: GreaterThanOrEqualToThreshold
-      EvaluationPeriods: 1
       Dimensions:
         - Name: ProjectName
           Value:
             Ref: CodeCommitPipelineHelloLinuxCB82AB68
+      EvaluationPeriods: 1
       MetricName: FailedBuilds
       Namespace: AWS/CodeBuild
       Period: 300
@@ -1460,6 +1477,12 @@ Resources:
             Principal:
               Service: codebuild.amazonaws.com
         Version: "2012-10-17"
+      ManagedPolicyArns:
+        - Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :iam::aws:policy/AmazonElasticContainerRegistryPublicReadOnly
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/HelloWindows/Resource/Role/Resource
   CodeCommitPipelineHelloWindowsRoleDefaultPolicyA240EEEE:
@@ -1583,6 +1606,12 @@ Resources:
     Properties:
       Artifacts:
         Type: NO_ARTIFACTS
+      Cache:
+        Type: NO_CACHE
+      EncryptionKey:
+        Fn::GetAtt:
+          - CodeCommitPipelineBuildPipelineArtifactsBucketEncryptionKey05A62A83
+          - Arn
       Environment:
         ComputeType: BUILD_GENERAL1_MEDIUM
         EnvironmentVariables:
@@ -1627,12 +1656,6 @@ Resources:
             }
           }
         Type: NO_SOURCE
-      Cache:
-        Type: NO_CACHE
-      EncryptionKey:
-        Fn::GetAtt:
-          - CodeCommitPipelineBuildPipelineArtifactsBucketEncryptionKey05A62A83
-          - Arn
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/HelloWindows/Resource/Resource
   CodeCommitPipelineHelloWindowsOnBuildFailed25F55C59:
@@ -1660,11 +1683,11 @@ Resources:
     Type: AWS::CloudWatch::Alarm
     Properties:
       ComparisonOperator: GreaterThanOrEqualToThreshold
-      EvaluationPeriods: 1
       Dimensions:
         - Name: ProjectName
           Value:
             Ref: CodeCommitPipelineHelloWindows61CA8F73
+      EvaluationPeriods: 1
       MetricName: FailedBuilds
       Namespace: AWS/CodeBuild
       Period: 300
@@ -1683,6 +1706,12 @@ Resources:
             Principal:
               Service: codebuild.amazonaws.com
         Version: "2012-10-17"
+      ManagedPolicyArns:
+        - Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :iam::aws:policy/AmazonElasticContainerRegistryPublicReadOnly
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/AssumeRole/Resource/Role/Resource
   CodeCommitPipelineAssumeRoleRoleDefaultPolicy438D80DD:
@@ -1812,6 +1841,12 @@ Resources:
     Properties:
       Artifacts:
         Type: NO_ARTIFACTS
+      Cache:
+        Type: NO_CACHE
+      EncryptionKey:
+        Fn::GetAtt:
+          - CodeCommitPipelineBuildPipelineArtifactsBucketEncryptionKey05A62A83
+          - Arn
       Environment:
         ComputeType: BUILD_GENERAL1_MEDIUM
         EnvironmentVariables:
@@ -1825,7 +1860,7 @@ Resources:
             Type: PLAINTEXT
             Value:
               Ref: AssumeMe924099BB
-        Image: aws/codebuild/standard:4.0
+        Image: aws/codebuild/standard:7.0
         ImagePullCredentialsType: CODEBUILD
         PrivilegedMode: false
         Type: LINUX_CONTAINER
@@ -1841,6 +1876,11 @@ Resources:
                 {
                   "version": "0.2",
                   "phases": {
+                    "install": {
+                      "commands": [
+                        "command -v yarn > /dev/null || npm install --global yarn"
+                      ]
+                    },
                     "pre_build": {
                       "commands": [
                         "echo \"Downloading scripts from s3://${SCRIPT_S3_BUCKET}/${SCRIPT_S3_KEY}\"",
@@ -1869,12 +1909,6 @@ Resources:
                   }
                 }
         Type: NO_SOURCE
-      Cache:
-        Type: NO_CACHE
-      EncryptionKey:
-        Fn::GetAtt:
-          - CodeCommitPipelineBuildPipelineArtifactsBucketEncryptionKey05A62A83
-          - Arn
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/AssumeRole/Resource/Resource
   CodeCommitPipelineAssumeRoleOnBuildFailed494CD87B:
@@ -1902,11 +1936,11 @@ Resources:
     Type: AWS::CloudWatch::Alarm
     Properties:
       ComparisonOperator: GreaterThanOrEqualToThreshold
-      EvaluationPeriods: 1
       Dimensions:
         - Name: ProjectName
           Value:
             Ref: CodeCommitPipelineAssumeRole05A76F51
+      EvaluationPeriods: 1
       MetricName: FailedBuilds
       Namespace: AWS/CodeBuild
       Period: 300
@@ -1925,6 +1959,12 @@ Resources:
             Principal:
               Service: codebuild.amazonaws.com
         Version: "2012-10-17"
+      ManagedPolicyArns:
+        - Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :iam::aws:policy/AmazonElasticContainerRegistryPublicReadOnly
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/GenerateTwoArtifacts/Resource/Role/Resource
   CodeCommitPipelineGenerateTwoArtifactsRoleDefaultPolicy770BE7EA:
@@ -2048,6 +2088,12 @@ Resources:
     Properties:
       Artifacts:
         Type: NO_ARTIFACTS
+      Cache:
+        Type: NO_CACHE
+      EncryptionKey:
+        Fn::GetAtt:
+          - CodeCommitPipelineBuildPipelineArtifactsBucketEncryptionKey05A62A83
+          - Arn
       Environment:
         ComputeType: BUILD_GENERAL1_MEDIUM
         EnvironmentVariables:
@@ -2057,7 +2103,7 @@ Resources:
           - Name: SCRIPT_S3_KEY
             Type: PLAINTEXT
             Value: 3d34b07ba871989d030649c646b3096ba7c78ca531897bcdb0670774d2f9d3e4.zip
-        Image: aws/codebuild/standard:4.0
+        Image: aws/codebuild/standard:7.0
         ImagePullCredentialsType: CODEBUILD
         PrivilegedMode: false
         Type: LINUX_CONTAINER
@@ -2070,6 +2116,11 @@ Resources:
           {
             "version": "0.2",
             "phases": {
+              "install": {
+                "commands": [
+                  "command -v yarn > /dev/null || npm install --global yarn"
+                ]
+              },
               "pre_build": {
                 "commands": [
                   "echo \"Downloading scripts from s3://${SCRIPT_S3_BUCKET}/${SCRIPT_S3_KEY}\"",
@@ -2107,23 +2158,17 @@ Resources:
             }
           }
         Type: NO_SOURCE
-      Cache:
-        Type: NO_CACHE
-      EncryptionKey:
-        Fn::GetAtt:
-          - CodeCommitPipelineBuildPipelineArtifactsBucketEncryptionKey05A62A83
-          - Arn
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/GenerateTwoArtifacts/Resource/Resource
   CodeCommitPipelineGenerateTwoArtifactsAlarm4299580B:
     Type: AWS::CloudWatch::Alarm
     Properties:
       ComparisonOperator: GreaterThanOrEqualToThreshold
-      EvaluationPeriods: 1
       Dimensions:
         - Name: ProjectName
           Value:
             Ref: CodeCommitPipelineGenerateTwoArtifactsA9DAD33B
+      EvaluationPeriods: 1
       MetricName: FailedBuilds
       Namespace: AWS/CodeBuild
       Period: 300
@@ -2142,6 +2187,12 @@ Resources:
             Principal:
               Service: codebuild.amazonaws.com
         Version: "2012-10-17"
+      ManagedPolicyArns:
+        - Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :iam::aws:policy/AmazonElasticContainerRegistryPublicReadOnly
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/CanaryHelloCanary/Shellable/Resource/Role/Resource
   CodeCommitPipelineCanaryHelloCanaryShellableRoleDefaultPolicyD466B3CA:
@@ -2222,6 +2273,9 @@ Resources:
     Properties:
       Artifacts:
         Type: NO_ARTIFACTS
+      Cache:
+        Type: NO_CACHE
+      EncryptionKey: alias/aws/s3
       Environment:
         ComputeType: BUILD_GENERAL1_MEDIUM
         EnvironmentVariables:
@@ -2234,7 +2288,7 @@ Resources:
           - Name: IS_CANARY
             Type: PLAINTEXT
             Value: "true"
-        Image: aws/codebuild/standard:4.0
+        Image: aws/codebuild/standard:7.0
         ImagePullCredentialsType: CODEBUILD
         PrivilegedMode: false
         Type: LINUX_CONTAINER
@@ -2247,6 +2301,11 @@ Resources:
           {
             "version": "0.2",
             "phases": {
+              "install": {
+                "commands": [
+                  "command -v yarn > /dev/null || npm install --global yarn"
+                ]
+              },
               "pre_build": {
                 "commands": [
                   "echo \"Downloading scripts from s3://${SCRIPT_S3_BUCKET}/${SCRIPT_S3_KEY}\"",
@@ -2265,9 +2324,6 @@ Resources:
             }
           }
         Type: NO_SOURCE
-      Cache:
-        Type: NO_CACHE
-      EncryptionKey: alias/aws/s3
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/CanaryHelloCanary/Shellable/Resource/Resource
   CodeCommitPipelineCanaryHelloCanaryShellableEventsRole0F756230:
@@ -2303,11 +2359,11 @@ Resources:
     Type: AWS::CloudWatch::Alarm
     Properties:
       ComparisonOperator: GreaterThanOrEqualToThreshold
-      EvaluationPeriods: 1
       Dimensions:
         - Name: ProjectName
           Value:
             Ref: CodeCommitPipelineCanaryHelloCanaryShellableC8458471
+      EvaluationPeriods: 1
       MetricName: FailedBuilds
       Namespace: AWS/CodeBuild
       Period: 300
@@ -2343,6 +2399,12 @@ Resources:
             Principal:
               Service: codebuild.amazonaws.com
         Version: "2012-10-17"
+      ManagedPolicyArns:
+        - Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :iam::aws:policy/AmazonElasticContainerRegistryPublicReadOnly
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/Npm/Default/Resource/Role/Resource
   CodeCommitPipelineNpmRoleDefaultPolicy1AFB68F0:
@@ -2462,6 +2524,12 @@ Resources:
     Properties:
       Artifacts:
         Type: NO_ARTIFACTS
+      Cache:
+        Type: NO_CACHE
+      EncryptionKey:
+        Fn::GetAtt:
+          - CodeCommitPipelineBuildPipelineArtifactsBucketEncryptionKey05A62A83
+          - Arn
       Environment:
         ComputeType: BUILD_GENERAL1_MEDIUM
         EnvironmentVariables:
@@ -2483,7 +2551,7 @@ Resources:
           - Name: ACCESS
             Type: PLAINTEXT
             Value: restricted
-        Image: aws/codebuild/standard:5.0
+        Image: aws/codebuild/standard:7.0
         ImagePullCredentialsType: CODEBUILD
         PrivilegedMode: false
         Type: LINUX_CONTAINER
@@ -2496,6 +2564,11 @@ Resources:
           {
             "version": "0.2",
             "phases": {
+              "install": {
+                "commands": [
+                  "command -v yarn > /dev/null || npm install --global yarn"
+                ]
+              },
               "pre_build": {
                 "commands": [
                   "echo \"Downloading scripts from s3://${SCRIPT_S3_BUCKET}/${SCRIPT_S3_KEY}\"",
@@ -2514,23 +2587,17 @@ Resources:
             }
           }
         Type: NO_SOURCE
-      Cache:
-        Type: NO_CACHE
-      EncryptionKey:
-        Fn::GetAtt:
-          - CodeCommitPipelineBuildPipelineArtifactsBucketEncryptionKey05A62A83
-          - Arn
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/Npm/Default/Resource/Resource
   CodeCommitPipelineNpmAlarm7A04F7A3:
     Type: AWS::CloudWatch::Alarm
     Properties:
       ComparisonOperator: GreaterThanOrEqualToThreshold
-      EvaluationPeriods: 1
       Dimensions:
         - Name: ProjectName
           Value:
             Ref: CodeCommitPipelineNpm0D31AEFC
+      EvaluationPeriods: 1
       MetricName: FailedBuilds
       Namespace: AWS/CodeBuild
       Period: 300
@@ -2549,6 +2616,12 @@ Resources:
             Principal:
               Service: codebuild.amazonaws.com
         Version: "2012-10-17"
+      ManagedPolicyArns:
+        - Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :iam::aws:policy/AmazonElasticContainerRegistryPublicReadOnly
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/NuGet/Default/Resource/Role/Resource
   CodeCommitPipelineNuGetRoleDefaultPolicy9AF66D81:
@@ -2619,6 +2692,30 @@ Resources:
                     - Ref: AWS::Partition
                     - :s3:::cdk-hnb659fds-assets-712950704752-us-east-1/*
           - Action:
+              - secretsmanager:ListSecrets
+              - secretsmanager:DescribeSecret
+              - secretsmanager:GetSecretValue
+            Effect: Allow
+            Resource: arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/nuget-jDbgrN
+          - Action:
+              - secretsmanager:ListSecrets
+              - secretsmanager:DescribeSecret
+              - secretsmanager:GetSecretValue
+            Effect: Allow
+            Resource:
+              Fn::GetAtt:
+                - X509CodeSigningKeyRSAPrivateKeyResourceV2926395A0
+                - SecretArn
+          - Action: ssm:GetParameter
+            Effect: Allow
+            Resource:
+              Fn::Join:
+                - ""
+                - - "arn:"
+                  - Ref: AWS::Partition
+                  - :ssm:us-east-1:712950704752:parameter
+                  - Ref: X509CodeSigningKey8DE65BF8
+          - Action:
               - s3:GetObject*
               - s3:GetBucket*
               - s3:List*
@@ -2633,30 +2730,6 @@ Resources:
                         - X509CodeSigningKeyRSAPrivateKeyCertificateSigningRequestBucketD81FB261
                         - Arn
                     - /*
-          - Action:
-              - secretsmanager:ListSecrets
-              - secretsmanager:DescribeSecret
-              - secretsmanager:GetSecretValue
-            Effect: Allow
-            Resource: arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/nuget-jDbgrN
-          - Action:
-              - secretsmanager:ListSecrets
-              - secretsmanager:DescribeSecret
-              - secretsmanager:GetSecretValue
-            Effect: Allow
-            Resource:
-              Fn::GetAtt:
-                - X509CodeSigningKeyRSAPrivateKeyE5980A70
-                - SecretArn
-          - Action: ssm:GetParameter
-            Effect: Allow
-            Resource:
-              Fn::Join:
-                - ""
-                - - "arn:"
-                  - Ref: AWS::Partition
-                  - :ssm:us-east-1:712950704752:parameter
-                  - Ref: X509CodeSigningKey8DE65BF8
           - Action:
               - s3:GetObject*
               - s3:GetBucket*
@@ -2701,6 +2774,12 @@ Resources:
     Properties:
       Artifacts:
         Type: NO_ARTIFACTS
+      Cache:
+        Type: NO_CACHE
+      EncryptionKey:
+        Fn::GetAtt:
+          - CodeCommitPipelineBuildPipelineArtifactsBucketEncryptionKey05A62A83
+          - Arn
       Environment:
         ComputeType: BUILD_GENERAL1_MEDIUM
         EnvironmentVariables:
@@ -2719,7 +2798,7 @@ Resources:
           - Name: NUGET_SECRET_ID
             Type: PLAINTEXT
             Value: arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/nuget-jDbgrN
-        Image: jsii/superchain:1-bullseye-slim
+        Image: public.ecr.aws/jsii/superchain:1-bullseye-slim-node18
         ImagePullCredentialsType: SERVICE_ROLE
         PrivilegedMode: false
         Type: LINUX_CONTAINER
@@ -2732,6 +2811,11 @@ Resources:
           {
             "version": "0.2",
             "phases": {
+              "install": {
+                "commands": [
+                  "command -v yarn > /dev/null || npm install --global yarn"
+                ]
+              },
               "pre_build": {
                 "commands": [
                   "echo \"Downloading scripts from s3://${SCRIPT_S3_BUCKET}/${SCRIPT_S3_KEY}\"",
@@ -2750,23 +2834,17 @@ Resources:
             }
           }
         Type: NO_SOURCE
-      Cache:
-        Type: NO_CACHE
-      EncryptionKey:
-        Fn::GetAtt:
-          - CodeCommitPipelineBuildPipelineArtifactsBucketEncryptionKey05A62A83
-          - Arn
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/NuGet/Default/Resource/Resource
   CodeCommitPipelineNuGetAlarm4F3CAC42:
     Type: AWS::CloudWatch::Alarm
     Properties:
       ComparisonOperator: GreaterThanOrEqualToThreshold
-      EvaluationPeriods: 1
       Dimensions:
         - Name: ProjectName
           Value:
             Ref: CodeCommitPipelineNuGet67CE1BA7
+      EvaluationPeriods: 1
       MetricName: FailedBuilds
       Namespace: AWS/CodeBuild
       Period: 300
@@ -2785,6 +2863,12 @@ Resources:
             Principal:
               Service: codebuild.amazonaws.com
         Version: "2012-10-17"
+      ManagedPolicyArns:
+        - Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :iam::aws:policy/AmazonElasticContainerRegistryPublicReadOnly
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/Maven/Default/Resource/Role/Resource
   CodeCommitPipelineMavenRoleDefaultPolicyBCD15357:
@@ -2867,7 +2951,7 @@ Resources:
             Effect: Allow
             Resource:
               Fn::GetAtt:
-                - CodeSign52FB6674
+                - CodeSignResourceV25D0B3375
                 - SecretArn
           - Action: kms:Decrypt
             Effect: Allow
@@ -2919,6 +3003,12 @@ Resources:
     Properties:
       Artifacts:
         Type: NO_ARTIFACTS
+      Cache:
+        Type: NO_CACHE
+      EncryptionKey:
+        Fn::GetAtt:
+          - CodeCommitPipelineBuildPipelineArtifactsBucketEncryptionKey05A62A83
+          - Arn
       Environment:
         ComputeType: BUILD_GENERAL1_MEDIUM
         EnvironmentVariables:
@@ -2927,7 +3017,7 @@ Resources:
             Value: cdk-hnb659fds-assets-712950704752-us-east-1
           - Name: SCRIPT_S3_KEY
             Type: PLAINTEXT
-            Value: 95e395880ca2de45ad4273f17cb4915be787585da0aa7b17a2cbbd860594ad9e.zip
+            Value: 23a043aa729a8dcc52950a3e3423edef094084d3f73bc8ed477d3736993de939.zip
           - Name: STAGING_PROFILE_ID
             Type: PLAINTEXT
             Value: 68a05363083174
@@ -2935,7 +3025,7 @@ Resources:
             Type: PLAINTEXT
             Value:
               Fn::GetAtt:
-                - CodeSign52FB6674
+                - CodeSignResourceV25D0B3375
                 - SecretArn
           - Name: FOR_REAL
             Type: PLAINTEXT
@@ -2946,7 +3036,7 @@ Resources:
           - Name: MAVEN_ENDPOINT
             Type: PLAINTEXT
             Value: https://aws.oss.sonatype.org:443/
-        Image: jsii/superchain:1-bullseye-slim
+        Image: public.ecr.aws/jsii/superchain:1-bullseye-slim-node18
         ImagePullCredentialsType: SERVICE_ROLE
         PrivilegedMode: false
         Type: LINUX_CONTAINER
@@ -2959,6 +3049,11 @@ Resources:
           {
             "version": "0.2",
             "phases": {
+              "install": {
+                "commands": [
+                  "command -v yarn > /dev/null || npm install --global yarn"
+                ]
+              },
               "pre_build": {
                 "commands": [
                   "echo \"Downloading scripts from s3://${SCRIPT_S3_BUCKET}/${SCRIPT_S3_KEY}\"",
@@ -2977,23 +3072,17 @@ Resources:
             }
           }
         Type: NO_SOURCE
-      Cache:
-        Type: NO_CACHE
-      EncryptionKey:
-        Fn::GetAtt:
-          - CodeCommitPipelineBuildPipelineArtifactsBucketEncryptionKey05A62A83
-          - Arn
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/Maven/Default/Resource/Resource
   CodeCommitPipelineMavenAlarmC4A88DC3:
     Type: AWS::CloudWatch::Alarm
     Properties:
       ComparisonOperator: GreaterThanOrEqualToThreshold
-      EvaluationPeriods: 1
       Dimensions:
         - Name: ProjectName
           Value:
             Ref: CodeCommitPipelineMavenB7154296
+      EvaluationPeriods: 1
       MetricName: FailedBuilds
       Namespace: AWS/CodeBuild
       Period: 300
@@ -3012,6 +3101,12 @@ Resources:
             Principal:
               Service: codebuild.amazonaws.com
         Version: "2012-10-17"
+      ManagedPolicyArns:
+        - Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :iam::aws:policy/AmazonElasticContainerRegistryPublicReadOnly
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/GitHub/Default/Resource/Role/Resource
   CodeCommitPipelineGitHubRoleDefaultPolicy3FEA7E07:
@@ -3101,7 +3196,7 @@ Resources:
             Effect: Allow
             Resource:
               Fn::GetAtt:
-                - CodeSign52FB6674
+                - CodeSignResourceV25D0B3375
                 - SecretArn
           - Action: kms:Decrypt
             Effect: Allow
@@ -3153,6 +3248,12 @@ Resources:
     Properties:
       Artifacts:
         Type: NO_ARTIFACTS
+      Cache:
+        Type: NO_CACHE
+      EncryptionKey:
+        Fn::GetAtt:
+          - CodeCommitPipelineBuildPipelineArtifactsBucketEncryptionKey05A62A83
+          - Arn
       Environment:
         ComputeType: BUILD_GENERAL1_MEDIUM
         EnvironmentVariables:
@@ -3161,7 +3262,7 @@ Resources:
             Value: cdk-hnb659fds-assets-712950704752-us-east-1
           - Name: SCRIPT_S3_KEY
             Type: PLAINTEXT
-            Value: e449ed654aa21e23a39b20237b24d1e7ee76956d00a908005ed695aea81397b1.zip
+            Value: adda208bc85327ef49bd7171b20043c17eaf01a22e74d84e48e2f7947af380e6.zip
           - Name: BUILD_MANIFEST
             Type: PLAINTEXT
             Value: ./build.json
@@ -3175,7 +3276,7 @@ Resources:
             Type: PLAINTEXT
             Value:
               Fn::GetAtt:
-                - CodeSign52FB6674
+                - CodeSignResourceV25D0B3375
                 - SecretArn
           - Name: GITHUB_OWNER
             Type: PLAINTEXT
@@ -3195,7 +3296,7 @@ Resources:
           - Name: GITHUB_TOKEN
             Type: SECRETS_MANAGER
             Value: github-token
-        Image: aws/codebuild/standard:5.0
+        Image: aws/codebuild/standard:7.0
         ImagePullCredentialsType: CODEBUILD
         PrivilegedMode: false
         Type: LINUX_CONTAINER
@@ -3208,6 +3309,11 @@ Resources:
           {
             "version": "0.2",
             "phases": {
+              "install": {
+                "commands": [
+                  "command -v yarn > /dev/null || npm install --global yarn"
+                ]
+              },
               "pre_build": {
                 "commands": [
                   "echo \"Downloading scripts from s3://${SCRIPT_S3_BUCKET}/${SCRIPT_S3_KEY}\"",
@@ -3226,23 +3332,17 @@ Resources:
             }
           }
         Type: NO_SOURCE
-      Cache:
-        Type: NO_CACHE
-      EncryptionKey:
-        Fn::GetAtt:
-          - CodeCommitPipelineBuildPipelineArtifactsBucketEncryptionKey05A62A83
-          - Arn
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/GitHub/Default/Resource/Resource
   CodeCommitPipelineGitHubAlarmBD31FE64:
     Type: AWS::CloudWatch::Alarm
     Properties:
       ComparisonOperator: GreaterThanOrEqualToThreshold
-      EvaluationPeriods: 1
       Dimensions:
         - Name: ProjectName
           Value:
             Ref: CodeCommitPipelineGitHub0797840C
+      EvaluationPeriods: 1
       MetricName: FailedBuilds
       Namespace: AWS/CodeBuild
       Period: 300
@@ -3261,6 +3361,12 @@ Resources:
             Principal:
               Service: codebuild.amazonaws.com
         Version: "2012-10-17"
+      ManagedPolicyArns:
+        - Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :iam::aws:policy/AmazonElasticContainerRegistryPublicReadOnly
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/GitHubPages/Default/Resource/Role/Resource
   CodeCommitPipelineGitHubPagesRoleDefaultPolicy23292E7F:
@@ -3380,6 +3486,12 @@ Resources:
     Properties:
       Artifacts:
         Type: NO_ARTIFACTS
+      Cache:
+        Type: NO_CACHE
+      EncryptionKey:
+        Fn::GetAtt:
+          - CodeCommitPipelineBuildPipelineArtifactsBucketEncryptionKey05A62A83
+          - Arn
       Environment:
         ComputeType: BUILD_GENERAL1_MEDIUM
         EnvironmentVariables:
@@ -3410,7 +3522,7 @@ Resources:
           - Name: BUILD_MANIFEST
             Type: PLAINTEXT
             Value: ./build.json
-        Image: aws/codebuild/standard:5.0
+        Image: aws/codebuild/standard:7.0
         ImagePullCredentialsType: CODEBUILD
         PrivilegedMode: false
         Type: LINUX_CONTAINER
@@ -3423,6 +3535,11 @@ Resources:
           {
             "version": "0.2",
             "phases": {
+              "install": {
+                "commands": [
+                  "command -v yarn > /dev/null || npm install --global yarn"
+                ]
+              },
               "pre_build": {
                 "commands": [
                   "echo \"Downloading scripts from s3://${SCRIPT_S3_BUCKET}/${SCRIPT_S3_KEY}\"",
@@ -3441,23 +3558,17 @@ Resources:
             }
           }
         Type: NO_SOURCE
-      Cache:
-        Type: NO_CACHE
-      EncryptionKey:
-        Fn::GetAtt:
-          - CodeCommitPipelineBuildPipelineArtifactsBucketEncryptionKey05A62A83
-          - Arn
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/GitHubPages/Default/Resource/Resource
   CodeCommitPipelineGitHubPagesAlarmC5B4BC57:
     Type: AWS::CloudWatch::Alarm
     Properties:
       ComparisonOperator: GreaterThanOrEqualToThreshold
-      EvaluationPeriods: 1
       Dimensions:
         - Name: ProjectName
           Value:
             Ref: CodeCommitPipelineGitHubPages53B77CF6
+      EvaluationPeriods: 1
       MetricName: FailedBuilds
       Namespace: AWS/CodeBuild
       Period: 300
@@ -3476,6 +3587,12 @@ Resources:
             Principal:
               Service: codebuild.amazonaws.com
         Version: "2012-10-17"
+      ManagedPolicyArns:
+        - Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :iam::aws:policy/AmazonElasticContainerRegistryPublicReadOnly
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/PyPI/Default/Resource/Role/Resource
   CodeCommitPipelinePyPIRoleDefaultPolicy5062B3BA:
@@ -3595,6 +3712,12 @@ Resources:
     Properties:
       Artifacts:
         Type: NO_ARTIFACTS
+      Cache:
+        Type: NO_CACHE
+      EncryptionKey:
+        Fn::GetAtt:
+          - CodeCommitPipelineBuildPipelineArtifactsBucketEncryptionKey05A62A83
+          - Arn
       Environment:
         ComputeType: BUILD_GENERAL1_MEDIUM
         EnvironmentVariables:
@@ -3610,7 +3733,7 @@ Resources:
           - Name: PYPI_CREDENTIALS_SECRET_ID
             Type: PLAINTEXT
             Value: arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/pypi-tp8M57
-        Image: aws/codebuild/standard:5.0
+        Image: aws/codebuild/standard:7.0
         ImagePullCredentialsType: CODEBUILD
         PrivilegedMode: false
         Type: LINUX_CONTAINER
@@ -3623,6 +3746,11 @@ Resources:
           {
             "version": "0.2",
             "phases": {
+              "install": {
+                "commands": [
+                  "command -v yarn > /dev/null || npm install --global yarn"
+                ]
+              },
               "pre_build": {
                 "commands": [
                   "echo \"Downloading scripts from s3://${SCRIPT_S3_BUCKET}/${SCRIPT_S3_KEY}\"",
@@ -3641,23 +3769,17 @@ Resources:
             }
           }
         Type: NO_SOURCE
-      Cache:
-        Type: NO_CACHE
-      EncryptionKey:
-        Fn::GetAtt:
-          - CodeCommitPipelineBuildPipelineArtifactsBucketEncryptionKey05A62A83
-          - Arn
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/PyPI/Default/Resource/Resource
   CodeCommitPipelinePyPIAlarmEA15EF14:
     Type: AWS::CloudWatch::Alarm
     Properties:
       ComparisonOperator: GreaterThanOrEqualToThreshold
-      EvaluationPeriods: 1
       Dimensions:
         - Name: ProjectName
           Value:
             Ref: CodeCommitPipelinePyPI2C59CE7B
+      EvaluationPeriods: 1
       MetricName: FailedBuilds
       Namespace: AWS/CodeBuild
       Period: 300
@@ -3676,6 +3798,12 @@ Resources:
             Principal:
               Service: codebuild.amazonaws.com
         Version: "2012-10-17"
+      ManagedPolicyArns:
+        - Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :iam::aws:policy/AmazonElasticContainerRegistryPublicReadOnly
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/Golang/Default/Resource/Role/Resource
   CodeCommitPipelineGolangRoleDefaultPolicy189AF9A0:
@@ -3795,6 +3923,12 @@ Resources:
     Properties:
       Artifacts:
         Type: NO_ARTIFACTS
+      Cache:
+        Type: NO_CACHE
+      EncryptionKey:
+        Fn::GetAtt:
+          - CodeCommitPipelineBuildPipelineArtifactsBucketEncryptionKey05A62A83
+          - Arn
       Environment:
         ComputeType: BUILD_GENERAL1_MEDIUM
         EnvironmentVariables:
@@ -3819,7 +3953,7 @@ Resources:
           - Name: GIT_USER_EMAIL
             Type: PLAINTEXT
             Value: aws-cdk-dev+delivlib@amazon.com
-        Image: aws/codebuild/standard:5.0
+        Image: aws/codebuild/standard:7.0
         ImagePullCredentialsType: CODEBUILD
         PrivilegedMode: false
         Type: LINUX_CONTAINER
@@ -3832,6 +3966,11 @@ Resources:
           {
             "version": "0.2",
             "phases": {
+              "install": {
+                "commands": [
+                  "command -v yarn > /dev/null || npm install --global yarn"
+                ]
+              },
               "pre_build": {
                 "commands": [
                   "echo \"Downloading scripts from s3://${SCRIPT_S3_BUCKET}/${SCRIPT_S3_KEY}\"",
@@ -3850,23 +3989,17 @@ Resources:
             }
           }
         Type: NO_SOURCE
-      Cache:
-        Type: NO_CACHE
-      EncryptionKey:
-        Fn::GetAtt:
-          - CodeCommitPipelineBuildPipelineArtifactsBucketEncryptionKey05A62A83
-          - Arn
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/Golang/Default/Resource/Resource
   CodeCommitPipelineGolangAlarmF9F61D0D:
     Type: AWS::CloudWatch::Alarm
     Properties:
       ComparisonOperator: GreaterThanOrEqualToThreshold
-      EvaluationPeriods: 1
       Dimensions:
         - Name: ProjectName
           Value:
             Ref: CodeCommitPipelineGolangBDFA17A1
+      EvaluationPeriods: 1
       MetricName: FailedBuilds
       Namespace: AWS/CodeBuild
       Period: 300
@@ -3885,6 +4018,12 @@ Resources:
             Principal:
               Service: codebuild.amazonaws.com
         Version: "2012-10-17"
+      ManagedPolicyArns:
+        - Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :iam::aws:policy/AmazonElasticContainerRegistryPublicReadOnly
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/AutoBump/AutoPullRequest/PullRequest/Role/Resource
   CodeCommitPipelineAutoBumpAutoPullRequestRoleDefaultPolicy3BB1CD6F:
@@ -3961,9 +4100,13 @@ Resources:
     Properties:
       Artifacts:
         Type: NO_ARTIFACTS
+      Cache:
+        Type: NO_CACHE
+      Description: Release awslabs/aws-delivlib-sample, branch master
+      EncryptionKey: alias/aws/s3
       Environment:
         ComputeType: BUILD_GENERAL1_SMALL
-        Image: jsii/superchain:1-bullseye-slim
+        Image: public.ecr.aws/jsii/superchain:1-bullseye-slim-node18
         ImagePullCredentialsType: SERVICE_ROLE
         PrivilegedMode: false
         Type: LINUX_CONTAINER
@@ -4006,10 +4149,6 @@ Resources:
         Location: https://github.com/awslabs/aws-delivlib-sample.git
         ReportBuildStatus: false
         Type: GITHUB
-      Cache:
-        Type: NO_CACHE
-      Description: Release awslabs/aws-delivlib-sample, branch master
-      EncryptionKey: alias/aws/s3
       Triggers:
         Webhook: false
     Metadata:
@@ -4018,11 +4157,11 @@ Resources:
     Type: AWS::CloudWatch::Alarm
     Properties:
       ComparisonOperator: GreaterThanOrEqualToThreshold
-      EvaluationPeriods: 1
       Dimensions:
         - Name: ProjectName
           Value:
             Ref: CodeCommitPipelineAutoBumpAutoPullRequest033F6993
+      EvaluationPeriods: 1
       MetricName: FailedBuilds
       Namespace: AWS/CodeBuild
       Period: 300
@@ -4041,6 +4180,12 @@ Resources:
             Principal:
               Service: codebuild.amazonaws.com
         Version: "2012-10-17"
+      ManagedPolicyArns:
+        - Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :iam::aws:policy/AmazonElasticContainerRegistryPublicReadOnly
     Metadata:
       aws:cdk:path: delivlib-test/CodeCommitPipeline/AutoBuild/Project/Role/Resource
   CodeCommitPipelineAutoBuildProjectRoleDefaultPolicyFF5563AC:
@@ -4105,6 +4250,11 @@ Resources:
     Properties:
       Artifacts:
         Type: NO_ARTIFACTS
+      BadgeEnabled: true
+      Cache:
+        Type: NO_CACHE
+      Description: Automatic PR build for awslabs/aws-delivlib-sample
+      EncryptionKey: alias/aws/s3
       Environment:
         ComputeType: BUILD_GENERAL1_SMALL
         Image: public.ecr.aws/jsii/superchain:1-bullseye-slim-node18
@@ -4119,11 +4269,6 @@ Resources:
         Location: https://github.com/awslabs/aws-delivlib-sample.git
         ReportBuildStatus: true
         Type: GITHUB
-      BadgeEnabled: true
-      Cache:
-        Type: NO_CACHE
-      Description: Automatic PR build for awslabs/aws-delivlib-sample
-      EncryptionKey: alias/aws/s3
       Triggers:
         FilterGroups:
           - - Pattern: PUSH, PULL_REQUEST_CREATED, PULL_REQUEST_UPDATED
@@ -4258,11 +4403,7 @@ Resources:
     Properties:
       Code:
         S3Bucket: cdk-hnb659fds-assets-712950704752-us-east-1
-        S3Key: 96398aae0b5918cde6e86a7c00ecfb4e4ac990db8d0fc8112703a48e9565bd1d.zip
-      Role:
-        Fn::GetAtt:
-          - CodeCommitPipelineChangeControllerFunctionServiceRoleF02841DB
-          - Arn
+        S3Key: 7164ff4ec7f71118687118359d2a1a1197c400199c39eb26880190a50df3637c.zip
       Description: Enforces a Change Control Policy into CodePipeline's Publish stage
       Environment:
         Variables:
@@ -4272,9 +4413,12 @@ Resources:
           PIPELINE_NAME:
             Ref: CodeCommitPipelineBuildPipeline656B8CCB
           STAGE_NAME: Publish
-          AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
       Handler: index.handler
-      Runtime: nodejs14.x
+      Role:
+        Fn::GetAtt:
+          - CodeCommitPipelineChangeControllerFunctionServiceRoleF02841DB
+          - Arn
+      Runtime: nodejs20.x
       Timeout: 300
     DependsOn:
       - CodeCommitPipelineChangeControllerFunctionServiceRoleDefaultPolicy315F7AF5
@@ -4285,12 +4429,12 @@ Resources:
     Type: AWS::CloudWatch::Alarm
     Properties:
       ComparisonOperator: GreaterThanOrEqualToThreshold
-      EvaluationPeriods: 1
       DatapointsToAlarm: 1
       Dimensions:
         - Name: FunctionName
           Value:
             Ref: CodeCommitPipelineChangeControllerFunction776EAE6A
+      EvaluationPeriods: 1
       MetricName: Errors
       Namespace: AWS/Lambda
       Period: 300
@@ -4352,40 +4496,24 @@ Resources:
         Version: "2012-10-17"
     Metadata:
       aws:cdk:path: delivlib-test/AssumeMe/Resource
-  X509CodeSigningKeyRSAPrivateKeyOpenSslCliLayer3F0C7B04:
-    Type: AWS::Lambda::LayerVersion
-    Properties:
-      Content:
-        S3Bucket: cdk-hnb659fds-assets-712950704752-us-east-1
-        S3Key: 3484e3af42fdf9fe20bc76b3aa0b74c59f8ffe2e6aa726d82b5fb8fed9b91889.zip
-    Metadata:
-      aws:cdk:path: delivlib-test/X509CodeSigningKey/RSAPrivateKey/OpenSslCliLayer/Resource
-  X509CodeSigningKeyRSAPrivateKeyE5980A70:
+  X509CodeSigningKeyRSAPrivateKeyResourceV2926395A0:
     Type: Custom::RsaPrivateKeySecret
     Properties:
       ServiceToken:
         Fn::GetAtt:
-          - RSAPrivateKey72FD327D38134632934028EC437AA486D8EE708F
+          - RSAPrivateKey517D342FA590447BB5255D06E403A40698672B0B
           - Arn
-      ResourceVersion: 9SSpvWpv9ZgC52WHzM5Je6Ju9ZoJHVALR5VlJhROwgs=
+      ResourceVersion: H7YGMVLuZ+QukZc2cxaT6CX6eZHRf2OHSk/h85HtX74=
       Description: The PEM-encoded private key of the x509 Code-Signing Certificate
       KeySize: 2048
-      SecretName: delivlib-test/X509CodeSigningKey/RSAPrivateKey
+      SecretName: delivlib-test/X509CodeSigningKey/RSAPrivateKeyV2
     DependsOn:
-      - RSAPrivateKey72FD327D38134632934028EC437AA486ServiceRoleDefaultPolicy487DB1EA
-      - RSAPrivateKey72FD327D38134632934028EC437AA486ServiceRole76094455
+      - RSAPrivateKey517D342FA590447BB5255D06E403A406ServiceRoleDefaultPolicy27404286
+      - RSAPrivateKey517D342FA590447BB5255D06E403A406ServiceRoleFC773AAD
     UpdateReplacePolicy: Delete
     DeletionPolicy: Delete
     Metadata:
-      aws:cdk:path: delivlib-test/X509CodeSigningKey/RSAPrivateKey/Resource/Default
-  X509CodeSigningKeyRSAPrivateKeyCertificateSigningRequestOpenSslCliLayer61AF8E77:
-    Type: AWS::Lambda::LayerVersion
-    Properties:
-      Content:
-        S3Bucket: cdk-hnb659fds-assets-712950704752-us-east-1
-        S3Key: 3484e3af42fdf9fe20bc76b3aa0b74c59f8ffe2e6aa726d82b5fb8fed9b91889.zip
-    Metadata:
-      aws:cdk:path: delivlib-test/X509CodeSigningKey/RSAPrivateKey/CertificateSigningRequest/OpenSslCliLayer/Resource
+      aws:cdk:path: delivlib-test/X509CodeSigningKey/RSAPrivateKey/ResourceV2/Default
   X509CodeSigningKeyRSAPrivateKeyCertificateSigningRequestBucketD81FB261:
     Type: AWS::S3::Bucket
     Properties:
@@ -4425,6 +4553,7 @@ Resources:
                         - Arn
                     - /*
           - Action:
+              - s3:PutBucketPolicy
               - s3:GetBucket*
               - s3:List*
               - s3:DeleteObject*
@@ -4462,17 +4591,17 @@ Resources:
     DeletionPolicy: Delete
     Metadata:
       aws:cdk:path: delivlib-test/X509CodeSigningKey/RSAPrivateKey/CertificateSigningRequest/Bucket/AutoDeleteObjectsCustomResource/Default
-  X509CodeSigningKeyRSAPrivateKeyCertificateSigningRequest7F706C9D:
+  X509CodeSigningKeyRSAPrivateKeyCertificateSigningRequestResourceV284A29392:
     Type: Custom::CertificateSigningRequest
     Properties:
       ServiceToken:
         Fn::GetAtt:
-          - CreateCSR541F67826DCF49A78C5A67715ADD9E4C8F4169F6
+          - CreateCSRF0641C152BC0481E94BA7BF43F8BBDE313A5E125
           - Arn
-      ResourceVersion: iya3EURiIdG1hRWpTxUXI9stXq1asjZOpJDjraiV9dM=
+      ResourceVersion: H7YGMVLuZ+QukZc2cxaT6CX6eZHRf2OHSk/h85HtX74=
       PrivateKeySecretId:
         Fn::GetAtt:
-          - X509CodeSigningKeyRSAPrivateKeyE5980A70
+          - X509CodeSigningKeyRSAPrivateKeyResourceV2926395A0
           - SecretArn
       DnCommonName: delivlib-test
       DnCountry: IL
@@ -4486,32 +4615,32 @@ Resources:
       OutputBucket:
         Ref: X509CodeSigningKeyRSAPrivateKeyCertificateSigningRequestBucketD81FB261
     DependsOn:
-      - CreateCSR541F67826DCF49A78C5A67715ADD9E4CServiceRoleDefaultPolicyC0800208
-      - CreateCSR541F67826DCF49A78C5A67715ADD9E4CServiceRoleD2990C92
+      - CreateCSRF0641C152BC0481E94BA7BF43F8BBDE3ServiceRoleDefaultPolicyA96A3559
+      - CreateCSRF0641C152BC0481E94BA7BF43F8BBDE3ServiceRoleA7AA2800
     UpdateReplacePolicy: Delete
     DeletionPolicy: Delete
     Metadata:
-      aws:cdk:path: delivlib-test/X509CodeSigningKey/RSAPrivateKey/CertificateSigningRequest/Resource/Default
+      aws:cdk:path: delivlib-test/X509CodeSigningKey/RSAPrivateKey/CertificateSigningRequest/ResourceV2/Default
   X509CodeSigningKey8DE65BF8:
     Type: AWS::SSM::Parameter
     Properties:
-      Type: String
-      Value:
-        Fn::GetAtt:
-          - X509CodeSigningKeyRSAPrivateKeyCertificateSigningRequest7F706C9D
-          - SelfSignedCertificate
       Description:
         Fn::Join:
           - ""
           - - "A PEM-encoded Code-Signing Certificate (private key in "
             - Fn::GetAtt:
-                - X509CodeSigningKeyRSAPrivateKeyE5980A70
+                - X509CodeSigningKeyRSAPrivateKeyResourceV2926395A0
                 - SecretArn
             - )
       Name: /delivlib-test/X509CodeSigningKey/Certificate
+      Type: String
+      Value:
+        Fn::GetAtt:
+          - X509CodeSigningKeyRSAPrivateKeyCertificateSigningRequestResourceV284A29392
+          - SelfSignedCertificate
     Metadata:
       aws:cdk:path: delivlib-test/X509CodeSigningKey/Resource/Resource
-  RSAPrivateKey72FD327D38134632934028EC437AA486ServiceRole76094455:
+  RSAPrivateKey517D342FA590447BB5255D06E403A406ServiceRoleFC773AAD:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
@@ -4528,8 +4657,8 @@ Resources:
               - Ref: AWS::Partition
               - :iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
     Metadata:
-      aws:cdk:path: delivlib-test/RSAPrivate-Key72FD327D38134632934028EC437AA486/ServiceRole/Resource
-  RSAPrivateKey72FD327D38134632934028EC437AA486ServiceRoleDefaultPolicy487DB1EA:
+      aws:cdk:path: delivlib-test/RSAPrivate-Key517D342FA590447BB5255D06E403A406/ServiceRole/Resource
+  RSAPrivateKey517D342FA590447BB5255D06E403A406ServiceRoleDefaultPolicy27404286:
     Type: AWS::IAM::Policy
     Properties:
       PolicyDocument:
@@ -4544,35 +4673,32 @@ Resources:
                 - ""
                 - - "arn:"
                   - Ref: AWS::Partition
-                  - :secretsmanager:us-east-1:712950704752:secret:delivlib-test/X509CodeSigningKey/RSAPrivateKey-??????
+                  - :secretsmanager:us-east-1:712950704752:secret:delivlib-test/X509CodeSigningKey/RSAPrivateKeyV2-??????
         Version: "2012-10-17"
-      PolicyName: RSAPrivateKey72FD327D38134632934028EC437AA486ServiceRoleDefaultPolicy487DB1EA
+      PolicyName: RSAPrivateKey517D342FA590447BB5255D06E403A406ServiceRoleDefaultPolicy27404286
       Roles:
-        - Ref: RSAPrivateKey72FD327D38134632934028EC437AA486ServiceRole76094455
+        - Ref: RSAPrivateKey517D342FA590447BB5255D06E403A406ServiceRoleFC773AAD
     Metadata:
-      aws:cdk:path: delivlib-test/RSAPrivate-Key72FD327D38134632934028EC437AA486/ServiceRole/DefaultPolicy/Resource
-  RSAPrivateKey72FD327D38134632934028EC437AA486D8EE708F:
+      aws:cdk:path: delivlib-test/RSAPrivate-Key517D342FA590447BB5255D06E403A406/ServiceRole/DefaultPolicy/Resource
+  RSAPrivateKey517D342FA590447BB5255D06E403A40698672B0B:
     Type: AWS::Lambda::Function
     Properties:
       Code:
-        S3Bucket: cdk-hnb659fds-assets-712950704752-us-east-1
-        S3Key: 49ad3cae9aedaa06b54a5997b18d3545de801b45c7dfb05a5354a03aec399460.zip
+        ImageUri:
+          Fn::Sub: 712950704752.dkr.ecr.us-east-1.${AWS::URLSuffix}/cdk-hnb659fds-container-assets-712950704752-us-east-1:33e4216cc004b0e5dd84308a4c6261df2f7d5b823c83d73bdc64386f486a3cfa
+      Description: Generates an RSA Private Key and stores it in AWS Secrets Manager
+      PackageType: Image
       Role:
         Fn::GetAtt:
-          - RSAPrivateKey72FD327D38134632934028EC437AA486ServiceRole76094455
+          - RSAPrivateKey517D342FA590447BB5255D06E403A406ServiceRoleFC773AAD
           - Arn
-      Description: Generates an RSA Private Key and stores it in AWS Secrets Manager
-      Handler: index.handler
-      Layers:
-        - Ref: X509CodeSigningKeyRSAPrivateKeyOpenSslCliLayer3F0C7B04
-      Runtime: nodejs14.x
       Timeout: 300
     DependsOn:
-      - RSAPrivateKey72FD327D38134632934028EC437AA486ServiceRoleDefaultPolicy487DB1EA
-      - RSAPrivateKey72FD327D38134632934028EC437AA486ServiceRole76094455
+      - RSAPrivateKey517D342FA590447BB5255D06E403A406ServiceRoleDefaultPolicy27404286
+      - RSAPrivateKey517D342FA590447BB5255D06E403A406ServiceRoleFC773AAD
     Metadata:
-      aws:cdk:path: delivlib-test/RSAPrivate-Key72FD327D38134632934028EC437AA486/Resource
-  CreateCSR541F67826DCF49A78C5A67715ADD9E4CServiceRoleD2990C92:
+      aws:cdk:path: delivlib-test/RSAPrivate-Key517D342FA590447BB5255D06E403A406/Resource
+  CreateCSRF0641C152BC0481E94BA7BF43F8BBDE3ServiceRoleA7AA2800:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
@@ -4589,8 +4715,8 @@ Resources:
               - Ref: AWS::Partition
               - :iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
     Metadata:
-      aws:cdk:path: delivlib-test/CreateCSR541F67826DCF49A78C5A67715ADD9E4C/ServiceRole/Resource
-  CreateCSR541F67826DCF49A78C5A67715ADD9E4CServiceRoleDefaultPolicyC0800208:
+      aws:cdk:path: delivlib-test/CreateCSRF0641C152BC0481E94BA7BF43F8BBDE3/ServiceRole/Resource
+  CreateCSRF0641C152BC0481E94BA7BF43F8BBDE3ServiceRoleDefaultPolicyA96A3559:
     Type: AWS::IAM::Policy
     Properties:
       PolicyDocument:
@@ -4621,35 +4747,34 @@ Resources:
             Effect: Allow
             Resource:
               Fn::GetAtt:
-                - X509CodeSigningKeyRSAPrivateKeyE5980A70
+                - X509CodeSigningKeyRSAPrivateKeyResourceV2926395A0
                 - SecretArn
         Version: "2012-10-17"
-      PolicyName: CreateCSR541F67826DCF49A78C5A67715ADD9E4CServiceRoleDefaultPolicyC0800208
+      PolicyName: CreateCSRF0641C152BC0481E94BA7BF43F8BBDE3ServiceRoleDefaultPolicyA96A3559
       Roles:
-        - Ref: CreateCSR541F67826DCF49A78C5A67715ADD9E4CServiceRoleD2990C92
+        - Ref: CreateCSRF0641C152BC0481E94BA7BF43F8BBDE3ServiceRoleA7AA2800
     Metadata:
-      aws:cdk:path: delivlib-test/CreateCSR541F67826DCF49A78C5A67715ADD9E4C/ServiceRole/DefaultPolicy/Resource
-  CreateCSR541F67826DCF49A78C5A67715ADD9E4C8F4169F6:
+      aws:cdk:path: delivlib-test/CreateCSRF0641C152BC0481E94BA7BF43F8BBDE3/ServiceRole/DefaultPolicy/Resource
+  CreateCSRF0641C152BC0481E94BA7BF43F8BBDE313A5E125:
     Type: AWS::Lambda::Function
     Properties:
+      Architectures:
+        - x86_64
       Code:
-        S3Bucket: cdk-hnb659fds-assets-712950704752-us-east-1
-        S3Key: 9012a4bd6eb36f7ec4fec65ce817435d9b8dda297c62e87163a773c7d25c60a9.zip
+        ImageUri:
+          Fn::Sub: 712950704752.dkr.ecr.us-east-1.${AWS::URLSuffix}/cdk-hnb659fds-container-assets-712950704752-us-east-1:a99ae5a80882a88b13b68b765335e155bde969a70e18d367944a1f5d84fab9ff
+      Description: Creates a Certificate Signing Request document for an x509 certificate
+      PackageType: Image
       Role:
         Fn::GetAtt:
-          - CreateCSR541F67826DCF49A78C5A67715ADD9E4CServiceRoleD2990C92
+          - CreateCSRF0641C152BC0481E94BA7BF43F8BBDE3ServiceRoleA7AA2800
           - Arn
-      Description: Creates a Certificate Signing Request document for an x509 certificate
-      Handler: index.handler
-      Layers:
-        - Ref: X509CodeSigningKeyRSAPrivateKeyCertificateSigningRequestOpenSslCliLayer61AF8E77
-      Runtime: nodejs14.x
       Timeout: 300
     DependsOn:
-      - CreateCSR541F67826DCF49A78C5A67715ADD9E4CServiceRoleDefaultPolicyC0800208
-      - CreateCSR541F67826DCF49A78C5A67715ADD9E4CServiceRoleD2990C92
+      - CreateCSRF0641C152BC0481E94BA7BF43F8BBDE3ServiceRoleDefaultPolicyA96A3559
+      - CreateCSRF0641C152BC0481E94BA7BF43F8BBDE3ServiceRoleA7AA2800
     Metadata:
-      aws:cdk:path: delivlib-test/CreateCSR541F67826DCF49A78C5A67715ADD9E4C/Resource
+      aws:cdk:path: delivlib-test/CreateCSRF0641C152BC0481E94BA7BF43F8BBDE3/Resource
   CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092:
     Type: AWS::IAM::Role
     Properties:
@@ -4669,15 +4794,15 @@ Resources:
     Properties:
       Code:
         S3Bucket: cdk-hnb659fds-assets-712950704752-us-east-1
-        S3Key: 3f51abb709b8e65167a45aeed02bab11540603d909005d7148230ba5ce6c74d7.zip
+        S3Key: faa95a81ae7d7373f3e1f242268f904eb748d8d0fdd306e8a6fe515a1905a7d6.zip
       Timeout: 900
       MemorySize: 128
-      Handler: __entrypoint__.handler
+      Handler: index.handler
       Role:
         Fn::GetAtt:
           - CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092
           - Arn
-      Runtime: nodejs14.x
+      Runtime: nodejs20.x
       Description:
         Fn::Join:
           - ""
@@ -4713,7 +4838,7 @@ Resources:
             Principal:
               AWS:
                 Fn::GetAtt:
-                  - SingletonLambdaf25803d3054b44fc985f4860d7d6ee74ServiceRole410148CF
+                  - SingletonLambda2422BDC2DBB047C1B7015599E0849C54ServiceRole3FA81C88
                   - Arn
             Resource: "*"
           - Action: kms:Decrypt
@@ -4737,27 +4862,19 @@ Resources:
     DeletionPolicy: Retain
     Metadata:
       aws:cdk:path: delivlib-test/CodeSign-CMK/Resource
-  CodeSignGpgLayer4D38F47B:
-    Type: AWS::Lambda::LayerVersion
-    Properties:
-      Content:
-        S3Bucket: cdk-hnb659fds-assets-712950704752-us-east-1
-        S3Key: 69a776bec2bf25cc316055ac300a38998a429f41c98f76ef762e1aacb23488fe.zip
-    Metadata:
-      aws:cdk:path: delivlib-test/CodeSign/GpgLayer/Resource
-  CodeSign52FB6674:
+  CodeSignResourceV25D0B3375:
     Type: AWS::CloudFormation::CustomResource
     Properties:
       ServiceToken:
         Fn::GetAtt:
-          - SingletonLambdaf25803d3054b44fc985f4860d7d6ee746203BDE6
+          - SingletonLambda2422BDC2DBB047C1B7015599E0849C541E98BE8B
           - Arn
-      ResourceVersion: x9okTy8d1Bkcfmthe30NhD2o1N8snoz7uTlyrP9I6eA=
+      ResourceVersion: H7YGMVLuZ+QukZc2cxaT6CX6eZHRf2OHSk/h85HtX74=
       Identity: aws-cdk-dev
       Email: aws-cdk-dev+delivlib@amazon.com
       Expiry: 4y
       KeySizeBits: 4096
-      SecretName: delivlib-test/CodeSign
+      SecretName: delivlib-test/CodeSignV2
       KeyArn:
         Fn::GetAtt:
           - CodeSignCMKC986BB89
@@ -4767,26 +4884,26 @@ Resources:
     UpdateReplacePolicy: Delete
     DeletionPolicy: Delete
     Metadata:
-      aws:cdk:path: delivlib-test/CodeSign/Resource/Default
+      aws:cdk:path: delivlib-test/CodeSign/ResourceV2/Default
   CodeSignPrincipal30E4C212:
     Type: AWS::SSM::Parameter
     Properties:
-      Type: String
-      Value:
-        Fn::GetAtt:
-          - CodeSign52FB6674
-          - PublicKey
       Description:
         Fn::Join:
           - ""
           - - "The public part of the OpenPGP key in "
             - Fn::GetAtt:
-                - CodeSign52FB6674
+                - CodeSignResourceV25D0B3375
                 - SecretArn
       Name: /delivlib-test/CodeSign.pub
+      Type: String
+      Value:
+        Fn::GetAtt:
+          - CodeSignResourceV25D0B3375
+          - PublicKey
     Metadata:
       aws:cdk:path: delivlib-test/CodeSign/Principal/Resource
-  SingletonLambdaf25803d3054b44fc985f4860d7d6ee74ServiceRole410148CF:
+  SingletonLambda2422BDC2DBB047C1B7015599E0849C54ServiceRole3FA81C88:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
@@ -4803,8 +4920,8 @@ Resources:
               - Ref: AWS::Partition
               - :iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
     Metadata:
-      aws:cdk:path: delivlib-test/SingletonLambdaf25803d3054b44fc985f4860d7d6ee74/ServiceRole/Resource
-  SingletonLambdaf25803d3054b44fc985f4860d7d6ee74ServiceRoleDefaultPolicyA8FDF5BD:
+      aws:cdk:path: delivlib-test/SingletonLambda2422BDC2DBB047C1B7015599E0849C54/ServiceRole/Resource
+  SingletonLambda2422BDC2DBB047C1B7015599E0849C54ServiceRoleDefaultPolicyAD608560:
     Type: AWS::IAM::Policy
     Properties:
       PolicyDocument:
@@ -4820,37 +4937,34 @@ Resources:
                 - ""
                 - - "arn:"
                   - Ref: AWS::Partition
-                  - :secretsmanager:us-east-1:712950704752:secret:delivlib-test/CodeSign-??????
+                  - :secretsmanager:us-east-1:712950704752:secret:delivlib-test/CodeSignV2-??????
           - Action: ssm:DeleteParameter
             Effect: Allow
             Resource: "*"
         Version: "2012-10-17"
-      PolicyName: SingletonLambdaf25803d3054b44fc985f4860d7d6ee74ServiceRoleDefaultPolicyA8FDF5BD
+      PolicyName: SingletonLambda2422BDC2DBB047C1B7015599E0849C54ServiceRoleDefaultPolicyAD608560
       Roles:
-        - Ref: SingletonLambdaf25803d3054b44fc985f4860d7d6ee74ServiceRole410148CF
+        - Ref: SingletonLambda2422BDC2DBB047C1B7015599E0849C54ServiceRole3FA81C88
     Metadata:
-      aws:cdk:path: delivlib-test/SingletonLambdaf25803d3054b44fc985f4860d7d6ee74/ServiceRole/DefaultPolicy/Resource
-  SingletonLambdaf25803d3054b44fc985f4860d7d6ee746203BDE6:
+      aws:cdk:path: delivlib-test/SingletonLambda2422BDC2DBB047C1B7015599E0849C54/ServiceRole/DefaultPolicy/Resource
+  SingletonLambda2422BDC2DBB047C1B7015599E0849C541E98BE8B:
     Type: AWS::Lambda::Function
     Properties:
       Code:
-        S3Bucket: cdk-hnb659fds-assets-712950704752-us-east-1
-        S3Key: 82a7500f96ba72e7bb0d262fe02e5a925b0801f0a77474de466ad2818fdbeea4.zip
+        ImageUri:
+          Fn::Sub: 712950704752.dkr.ecr.us-east-1.${AWS::URLSuffix}/cdk-hnb659fds-container-assets-712950704752-us-east-1:108ee4cd321c857649aa8ee9ebd7fcf58be11944ca8dc179ca51ff5bf28671fe
+      Description: Generates an OpenPGP Key and stores the private key in Secrets Manager and the public key in an SSM Parameter
+      PackageType: Image
       Role:
         Fn::GetAtt:
-          - SingletonLambdaf25803d3054b44fc985f4860d7d6ee74ServiceRole410148CF
+          - SingletonLambda2422BDC2DBB047C1B7015599E0849C54ServiceRole3FA81C88
           - Arn
-      Description: Generates an OpenPGP Key and stores the private key in Secrets Manager and the public key in an SSM Parameter
-      Handler: index.handler
-      Layers:
-        - Ref: CodeSignGpgLayer4D38F47B
-      Runtime: nodejs14.x
       Timeout: 300
     DependsOn:
-      - SingletonLambdaf25803d3054b44fc985f4860d7d6ee74ServiceRoleDefaultPolicyA8FDF5BD
-      - SingletonLambdaf25803d3054b44fc985f4860d7d6ee74ServiceRole410148CF
+      - SingletonLambda2422BDC2DBB047C1B7015599E0849C54ServiceRoleDefaultPolicyAD608560
+      - SingletonLambda2422BDC2DBB047C1B7015599E0849C54ServiceRole3FA81C88
     Metadata:
-      aws:cdk:path: delivlib-test/SingletonLambdaf25803d3054b44fc985f4860d7d6ee74/Resource
+      aws:cdk:path: delivlib-test/SingletonLambda2422BDC2DBB047C1B7015599E0849C54/Resource
   BucketNotificationsHandler050a0587b7544547bf325f094a3db834RoleB6FB88EC:
     Type: AWS::IAM::Role
     Properties:
@@ -4888,7 +5002,7 @@ Resources:
     Properties:
       Description: AWS CloudFormation handler for "Custom::S3BucketNotifications" resources (@aws-cdk/aws-s3)
       Code:
-        ZipFile: |
+        ZipFile: |-
           import boto3  # type: ignore
           import json
           import logging
@@ -4897,7 +5011,6 @@ Resources:
           s3 = boto3.client("s3")
 
           EVENTBRIDGE_CONFIGURATION = 'EventBridgeConfiguration'
-
           CONFIGURATION_TYPES = ["TopicConfigurations", "QueueConfigurations", "LambdaFunctionConfigurations"]
 
           def handler(event: dict, context):
@@ -4905,18 +5018,15 @@ Resources:
             error_message = ""
             try:
               props = event["ResourceProperties"]
-              bucket = props["BucketName"]
               notification_configuration = props["NotificationConfiguration"]
-              request_type = event["RequestType"]
               managed = props.get('Managed', 'true').lower() == 'true'
               stack_id = event['StackId']
-
+              old = event.get("OldResourceProperties", {}).get("NotificationConfiguration", {})
               if managed:
-                config = handle_managed(request_type, notification_configuration)
+                config = handle_managed(event["RequestType"], notification_configuration)
               else:
-                config = handle_unmanaged(bucket, stack_id, request_type, notification_configuration)
-
-              put_bucket_notification_configuration(bucket, config)
+                config = handle_unmanaged(props["BucketName"], stack_id, event["RequestType"], notification_configuration, old)
+              s3.put_bucket_notification_configuration(Bucket=props["BucketName"], NotificationConfiguration=config)
             except Exception as e:
               logging.exception("Failed to put bucket notification configuration")
               response_status = "FAILED"
@@ -4929,15 +5039,30 @@ Resources:
               return {}
             return notification_configuration
 
-          def handle_unmanaged(bucket, stack_id, request_type, notification_configuration):
-            external_notifications = find_external_notifications(bucket, stack_id)
+          def handle_unmanaged(bucket, stack_id, request_type, notification_configuration, old):
+            def get_id(n):
+              n['Id'] = ''
+              strToHash=json.dumps(n, sort_keys=True).replace('"Name": "prefix"', '"Name": "Prefix"').replace('"Name": "suffix"', '"Name": "Suffix"')
+              return f"{stack_id}-{hash(strToHash)}"
+            def with_id(n):
+              n['Id'] = get_id(n)
+              return n
+
+            external_notifications = {}
+            existing_notifications = s3.get_bucket_notification_configuration(Bucket=bucket)
+            for t in CONFIGURATION_TYPES:
+              if request_type == 'Update':
+                  old_incoming_ids = [get_id(n) for n in old.get(t, [])]
+                  external_notifications[t] = [n for n in existing_notifications.get(t, []) if not get_id(n) in old_incoming_ids]      
+              elif request_type == 'Delete':
+                  external_notifications[t] = [n for n in existing_notifications.get(t, []) if not n['Id'].startswith(f"{stack_id}-")]
+              elif request_type == 'Create':
+                  external_notifications[t] = [n for n in existing_notifications.get(t, [])]
+            if EVENTBRIDGE_CONFIGURATION in existing_notifications:
+              external_notifications[EVENTBRIDGE_CONFIGURATION] = existing_notifications[EVENTBRIDGE_CONFIGURATION]
 
             if request_type == 'Delete':
               return external_notifications
-
-            def with_id(notification):
-              notification['Id'] = f"{stack_id}-{hash(json.dumps(notification, sort_keys=True))}"
-              return notification
 
             notifications = {}
             for t in CONFIGURATION_TYPES:
@@ -4951,23 +5076,6 @@ Resources:
               notifications[EVENTBRIDGE_CONFIGURATION] = external_notifications[EVENTBRIDGE_CONFIGURATION]
 
             return notifications
-
-          def find_external_notifications(bucket, stack_id):
-            existing_notifications = get_bucket_notification_configuration(bucket)
-            external_notifications = {}
-            for t in CONFIGURATION_TYPES:
-              external_notifications[t] = [n for n in existing_notifications.get(t, []) if not n['Id'].startswith(f"{stack_id}-")]
-
-            if EVENTBRIDGE_CONFIGURATION in existing_notifications:
-              external_notifications[EVENTBRIDGE_CONFIGURATION] = existing_notifications[EVENTBRIDGE_CONFIGURATION]
-
-            return external_notifications
-
-          def get_bucket_notification_configuration(bucket):
-            return s3.get_bucket_notification_configuration(Bucket=bucket)
-
-          def put_bucket_notification_configuration(bucket, notification_configuration):
-            s3.put_bucket_notification_configuration(Bucket=bucket, NotificationConfiguration=notification_configuration)
 
           def submit_response(event: dict, context, response_status: str, error_message: str):
             response_body = json.dumps(
@@ -4994,7 +5102,7 @@ Resources:
         Fn::GetAtt:
           - BucketNotificationsHandler050a0587b7544547bf325f094a3db834RoleB6FB88EC
           - Arn
-      Runtime: python3.9
+      Runtime: python3.11
       Timeout: 300
     DependsOn:
       - BucketNotificationsHandler050a0587b7544547bf325f094a3db834RoleDefaultPolicy2CF63D36
@@ -5011,24 +5119,11 @@ Outputs:
     Description: A PEM-encoded Certificate Signing Request for a Code-Signing Certificate
     Value:
       Fn::GetAtt:
-        - X509CodeSigningKeyRSAPrivateKeyCertificateSigningRequest7F706C9D
+        - X509CodeSigningKeyRSAPrivateKeyCertificateSigningRequestResourceV284A29392
         - CSR
 Parameters:
   BootstrapVersion:
     Type: AWS::SSM::Parameter::Value<String>
     Default: /cdk-bootstrap/hnb659fds/version
     Description: Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]
-Rules:
-  CheckBootstrapVersion:
-    Assertions:
-      - Assert:
-          Fn::Not:
-            - Fn::Contains:
-                - - "1"
-                  - "2"
-                  - "3"
-                  - "4"
-                  - "5"
-                - Ref: BootstrapVersion
-        AssertDescription: CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI.
 

@@ -62,19 +62,19 @@ export class RsaPrivateKeySecret extends Construct {
   constructor(parent: Construct, id: string, props: RsaPrivateKeySecretProps) {
     super(parent, id);
 
-    const codeLocation = path.resolve(__dirname, '..', 'custom-resource-handlers', 'bin', 'private-key');
-    const customResource = new lambda.SingletonFunction(this, 'ResourceHandler', {
+    const codeLocation = path.resolve(__dirname, '..', 'custom-resource-handlers');
+    // change the resource id to force deleting existing function, and create new one, as Package type change is not allowed
+    const customResource = new lambda.SingletonFunction(this, 'ResourceHandlerV2', {
       lambdaPurpose: 'RSAPrivate-Key',
-      uuid: '72FD327D-3813-4632-9340-28EC437AA486',
+      // change the uuid to force deleting existing function, and create new one, as Package type change is not allowed
+      uuid: '517D342F-A590-447B-B525-5D06E403A406',
       description: 'Generates an RSA Private Key and stores it in AWS Secrets Manager',
-      runtime: lambda.Runtime.NODEJS_20_X,
-      handler: 'index.handler',
-      code: new lambda.AssetCode(codeLocation),
+      runtime: lambda.Runtime.FROM_IMAGE,
+      handler: lambda.Handler.FROM_IMAGE,
+      code: new lambda.AssetImageCode(codeLocation, {
+        file: 'privateKeyDockerfile',
+      }),
       timeout: Duration.seconds(300),
-      // add the layer that contains the OpenSSL CLI binary
-      layers: [new lambda.LayerVersion(this, 'OpenSslCliLayer', {
-        code: lambda.Code.fromAsset(path.join(__dirname, '..', 'custom-resource-handlers', 'layers', 'openssl-cli-al2023.zip')),
-      })],
     });
 
     this.secretArnLike = Stack.of(this).formatArn({
@@ -110,7 +110,8 @@ export class RsaPrivateKeySecret extends Construct {
       }));
     }
 
-    const privateKey = new CustomResource(this, 'Resource', {
+    //change the custom resource id to force recreating new one because the change of the underneath lambda function
+    const privateKey = new CustomResource(this, 'ResourceV2', {
       serviceToken: customResource.functionArn,
       resourceType: 'Custom::RsaPrivateKeySecret',
       pascalCaseProperties: true,

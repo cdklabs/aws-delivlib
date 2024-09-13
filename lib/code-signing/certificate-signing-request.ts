@@ -6,6 +6,7 @@ import {
   aws_s3 as s3,
   RemovalPolicy,
 } from 'aws-cdk-lib';
+import { Platform } from 'aws-cdk-lib/aws-ecr-assets';
 import { Construct } from 'constructs';
 import { RsaPrivateKeySecret } from './private-key';
 import { hashFileOrDirectory } from '../util';
@@ -61,19 +62,21 @@ export class CertificateSigningRequest extends Construct {
   constructor(parent: Construct, id: string, props: CertificateSigningRequestProps) {
     super(parent, id);
 
-    const codeLocation = path.resolve(__dirname, '..', 'custom-resource-handlers', 'bin', 'certificate-signing-request');
-    const customResource = new lambda.SingletonFunction(this, 'ResourceHandler', {
-      uuid: '541F6782-6DCF-49A7-8C5A-67715ADD9E4C',
+    const codeLocation = path.resolve(__dirname, '..', 'custom-resource-handlers');
+    // change the resource id to force deleting existing function, and create new one, as Package type change is not allowed
+    const customResource = new lambda.SingletonFunction(this, 'ResourceHandlerV2', {
+      // change the uuid to force deleting existing function, and create new one, as Package type change is not allowed
+      uuid: 'F0641C15-2BC0-481E-94BA-7BF43F8BBDE3',
       lambdaPurpose: 'CreateCSR',
       description: 'Creates a Certificate Signing Request document for an x509 certificate',
-      runtime: lambda.Runtime.NODEJS_20_X,
-      handler: 'index.handler',
-      code: new lambda.AssetCode(codeLocation),
+      architecture: lambda.Architecture.X86_64,
+      runtime: lambda.Runtime.FROM_IMAGE,
+      handler: lambda.Handler.FROM_IMAGE,
+      code: new lambda.AssetImageCode(codeLocation, {
+        file: 'certificateSigningRequestDockerfile',
+        platform: Platform.LINUX_AMD64,
+      }),
       timeout: Duration.seconds(300),
-      // add the layer that contains the OpenSSL CLI binary
-      layers: [new lambda.LayerVersion(this, 'OpenSslCliLayer', {
-        code: lambda.Code.fromAsset(path.join(__dirname, '..', 'custom-resource-handlers', 'layers', 'openssl-cli-al2023.zip')),
-      })],
     });
 
     const outputBucket = new s3.Bucket(this, 'Bucket', {
@@ -86,7 +89,8 @@ export class CertificateSigningRequest extends Construct {
     outputBucket.grantReadWrite(customResource);
     this.outputBucket = outputBucket;
 
-    const csr = new CustomResource(this, 'Resource', {
+    //change the custom resource id to force recreating new one because the change of the underneath lambda function
+    const csr = new CustomResource(this, 'ResourceV2', {
       serviceToken: customResource.functionArn,
       resourceType: 'Custom::CertificateSigningRequest',
       pascalCaseProperties: true,

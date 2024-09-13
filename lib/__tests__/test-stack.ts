@@ -142,7 +142,8 @@ export class TestStack extends Stack {
       identity: 'aws-cdk-dev',
       keySizeBits: 4_096,
       pubKeyParameterName: `/${this.node.path}/CodeSign.pub`,
-      secretName: this.node.path + '/CodeSign',
+      // I am not able to immediately delete the existing secret, it needs to wait at least 7 days.
+      secretName: this.node.path + '/CodeSignV2',
       version: 0,
       removalPolicy: delivlib.OpenPGPKeyPairRemovalPolicy.DESTROY_IMMEDIATELY,
     });

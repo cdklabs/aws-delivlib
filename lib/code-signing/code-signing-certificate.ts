@@ -125,7 +125,10 @@ export class CodeSigningCertificate extends Construct implements ICodeSigningCer
       description: 'The PEM-encoded private key of the x509 Code-Signing Certificate',
       keySize: props.rsaKeySize || 2048,
       secretEncryptionKey: props.secretEncryptionKey,
-      secretName: `${baseName}/RSAPrivateKey`,
+      // rename the secret name, as it will be deleted wile the previous custom resource got deleted,
+      // and so when the new custom resource got created, it will fail as it will try to create a new secret
+      // with same name
+      secretName: `${baseName}/RSAPrivateKeyV2`,
     });
 
     this.credential = secretsManager.Secret.fromSecretAttributes(this, 'Credential', {
