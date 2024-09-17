@@ -20,9 +20,9 @@ export class TestStack extends Stack {
     //
 
     const githubRepo = new delivlib.WritableGitHubRepo({
-      repository: 'awslabs/aws-delivlib-sample',
-      tokenSecretArn: 'arn:aws:secretsmanager:us-east-1:712950704752:secret:github-token-QDP6QX',
-      sshKeySecret: { secretArn: 'arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/github-ssh-okGazo' },
+      repository: process.env.REPO_NAME ?? 'awslabs/aws-delivlib-sample',
+      tokenSecretArn: process.env.TOKEN_SECRET_ARN ?? 'arn:aws:secretsmanager:us-east-1:712950704752:secret:github-token-QDP6QX',
+      sshKeySecret: { secretArn: process.env.SSH_KEY_SECRET ?? 'arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/github-ssh-okGazo' },
       commitEmail: 'foo@bar.com',
       commitUsername: 'foobar',
     });
@@ -142,8 +142,7 @@ export class TestStack extends Stack {
       identity: 'aws-cdk-dev',
       keySizeBits: 4_096,
       pubKeyParameterName: `/${this.node.path}/CodeSign.pub`,
-      // I am not able to immediately delete the existing secret, it needs to wait at least 7 days.
-      secretName: this.node.path + '/CodeSignV2',
+      secretName: this.node.path + '/CodeSign',
       version: 0,
       removalPolicy: delivlib.OpenPGPKeyPairRemovalPolicy.DESTROY_IMMEDIATELY,
     });

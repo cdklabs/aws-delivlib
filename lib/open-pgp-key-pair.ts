@@ -12,6 +12,7 @@ import {
 import { Construct } from 'constructs';
 import { ICredentialPair } from './credential-pair';
 import { hashFileOrDirectory } from './util';
+import { Platform } from 'aws-cdk-lib/aws-ecr-assets';
 
 /**
  * The type of the {@link OpenPGPKeyPairProps.removalPolicy} property.
@@ -64,6 +65,13 @@ interface OpenPGPKeyPairProps {
    * Name of secret to create in AWS Secrets Manager
    */
   secretName: string;
+
+  /**
+   * Use this flag to mention to reuse an existing secret to be updated even during the resource create event.
+   *
+   * @default false
+   */
+  reuseSecret?: boolean;
 
   /**
    * Name of SSM parameter to store public key
@@ -119,7 +127,11 @@ export class OpenPGPKeyPair extends Construct implements ICredentialPair {
       uuid: '2422BDC2-DBB0-47C1-B701-5599E0849C54',
       description: 'Generates an OpenPGP Key and stores the private key in Secrets Manager and the public key in an SSM Parameter',
       code: new lambda.AssetImageCode(codeLocation, {
-        file: 'pgpSecretDockerfile',
+        file: 'Dockerfile',
+        platform: Platform.LINUX_AMD64,
+        buildArgs: {
+          FUN_SRC_DIR: 'pgp-secret',
+        },
       }),
       handler: lambda.Handler.FROM_IMAGE,
       timeout: Duration.seconds(300),
@@ -171,6 +183,7 @@ export class OpenPGPKeyPair extends Construct implements ICredentialPair {
         expiry: props.expiry,
         keySizeBits: props.keySizeBits,
         secretName: props.secretName,
+        reuseSecret: props.reuseSecret ?? false,
         keyArn: props.encryptionKey && props.encryptionKey.keyArn,
         version: props.version,
         description: props.description,

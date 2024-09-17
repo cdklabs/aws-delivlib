@@ -9,6 +9,7 @@ import {
 import { Construct } from 'constructs';
 import { CertificateSigningRequest, DistinguishedName } from './certificate-signing-request';
 import { hashFileOrDirectory } from '../util';
+import { Platform } from 'aws-cdk-lib/aws-ecr-assets';
 
 
 export interface RsaPrivateKeySecretProps {
@@ -72,7 +73,11 @@ export class RsaPrivateKeySecret extends Construct {
       runtime: lambda.Runtime.FROM_IMAGE,
       handler: lambda.Handler.FROM_IMAGE,
       code: new lambda.AssetImageCode(codeLocation, {
-        file: 'privateKeyDockerfile',
+        file: 'Dockerfile',
+        platform: Platform.LINUX_AMD64,
+        buildArgs: {
+          FUN_SRC_DIR: 'private-key',
+        },
       }),
       timeout: Duration.seconds(300),
     });

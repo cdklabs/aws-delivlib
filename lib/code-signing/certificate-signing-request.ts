@@ -73,8 +73,11 @@ export class CertificateSigningRequest extends Construct {
       runtime: lambda.Runtime.FROM_IMAGE,
       handler: lambda.Handler.FROM_IMAGE,
       code: new lambda.AssetImageCode(codeLocation, {
-        file: 'certificateSigningRequestDockerfile',
+        file: 'Dockerfile',
         platform: Platform.LINUX_AMD64,
+        buildArgs: {
+          FUN_SRC_DIR: 'certificate-signing-request',
+        },
       }),
       timeout: Duration.seconds(300),
     });
