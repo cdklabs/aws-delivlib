@@ -9,10 +9,10 @@ import {
   aws_ssm as ssm,
   ArnFormat,
 } from 'aws-cdk-lib';
+import { Platform } from 'aws-cdk-lib/aws-ecr-assets';
 import { Construct } from 'constructs';
 import { ICredentialPair } from './credential-pair';
 import { hashFileOrDirectory } from './util';
-import { Platform } from 'aws-cdk-lib/aws-ecr-assets';
 
 /**
  * The type of the {@link OpenPGPKeyPairProps.removalPolicy} property.

@@ -6,10 +6,10 @@ import {
   aws_kms as kms,
   aws_lambda as lambda,
 } from 'aws-cdk-lib';
+import { Platform } from 'aws-cdk-lib/aws-ecr-assets';
 import { Construct } from 'constructs';
 import { CertificateSigningRequest, DistinguishedName } from './certificate-signing-request';
 import { hashFileOrDirectory } from '../util';
-import { Platform } from 'aws-cdk-lib/aws-ecr-assets';
 
 
 export interface RsaPrivateKeySecretProps {
