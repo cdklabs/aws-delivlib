@@ -67,13 +67,6 @@ interface OpenPGPKeyPairProps {
   secretName: string;
 
   /**
-   * Use this flag to mention to reuse an existing secret to be updated even during the resource create event.
-   *
-   * @default false
-   */
-  reuseSecret?: boolean;
-
-  /**
    * Name of SSM parameter to store public key
    */
   pubKeyParameterName: string;
@@ -132,6 +125,9 @@ export class OpenPGPKeyPair extends Construct implements ICredentialPair {
         buildArgs: {
           FUN_SRC_DIR: 'pgp-secret',
         },
+        invalidation: {
+          buildArgs: true,
+        },
       }),
       handler: lambda.Handler.FROM_IMAGE,
       timeout: Duration.seconds(300),
@@ -183,7 +179,6 @@ export class OpenPGPKeyPair extends Construct implements ICredentialPair {
         expiry: props.expiry,
         keySizeBits: props.keySizeBits,
         secretName: props.secretName,
-        reuseSecret: props.reuseSecret ?? false,
         keyArn: props.encryptionKey && props.encryptionKey.keyArn,
         version: props.version,
         description: props.description,

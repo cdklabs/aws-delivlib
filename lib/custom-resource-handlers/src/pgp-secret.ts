@@ -48,8 +48,7 @@ async function handleEvent(event: cfn.Event, context: lambda.Context): Promise<c
     });
   }
 
-  let newKey = event.RequestType === cfn.RequestType.CREATE ?
-    ! event.ResourceProperties.ReuseSecret || ! await _doesSecretExist(event.ResourceProperties.SecretName) : false;
+  let newKey = event.RequestType === cfn.RequestType.CREATE;
 
   if (event.RequestType === cfn.RequestType.UPDATE) {
     const oldProps = event.OldResourceProperties;
@@ -73,17 +72,6 @@ async function handleEvent(event: cfn.Event, context: lambda.Context): Promise<c
     case cfn.RequestType.DELETE:
       return _deleteSecret(event);
   }
-}
-
-async function _doesSecretExist(secretName: string): Promise<boolean> {
-  try {
-    await secretsManager.getSecretValue({ SecretId: secretName });
-  } catch (e: any) {
-    if (e.name === 'ResourceNotFoundException') {
-      return false;
-    }
-  }
-  return true;
 }
 
 async function _createNewKey(event: cfn.CreateEvent | cfn.UpdateEvent, context: lambda.Context): Promise<ResourceAttributes> {

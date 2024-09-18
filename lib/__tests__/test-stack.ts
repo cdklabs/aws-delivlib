@@ -185,13 +185,6 @@ export class TestStack extends Stack {
     });
 
     //
-    // AUTO-BUILD
-
-    pipeline.autoBuild({
-      publicLogs: true,
-    });
-
-    //
     // CHANGE CONTROL
     //
 

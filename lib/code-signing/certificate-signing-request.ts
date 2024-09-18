@@ -78,6 +78,9 @@ export class CertificateSigningRequest extends Construct {
         buildArgs: {
           FUN_SRC_DIR: 'certificate-signing-request',
         },
+        invalidation: {
+          buildArgs: true,
+        },
       }),
       timeout: Duration.seconds(300),
     });

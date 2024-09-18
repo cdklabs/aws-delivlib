@@ -1,6 +1,8 @@
 # Use a NodeJS 20.x runtime
 FROM public.ecr.aws/lambda/nodejs:20-x86_64
 
+ARG FUN_SRC_DIR
+
 # install openssel
 RUN dnf install -y openssl
 ENV LD_LIBRARY_PATH=""
