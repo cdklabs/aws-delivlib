@@ -57,7 +57,7 @@ test('correctly forwards parameter name', () => {
   // THEN
   template.hasResourceProperties('AWS::SSM::Parameter', {
     Type: 'String',
-    Value: { 'Fn::GetAtt': ['SecretA720EF05', 'PublicKey'] },
+    Value: { 'Fn::GetAtt': ['SecretResourceV2A1B4436D', 'PublicKey'] },
     Name: parameterName,
   });
 });
@@ -101,8 +101,8 @@ test('Handler has appropriate permissions', () => {
         Resource: '*',
       }],
     },
-    PolicyName: 'SingletonLambdaf25803d3054b44fc985f4860d7d6ee74ServiceRoleDefaultPolicyA8FDF5BD',
-    Roles: [{ Ref: 'SingletonLambdaf25803d3054b44fc985f4860d7d6ee74ServiceRole410148CF' }],
+    PolicyName: 'SingletonLambda2422BDC2DBB047C1B7015599E0849C54ServiceRoleDefaultPolicyAD608560',
+    Roles: [{ Ref: 'SingletonLambda2422BDC2DBB047C1B7015599E0849C54ServiceRole3FA81C88' }],
   });
 
   template.hasResourceProperties('AWS::KMS::Key', {
@@ -117,7 +117,7 @@ test('Handler has appropriate permissions', () => {
         Condition: {
           StringEquals: { 'kms:ViaService': { 'Fn::Join': ['', ['secretsmanager.', { Ref: 'AWS::Region' }, '.amazonaws.com']] } },
         },
-        Principal: { AWS: { 'Fn::GetAtt': ['SingletonLambdaf25803d3054b44fc985f4860d7d6ee74ServiceRole410148CF', 'Arn'] } },
+        Principal: { AWS: { 'Fn::GetAtt': ['SingletonLambda2422BDC2DBB047C1B7015599E0849C54ServiceRole3FA81C88', 'Arn'] } },
       })]),
     },
   });

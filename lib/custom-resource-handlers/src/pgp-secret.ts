@@ -23,7 +23,6 @@ const ssm = new SSM();
 
 exports.handler = cfn.customResourceHandler(handleEvent);
 
-// Used to be /opt/gpg, but now is just plain gpg
 const GPG_BIN = 'gpg';
 
 
@@ -93,7 +92,7 @@ async function _createNewKey(event: cfn.CreateEvent | cfn.UpdateEvent, context: 
       '%echo done',
     ].join('\n'), { encoding: 'utf8' });
 
-    const gpgCommonArgs = [`--homedir=${tempDir}`, '--agent-program=/opt/gpg-agent'];
+    const gpgCommonArgs = [`--homedir=${tempDir}`, '--agent-program=/bin/gpg-agent'];
     await _exec(GPG_BIN, ...gpgCommonArgs, '--batch', '--gen-key', keyConfig);
     // Need the passphrase to export the private key
     const keyMaterial = await _exec(GPG_BIN, ...gpgCommonArgs, '--batch', '--yes', '--export-secret-keys', '--armor', '--pinentry-mode=loopback', `--passphrase=${passPhrase}`);
@@ -158,7 +157,7 @@ async function _getPublicKey(secretArn: string): Promise<string> {
     process.env.GNUPGHOME = tempDir;
     const privateKeyFile = path.join(tempDir, 'private.key');
     await writeFile(privateKeyFile, keyData.PrivateKey, { encoding: 'utf-8' });
-    const gpgCommonArgs = [`--homedir=${tempDir}`, '--agent-program=/opt/gpg-agent'];
+    const gpgCommonArgs = [`--homedir=${tempDir}`, '--agent-program=/bin/gpg-agent'];
     // Note: importing a private key does NOT require entering it's passphrase!
     await _exec(GPG_BIN, ...gpgCommonArgs, '--batch', '--yes', '--import', privateKeyFile);
     return await _exec(GPG_BIN, ...gpgCommonArgs, '--batch', '--yes', '--export', '--armor');

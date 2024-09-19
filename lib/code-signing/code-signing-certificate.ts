@@ -5,6 +5,7 @@ import {
   aws_s3 as s3,
   aws_secretsmanager as secretsManager,
   aws_ssm as ssm,
+  ArnFormat,
 } from 'aws-cdk-lib';
 import { Construct, IConstruct } from 'constructs';
 import { CertificateSigningRequest, DistinguishedName } from './certificate-signing-request';
@@ -125,8 +126,47 @@ export class CodeSigningCertificate extends Construct implements ICodeSigningCer
       description: 'The PEM-encoded private key of the x509 Code-Signing Certificate',
       keySize: props.rsaKeySize || 2048,
       secretEncryptionKey: props.secretEncryptionKey,
-      secretName: `${baseName}/RSAPrivateKey`,
+      // rename the secret name, as since this resource will be deleted and create a new resource,
+      // so the new resource will be created before the old one got deleted, and so we will not be able
+      // to create a new secrete with the same name, and even we could not reuse it, as it will be deleted once
+      // the old resource got deleted.
+      secretName: `${baseName}/RSAPrivateKeyV2`,
     });
+
+    // this change to keep the permissions to access the old secret for the custom resource Lambda function role, so it can
+    // delete the old secret.
+    const oldSecretArnLike = Stack.of(this).formatArn({
+      service: 'secretsmanager',
+      resource: 'secret',
+      arnFormat: ArnFormat.COLON_RESOURCE_NAME,
+      // The ARN of a secret has "-" followed by 6 random characters appended at the end
+      resourceName: `${baseName}/RSAPrivateKey-??????`,
+    });
+    privateKey.customResource.addToRolePolicy(new iam.PolicyStatement({
+      actions: [
+        'secretsmanager:CreateSecret',
+        'secretsmanager:DeleteSecret',
+        'secretsmanager:UpdateSecret',
+      ],
+      resources: [oldSecretArnLike],
+    }));
+
+    if (props.secretEncryptionKey) {
+      props.secretEncryptionKey.addToResourcePolicy(new iam.PolicyStatement({
+        // description: `Allow use via AWS Secrets Manager by CustomResource handler ${customResource.functionName}`,
+        principals: [new iam.ArnPrincipal(privateKey.customResource.role!.roleArn)],
+        actions: ['kms:Decrypt', 'kms:GenerateDataKey'],
+        resources: ['*'],
+        conditions: {
+          StringEquals: {
+            'kms:ViaService': `secretsmanager.${Stack.of(this).region}.amazonaws.com`,
+          },
+          ArnLike: {
+            'kms:EncryptionContext:SecretARN': oldSecretArnLike,
+          },
+        },
+      }));
+    }
 
     this.credential = secretsManager.Secret.fromSecretAttributes(this, 'Credential', {
       encryptionKey: props.secretEncryptionKey,
