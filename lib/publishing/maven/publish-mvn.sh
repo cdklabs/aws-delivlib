@@ -116,6 +116,7 @@ $mvn --settings=${mvn_settings}                                                 
     -DnexusUrl=${MAVEN_ENDPOINT:-https://oss.sonatype.org}                         \
     -DserverId=ossrh                                                               \
     -DautoReleaseAfterClose=true                                                   \
+    -DstagingProgressTimeoutMinutes=10                                             \
     -DstagingProfileId=${STAGING_PROFILE_ID} | tee ${staging_output}
 
 # we need to consule PIPESTATUS sinec "tee" is the last command
