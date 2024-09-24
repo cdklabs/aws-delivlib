@@ -190,10 +190,10 @@
     tslib "^2.6.2"
     uuid "^9.0.1"
 
-"@aws-sdk/client-s3@^3.654.0":
-  version "3.654.0"
-  resolved "https://registry.yarnpkg.com/@aws-sdk/client-s3/-/client-s3-3.654.0.tgz#a4a5a341959a4bab71b4a3326a76e59fb0d50ecd"
-  integrity sha512-EsyeZJhkZD2VMdZpNt4NhlQ3QUAF24gMC+5w2wpGg6Yw+Bv7VLdg1t3PkTQovriJX1KTJAYHcGAuy92OFmWIng==
+"@aws-sdk/client-s3@^3.657.0":
+  version "3.657.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/client-s3/-/client-s3-3.657.0.tgz#52bca27b4283035fdaed036a666b6fe1f77b1009"
+  integrity sha512-BonugBBJ8pBAbZDAzZI48ku9K7lRUf5dbxAokIDetrejrZlXk4uN0DxuWxy6iu6J2NOHYoqmRZdKvKADgQShWA==
   dependencies:
     "@aws-crypto/sha1-browser" "5.2.0"
     "@aws-crypto/sha256-browser" "5.2.0"
@@ -204,7 +204,7 @@
     "@aws-sdk/credential-provider-node" "3.654.0"
     "@aws-sdk/middleware-bucket-endpoint" "3.654.0"
     "@aws-sdk/middleware-expect-continue" "3.654.0"
-    "@aws-sdk/middleware-flexible-checksums" "3.654.0"
+    "@aws-sdk/middleware-flexible-checksums" "3.657.0"
     "@aws-sdk/middleware-host-header" "3.654.0"
     "@aws-sdk/middleware-location-constraint" "3.654.0"
     "@aws-sdk/middleware-logger" "3.654.0"
@@ -619,10 +619,10 @@
     "@smithy/types" "^3.4.2"
     tslib "^2.6.2"
 
-"@aws-sdk/middleware-flexible-checksums@3.654.0":
-  version "3.654.0"
-  resolved "https://registry.yarnpkg.com/@aws-sdk/middleware-flexible-checksums/-/middleware-flexible-checksums-3.654.0.tgz#2868528c66c1f0094811668e2e89b246ca94352a"
-  integrity sha512-ZSRC+Lf9WxyoDLuTkd7JrFRrBLPLXcTOZzX6tDsnHc6tgdneBNwV3/ZOYUwQ8bdwLLnzSaQUU+X5B2BkEFKIhQ==
+"@aws-sdk/middleware-flexible-checksums@3.657.0":
+  version "3.657.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/middleware-flexible-checksums/-/middleware-flexible-checksums-3.657.0.tgz#7679218f783c602e9787a85044015742801eaa4f"
+  integrity sha512-aOfK0YmuL8baCqJ5nArHKyyFko/tSWMjGcegOA4Jo+XAu1PEk0wDi78vOHlv4dfSlF8sXJsAo4kaCEDF3UkGAQ==
   dependencies:
     "@aws-crypto/crc32" "5.2.0"
     "@aws-crypto/crc32c" "5.2.0"
@@ -2233,9 +2233,9 @@
   integrity sha512-hov8bUuiLiyFPGyFPE1lwWhmzYbirOXQNNo40+y3zow8aFVTeyn3VWL0VFFfdNddA8S4Vf0Tc062rzyNr7Paag==
 
 "@types/node@*":
-  version "22.5.5"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-22.5.5.tgz#52f939dd0f65fc552a4ad0b392f3c466cc5d7a44"
-  integrity sha512-Xjs4y5UPO/CLdzpgR6GirZJx36yScjh73+2NlLlkFRSoQN8B0DpfXPdZGnvVmLRLOsqDpOfTNv7D9trgGhmOIA==
+  version "22.6.1"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-22.6.1.tgz#e531a45f4d78f14a8468cb9cdc29dc9602afc7ac"
+  integrity sha512-V48tCfcKb/e6cVUigLAaJDAILdMP0fUW6BidkPK4GpGjXcfbnoHasCZDwz3N3yVt5we2RHm4XTQCpv0KJz9zqw==
   dependencies:
     undici-types "~6.19.2"
 
@@ -2782,9 +2782,9 @@ camelcase@^6.2.0:
   integrity sha512-Gmy6FhYlCY7uOElZUSbxo2UCDH8owEk996gkbrpsgGtrJLM3J7jGxl9Ic7Qwwj4ivOE5AWZWRMecDdF7hqGjFA==
 
 caniuse-lite@^1.0.30001646:
-  version "1.0.30001662"
-  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001662.tgz#3574b22dfec54a3f3b6787331da1040fe8e763ec"
-  integrity sha512-sgMUVwLmGseH8ZIrm1d51UbrhqMCH3jvS7gF/M6byuHOnKyLOBL7W8yz5V02OHwgLGA36o/AFhWzzh4uc5aqTA==
+  version "1.0.30001663"
+  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001663.tgz#1529a723505e429fdfd49532e9fc42273ba7fed7"
+  integrity sha512-o9C3X27GLKbLeTYZ6HBOLU1tsAcBZsLis28wrVzddShCS16RujjHp9GDHKZqrB3meE0YjhawvMFsGb/igqiPzA==
 
 case@1.6.3, case@^1.6.3:
   version "1.6.3"
@@ -5776,10 +5776,10 @@ process-nextick-args@~2.0.0:
   resolved "https://registry.yarnpkg.com/process-nextick-args/-/process-nextick-args-2.0.1.tgz#7820d9b16120cc55ca9ae7792680ae7dba6d7fe2"
   integrity sha512-3ouUOpQhtgrbOa17J7+uxOTpITYWaGP7/AhoR3+A+/1e9skrzelGi/dXzEYyvbxubEF6Wn2ypscTKiKJFFn1ag==
 
-projen@^0.87.4:
-  version "0.87.4"
-  resolved "https://registry.yarnpkg.com/projen/-/projen-0.87.4.tgz#97da75d7893a28ea110b887215975c50a7d6d160"
-  integrity sha512-PJA8xQubV/1x5S4xbP2uazpkTd5zYb7JqEprGxNZ+KNsWUab0MK2cXeYgW6zp/xpITiD+l9Z0fR5TG83OyU6nQ==
+projen@^0.88.0:
+  version "0.88.0"
+  resolved "https://registry.yarnpkg.com/projen/-/projen-0.88.0.tgz#4e3664fddc7fc0614827981c221e65776dbda390"
+  integrity sha512-7A6OAgL7Gz6R2yWMUlqMqZw7r5jOeqfpNLg+BZbLg3UXbtPsdOjPDp0NroGXxFkqW7NcVPzs7/lF7DZ6H9pRSQ==
   dependencies:
     "@iarna/toml" "^2.2.5"
     case "^1.6.3"
