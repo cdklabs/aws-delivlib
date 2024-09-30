@@ -16,3 +16,4 @@ export * from './pull-request';
 export * from './chime-notifier';
 export * from './pipeline-notifications';
 export * from './package-integrity';
+export * from './pipeline-watcher';
