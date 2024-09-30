@@ -6,6 +6,7 @@ import {
   aws_kms as kms,
   aws_lambda as lambda,
 } from 'aws-cdk-lib';
+import { Platform } from 'aws-cdk-lib/aws-ecr-assets';
 import { Construct } from 'constructs';
 import { CertificateSigningRequest, DistinguishedName } from './certificate-signing-request';
 import { hashFileOrDirectory } from '../util';
@@ -55,6 +56,7 @@ export class RsaPrivateKeySecret extends Construct {
    * The ARN of the secret that holds the private key.
    */
   public secretArn: string;
+  public customResource: lambda.SingletonFunction;
 
   private secretArnLike: string;
   private masterKey?: kms.IKey;
@@ -62,19 +64,26 @@ export class RsaPrivateKeySecret extends Construct {
   constructor(parent: Construct, id: string, props: RsaPrivateKeySecretProps) {
     super(parent, id);
 
-    const codeLocation = path.resolve(__dirname, '..', 'custom-resource-handlers', 'bin', 'private-key');
-    const customResource = new lambda.SingletonFunction(this, 'ResourceHandler', {
+    const codeLocation = path.resolve(__dirname, '..', 'custom-resource-handlers');
+    // change the resource id to force deleting existing function, and create new one, as Package type change is not allowed
+    this.customResource = new lambda.SingletonFunction(this, 'ResourceHandlerV2', {
       lambdaPurpose: 'RSAPrivate-Key',
-      uuid: '72FD327D-3813-4632-9340-28EC437AA486',
+      // change the uuid to force deleting existing function, and create new one, as Package type change is not allowed
+      uuid: '517D342F-A590-447B-B525-5D06E403A406',
       description: 'Generates an RSA Private Key and stores it in AWS Secrets Manager',
-      runtime: lambda.Runtime.NODEJS_14_X,
-      handler: 'index.handler',
-      code: new lambda.AssetCode(codeLocation),
+      runtime: lambda.Runtime.FROM_IMAGE,
+      handler: lambda.Handler.FROM_IMAGE,
+      code: new lambda.AssetImageCode(codeLocation, {
+        file: 'Dockerfile',
+        platform: Platform.LINUX_AMD64,
+        buildArgs: {
+          FUN_SRC_DIR: 'private-key',
+        },
+        invalidation: {
+          buildArgs: true,
+        },
+      }),
       timeout: Duration.seconds(300),
-      // add the layer that contains the OpenSSL CLI binary
-      layers: [new lambda.LayerVersion(this, 'OpenSslCliLayer', {
-        code: lambda.Code.fromAsset(path.join(__dirname, '..', 'custom-resource-handlers', 'layers', 'openssl-cli-layer.zip')),
-      })],
     });
 
     this.secretArnLike = Stack.of(this).formatArn({
@@ -84,7 +93,7 @@ export class RsaPrivateKeySecret extends Construct {
       // The ARN of a secret has "-" followed by 6 random characters appended at the end
       resourceName: `${props.secretName}-??????`,
     });
-    customResource.addToRolePolicy(new iam.PolicyStatement({
+    this.customResource.addToRolePolicy(new iam.PolicyStatement({
       actions: [
         'secretsmanager:CreateSecret',
         'secretsmanager:DeleteSecret',
@@ -96,7 +105,7 @@ export class RsaPrivateKeySecret extends Construct {
     if (props.secretEncryptionKey) {
       props.secretEncryptionKey.addToResourcePolicy(new iam.PolicyStatement({
         // description: `Allow use via AWS Secrets Manager by CustomResource handler ${customResource.functionName}`,
-        principals: [new iam.ArnPrincipal(customResource.role!.roleArn)],
+        principals: [new iam.ArnPrincipal(this.customResource.role!.roleArn)],
         actions: ['kms:Decrypt', 'kms:GenerateDataKey'],
         resources: ['*'],
         conditions: {
@@ -110,8 +119,9 @@ export class RsaPrivateKeySecret extends Construct {
       }));
     }
 
-    const privateKey = new CustomResource(this, 'Resource', {
-      serviceToken: customResource.functionArn,
+    //change the custom resource id to force recreating new one because the change of the underneath lambda function
+    const privateKey = new CustomResource(this, 'ResourceV2', {
+      serviceToken: this.customResource.functionArn,
       resourceType: 'Custom::RsaPrivateKeySecret',
       pascalCaseProperties: true,
       properties: {
@@ -123,13 +133,13 @@ export class RsaPrivateKeySecret extends Construct {
       },
       removalPolicy: props.removalPolicy || RemovalPolicy.RETAIN,
     });
-    if (customResource.role) {
-      privateKey.node.addDependency(customResource.role);
+    if (this.customResource.role) {
+      privateKey.node.addDependency(this.customResource.role);
       if (props.secretEncryptionKey) {
         // Modeling as a separate Policy to evade a dependency cycle (Role -> Key -> Role), as the Key refers to the
         // role in it's resource policy.
         privateKey.node.addDependency(new iam.Policy(this, 'GrantLambdaRoleKeyAccess', {
-          roles: [customResource.role],
+          roles: [this.customResource.role],
           statements: [
             new iam.PolicyStatement({
               // description: `AWSSecretsManager${props.secretName.replace(/[^0-9A-Za-z]/g, '')}CMK`,

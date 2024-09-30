@@ -9,6 +9,7 @@ import {
   aws_ssm as ssm,
   ArnFormat,
 } from 'aws-cdk-lib';
+import { Platform } from 'aws-cdk-lib/aws-ecr-assets';
 import { Construct } from 'constructs';
 import { ICredentialPair } from './credential-pair';
 import { hashFileOrDirectory } from './util';
@@ -112,19 +113,25 @@ export class OpenPGPKeyPair extends Construct implements ICredentialPair {
   constructor(parent: Construct, name: string, props: OpenPGPKeyPairProps) {
     super(parent, name);
 
-    const codeLocation = path.resolve(__dirname, 'custom-resource-handlers', 'bin', 'pgp-secret');
+    const codeLocation = path.resolve(__dirname, 'custom-resource-handlers');
 
     const fn = new lambda.SingletonFunction(this, 'Lambda', {
-      uuid: 'f25803d3-054b-44fc-985f-4860d7d6ee74',
+      // change the uuid to force deleting existing function, and create new one, as Package type change is not allowed
+      uuid: '2422BDC2-DBB0-47C1-B701-5599E0849C54',
       description: 'Generates an OpenPGP Key and stores the private key in Secrets Manager and the public key in an SSM Parameter',
-      code: new lambda.AssetCode(codeLocation),
-      handler: 'index.handler',
+      code: new lambda.AssetImageCode(codeLocation, {
+        file: 'Dockerfile',
+        platform: Platform.LINUX_AMD64,
+        buildArgs: {
+          FUN_SRC_DIR: 'pgp-secret',
+        },
+        invalidation: {
+          buildArgs: true,
+        },
+      }),
+      handler: lambda.Handler.FROM_IMAGE,
       timeout: Duration.seconds(300),
-      runtime: lambda.Runtime.NODEJS_14_X,
-      // add the layer that contains the GPG binary (+ shared libraries)
-      layers: [new lambda.LayerVersion(this, 'GpgLayer', {
-        code: lambda.Code.fromAsset(path.join(__dirname, 'custom-resource-handlers', 'layers', 'gpg-layer.zip')),
-      })],
+      runtime: lambda.Runtime.FROM_IMAGE,
     });
 
     fn.addToRolePolicy(new iam.PolicyStatement({
@@ -161,7 +168,8 @@ export class OpenPGPKeyPair extends Construct implements ICredentialPair {
       }));
     }
 
-    const secret = new CustomResource(this, 'Resource', {
+    //change the custom resource id to force recreating new one because the change of the underneath lambda function
+    const secret = new CustomResource(this, 'ResourceV2', {
       serviceToken: fn.functionArn,
       pascalCaseProperties: true,
       properties: {

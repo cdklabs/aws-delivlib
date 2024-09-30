@@ -1,6 +1,26 @@
 {
   "dependencies": [
     {
+      "name": "@aws-sdk/client-cloudwatch",
+      "type": "build"
+    },
+    {
+      "name": "@aws-sdk/client-codepipeline",
+      "type": "build"
+    },
+    {
+      "name": "@aws-sdk/client-s3",
+      "type": "build"
+    },
+    {
+      "name": "@aws-sdk/client-secrets-manager",
+      "type": "build"
+    },
+    {
+      "name": "@aws-sdk/client-ssm",
+      "type": "build"
+    },
+    {
       "name": "@types/adm-zip",
       "type": "build"
     },
@@ -31,12 +51,12 @@
     },
     {
       "name": "@typescript-eslint/eslint-plugin",
-      "version": "^6",
+      "version": "^7",
       "type": "build"
     },
     {
       "name": "@typescript-eslint/parser",
-      "version": "^6",
+      "version": "^7",
       "type": "build"
     },
     {
@@ -52,11 +72,8 @@
       "type": "build"
     },
     {
-      "name": "aws-sdk",
-      "type": "build"
-    },
-    {
-      "name": "aws-sdk-mock",
+      "name": "commit-and-tag-version",
+      "version": "^12",
       "type": "build"
     },
     {
@@ -94,10 +111,6 @@
       "type": "build"
     },
     {
-      "name": "jest-create-mock-instance",
-      "type": "build"
-    },
-    {
       "name": "jest-junit",
       "version": "^15",
       "type": "build"
@@ -126,7 +139,6 @@
     },
     {
       "name": "standard-version",
-      "version": "^9",
       "type": "build"
     },
     {

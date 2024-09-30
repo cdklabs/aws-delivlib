@@ -3,7 +3,7 @@ import * as os from 'os';
 import * as path from 'path';
 import * as util from 'util';
 // eslint-disable-next-line import/no-extraneous-dependencies
-import * as aws from 'aws-sdk';
+import { SecretsManager } from '@aws-sdk/client-secrets-manager';
 
 import * as cfn from './_cloud-formation';
 // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -15,7 +15,7 @@ import _rmrf = require('./_rmrf');
 const mkdtemp = util.promisify(fs.mkdtemp);
 const readFile = util.promisify(fs.readFile);
 
-const secretsManager = new aws.SecretsManager();
+const secretsManager = new SecretsManager();
 
 exports.handler = cfn.customResourceHandler(handleEvent);
 
@@ -47,14 +47,14 @@ async function _createSecret(event: cfn.CreateEvent, context: lambda.Context): P
   const tmpDir = await mkdtemp(path.join(os.tmpdir(), 'x509PrivateKey-'));
   try {
     const pkeyFile = path.join(tmpDir, 'private_key.pem');
-    await _exec('/opt/openssl', 'genrsa', '-out', pkeyFile, event.ResourceProperties.KeySize);
+    await _exec('openssl', 'genrsa', '-out', pkeyFile, event.ResourceProperties.KeySize);
     const result = await secretsManager.createSecret({
       ClientRequestToken: context.awsRequestId,
       Description: event.ResourceProperties.Description,
       KmsKeyId: event.ResourceProperties.KmsKeyId,
       Name: event.ResourceProperties.SecretName,
       SecretString: await readFile(pkeyFile, { encoding: 'utf8' }),
-    }).promise();
+    });
     return {
       Ref: result.ARN!,
       SecretArn: result.ARN!,
@@ -69,7 +69,7 @@ async function _deleteSecret(event: cfn.DeleteEvent): Promise<cfn.ResourceAttrib
     await secretsManager.deleteSecret({
       SecretId: event.PhysicalResourceId,
       ForceDeleteWithoutRecovery: true,
-    }).promise();
+    });
   }
   return { Ref: event.PhysicalResourceId };
 }
@@ -87,7 +87,7 @@ async function _updateSecret(event: cfn.UpdateEvent, context: lambda.Context): P
     Description: props.Description,
     KmsKeyId: props.KmsKeyId,
     SecretId: event.PhysicalResourceId,
-  }).promise();
+  });
 
   return {
     Ref: result.ARN!,

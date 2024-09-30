@@ -1,6 +1,9 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
-import * as AWS from 'aws-sdk';
-const pipeline = new AWS.CodePipeline();
+
+
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { CodePipeline } from '@aws-sdk/client-codepipeline';
+const pipeline = new CodePipeline();
 
 /**
  * Disables a CodePipeline transition into a given stage.
@@ -17,7 +20,7 @@ export async function disableTransition(pipelineName: string, stageName: string,
     reason,
     stageName,
     transitionType: 'Inbound',
-  }).promise();
+  });
 }
 
 /**
@@ -30,5 +33,5 @@ export async function enableTransition(pipelineName: string, stageName: string):
     pipelineName,
     stageName,
     transitionType: 'Inbound',
-  }).promise();
+  });
 }

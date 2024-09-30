@@ -4,7 +4,9 @@ import * as os from 'os';
 import * as path from 'path';
 import * as util from 'util';
 // eslint-disable-next-line import/no-extraneous-dependencies
-import * as aws from 'aws-sdk';
+import { SecretsManager } from '@aws-sdk/client-secrets-manager';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { SSM } from '@aws-sdk/client-ssm';
 
 import * as cfn from './_cloud-formation';
 // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -16,10 +18,13 @@ import _rmrf = require('./_rmrf');
 const mkdtemp = util.promisify(fs.mkdtemp);
 const writeFile = util.promisify(fs.writeFile);
 
-const secretsManager = new aws.SecretsManager();
-const ssm = new aws.SSM();
+const secretsManager = new SecretsManager();
+const ssm = new SSM();
 
 exports.handler = cfn.customResourceHandler(handleEvent);
+
+const GPG_BIN = 'gpg';
+
 
 interface ResourceAttributes extends cfn.ResourceAttributes {
   SecretArn: string;
@@ -87,10 +92,11 @@ async function _createNewKey(event: cfn.CreateEvent | cfn.UpdateEvent, context: 
       '%echo done',
     ].join('\n'), { encoding: 'utf8' });
 
-    const gpgCommonArgs = [`--homedir=${tempDir}`, '--agent-program=/opt/gpg-agent'];
-    await _exec('/opt/gpg', ...gpgCommonArgs, '--batch', '--gen-key', keyConfig);
-    const keyMaterial = await _exec('/opt/gpg', ...gpgCommonArgs, '--batch', '--yes', '--export-secret-keys', '--armor');
-    const publicKey = await _exec('/opt/gpg', ...gpgCommonArgs, '--batch', '--yes', '--export', '--armor');
+    const gpgCommonArgs = [`--homedir=${tempDir}`, '--agent-program=/bin/gpg-agent'];
+    await _exec(GPG_BIN, ...gpgCommonArgs, '--batch', '--gen-key', keyConfig);
+    // Need the passphrase to export the private key
+    const keyMaterial = await _exec(GPG_BIN, ...gpgCommonArgs, '--batch', '--yes', '--export-secret-keys', '--armor', '--pinentry-mode=loopback', `--passphrase=${passPhrase}`);
+    const publicKey = await _exec(GPG_BIN, ...gpgCommonArgs, '--batch', '--yes', '--export', '--armor');
     const secretOpts = {
       ClientRequestToken: context.awsRequestId,
       Description: event.ResourceProperties.Description,
@@ -101,8 +107,8 @@ async function _createNewKey(event: cfn.CreateEvent | cfn.UpdateEvent, context: 
       }),
     };
     const secret = event.RequestType === cfn.RequestType.CREATE
-      ? await secretsManager.createSecret({ ...secretOpts, Name: event.ResourceProperties.SecretName }).promise()
-      : await secretsManager.updateSecret({ ...secretOpts, SecretId: event.PhysicalResourceId }).promise();
+      ? await secretsManager.createSecret({ ...secretOpts, Name: event.ResourceProperties.SecretName })
+      : await secretsManager.updateSecret({ ...secretOpts, SecretId: event.PhysicalResourceId });
 
     return {
       Ref: secret.ARN!,
@@ -121,16 +127,16 @@ async function _updateExistingKey(event: cfn.UpdateEvent, context: lambda.Contex
     Description: event.ResourceProperties.Description,
     KmsKeyId: event.ResourceProperties.KeyArn,
     SecretId: event.PhysicalResourceId,
-  }).promise();
+  });
 
   if (event.OldResourceProperties.ParameterName) {
     // Migrating from a version that did create the SSM Parameter from the Custom Resource, so we'll delete that now in
     // order to allow the "external" creation to happen without problems...
     try {
-      await ssm.deleteParameter({ Name: event.OldResourceProperties.ParameterName }).promise();
+      await ssm.deleteParameter({ Name: event.OldResourceProperties.ParameterName });
     } catch (e: any) {
       // Allow the parameter to already not exist, just in case!
-      if (e.code !== 'ParameterNotFound') {
+      if (e.name !== 'ParameterNotFound') {
         throw e;
       }
     }
@@ -144,17 +150,17 @@ async function _updateExistingKey(event: cfn.UpdateEvent, context: lambda.Contex
 }
 
 async function _getPublicKey(secretArn: string): Promise<string> {
-  const secretValue = await secretsManager.getSecretValue({ SecretId: secretArn }).promise();
+  const secretValue = await secretsManager.getSecretValue({ SecretId: secretArn });
   const keyData = JSON.parse(secretValue.SecretString!);
   const tempDir = await mkdtemp(path.join(os.tmpdir(), 'OpenPGP-'));
   try {
     process.env.GNUPGHOME = tempDir;
     const privateKeyFile = path.join(tempDir, 'private.key');
     await writeFile(privateKeyFile, keyData.PrivateKey, { encoding: 'utf-8' });
-    const gpgCommonArgs = [`--homedir=${tempDir}`, '--agent-program=/opt/gpg-agent'];
+    const gpgCommonArgs = [`--homedir=${tempDir}`, '--agent-program=/bin/gpg-agent'];
     // Note: importing a private key does NOT require entering it's passphrase!
-    await _exec('/opt/gpg', ...gpgCommonArgs, '--batch', '--yes', '--import', privateKeyFile);
-    return await _exec('/opt/gpg', ...gpgCommonArgs, '--batch', '--yes', '--export', '--armor');
+    await _exec(GPG_BIN, ...gpgCommonArgs, '--batch', '--yes', '--import', privateKeyFile);
+    return await _exec(GPG_BIN, ...gpgCommonArgs, '--batch', '--yes', '--export', '--armor');
   } finally {
     await _rmrf(tempDir);
   }
@@ -164,6 +170,6 @@ async function _deleteSecret(event: cfn.DeleteEvent): Promise<cfn.ResourceAttrib
   await secretsManager.deleteSecret({
     SecretId: event.PhysicalResourceId,
     ForceDeleteWithoutRecovery: !!event.ResourceProperties.DeleteImmediately,
-  }).promise();
+  });
   return { Ref: event.PhysicalResourceId };
 }

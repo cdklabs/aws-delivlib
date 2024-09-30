@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 // eslint-disable-next-line import/no-extraneous-dependencies
-import * as AWS from 'aws-sdk';
+import { SecretsManager } from '@aws-sdk/client-secrets-manager';
 
 /**
  * Properties for `Repository`.
@@ -94,11 +94,11 @@ export class Repository {
   public static async fromGitHub(options: RepositoryFromGitHubOptions): Promise<Repository> {
 
     const workdir = fs.mkdtempSync(path.join(os.tmpdir(), 'work'));
-    const sm = new AWS.SecretsManager();
+    const sm = new SecretsManager();
 
     let token = undefined;
     if (options.githubTokenSecretArn) {
-      const secret = await sm.getSecretValue({ SecretId: options.githubTokenSecretArn }).promise();
+      const secret = await sm.getSecretValue({ SecretId: options.githubTokenSecretArn });
       token = secret.SecretString;
     }
     const repoDir = fs.mkdtempSync(path.join(workdir, 'repo'));

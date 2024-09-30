@@ -1,4 +1,4 @@
-import * as https from 'https';
+import https from 'https';
 import {
   App, Lazy, Stack,
   aws_codepipeline as aws_codepipeline,
@@ -9,30 +9,26 @@ import { Construct } from 'constructs';
 import { ChimeNotifier } from '../../lib';
 import { codePipeline, handler } from '../../lib/chime-notifier/handler/notifier-handler';
 
-jest.mock('https', () => {
+const mockHttpsWrite = jest.fn();
+
+https.request = jest.fn().mockImplementation((_url, _options, cb) => {
   return {
-    request: jest.fn((_url, _options, cb) => {
-      return {
-        on: jest.fn(),
-        write: mockHttpsWrite,
-        end: () => cb({
-          statusCode: 200,
-          headers: {},
-          setEncoding: () => undefined,
-          on: (event: string, listener: () => void) => {
-            if (event === 'end') { listener(); }
-          },
-        }),
-      };
+    on: jest.fn(),
+    write: mockHttpsWrite,
+    end: () => cb({
+      statusCode: 200,
+      headers: {},
+      setEncoding: () => undefined,
+      on: (event: string, listener: () => void) => {
+        if (event === 'end') { listener(); }
+      },
     }),
   };
 });
 
-const mockHttpsWrite = jest.fn();
-
 test('call codepipeline and then post to webhooks', async () => {
-  codePipeline.getPipelineExecution = jest.fn().mockReturnValue({
-    promise: () => Promise.resolve({
+  codePipeline.getPipelineExecution = jest.fn().mockReturnValue(
+    Promise.resolve({
       pipelineExecution: {
         pipelineExecutionId: 'xyz',
         pipelineVersion: 1,
@@ -48,10 +44,10 @@ test('call codepipeline and then post to webhooks', async () => {
         ],
       },
     }),
-  });
+  );
 
-  codePipeline.listActionExecutions = jest.fn().mockReturnValue({
-    promise: () => Promise.resolve({
+  codePipeline.listActionExecutions = jest.fn().mockReturnValue(
+    Promise.resolve({
       actionExecutionDetails: [
         {
           stageName: 'Source',
@@ -75,7 +71,7 @@ test('call codepipeline and then post to webhooks', async () => {
         },
       ],
     }),
-  });
+  );
 
   await handler({
     webhookUrls: ['https://my.url/'],

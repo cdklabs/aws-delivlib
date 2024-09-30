@@ -11,9 +11,7 @@ describe('watcher-handler', () => {
   test('throws an error if PutMetricData fails', async () => {
     expect.assertions(1);
     cloudwatch.putMetricData = jest.fn(_request => {
-      return {
-        promise: () => new Promise((_, reject) => reject(new Error('fail'))),
-      };
+      return new Promise((_, reject) => reject(new Error('fail')));
     }) as any;
     try {
       await handler(actionExecutionEvent());
