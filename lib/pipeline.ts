@@ -415,10 +415,23 @@ export class Pipeline extends Construct {
   }
 
   public publishToGitHub(options: publishing.PublishToGitHubProps & AddPublishOptions) {
-    this.addPublish(new publishing.PublishToGitHub(this, 'GitHub', {
+
+    const publisher = new publishing.PublishToGitHub(this, 'GitHub', {
       dryRun: this.dryRun,
       ...options,
-    }), options);
+    });
+    if (options.publishLast ?? false) {
+      this.addPublish(publisher, options);
+    } else {
+      const publishStageName = options.stageName ?? PUBLISH_STAGE_NAME;
+      const publishStage = this.getOrCreateStage(publishStageName);;
+      const releaseStage = this.getOrCreateStage('Release', { justAfter: publishStage });
+      publisher.addToPipeline(releaseStage, `${publisher.node.id}Release`, {
+        inputArtifact: options.inputArtifact || this.defaultArtifact,
+        runOrder: this.determineRunOrderForNewAction(releaseStage),
+      });
+
+    }
   }
 
   public publishToPyPI(options: publishing.PublishToPyPiProps & AddPublishOptions) {

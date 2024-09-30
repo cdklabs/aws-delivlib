@@ -408,6 +408,15 @@ export interface PublishToGitHubProps {
    * @default true
    */
   signAdditionalArtifacts?: boolean;
+
+  /**
+   * Whether or not a GitHub release should be published only after all other package managers.
+   * If false, GitHub publishing is executed in the `Publish` stage.
+   * If true, GitHub publishing is executed in a dedicated `Release` stage, executed after `Publish`.
+   *
+   * @default false
+   */
+  publishLast?: boolean;
 }
 
 export class PublishToGitHub extends Construct implements IPublisher {
