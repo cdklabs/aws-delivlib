@@ -52,7 +52,7 @@
     "@typescript-eslint/eslint-plugin": "^7",
     "@typescript-eslint/parser": "^7",
     "adm-zip": "^0.5.16",
-    "aws-cdk": "2.161.0",
+    "aws-cdk": "2.161.1",
     "aws-cdk-lib": "2.150.0",
     "commit-and-tag-version": "^12",
     "constructs": "10.1.31",
