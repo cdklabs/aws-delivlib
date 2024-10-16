@@ -61,6 +61,9 @@ const project = new typescript.TypeScriptProject({
   },
   autoApproveUpgrades: true,
   releaseToNpm: true,
+  githubOptions: {
+    mergify: false,
+  },
 });
 
 // trick projen so that it doesn't override the version in package.json
