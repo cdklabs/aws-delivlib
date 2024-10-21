@@ -63,6 +63,7 @@ const project = new typescript.TypeScriptProject({
   releaseToNpm: true,
   githubOptions: {
     mergify: false,
+    mergeQueue: true,
   },
 });
 
