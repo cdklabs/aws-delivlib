@@ -37,11 +37,11 @@
     "organization": false
   },
   "devDependencies": {
-    "@aws-sdk/client-cloudwatch": "^3.682.0",
-    "@aws-sdk/client-codepipeline": "^3.682.0",
-    "@aws-sdk/client-s3": "^3.685.0",
-    "@aws-sdk/client-secrets-manager": "^3.682.0",
-    "@aws-sdk/client-ssm": "^3.682.0",
+    "@aws-sdk/client-cloudwatch": "^3.686.0",
+    "@aws-sdk/client-codepipeline": "^3.686.0",
+    "@aws-sdk/client-s3": "^3.686.0",
+    "@aws-sdk/client-secrets-manager": "^3.686.0",
+    "@aws-sdk/client-ssm": "^3.686.0",
     "@types/adm-zip": "^0.5.6",
     "@types/aws-lambda": "^8.10.145",
     "@types/follow-redirects": "^1.14.4",
