@@ -39,7 +39,7 @@
   "devDependencies": {
     "@aws-sdk/client-cloudwatch": "^3.687.0",
     "@aws-sdk/client-codepipeline": "^3.687.0",
-    "@aws-sdk/client-s3": "^3.688.0",
+    "@aws-sdk/client-s3": "^3.689.0",
     "@aws-sdk/client-secrets-manager": "^3.687.0",
     "@aws-sdk/client-ssm": "^3.687.0",
     "@stylistic/eslint-plugin": "^2",
