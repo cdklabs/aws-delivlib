@@ -2,42 +2,16 @@
 set -euo pipefail
 scriptdir=$(cd $(dirname $0) && pwd)
 
-cdk_app="${scriptdir}/integ.delivlib.js"
-expected="${scriptdir}/expected.yml"
-actual="/tmp/actual.json"
+cdk_app="npx ts-node lib/__tests__/integ.delivlib.ts"
 
-echo "I have disabled snapshot tests here and I'm not apologizing for it [- huijbers@]"
-exit 0
-
-custom_stack_name="${TEST_STACK_NAME:-}"
-
-export TEST_STACK_NAME="delivlib-test"
-
-if [ "${1:-}" == "synth" ]; then
-  npx cdk --no-version-reporting -a ${cdk_app} synth
+if [ "${1:-}" == "diff" ]; then
+  echo "I have disabled snapshot tests here and I'm not apologizing for it [- huijbers@]"
   exit 0
 fi
 
-npx cdk --no-version-reporting --no-asset-metadata -a ${cdk_app} synth > ${actual}
+export TEST_STACK_NAME="delivlib-test"
 
 if [ "${1:-}" == "update" ]; then
-  npx cdk --no-version-reporting -a ${cdk_app} deploy ${2:-} ${3:-} ${4:-}
+  npx cdk --no-version-reporting -a "${cdk_app}" deploy ${2:-} ${3:-} ${4:-}
   echo "Stack deployed, now, go to the console and wait for the pipeline to fully stabalize"
-  echo "Press ENTER to confirm that pipeline is green"
-  read
-  echo "Okay, now go to CFN console and delete the test stack ${TEST_STACK_NAME}"
-  echo "Press ENTER to confirm that the stack has been deleted"
-  read
-  cp -f ${actual} ${expected}
 fi
-
-if [ "${1:-}" == "force" ]; then
-  cp -f ${actual} ${expected}
-fi
-
-diff ${actual} ${expected} || {
-  echo "Expected test stack template does not match synthesized output"
-  echo "To update expectations: 'yarn integ:update'"
-  echo "(or if you trust the changes, './lib/__tests__/run-test.sh force')"
-  exit 1
-}
