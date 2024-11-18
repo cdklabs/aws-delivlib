@@ -131,6 +131,14 @@
         }
       ]
     },
+    "deploy-testpipe": {
+      "name": "deploy-testpipe",
+      "steps": [
+        {
+          "exec": "npx cdk -a \"npx ts-node lib/__tests__/test-stack.ts\" deploy"
+        }
+      ]
+    },
     "eject": {
       "name": "eject",
       "description": "Remove projen from the project",

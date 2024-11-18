@@ -114,6 +114,7 @@ export class TestStack extends Stack {
     pipeline.publishToNpm({
       npmTokenSecret: { secretArn: 'arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/npm-MhaWgx' },
       access: delivlib.NpmAccess.RESTRICTED,
+      ssmPrefix: '/published/jsii-sample/npm',
     });
 
     // this creates a self-signed certificate
@@ -133,6 +134,7 @@ export class TestStack extends Stack {
     pipeline.publishToNuGet({
       nugetApiKeySecret: { secretArn: 'arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/nuget-jDbgrN' },
       codeSign,
+      ssmPrefix: '/published/jsii-sample/nuget',
     });
 
     const signingKey = new delivlib.OpenPGPKeyPair(this, 'CodeSign', {
@@ -152,12 +154,14 @@ export class TestStack extends Stack {
       mavenEndpoint: 'https://aws.oss.sonatype.org:443/',
       signingKey,
       stagingProfileId: '68a05363083174',
+      ssmPrefix: '/published/jsii-sample/maven',
     });
 
     pipeline.publishToGitHub({
       githubRepo,
       signingKey,
       additionalInputArtifacts: shellableArtifacts,
+      ssmPrefix: '/published/jsii-sample/github',
     });
 
     pipeline.publishToGitHubPages({
@@ -166,6 +170,7 @@ export class TestStack extends Stack {
 
     pipeline.publishToPyPI({
       loginSecret: { secretArn: 'arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/pypi-tp8M57' },
+      ssmPrefix: '/published/jsii-sample/pypi',
     });
 
     // publish go bindings to awslabs/aws-delivlib-sample under the "golang"
@@ -175,6 +180,7 @@ export class TestStack extends Stack {
       gitBranch: 'golang',
       gitUserEmail: 'aws-cdk-dev+delivlib@amazon.com',
       gitUserName: 'Delivlib Tests',
+      ssmPrefix: '/published/jsii-sample/golang',
     });
 
     //

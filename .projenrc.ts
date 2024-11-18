@@ -134,4 +134,7 @@ project.npmignore?.exclude(
   'cdk.json',
 );
 
+const deployTestPipelineTask = project.addTask('deploy-testpipe');
+deployTestPipelineTask.exec('npx cdk -a "npx ts-node lib/__tests__/test-stack.ts" deploy');
+
 project.synth();

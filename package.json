@@ -14,6 +14,7 @@
     "compile": "npx projen compile",
     "compile:custom-resource-handlers": "npx projen compile:custom-resource-handlers",
     "default": "npx projen default",
+    "deploy-testpipe": "npx projen deploy-testpipe",
     "eject": "npx projen eject",
     "eslint": "npx projen eslint",
     "integ:diff": "npx projen integ:diff",
