@@ -17,3 +17,4 @@ echo "Installing rsync..."
 apt-get update > /dev/null && apt-get install -y rsync
 
 /bin/bash $SCRIPT_DIR/publish-docs.sh
+/bin/bash $SCRIPT_DIR/update-ssm.sh

@@ -17,3 +17,4 @@ echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}' > ~/.npmrc
 
 # Call publishing script
 /bin/bash $SCRIPT_DIR/publish-npm.sh
+/bin/bash $SCRIPT_DIR/update-ssm.sh

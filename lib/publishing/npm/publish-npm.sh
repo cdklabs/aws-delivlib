@@ -9,7 +9,6 @@ set -euo pipefail
 
 if [[ "${FOR_REAL:-}" == "true" ]]; then
     dry_npm="npm"
-    dry_aws="aws"
 else
     echo "================================================="
     echo "            🏜️ DRY-RUN MODE 🏜️"
@@ -17,7 +16,6 @@ else
     echo "Supply FOR_REAL=true as an environment variable to do actual publishing!" >&2
     echo "================================================="
     dry_npm="echo npm"
-    dry_aws="echo aws"
 fi
 
 #######
@@ -71,11 +69,6 @@ for filename in $list_of_tarballs; do
     npm_view=$(npm view ${mod}@${ver} 2> /dev/null || true)
     if [ -z "${npm_view}" ]; then
         $dry_npm publish $TGZ --access=${ACCESS} ${DISTTAG} --loglevel=silly
-
-        if [[ "${SSM_PREFIX:-}" != "" ]]; then
-            $dry_aws ssm put-parameter --name "$SSM_PREFIX/version" --type "String" --value "$ver" --overwrite
-            $dry_aws ssm put-parameter --name "$SSM_PREFIX/timestamp" --type "String" --value "$(date +%s)" --overwrite
-        fi
     else
         echo "⚠️ Package ${mod}@${ver} already published. Skipping."
     fi

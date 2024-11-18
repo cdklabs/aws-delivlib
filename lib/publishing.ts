@@ -757,12 +757,19 @@ export class PublishToGolang extends Construct {
 
 function grantSsmPrefix(role: iam.IRole, ssmPrefix?: string) {
   if (ssmPrefix) {
+    if (!ssmPrefix.startsWith('/')) {
+      throw new Error(`SSM prefix should start with '/', got: ${ssmPrefix}`);
+    }
+    if (ssmPrefix.endsWith('/')) {
+      throw new Error(`SSM prefix must not end with '/', got: ${ssmPrefix}`);
+    }
+
     role?.addToPrincipalPolicy(new iam.PolicyStatement({
       actions: ['ssm:PutParameter', 'ssm:GetParameter'],
       resources: [Stack.of(role).formatArn({
         service: 'ssm',
         resource: 'parameter',
-        resourceName: `${ssmPrefix}/*`,
+        resourceName: `${ssmPrefix.slice(1)}/*`,
       })],
     }));
   }
