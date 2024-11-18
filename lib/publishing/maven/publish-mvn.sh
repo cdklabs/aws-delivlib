@@ -30,6 +30,7 @@ error() { echo "❌ $@"; exit 1; }
 if [[ "${FOR_REAL:-}" == "true" ]]; then
     mvn=mvn
     dry_run=false
+    dry_aws=aws
 else
     echo "==========================================="
     echo "            🏜️ DRY-RUN MODE 🏜️"
@@ -38,6 +39,7 @@ else
     echo "==========================================="
     mvn="echo mvn"
     dry_run=true
+    dry_aws="echo aws"
 fi
 
 staging=$(mktemp -d)
@@ -161,6 +163,7 @@ HERE
 # Release!
 release_output="${workdir}/release-output.txt"
 export MAVEN_OPTS="--add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.text=ALL-UNNAMED --add-opens=java.desktop/java.awt.font=ALL-UNNAMED"
+published=false
 $mvn --settings ${mvn_settings} -f ${release_pom} \
     org.sonatype.plugins:nexus-staging-maven-plugin:${nexus_staging_maven_plugin_version}:release \
     -DserverId=ossrh \
@@ -175,10 +178,21 @@ $mvn --settings ${mvn_settings} -f ${release_pom} \
 if [ ${PIPESTATUS[0]} -ne 0 ]; then
     if cat ${release_output} | grep "does not allow updating artifact" | grep -q ".pom"; then
         echo "⚠️ Artifact already published. Skipping"
+        skipped=true
     else
         echo "❌ Release failed"
         exit 1
     fi
+else
+    published=true
+fi
+
+if $published && [[ "${SSM_PREFIX:-}" != "" ]]; then
+    build_manifest="${BUILD_MANIFEST:-"./build.json"}"
+    version="$(node -p "require('${build_manifest}').version")"
+
+    $dry_aws ssm put-parameter --name "$SSM_PREFIX/version" --type "String" --value "$version" --overwrite
+    $dry_aws ssm put-parameter --name "$SSM_PREFIX/timestamp" --type "String" --value "$(date +%s)" --overwrite
 fi
 
 echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"

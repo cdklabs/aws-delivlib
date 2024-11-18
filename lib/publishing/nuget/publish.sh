@@ -13,6 +13,7 @@ fi
 
 if [[ "${FOR_REAL:-}" == "true" ]]; then
     dotnet=dotnet
+    dry_aws=aws
 else
     echo "==========================================="
     echo "            🏜️ DRY-RUN MODE 🏜️"
@@ -20,7 +21,11 @@ else
     echo "Set FOR_REAL=true to do actual publishing!"
     echo "==========================================="
     dotnet="echo dotnet"
+    dry_aws="echo aws"
 fi
+
+build_manifest="${BUILD_MANIFEST:-"./build.json"}"
+version="$(node -p "require('${build_manifest}').version")"
 
 if [ -n "${CODE_SIGNING_SECRET_ID:-}" ]; then
     declare -a CLEANUP=()
@@ -71,6 +76,7 @@ NUGET_API_KEY=$(aws secretsmanager get-secret-value --region "${NUGET_SECRET_REG
 log=$(mktemp -d)/log.txt
 
 found=false
+published=false
 for NUGET_PACKAGE_PATH in $(find dotnet -name *.nupkg -not -iname *.symbols.nupkg); do
     found=true
     if [ -n "${CODE_SIGNING_SECRET_ID:-}" ]; then
@@ -106,12 +112,19 @@ for NUGET_PACKAGE_PATH in $(find dotnet -name *.nupkg -not -iname *.symbols.nupk
             echo "❌ Release failed"
             exit 1
         fi
+    else
+        published=true
     fi
 done
 
 if ! ${found}; then
     echo "❌ No nupkg files found under the dotnet/ directory. Nothing to publish"
     exit 1
+fi
+
+if $published && [[ "${SSM_PREFIX:-}" != "" ]]; then
+    $dry_aws ssm put-parameter --name "$SSM_PREFIX/version" --type "String" --value "$version" --overwrite
+    $dry_aws ssm put-parameter --name "$SSM_PREFIX/timestamp" --type "String" --value "$(date +%s)" --overwrite
 fi
 
 echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"

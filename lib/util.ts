@@ -54,7 +54,7 @@ export function renderEnvironmentVariables(env?: { [key: string]: string | undef
   return out;
 }
 
-export function noUndefined<T>(xs: Partial<T>): {[k in keyof T]: T[k]} {
+export function noUndefined<T extends object>(xs: T): {[k in keyof T]: NonNullable<T[k]>} {
   const ret: any = {};
   for (const [k, v] of Object.entries(xs)) {
     if (v !== undefined) {

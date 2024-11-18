@@ -14,6 +14,10 @@ read_json_field() {
     node -e "process.stdout.write(require('./$1').$2)"
 }
 
+# Even if we have multiple artifacts, the primary artifact dictates the global version
+primary_build_manifest="${BUILD_MANIFEST:-"./build.json"}"
+primary_version="$(read_json_field "${primary_build_manifest}" version)"
+
 # prepare_artifacts_in_current_dir TRY_TO_SIGN
 prepare_artifacts_in_current_dir() {
     echo "dir:" $(pwd)
@@ -76,6 +80,7 @@ ls ${workdir}
 
 if $FOR_REAL; then
     node ${scriptdir}/create-release.js ${workdir}/*
+    dry_aws=aws
 else
     echo "==========================================="
     echo "            🏜️ DRY-RUN MODE 🏜️"
@@ -84,4 +89,10 @@ else
     echo
     echo "Set FOR_REAL=true to do it!"
     echo "==========================================="
+    dry_aws="echo aws"
+fi
+
+if [[ "${SSM_PREFIX:-}" != "" ]]; then
+    $dry_aws ssm put-parameter --name "$SSM_PREFIX/version" --type "String" --value "$primary_version" --overwrite
+    $dry_aws ssm put-parameter --name "$SSM_PREFIX/timestamp" --type "String" --value "$(date +%s)" --overwrite
 fi

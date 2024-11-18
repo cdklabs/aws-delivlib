@@ -68,6 +68,15 @@ export interface PublishToMavenProjectProps {
    * @default Latest superchain
    */
   readonly buildImage?: cbuild.IBuildImage;
+
+  /**
+   * The prefix under which to record the fact that the publish step executed
+   *
+   * This will write `<prefix>/version` and `<prefix>/timestamp` variables
+   *
+   * @default - no SSM parameters
+   */
+  ssmPrefix?: string;
 }
 
 /**
@@ -86,19 +95,21 @@ export class PublishToMavenProject extends Construct implements IPublisher {
       platform: new LinuxPlatform(props.buildImage ?? cbuild.LinuxBuildImage.fromDockerRegistry('public.ecr.aws/jsii/superchain:1-bullseye-slim-node18')),
       scriptDirectory: path.join(__dirname, 'publishing', 'maven'),
       entrypoint: 'publish.sh',
-      environment: {
+      environment: noUndefined({
         STAGING_PROFILE_ID: props.stagingProfileId,
         SIGNING_KEY_ARN: props.signingKey.credential.secretArn,
         FOR_REAL: forReal,
         MAVEN_LOGIN_SECRET: props.mavenLoginSecret.secretArn,
         MAVEN_ENDPOINT: props.mavenEndpoint || 'https://oss.sonatype.org',
-      },
+        SSM_PREFIX: props.ssmPrefix,
+      }),
     });
 
     if (shellable.role) {
       permissions.grantSecretRead(props.mavenLoginSecret, shellable.role);
       props.signingKey.grantRead(shellable.role);
     }
+    grantSsmPrefix(shellable.role, props.ssmPrefix);
 
     this.role = shellable.role;
     this.project = shellable.project;
@@ -145,6 +156,15 @@ export interface PublishToNpmProjectProps {
    * @default NpmAccess.PUBLIC
    */
   access?: NpmAccess;
+
+  /**
+   * The prefix under which to record the fact that the publish step executed
+   *
+   * This will write `<prefix>/version` and `<prefix>/timestamp` variables
+   *
+   * @default - no SSM parameters
+   */
+  ssmPrefix?: string;
 }
 
 /**
@@ -165,17 +185,20 @@ export class PublishToNpmProject extends Construct implements IPublisher {
       platform: new LinuxPlatform(cbuild.LinuxBuildImage.STANDARD_7_0),
       scriptDirectory: path.join(__dirname, 'publishing', 'npm'),
       entrypoint: 'publish.sh',
-      environment: {
+      environment: noUndefined({
         FOR_REAL: forReal,
         NPM_TOKEN_SECRET: props.npmTokenSecret.secretArn,
         DISTTAG: props.distTag || '',
         ACCESS: access,
-      },
+        SSM_PREFIX: props.ssmPrefix,
+      }),
     });
 
     if (shellable.role) {
       permissions.grantSecretRead(props.npmTokenSecret, shellable.role);
     }
+
+    grantSsmPrefix(shellable.role, props.ssmPrefix);
 
     this.role = shellable.role;
     this.project = shellable.project;
@@ -217,6 +240,15 @@ export interface PublishToNuGetProjectProps {
    * @default Latest superchain
    */
   readonly buildImage?: cbuild.IBuildImage;
+
+  /**
+   * The prefix under which to record the fact that the publish step executed
+   *
+   * This will write `<prefix>/version` and `<prefix>/timestamp` variables
+   *
+   * @default - no SSM parameters
+   */
+  ssmPrefix?: string;
 }
 
 /**
@@ -244,6 +276,9 @@ export class PublishToNuGetProject extends Construct implements IPublisher {
     }
 
     environment.NUGET_SECRET_ID = props.nugetApiKeySecret.secretArn;
+    if (props.ssmPrefix) {
+      environment.SSM_PREFIX = props.ssmPrefix;
+    }
 
     const shellable = new Shellable(this, 'Default', {
       platform: new LinuxPlatform(props.buildImage ?? cbuild.LinuxBuildImage.fromDockerRegistry('public.ecr.aws/jsii/superchain:1-bullseye-slim-node18')),
@@ -268,6 +303,8 @@ export class PublishToNuGetProject extends Construct implements IPublisher {
         props.codeSign.grantDecrypt(shellable.role);
       }
     }
+
+    grantSsmPrefix(shellable.role, props.ssmPrefix);
 
     this.role = shellable.role;
     this.project = shellable.project;
@@ -307,6 +344,15 @@ export interface PublishDocsToGitHubProjectProps {
    * @default gh-pages
    */
   branch?: string;
+
+  /**
+   * The prefix under which to record the fact that the publish step executed
+   *
+   * This will write `<prefix>/version` and `<prefix>/timestamp` variables
+   *
+   * @default - no SSM parameters
+   */
+  ssmPrefix?: string;
 }
 
 /**
@@ -325,7 +371,7 @@ export class PublishDocsToGitHubProject extends Construct implements IPublisher 
       platform: new LinuxPlatform(cbuild.LinuxBuildImage.STANDARD_7_0),
       scriptDirectory: path.join(__dirname, 'publishing', 'docs'),
       entrypoint: 'publish.sh',
-      environment: {
+      environment: noUndefined({
         // Must be SSH because we use an SSH key to authenticate
         GITHUB_REPO: props.githubRepo.repositoryUrlSsh,
         GITHUB_PAGES_BRANCH: props.branch || 'gh-pages',
@@ -334,12 +380,15 @@ export class PublishDocsToGitHubProject extends Construct implements IPublisher 
         COMMIT_USERNAME: props.githubRepo.commitUsername,
         COMMIT_EMAIL: props.githubRepo.commitEmail,
         BUILD_MANIFEST: props.buildManifestFileName || './build.json',
-      },
+        SSM_PREFIX: props.ssmPrefix,
+      }),
     });
 
     if (shellable.role) {
       permissions.grantSecretRead(props.githubRepo.sshKeySecret, shellable.role);
     }
+
+    grantSsmPrefix(shellable.role, props.ssmPrefix);
 
     this.role = shellable.role;
     this.project = shellable.project;
@@ -408,6 +457,15 @@ export interface PublishToGitHubProps {
    * @default true
    */
   signAdditionalArtifacts?: boolean;
+
+  /**
+   * The prefix under which to record the fact that the publish step executed
+   *
+   * This will write `<prefix>/version` and `<prefix>/timestamp` variables
+   *
+   * @default - no SSM parameters
+   */
+  ssmPrefix?: string;
 }
 
 export class PublishToGitHub extends Construct implements IPublisher {
@@ -441,6 +499,7 @@ export class PublishToGitHub extends Construct implements IPublisher {
         // Transmit the names of the secondary sources to the shell script (for easier iteration)
         SECONDARY_SOURCE_NAMES: props.additionalInputArtifacts ? props.additionalInputArtifacts.map(a => a.artifactName).join(' ') : undefined,
         SIGN_ADDITIONAL_ARTIFACTS: props.additionalInputArtifacts && props.signAdditionalArtifacts !== false ? 'true' : undefined,
+        SSM_PREFIX: props.ssmPrefix,
       }),
       environmentSecrets: {
         GITHUB_TOKEN: props.githubRepo.tokenSecretArn,
@@ -452,6 +511,7 @@ export class PublishToGitHub extends Construct implements IPublisher {
       props.signingKey.grantRead(shellable.role);
     }
 
+    grantSsmPrefix(shellable.role, props.ssmPrefix);
     this.role = shellable.role;
     this.project = shellable.project;
   }
@@ -497,11 +557,11 @@ export class PublishToS3 extends Construct implements IPublisher {
       platform: new LinuxPlatform(cbuild.LinuxBuildImage.STANDARD_7_0),
       scriptDirectory: path.join(__dirname, 'publishing', 's3'),
       entrypoint: 'publish.sh',
-      environment: {
+      environment: noUndefined({
         BUCKET_URL: `s3://${props.bucket.bucketName}`,
         CHANGELOG: props.public ? 'true' : 'false',
         FOR_REAL: forReal,
-      },
+      }),
     });
 
     // Allow script to write to bucket
@@ -535,6 +595,15 @@ export interface PublishToPyPiProps {
    * @default true
    */
   dryRun?: boolean;
+
+  /**
+   * The prefix under which to record the fact that the publish step executed
+   *
+   * This will write `<prefix>/version` and `<prefix>/timestamp` variables
+   *
+   * @default - no SSM parameters
+   */
+  ssmPrefix?: string;
 }
 
 export class PublishToPyPi extends Construct {
@@ -551,15 +620,18 @@ export class PublishToPyPi extends Construct {
       platform: new LinuxPlatform(cbuild.LinuxBuildImage.STANDARD_7_0),
       scriptDirectory: path.join(__dirname, 'publishing', 'pypi'),
       entrypoint: 'publish.sh',
-      environment: {
+      environment: noUndefined({
         FOR_REAL: forReal,
         PYPI_CREDENTIALS_SECRET_ID: props.loginSecret.secretArn,
-      },
+        SSM_PREFIX: props.ssmPrefix,
+      }),
     });
 
     if (shellable.role) {
       permissions.grantSecretRead(props.loginSecret, shellable.role);
     }
+
+    grantSsmPrefix(shellable.role, props.ssmPrefix);
 
     this.role = shellable.role;
     this.project = shellable.project;
@@ -624,6 +696,15 @@ export interface PublishToGolangProps {
    * @default "chore(release): $VERSION"
    */
   readonly gitCommitMessage?: string;
+
+  /**
+   * The prefix under which to record the fact that the publish step executed
+   *
+   * This will write `<prefix>/version` and `<prefix>/timestamp` variables
+   *
+   * @default - no SSM parameters
+   */
+  ssmPrefix?: string;
 }
 
 /**
@@ -642,7 +723,7 @@ export class PublishToGolang extends Construct {
       platform: new LinuxPlatform(cbuild.LinuxBuildImage.STANDARD_7_0),
       scriptDirectory: path.join(__dirname, 'publishing', 'golang'),
       entrypoint: 'publish.sh',
-      environment: {
+      environment: noUndefined({
         DRYRUN: dryRun ? 'true' : undefined,
         GITHUB_TOKEN_SECRET: props.githubTokenSecret.secretArn,
         VERSION: props.version,
@@ -650,12 +731,15 @@ export class PublishToGolang extends Construct {
         GIT_USER_NAME: props.gitUserName,
         GIT_USER_EMAIL: props.gitUserEmail,
         GIT_COMMIT_MESSAGE: props.gitCommitMessage,
-      },
+        SSM_PREFIX: props.ssmPrefix,
+      }),
     });
 
     if (shellable.role) {
       permissions.grantSecretRead(props.githubTokenSecret, shellable.role);
     }
+
+    grantSsmPrefix(shellable.role, props.ssmPrefix);
 
     this.role = shellable.role;
     this.project = shellable.project;
@@ -667,6 +751,19 @@ export class PublishToGolang extends Construct {
       input: options.inputArtifact || new cpipeline.Artifact(),
       runOrder: options.runOrder,
       project: this.project,
+    }));
+  }
+}
+
+function grantSsmPrefix(role: iam.IRole, ssmPrefix?: string) {
+  if (ssmPrefix) {
+    role?.addToPrincipalPolicy(new iam.PolicyStatement({
+      actions: ['ssm:PutParameter', 'ssm:GetParameter'],
+      resources: [Stack.of(role).formatArn({
+        service: 'ssm',
+        resource: 'parameter',
+        resourceName: `${ssmPrefix}/*`,
+      })],
     }));
   }
 }
