@@ -84,6 +84,9 @@ You should use this code to validate more elaborate changes to the Delivlib code
 At this point, you will find the resources created by delivlib in the stack whose ARN is printed to the console. Wait for the
 deployment to complete, and are then free to test and verify that your changes had the intended effect.
 
+> NOTE: you might need to manually replicate the CDKlabs credentials to the publishing account. We don't do
+> this often enough to make it worthwhile investing into automation for it.
+
 ## Releasing a New Version
 
 Every commit pushed to main will be picked up by the build & release pipeline automatically,
