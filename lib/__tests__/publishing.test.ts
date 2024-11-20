@@ -135,15 +135,17 @@ describe('with standard pipeline', () => {
         Statement: Match.arrayWith([{
           Effect: 'Allow',
           Action: ['ssm:PutParameter', 'ssm:GetParameter'],
-          Resource: { 'Fn::Join': ['', [
-            "arn:",
-            { "Ref": "AWS::Partition" },
-            ":ssm:",
-            { "Ref": "AWS::Region" },
-            ":",
-            { "Ref": "AWS::AccountId" },
-            `:parameter/published/jsii-sample/${type}/*`,
-          ]] },
+          Resource: {
+            'Fn::Join': ['', [
+              'arn:',
+              { Ref: 'AWS::Partition' },
+              ':ssm:',
+              { Ref: 'AWS::Region' },
+              ':',
+              { Ref: 'AWS::AccountId' },
+              `:parameter/published/jsii-sample/${type}/*`,
+            ]],
+          },
         }]),
       },
     });
