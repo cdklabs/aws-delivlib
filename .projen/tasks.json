@@ -215,7 +215,7 @@
       "description": "Prepare the project for compilation",
       "steps": [
         {
-          "exec": "for a in lib/publishing/*/update-ssm.sh; do\n  for b in lib/publishing/*/update-ssm.sh; do\n    if ! diff $a $b; then\n      echo \"update-ssm.sh scripts are out of sync: $a and $b\"\n      exit 1\n    fi\n  done\ndone"
+          "exec": "for a in lib/publishing/*/update-ssm.sh; do\n  for b in lib/publishing/*/update-ssm.sh; do\n    if ! diff $a $b; then\n      echo \"Files should be the same but are not:\n- $a\n- $b\"\n      exit 1\n    fi\n  done\ndone"
         }
       ]
     },

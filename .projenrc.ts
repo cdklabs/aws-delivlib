@@ -119,7 +119,7 @@ project.compileTask.spawn(bundlePackageIntegrity);
 project.preCompileTask.exec(`for a in lib/publishing/*/update-ssm.sh; do
   for b in lib/publishing/*/update-ssm.sh; do
     if ! diff $a $b; then
-      echo "update-ssm.sh scripts are out of sync: $a and $b"
+      echo "Files should be the same but are not:\n- $a\n- $b"
       exit 1
     fi
   done
