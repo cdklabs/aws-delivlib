@@ -106,6 +106,9 @@ export class GitHubRepo implements IRepo {
 
   constructor(props: GitHubRepoProps) {
     const repository = props.repository;
+    if (repository.indexOf('/') == -1) {
+      throw new Error('Repository must be of the form "account/repo"');
+    }
     const [owner, repo] = repository.split('/');
 
     this.owner = owner;
