@@ -28,12 +28,12 @@ if [[ "${idempotency_token:-}" != "" ]]; then
     echo "Idempotency token: $idempotency_token"
 
     # Must use 's3 cp' to try and read exact filename. 's3 ls' would match prefixes as well.
-    aws s3 cp $BUCKET_URL/$idempotency_token - > /dev/null 2>&1 && {
+    if aws s3 cp $BUCKET_URL/$idempotency_token - > /dev/null 2>&1; then
         echo "Token found, stopping."
         exit 0
-    } || {
+    else
         echo "Idempotency token not found, continuing."
-    }
+    fi
 fi
 
 # Do the copy
@@ -56,3 +56,5 @@ else
     echo "Set FOR_REAL=true to do it!"
     echo "==========================================="
 fi
+
+/bin/bash $SCRIPT_DIR/update-ssm.sh

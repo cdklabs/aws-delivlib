@@ -115,6 +115,16 @@ const bundlePackageIntegrity = project.addTask('bundle:package-integrity', {
 
 project.compileTask.spawn(bundlePackageIntegrity);
 
+// Make sure that all "update-ssm" scripts are the same, so that they don't drift.
+project.preCompileTask.exec(`for a in lib/publishing/*/update-ssm.sh; do
+  for b in lib/publishing/*/update-ssm.sh; do
+    if ! diff $a $b; then
+      echo "Files should be the same but are not:\n- $a\n- $b"
+      exit 1
+    fi
+  done
+done`);
+
 // The npmignore file includes original source files, which is undesirable.
 project.npmignore?.exclude(
   '/lib/**/*.ts',

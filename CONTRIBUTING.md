@@ -74,17 +74,18 @@ yarn test
 ```
 
 Besides this, there is a delivlib instance deployed to an AWS account (712950704752) that configures a delivlib pipeline for
-the package [aws-delivlib-sample](https://github.com/awslabs/aws-delivlib-sample). This instance can be used to test and
-validate your local changes. To do this,
+the package [aws-delivlib-sample](https://github.com/awslabs/aws-delivlib-sample).
 
-1. Build the package - `yarn compile`
-2. Setup credentials to our AWS account: 712950704752
-3. Execute `yarn integ:update`. This will update the delivlib instance and the command will halt at a user prompt.
+You should use this code to validate more elaborate changes to the Delivlib code base. To do this,
+
+1. Setup credentials to our AWS account: 712950704752
+2. Execute `yarn integ:update`. This will update the delivlib instance.
 
 At this point, you will find the resources created by delivlib in the stack whose ARN is printed to the console. Wait for the
 deployment to complete, and are then free to test and verify that your changes had the intended effect.
 
-Once complete, continue following the instructions and prompts until the end.q
+> NOTE: you might need to manually replicate the CDKlabs credentials to the publishing account. We don't do
+> this often enough to make it worthwhile investing into automation for it.
 
 ## Releasing a New Version
 

@@ -14,3 +14,5 @@ export MAVEN_PASSWORD=$(node -e "console.log(${credentials}.password);")
 chmod +x $SCRIPT_DIR/with-signing-key.sh
 chmod +x $SCRIPT_DIR/publish-mvn.sh
 $SCRIPT_DIR/with-signing-key.sh $SCRIPT_DIR/publish-mvn.sh
+
+/bin/bash $SCRIPT_DIR/update-ssm.sh

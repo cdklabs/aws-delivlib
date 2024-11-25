@@ -23,3 +23,5 @@ else
   echo "Set FOR_REAL=true to do it!"
   echo "==========================================="
 fi
+
+/bin/bash $SCRIPT_DIR/update-ssm.sh

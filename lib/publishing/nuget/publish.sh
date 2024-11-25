@@ -114,5 +114,7 @@ if ! ${found}; then
     exit 1
 fi
 
+/bin/bash $SCRIPT_DIR/update-ssm.sh
+
 echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 echo "✅ All Done!"

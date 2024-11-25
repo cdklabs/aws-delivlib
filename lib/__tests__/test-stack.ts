@@ -53,12 +53,16 @@ export class TestStack extends Stack {
       scriptDirectory: path.join(testDir, 'linux'),
     });
 
-    // add a test that runs on Windows
-    pipeline.addTest('HelloWindows', {
-      platform: delivlib.ShellPlatform.Windows,
-      entrypoint: 'test.ps1',
-      scriptDirectory: path.join(testDir, 'windows'),
-    });
+    // This test takes a lot of time (~10 minutes), which is annoying during testing
+    const WINDOWS = false;
+    if (WINDOWS) {
+      // add a test that runs on Windows
+      pipeline.addTest('HelloWindows', {
+        platform: delivlib.ShellPlatform.Windows,
+        entrypoint: 'test.ps1',
+        scriptDirectory: path.join(testDir, 'windows'),
+      });
+    }
 
     const externalId = 'require-me-please';
 
@@ -111,9 +115,13 @@ export class TestStack extends Stack {
     // PUBLISH
     //
 
+    const dryRun = false;
+
     pipeline.publishToNpm({
       npmTokenSecret: { secretArn: 'arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/npm-MhaWgx' },
       access: delivlib.NpmAccess.RESTRICTED,
+      ssmPrefix: '/published/jsii-sample/npm',
+      dryRun,
     });
 
     // this creates a self-signed certificate
@@ -133,6 +141,8 @@ export class TestStack extends Stack {
     pipeline.publishToNuGet({
       nugetApiKeySecret: { secretArn: 'arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/nuget-jDbgrN' },
       codeSign,
+      ssmPrefix: '/published/jsii-sample/nuget',
+      dryRun,
     });
 
     const signingKey = new delivlib.OpenPGPKeyPair(this, 'CodeSign', {
@@ -152,20 +162,27 @@ export class TestStack extends Stack {
       mavenEndpoint: 'https://aws.oss.sonatype.org:443/',
       signingKey,
       stagingProfileId: '68a05363083174',
+      ssmPrefix: '/published/jsii-sample/maven',
+      dryRun,
     });
 
     pipeline.publishToGitHub({
       githubRepo,
       signingKey,
       additionalInputArtifacts: shellableArtifacts,
+      ssmPrefix: '/published/jsii-sample/github',
+      dryRun,
     });
 
     pipeline.publishToGitHubPages({
       githubRepo,
+      dryRun,
     });
 
     pipeline.publishToPyPI({
       loginSecret: { secretArn: 'arn:aws:secretsmanager:us-east-1:712950704752:secret:delivlib/pypi-tp8M57' },
+      ssmPrefix: '/published/jsii-sample/pypi',
+      dryRun,
     });
 
     // publish go bindings to awslabs/aws-delivlib-sample under the "golang"
@@ -175,6 +192,8 @@ export class TestStack extends Stack {
       gitBranch: 'golang',
       gitUserEmail: 'aws-cdk-dev+delivlib@amazon.com',
       gitUserName: 'Delivlib Tests',
+      ssmPrefix: '/published/jsii-sample/golang',
+      dryRun,
     });
 
     //
