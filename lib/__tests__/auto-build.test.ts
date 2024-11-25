@@ -14,7 +14,7 @@ beforeEach(() => {
 test('webhooks are enabled by default', () => {
   new AutoBuild(stack, 'AutoBuild', {
     repo: new GitHubRepo({
-      repository: 'some-repo',
+      repository: 'some-owner/some-repo',
       tokenSecretArn: 'arn:aws:secretsmanager:someregion:someaccount:secret:sometoken',
     }),
   });
@@ -38,7 +38,7 @@ test('webhooks are enabled by default', () => {
 test('webhooks for a single branch', () => {
   new AutoBuild(stack, 'AutoBuild', {
     repo: new GitHubRepo({
-      repository: 'some-repo',
+      repository: 'some-owner/some-repo',
       tokenSecretArn: 'arn:aws:secretsmanager:someregion:someaccount:secret:sometoken',
     }),
     branch: 'banana',
@@ -77,7 +77,7 @@ test('webhooks for a single branch', () => {
 test('webhooks for multiple branches', () => {
   new AutoBuild(stack, 'AutoBuild', {
     repo: new GitHubRepo({
-      repository: 'some-repo',
+      repository: 'some-owner/some-repo',
       tokenSecretArn: 'arn:aws:secretsmanager:someregion:someaccount:secret:sometoken',
     }),
     branches: ['banana', 'grapefruit'],
@@ -116,7 +116,7 @@ test('webhooks for multiple branches', () => {
 test('can disable webhooks', () => {
   new AutoBuild(stack, 'AutoBuild', {
     repo: new GitHubRepo({
-      repository: 'some-repo',
+      repository: 'some-owner/some-repo',
       tokenSecretArn: 'arn:aws:secretsmanager:someregion:someaccount:secret:sometoken',
     }),
     webhook: false,
@@ -133,7 +133,7 @@ test('can disable webhooks', () => {
 test('can enable artifacts', () => {
   new AutoBuild(stack, 'AutoBuild', {
     repo: new GitHubRepo({
-      repository: 'some-repo',
+      repository: 'some-owner/some-repo',
       tokenSecretArn: 'arn:aws:secretsmanager:someregion:someaccount:secret:sometoken',
     }),
     artifacts: Artifacts.s3({
