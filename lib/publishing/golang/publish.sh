@@ -16,4 +16,4 @@ fi
 
 npx -p jsii-release jsii-release-golang go/
 
-/bin/bash $SCRIPT_DIR/write-ssm.sh
+/bin/bash $SCRIPT_DIR/update-ssm.sh
