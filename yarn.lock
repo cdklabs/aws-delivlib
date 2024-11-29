@@ -2182,10 +2182,10 @@
   resolved "https://registry.yarnpkg.com/@tsconfig/node16/-/node16-1.0.4.tgz#0b92dcc0cc1c81f6f306a381f28e31b1a56536e9"
   integrity sha512-vxhUy4J8lyeyinH7Azl1pdd43GJhZH/tP2weN8TntQblOY+A0XbT8DJk1/oCPuOOyg/Ja757rG0CgHcWC8OfMA==
 
-"@types/adm-zip@^0.5.6":
-  version "0.5.6"
-  resolved "https://registry.yarnpkg.com/@types/adm-zip/-/adm-zip-0.5.6.tgz#12e010a45f68a40cbaf9906a329baf4ee7749c67"
-  integrity sha512-lRlcSLg5Yoo7C2H2AUiAoYlvifWoCx/se7iUNiCBTfEVVYFVn+Tr9ZGed4K73tYgLe9O4PjdJvbxlkdAOx/qiw==
+"@types/adm-zip@^0.5.7":
+  version "0.5.7"
+  resolved "https://registry.yarnpkg.com/@types/adm-zip/-/adm-zip-0.5.7.tgz#eec10b6f717d3948beb64aca0abebc4b344ac7e9"
+  integrity sha512-DNEs/QvmyRLurdQPChqq0Md4zGvPwHerAJYWk9l2jCbD1VPpnzRJorOdiq4zsw09NFbYnhfsoEhWtxIzXpn2yw==
   dependencies:
     "@types/node" "*"
 
@@ -2296,16 +2296,16 @@
   integrity sha512-hov8bUuiLiyFPGyFPE1lwWhmzYbirOXQNNo40+y3zow8aFVTeyn3VWL0VFFfdNddA8S4Vf0Tc062rzyNr7Paag==
 
 "@types/node@*":
-  version "22.10.0"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-22.10.0.tgz#89bfc9e82496b9c7edea3382583fa94f75896e81"
-  integrity sha512-XC70cRZVElFHfIUB40FgZOBbgJYFKKMa5nb9lxcwYstFG/Mi+/Y0bGS+rs6Dmhmkpq4pnNiLiuZAbc02YCOnmA==
+  version "22.10.1"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-22.10.1.tgz#41ffeee127b8975a05f8c4f83fb89bcb2987d766"
+  integrity sha512-qKgsUwfHZV2WCWLAnVP1JqnpE6Im6h3Y0+fYgMTasNQ7V++CBX5OT1as0g0f+OyubbFqhf6XVNIsmN4IIhEgGQ==
   dependencies:
     undici-types "~6.20.0"
 
 "@types/node@^18":
-  version "18.19.66"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-18.19.66.tgz#0937a47904ceba5994eedf5cf4b6d503d8d6136c"
-  integrity sha512-14HmtUdGxFUalGRfLLn9Gc1oNWvWh5zNbsyOLo5JV6WARSeN1QcEBKRnZm9QqNfrutgsl/hY4eJW63aZ44aBCg==
+  version "18.19.67"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-18.19.67.tgz#77c4b01641a1e3e1509aff7e10d39e4afd5ae06d"
+  integrity sha512-wI8uHusga+0ZugNp0Ol/3BqQfEcCCNfojtO6Oou9iVNGPTL6QNSdnUdqq85fRgIorLhLMuPIKpsN98QE9Nh+KQ==
   dependencies:
     undici-types "~5.26.4"
 
@@ -3526,9 +3526,9 @@ ejs@^3.1.10:
     jake "^10.8.5"
 
 electron-to-chromium@^1.5.41:
-  version "1.5.66"
-  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.5.66.tgz#1e9b4bc7638ac02d3551eea1dbaeb0101ec5823f"
-  integrity sha512-pI2QF6+i+zjPbqRzJwkMvtvkdI7MjVbSh2g8dlMguDJIXEPw+kwasS1Jl+YGPEBfGVxsVgGUratAKymPdPo2vQ==
+  version "1.5.67"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.5.67.tgz#66ebd2be4a77469ac2760ef5e9e460ba9a43a845"
+  integrity sha512-nz88NNBsD7kQSAGGJyp8hS6xSPtWwqNogA0mjtc2nUYeEf3nURK9qpV18TuBdDmEDgVWotS8Wkzf+V52dSQ/LQ==
 
 emittery@^0.13.1:
   version "0.13.1"
