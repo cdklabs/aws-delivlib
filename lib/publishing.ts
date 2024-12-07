@@ -92,7 +92,7 @@ export class PublishToMavenProject extends Construct implements IPublisher {
     const forReal = props.dryRun === undefined ? 'false' : (!props.dryRun).toString();
 
     const shellable = new Shellable(this, 'Default', {
-      platform: new LinuxPlatform(props.buildImage ?? cbuild.LinuxBuildImage.fromDockerRegistry('public.ecr.aws/jsii/superchain:1-bullseye-slim-node18')),
+      platform: new LinuxPlatform(props.buildImage ?? cbuild.LinuxBuildImage.fromDockerRegistry('public.ecr.aws/jsii/superchain:1-bookworm-slim-node20')),
       scriptDirectory: path.join(__dirname, 'publishing', 'maven'),
       entrypoint: 'publish.sh',
       environment: noUndefined({
