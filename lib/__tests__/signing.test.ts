@@ -4,6 +4,7 @@ import { Repository } from 'aws-cdk-lib/aws-codecommit';
 import { Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
 import { Function } from 'aws-cdk-lib/aws-lambda';
 import { Bucket } from 'aws-cdk-lib/aws-s3';
+import { DEFAULT_SUPERCHAIN_IMAGE } from '../constants';
 import { Pipeline } from '../pipeline';
 import { CodeCommitRepo } from '../repo';
 
