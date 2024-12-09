@@ -9,13 +9,13 @@ import {
 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { ICodeSigningCertificate } from './code-signing';
+import { DEFAULT_SUPERCHAIN_IMAGE } from './constants';
 import { OpenPGPKeyPair } from './open-pgp-key-pair';
 import * as permissions from './permissions';
 import { AddToPipelineOptions, IPublisher } from './pipeline';
 import { WritableGitHubRepo } from './repo';
 import { LinuxPlatform, Shellable } from './shellable';
 import { noUndefined } from './util';
-import { DEFAULT_SUPERCHAIN_IMAGE } from './constants';
 
 /**
  * Type of access permissions to request from npmjs.

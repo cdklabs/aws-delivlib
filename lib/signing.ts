@@ -7,9 +7,9 @@ import { IFunction } from 'aws-cdk-lib/aws-lambda';
 import { IBucket } from 'aws-cdk-lib/aws-s3';
 import { Construct, IConstruct } from 'constructs';
 import { BuildSpec } from './build-spec';
+import { DEFAULT_SUPERCHAIN_IMAGE } from './constants';
 import { AddToPipelineOptions } from './pipeline';
 import { LinuxPlatform, Shellable } from './shellable';
-import { DEFAULT_SUPERCHAIN_IMAGE } from './constants';
 
 export interface ISigner extends IConstruct {
   addToPipeline(stage: IStage, id: string, options: AddToPipelineOptions): Artifact;
