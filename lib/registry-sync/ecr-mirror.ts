@@ -8,9 +8,11 @@ import {
   aws_s3_assets as s3Assets,
   aws_secretsmanager as sm,
   custom_resources as cr,
+  Annotations,
 } from 'aws-cdk-lib';
 import { Construct, IConstruct } from 'constructs';
 import { MirrorSource } from './mirror-source';
+import { DEFAULT_SUPERCHAIN_IMAGE } from '../constants';
 
 /**
  * Authentication details for DockerHub.
@@ -57,6 +59,15 @@ export interface EcrMirrorProps {
   readonly dockerHubCredentials: DockerHubCredentials;
 
   /**
+   * The image used to run the mirror step itself.
+   *
+   * Prefer to supply the image yourself here.
+   *
+   * @default - Some superchain image that may grow outdated.
+   */
+  readonly buildImage?: codebuild.IBuildImage;
+
+  /**
    * Sync job runs on a schedule.
    * Throws an error if neither this nor `autoStart` are specified.
    * @default - does not run on schedule
@@ -101,10 +112,15 @@ export class EcrMirror extends Construct {
     const username = codeBuildSecretValue(props.dockerHubCredentials.usernameKey, props.dockerHubCredentials);
     const password = codeBuildSecretValue(props.dockerHubCredentials.passwordKey, props.dockerHubCredentials);
 
+    if (!props.buildImage) {
+      Annotations.of(this).addWarningV2('aws-delivlib:EcrMirror.missingBuildImage', 'Prefer supplying an explicit build image to relying on the default superchain.');
+    }
+
     this.project = new codebuild.Project(this, 'EcrPushImages', {
+      description: Lazy.string({ produce: () => `Synchronize ${props.sources.length} images from DockerHub to local ECR` }),
       environment: {
         privileged: true,
-        buildImage: codebuild.LinuxBuildImage.fromDockerRegistry('public.ecr.aws/jsii/superchain:1-bullseye-slim-node18'),
+        buildImage: props.buildImage ?? codebuild.LinuxBuildImage.fromDockerRegistry(DEFAULT_SUPERCHAIN_IMAGE),
       },
       environmentVariables: {
         // DockerHub credentials to avoid throttling
@@ -204,6 +220,7 @@ export class EcrMirror extends Construct {
 
     if (props.schedule) {
       new events.Rule(this, 'ScheduledTrigger', {
+        description: 'Trigger ECR mirror job',
         schedule: props.schedule,
         targets: [new targets.CodeBuildProject(this.project)],
       });

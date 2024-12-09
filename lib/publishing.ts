@@ -15,6 +15,7 @@ import { AddToPipelineOptions, IPublisher } from './pipeline';
 import { WritableGitHubRepo } from './repo';
 import { LinuxPlatform, Shellable } from './shellable';
 import { noUndefined } from './util';
+import { DEFAULT_SUPERCHAIN_IMAGE } from './constants';
 
 /**
  * Type of access permissions to request from npmjs.
@@ -77,6 +78,13 @@ export interface PublishToMavenProjectProps {
    * @default - no SSM parameters
    */
   ssmPrefix?: string;
+
+  /**
+   * Description for the CodeBuild project
+   *
+   * @default - No description
+   */
+  description?: string;
 }
 
 /**
@@ -92,7 +100,8 @@ export class PublishToMavenProject extends Construct implements IPublisher {
     const forReal = props.dryRun === undefined ? 'false' : (!props.dryRun).toString();
 
     const shellable = new Shellable(this, 'Default', {
-      platform: new LinuxPlatform(props.buildImage ?? cbuild.LinuxBuildImage.fromDockerRegistry('public.ecr.aws/jsii/superchain:1-bookworm-slim-node20')),
+      description: props.description,
+      platform: new LinuxPlatform(props.buildImage ?? cbuild.LinuxBuildImage.fromDockerRegistry(DEFAULT_SUPERCHAIN_IMAGE)),
       scriptDirectory: path.join(__dirname, 'publishing', 'maven'),
       entrypoint: 'publish.sh',
       environment: noUndefined({
@@ -165,6 +174,13 @@ export interface PublishToNpmProjectProps {
    * @default - no SSM parameters
    */
   ssmPrefix?: string;
+
+  /**
+   * Description for the CodeBuild project
+   *
+   * @default - No description
+   */
+  description?: string;
 }
 
 /**
@@ -182,6 +198,7 @@ export class PublishToNpmProject extends Construct implements IPublisher {
     const access = props.access ?? NpmAccess.PUBLIC;
 
     const shellable = new Shellable(this, 'Default', {
+      description: props.description,
       platform: new LinuxPlatform(cbuild.LinuxBuildImage.STANDARD_7_0),
       scriptDirectory: path.join(__dirname, 'publishing', 'npm'),
       entrypoint: 'publish.sh',
@@ -249,6 +266,13 @@ export interface PublishToNuGetProjectProps {
    * @default - no SSM parameters
    */
   ssmPrefix?: string;
+
+  /**
+   * Description for the CodeBuild project
+   *
+   * @default - No description
+   */
+  description?: string;
 }
 
 /**
@@ -281,7 +305,8 @@ export class PublishToNuGetProject extends Construct implements IPublisher {
     }
 
     const shellable = new Shellable(this, 'Default', {
-      platform: new LinuxPlatform(props.buildImage ?? cbuild.LinuxBuildImage.fromDockerRegistry('public.ecr.aws/jsii/superchain:1-bookworm-slim-node20')),
+      description: props.description,
+      platform: new LinuxPlatform(props.buildImage ?? cbuild.LinuxBuildImage.fromDockerRegistry(DEFAULT_SUPERCHAIN_IMAGE)),
       scriptDirectory: path.join(__dirname, 'publishing', 'nuget'),
       entrypoint: 'publish.sh',
       environment,
@@ -353,6 +378,13 @@ export interface PublishDocsToGitHubProjectProps {
    * @default - no SSM parameters
    */
   ssmPrefix?: string;
+
+  /**
+   * Description for the CodeBuild project
+   *
+   * @default - No description
+   */
+  description?: string;
 }
 
 /**
@@ -368,6 +400,7 @@ export class PublishDocsToGitHubProject extends Construct implements IPublisher 
     const forReal = props.dryRun === undefined ? 'false' : (!props.dryRun).toString();
 
     const shellable = new Shellable(this, 'Default', {
+      description: props.description,
       platform: new LinuxPlatform(cbuild.LinuxBuildImage.STANDARD_7_0),
       scriptDirectory: path.join(__dirname, 'publishing', 'docs'),
       entrypoint: 'publish.sh',
@@ -466,6 +499,13 @@ export interface PublishToGitHubProps {
    * @default - no SSM parameters
    */
   ssmPrefix?: string;
+
+  /**
+   * Description for the CodeBuild project
+   *
+   * @default - No description
+   */
+  description?: string;
 }
 
 export class PublishToGitHub extends Construct implements IPublisher {
@@ -485,6 +525,7 @@ export class PublishToGitHub extends Construct implements IPublisher {
     }
 
     const shellable = new Shellable(this, 'Default', {
+      description: props.description,
       platform: new LinuxPlatform(cbuild.LinuxBuildImage.STANDARD_7_0),
       scriptDirectory: path.join(__dirname, 'publishing', 'github'),
       entrypoint: 'publish.sh',
@@ -542,6 +583,13 @@ export interface PublishToS3Props {
    * @default true
    */
   dryRun?: boolean;
+
+  /**
+   * Description for the CodeBuild project
+   *
+   * @default - No description
+   */
+  description?: string;
 }
 
 export class PublishToS3 extends Construct implements IPublisher {
@@ -554,6 +602,7 @@ export class PublishToS3 extends Construct implements IPublisher {
     const forReal = props.dryRun === undefined ? 'false' : (!props.dryRun).toString();
 
     const shellable = new Shellable(this, 'Default', {
+      description: props.description,
       platform: new LinuxPlatform(cbuild.LinuxBuildImage.STANDARD_7_0),
       scriptDirectory: path.join(__dirname, 'publishing', 's3'),
       entrypoint: 'publish.sh',
@@ -604,6 +653,13 @@ export interface PublishToPyPiProps {
    * @default - no SSM parameters
    */
   ssmPrefix?: string;
+
+  /**
+   * Description for the CodeBuild project
+   *
+   * @default - No description
+   */
+  description?: string;
 }
 
 export class PublishToPyPi extends Construct {
@@ -617,6 +673,7 @@ export class PublishToPyPi extends Construct {
     const forReal = props.dryRun === undefined ? 'false' : (!props.dryRun).toString();
 
     const shellable = new Shellable(this, 'Default', {
+      description: props.description,
       platform: new LinuxPlatform(cbuild.LinuxBuildImage.STANDARD_7_0),
       scriptDirectory: path.join(__dirname, 'publishing', 'pypi'),
       entrypoint: 'publish.sh',
@@ -705,6 +762,13 @@ export interface PublishToGolangProps {
    * @default - no SSM parameters
    */
   ssmPrefix?: string;
+
+  /**
+   * Description for the CodeBuild project
+   *
+   * @default - No description
+   */
+  description?: string;
 }
 
 /**
@@ -720,6 +784,7 @@ export class PublishToGolang extends Construct {
     const dryRun = props.dryRun ?? false;
 
     const shellable = new Shellable(this, 'Default', {
+      description: props.description,
       platform: new LinuxPlatform(cbuild.LinuxBuildImage.STANDARD_7_0),
       scriptDirectory: path.join(__dirname, 'publishing', 'golang'),
       entrypoint: 'publish.sh',
