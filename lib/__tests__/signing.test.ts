@@ -6,7 +6,6 @@ import { Function } from 'aws-cdk-lib/aws-lambda';
 import { Bucket } from 'aws-cdk-lib/aws-s3';
 import { Pipeline } from '../pipeline';
 import { CodeCommitRepo } from '../repo';
-import { DEFAULT_SUPERCHAIN_IMAGE } from '../constants';
 
 describe('with standard pipeline', () => {
   let stack: Stack;
@@ -104,7 +103,7 @@ describe('with standard pipeline', () => {
             },
           },
         ],
-        Image: DEFAULT_SUPERCHAIN_IMAGE,
+        Image: 'public.ecr.aws/jsii/superchain:1-bookworm-slim-node22',
         ImagePullCredentialsType: 'SERVICE_ROLE',
         PrivilegedMode: false,
         Type: 'LINUX_CONTAINER',

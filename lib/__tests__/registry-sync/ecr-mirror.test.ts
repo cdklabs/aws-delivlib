@@ -7,7 +7,6 @@ import {
 } from 'aws-cdk-lib';
 import { Template, Match } from 'aws-cdk-lib/assertions';
 import { EcrMirror, EcrMirrorAspect, MirrorSource } from '../../../lib/registry-sync';
-import { DEFAULT_SUPERCHAIN_IMAGE } from '../../constants';
 
 describe('EcrMirror', () => {
   test('default', () => {
@@ -37,7 +36,7 @@ describe('EcrMirror', () => {
             Value: '123aass:password-key:AWSCURRENT',
           },
         ],
-        Image: DEFAULT_SUPERCHAIN_IMAGE,
+        Image: 'public.ecr.aws/jsii/superchain:1-bookworm-slim-node22',
       },
       Source: {
         BuildSpec: {
