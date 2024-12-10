@@ -103,7 +103,7 @@ describe('with standard pipeline', () => {
             },
           },
         ],
-        Image: 'public.ecr.aws/jsii/superchain:1-bullseye-slim-node18',
+        Image: 'public.ecr.aws/jsii/superchain:1-bookworm-slim-node22',
         ImagePullCredentialsType: 'SERVICE_ROLE',
         PrivilegedMode: false,
         Type: 'LINUX_CONTAINER',

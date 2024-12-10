@@ -81,6 +81,13 @@ export interface AutoMergeBackOptions extends pr.AutoPullRequestOptions {
    * @default - no condition
    */
   condition?: string;
+
+  /**
+   * Description for the CodeBuild project
+   *
+   * @default - No description
+   */
+  projectDescription?: string;
 }
 
 export interface AutoMergeBackPipelineOptions extends AutoMergeBackOptions {

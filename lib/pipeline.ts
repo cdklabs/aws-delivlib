@@ -217,6 +217,7 @@ export class Pipeline extends Construct {
   private readonly buildEnvironment: cbuild.BuildEnvironment;
   private readonly buildSpec?: cbuild.BuildSpec;
   private firstPublishStageName?: string;
+  private readonly descrPipelineName: string;
 
   constructor(parent: Construct, name: string, props: PipelineProps) {
     super(parent, name);
@@ -229,6 +230,9 @@ export class Pipeline extends Construct {
       pipelineName: props.pipelineName,
       restartExecutionOnUpdate: props.restartExecutionOnUpdate === undefined ? true : props.restartExecutionOnUpdate,
     });
+    // We will use the pipeline name if given, but we can't use the Ref if not given
+    // because that would create cyclic references. Fall back to construct path if anonymous.
+    this.descrPipelineName = props.pipelineName ?? this.node.path;
 
     this.branch = props.branch || 'master';
     this.sourceArtifact = props.repo.createSourceStage(this.pipeline, this.branch);
@@ -241,6 +245,7 @@ export class Pipeline extends Construct {
       buildProjectName = `${props.pipelineName}-Build`;
     }
     this.buildProject = new cbuild.PipelineProject(this, 'BuildProject', {
+      description: `Pipeline ${this.descrPipelineName}: build step`,
       projectName: buildProjectName,
       environment: this.buildEnvironment,
       buildSpec: this.buildSpec,
@@ -388,6 +393,7 @@ export class Pipeline extends Construct {
 
   public publishToNpm(options: publishing.PublishToNpmProjectProps & AddPublishOptions) {
     this.addPublish(new publishing.PublishToNpmProject(this, 'Npm', {
+      description: options.description ?? `Pipeline ${this.descrPipelineName}: publish to NPM`,
       dryRun: this.dryRun,
       ...options,
     }), options);
@@ -395,6 +401,7 @@ export class Pipeline extends Construct {
 
   public publishToMaven(options: publishing.PublishToMavenProjectProps & AddPublishOptions) {
     this.addPublish(new publishing.PublishToMavenProject(this, 'Maven', {
+      description: options.description ?? `Pipeline ${this.descrPipelineName}: publish to Maven`,
       dryRun: this.dryRun,
       ...options,
     }), options);
@@ -402,6 +409,7 @@ export class Pipeline extends Construct {
 
   public publishToNuGet(options: publishing.PublishToNuGetProjectProps & AddPublishOptions) {
     this.addPublish(new publishing.PublishToNuGetProject(this, 'NuGet', {
+      description: options.description ?? `Pipeline ${this.descrPipelineName}: publish to NuGet`,
       dryRun: this.dryRun,
       ...options,
     }), options);
@@ -409,6 +417,7 @@ export class Pipeline extends Construct {
 
   public publishToGitHubPages(options: publishing.PublishDocsToGitHubProjectProps & AddPublishOptions) {
     this.addPublish(new publishing.PublishDocsToGitHubProject(this, 'GitHubPages', {
+      description: options.description ?? `Pipeline ${this.descrPipelineName}: publish to GitHub Pages`,
       dryRun: this.dryRun,
       ...options,
     }), options);
@@ -416,6 +425,7 @@ export class Pipeline extends Construct {
 
   public publishToGitHub(options: publishing.PublishToGitHubProps & AddPublishOptions) {
     this.addPublish(new publishing.PublishToGitHub(this, 'GitHub', {
+      description: options.description ?? `Pipeline ${this.descrPipelineName}: publish to GitHub`,
       dryRun: this.dryRun,
       ...options,
     }), options);
@@ -423,6 +433,7 @@ export class Pipeline extends Construct {
 
   public publishToPyPI(options: publishing.PublishToPyPiProps & AddPublishOptions) {
     this.addPublish(new publishing.PublishToPyPi(this, 'PyPI', {
+      description: options.description ?? `Pipeline ${this.descrPipelineName}: publish to PyPI`,
       dryRun: this.dryRun,
       ...options,
     }), options);
@@ -430,6 +441,7 @@ export class Pipeline extends Construct {
 
   public publishToS3(id: string, options: publishing.PublishToS3Props & AddPublishOptions) {
     this.addPublish(new publishing.PublishToS3(this, id, {
+      description: options.description ?? `Pipeline ${this.descrPipelineName}: publish to S3 (${options.bucket.bucketName})`,
       dryRun: this.dryRun,
       ...options,
     }), options);
@@ -440,6 +452,7 @@ export class Pipeline extends Construct {
    */
   public publishToGolang(options: publishing.PublishToGolangProps) {
     this.addPublish(new publishing.PublishToGolang(this, 'Golang', {
+      description: options.description ?? `Pipeline ${this.descrPipelineName}: publish Golang`,
       dryRun: this.dryRun,
       ...options,
     }));
@@ -474,6 +487,7 @@ export class Pipeline extends Construct {
     const mergeBack = new AutoMergeBack(this, 'MergeBack', {
       repo: this.repo,
       ...options,
+      projectDescription: options?.projectDescription ?? `Pipeline ${this.descrPipelineName}: merge-back step`,
     });
 
     if (options?.stage) {

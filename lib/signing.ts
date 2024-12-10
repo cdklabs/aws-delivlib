@@ -7,6 +7,7 @@ import { IFunction } from 'aws-cdk-lib/aws-lambda';
 import { IBucket } from 'aws-cdk-lib/aws-s3';
 import { Construct, IConstruct } from 'constructs';
 import { BuildSpec } from './build-spec';
+import { DEFAULT_SUPERCHAIN_IMAGE } from './constants';
 import { AddToPipelineOptions } from './pipeline';
 import { LinuxPlatform, Shellable } from './shellable';
 
@@ -100,7 +101,7 @@ export class SignNuGetWithSigner extends Construct implements ISigner {
     }
 
     const shellable = new Shellable(this, 'Default', {
-      platform: new LinuxPlatform(props.buildImage ?? LinuxBuildImage.fromDockerRegistry('public.ecr.aws/jsii/superchain:1-bullseye-slim-node18')),
+      platform: new LinuxPlatform(props.buildImage ?? LinuxBuildImage.fromDockerRegistry(DEFAULT_SUPERCHAIN_IMAGE)),
       scriptDirectory: path.join(__dirname, 'signing', 'nuget'),
       entrypoint: 'sign.sh',
       serviceRole: props.serviceRole,

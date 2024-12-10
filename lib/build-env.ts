@@ -1,4 +1,5 @@
 import { aws_codebuild as cbuild } from 'aws-cdk-lib';
+import { DEFAULT_SUPERCHAIN_IMAGE } from './constants';
 
 export interface BuildEnvironmentProps {
   computeType?: cbuild.ComputeType;
@@ -14,7 +15,7 @@ export function createBuildEnvironment(props: BuildEnvironmentProps) {
     computeType: props.computeType || cbuild.ComputeType.SMALL,
     privileged: props.privileged,
     environmentVariables: renderEnvironmentVariables({ ...props.environment, ...props.env }),
-    buildImage: props.buildImage || cbuild.LinuxBuildImage.fromDockerRegistry('public.ecr.aws/jsii/superchain:1-bullseye-slim-node18'),
+    buildImage: props.buildImage || cbuild.LinuxBuildImage.fromDockerRegistry(DEFAULT_SUPERCHAIN_IMAGE),
   };
 
   return environment;
