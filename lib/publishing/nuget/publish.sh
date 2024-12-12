@@ -57,16 +57,22 @@ fi
 
 echo "Publishing NuGet packages..."
 
-if [ -n "${NUGET_ROLE_ARN:-}" ]; then
-    ROLE=$(aws sts assume-role --region "${NUGET_SECRET_REGION:-}" --role-arn "${NUGET_ROLE_ARN:-}" --role-session-name "buildable_nuget_publish")
-    export AWS_ACCESS_KEY_ID=$(echo $ROLE | jq -r .Credentials.AccessKeyId)
-    export AWS_SECRET_ACCESS_KEY=$(echo $ROLE | jq -r .Credentials.SecretAccessKey)
-    export AWS_SESSION_TOKEN=$(echo $ROLE | jq -r .Credentials.SessionToken)
-fi
+(
+    # Assume a role, just for the purposes of retrieving the secret and nothing else.
+    # Run in a subshell so the changed environment variables in here don't interfere with the ones
+    # of the parent shell.
+    if [ -n "${NUGET_ROLE_ARN:-}" ]; then
+        ROLE=$(aws sts assume-role --region "${NUGET_SECRET_REGION:-}" --role-arn "${NUGET_ROLE_ARN:-}" --role-session-name "buildable_nuget_publish")
+        export AWS_ACCESS_KEY_ID=$(echo $ROLE | jq -r .Credentials.AccessKeyId)
+        export AWS_SECRET_ACCESS_KEY=$(echo $ROLE | jq -r .Credentials.SecretAccessKey)
+        export AWS_SESSION_TOKEN=$(echo $ROLE | jq -r .Credentials.SessionToken)
+    fi
+    aws secretsmanager get-secret-value --region "${NUGET_SECRET_REGION:-}" --secret-id "${NUGET_SECRET_ID:-}" | jq -r .SecretString | jq -r .NugetApiKey > /tmp/key.txt
+)
+NUGET_API_KEY=$(cat /tmp/key.txt)
 
 NUGET_SOURCE="https://api.nuget.org/v3/index.json"
 NUGET_SYMBOL_SOURCE="https://nuget.smbsrc.net/"
-NUGET_API_KEY=$(aws secretsmanager get-secret-value --region "${NUGET_SECRET_REGION:-}" --secret-id "${NUGET_SECRET_ID:-}" | jq -r .SecretString | jq -r .NugetApiKey)
 
 log=$(mktemp -d)/log.txt
 
