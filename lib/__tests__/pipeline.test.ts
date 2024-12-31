@@ -188,7 +188,7 @@ test('autoBuild() can be configured to publish logs publically', () => {
   template.hasResourceProperties('AWS::Serverless::Application', {
     Location: {
       ApplicationId: 'arn:aws:serverlessrepo:us-east-1:277187709615:applications/github-codebuild-logs',
-      SemanticVersion: '1.4.0',
+      SemanticVersion: '1.6.0',
     },
     Parameters: {
       CodeBuildProjectName: {
