@@ -61,6 +61,26 @@ export interface PackageIntegrityValidationProps {
    */
   readonly packTask?: string;
 
+  /**
+   * Additional environment variables to set.
+   *
+   * @default - No additional environment variables
+   */
+  readonly environment?: { [key: string]: string | undefined };
+
+  /**
+   * Environment variables with secrets manager values. The values must be complete Secret Manager ARNs.
+   *
+   * @default no additional environment variables
+   */
+  readonly environmentSecrets?: { [key: string]: string };
+
+  /**
+   * Environment variables with SSM parameter values.
+   *
+   * @default no additional environment variables
+   */
+  readonly environmentParameters?: { [key: string]: string };
 }
 
 /**
@@ -88,7 +108,11 @@ export class PackageIntegrityValidation extends Construct {
       entrypoint: 'validate.sh',
       privileged: props.privileged ?? false,
       platform: props.buildPlatform ?? ShellPlatform.LinuxUbuntu,
+      environmentSecrets: props.environmentSecrets,
+      environmentParameters: props.environmentParameters,
       environment: {
+        ...props.environment,
+        // always override the env vars we have explicit options for
         GITHUB_REPOSITORY: props.repository,
         TAG_PREFIX: props.tagPrefix ?? '',
         GITHUB_TOKEN_ARN: props.githubTokenSecret?.secretArn,
