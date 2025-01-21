@@ -80,7 +80,7 @@ export interface PackageIntegrityValidationProps {
    *
    * @default no additional environment variables
    */
-  readonly environmentParameters?: { [key: string]: string };  
+  readonly environmentParameters?: { [key: string]: string };
 }
 
 /**

@@ -71,11 +71,11 @@ test('can pass environment variables to the integrity handler code build project
     githubTokenSecret: token,
     repository: 'cdklabs/some-repo',
     environment: {
-      FOO: 'bar'
+      FOO: 'bar',
     },
     environmentSecrets: {
-      SECRET: 'arn:aws:secretsmanager:us-east-1:123456789123:secret:super-secret-token-000000'
-    }
+      SECRET: 'arn:aws:secretsmanager:us-east-1:123456789123:secret:super-secret-token-000000',
+    },
   });
 
   const template = Template.fromStack(stack);
