@@ -196,7 +196,7 @@ export class RepositoryIntegrity {
 }
 
 /**
- * NpmIntegiry is able to perform integiry checks against packages stored on npmjs.com
+ * NpmIntegrity is able to perform integrity checks against packages stored on npmjs.com
  */
 export class NpmArtifactIntegrity extends ArtifactIntegrity {
 
