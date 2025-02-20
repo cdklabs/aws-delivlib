@@ -38,7 +38,7 @@
   },
   "devDependencies": {
     "@aws-sdk/client-cloudwatch": "^3.750.0",
-    "@aws-sdk/client-codepipeline": "^3.750.0",
+    "@aws-sdk/client-codepipeline": "^3.752.0",
     "@aws-sdk/client-s3": "^3.750.0",
     "@aws-sdk/client-secrets-manager": "^3.750.0",
     "@aws-sdk/client-ssm": "^3.750.0",
@@ -53,7 +53,7 @@
     "@typescript-eslint/eslint-plugin": "^8",
     "@typescript-eslint/parser": "^8",
     "adm-zip": "^0.5.16",
-    "aws-cdk": "2.1000.1",
+    "aws-cdk": "2.1000.2",
     "aws-cdk-lib": "^2.150.0",
     "commit-and-tag-version": "^12",
     "constructs": "10.1.31",

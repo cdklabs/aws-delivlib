@@ -159,10 +159,10 @@
     "@smithy/util-waiter" "^4.0.2"
     tslib "^2.6.2"
 
-"@aws-sdk/client-codepipeline@^3.750.0":
-  version "3.750.0"
-  resolved "https://registry.yarnpkg.com/@aws-sdk/client-codepipeline/-/client-codepipeline-3.750.0.tgz#2b3154d81cadfc2e3f28d1a144fe635a2a97633e"
-  integrity sha512-tm9BQrSpqs+AX32F8UL4hYL/91VcH0BpKWKyokS8GJE4CR3FNAUUyJNAB27IYzI3GfiwLdq7F8p7mvnvdYBw2g==
+"@aws-sdk/client-codepipeline@^3.752.0":
+  version "3.752.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/client-codepipeline/-/client-codepipeline-3.752.0.tgz#04fa57c199bfd4077bb04e2b33007280df2441f4"
+  integrity sha512-F/5FfpEheSDzr1gQ1/bm/b0MwdSR8pBWlxtrQZywzAjZUO42xxK1K8F4tQVLNMlCAkWadl9Q3JU6Qpd25teM0g==
   dependencies:
     "@aws-crypto/sha256-browser" "5.2.0"
     "@aws-crypto/sha256-js" "5.2.0"
@@ -1302,9 +1302,9 @@
   integrity sha512-JBxkERygn7Bv/GbN5Rv8Ul6LVknS+5Bp6RgDC/O8gEBU/yeH5Ui5C/OlWrTb6qct7LjjfT6Re2NxB0ln0yYybA==
 
 "@humanwhocodes/retry@^0.4.1":
-  version "0.4.1"
-  resolved "https://registry.yarnpkg.com/@humanwhocodes/retry/-/retry-0.4.1.tgz#9a96ce501bc62df46c4031fbd970e3cc6b10f07b"
-  integrity sha512-c7hNEllBlenFTHBky65mhq8WD2kbN9Q6gk0bTk8lSBvc554jpXSkST1iePudpt7+A/AQvuHs9EMqjHDXMY1lrA==
+  version "0.4.2"
+  resolved "https://registry.yarnpkg.com/@humanwhocodes/retry/-/retry-0.4.2.tgz#1860473de7dfa1546767448f333db80cb0ff2161"
+  integrity sha512-xeO57FpIu4p1Ri3Jq/EXq4ClRm86dVF2z/+kvFnyqVYRavTZmaFaUBbWCOuuTh0o/g7DSsk6kc2vrS4Vl5oPOQ==
 
 "@hutson/parse-repository-url@^3.0.0":
   version "3.0.2"
@@ -2662,10 +2662,10 @@ aws-cdk-lib@^2.150.0:
     table "^6.8.2"
     yaml "1.10.2"
 
-aws-cdk@2.1000.1:
-  version "2.1000.1"
-  resolved "https://registry.yarnpkg.com/aws-cdk/-/aws-cdk-2.1000.1.tgz#2ff008c2f87c3573267f5f4388b07e0df9d05d3d"
-  integrity sha512-1hccUeH5fQeFSAhJITACw3Gs7JWO3EknxSvRARXBZLSy74RV1a2gk8T1yGyO+jtCd38OqhXmbwTinLs2MX4/eg==
+aws-cdk@2.1000.2:
+  version "2.1000.2"
+  resolved "https://registry.yarnpkg.com/aws-cdk/-/aws-cdk-2.1000.2.tgz#5c89404f24b09880bc9f7e9b4f7bd721be02b4bd"
+  integrity sha512-QsXqJhGWjHNqP7etgE3sHOTiDBXItmSKdFKgsm1qPMBabCMyFfmWZnEeUxfZ4sMaIoxvLpr3sqoWSNeLuUk4sg==
   optionalDependencies:
     fsevents "2.3.2"
 
