@@ -1,3 +1,4 @@
+import * as path from 'node:path';
 import {
   aws_codebuild as codebuild,
   aws_s3_assets as s3Assets,
@@ -130,7 +131,14 @@ export abstract class MirrorSource {
       }
 
       public bind(options: MirrorSourceBindOptions): MirrorSourceConfig {
-        const asset = new s3Assets.Asset(options.scope, `BuildContext${this.directory}${JSON.stringify(opts.buildArgs ?? {})}`, { path: this.directory! });
+        const asset = new s3Assets.Asset(options.scope, `BuildContext${this.directory}${JSON.stringify(opts.buildArgs ?? {})}`, {
+          path: this.directory!,
+
+          // Need to give an explicit displayName, because the directory might
+          // be absolute, and the directories and args are liable to change on
+          // every pipeline run.
+          displayName: `EcrMirror directory ${path.basename(directory)}`,
+        });
         if (options.syncJob) {
           asset.grantRead(options.syncJob);
         }

@@ -49,7 +49,7 @@ const project = new typescript.TypeScriptProject({
   ],
   peerDeps: [
     'constructs',
-    'aws-cdk-lib',
+    'aws-cdk-lib@^2.187.0',
   ],
   srcdir: 'lib',
   testdir: 'lib/__tests__',
