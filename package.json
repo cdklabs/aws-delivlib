@@ -44,7 +44,7 @@
     "@aws-sdk/client-ssm": "^3.782.0",
     "@stylistic/eslint-plugin": "^2",
     "@types/adm-zip": "^0.5.7",
-    "@types/aws-lambda": "^8.10.148",
+    "@types/aws-lambda": "^8.10.149",
     "@types/follow-redirects": "^1.14.4",
     "@types/fs-extra": "^9.0.13",
     "@types/jest": "^29.5.14",
