@@ -119,7 +119,7 @@ export class BuildSpec {
       return fn(a, b);
     }
 
-    function mergeDict<T>(as: {[k: string]: T} | undefined, bs: {[k: string]: T} | undefined, fn: (a: T, b: T) => T) {
+    function mergeDict<T>(as: { [k: string]: T } | undefined, bs: { [k: string]: T } | undefined, fn: (a: T, b: T) => T) {
       return mergeObj(as, bs, (a, b) => {
         const ret = Object.assign({}, a);
         for (const [k, v] of Object.entries(b)) {
@@ -166,7 +166,7 @@ export interface SimpleBuildSpecProps {
   install?: string[];
   preBuild?: string[];
   build?: string[];
-  reports?: {[key: string]: ReportStruct};
+  reports?: { [key: string]: ReportStruct };
   artifactDirectory?: string;
 
   /**
@@ -175,47 +175,47 @@ export interface SimpleBuildSpecProps {
    * Use special name PRIMARY to refer to the primary artifact. Will be
    * replaced with the actual artifact name when the build spec is synthesized.
    */
-  additionalArtifactDirectories?: {[id: string]: string};
+  additionalArtifactDirectories?: { [id: string]: string };
 }
 
 export interface BuildSpecStruct {
-  version: '0.2';
+  'version': '0.2';
   'run-as'?: string;
-  env?: EnvStruct;
-  phases?: {[key: string]: PhaseStruct};
-  artifacts?: PrimaryArtifactStruct;
-  cache?: CacheStruct;
-  reports?: {[key: string]: ReportStruct};
+  'env'?: EnvStruct;
+  'phases'?: { [key: string]: PhaseStruct };
+  'artifacts'?: PrimaryArtifactStruct;
+  'cache'?: CacheStruct;
+  'reports'?: { [key: string]: ReportStruct };
 }
 
 export interface EnvStruct {
-  variables?: {[key: string]: string};
-  'parameter-store'?: {[key: string]: string};
+  'variables'?: { [key: string]: string };
+  'parameter-store'?: { [key: string]: string };
   'exported-variables'?: string[];
 }
 
 export interface PhaseStruct {
   'run-as'?: string;
-  commands: string[];
-  finally?: string[];
+  'commands': string[];
+  'finally'?: string[];
 }
 
 export interface ReportStruct {
-  files?: string[];
+  'files'?: string[];
   'base-directory'?: string;
   'discard-paths'?: 'yes' | 'no';
   'file-format'?: 'CucumberJson' | 'JunitXml' | 'NunitXml' | 'TestNGXml' | 'VisualStudioTrx';
 }
 
 export interface ArtifactStruct {
-  files?: string[];
-  name?: string;
+  'files'?: string[];
+  'name'?: string;
   'base-directory'?: string;
   'discard-paths'?: 'yes' | 'no';
 }
 
 export interface PrimaryArtifactStruct extends ArtifactStruct {
-  'secondary-artifacts'?: {[key: string]: ArtifactStruct};
+  'secondary-artifacts'?: { [key: string]: ArtifactStruct };
 }
 
 export interface CacheStruct {
@@ -236,7 +236,7 @@ export interface BuildSpecRenderOptions {
 /**
  * If the dict is a singleton dict, return the value of the first key, otherwise return undefined
  */
-function dictSingletonValue<T>(xs: {[key: string]: T}): T | undefined {
+function dictSingletonValue<T>(xs: { [key: string]: T }): T | undefined {
   const keys = Object.keys(xs);
   if (keys.length === 1) {
     return xs[keys[0]];
@@ -244,7 +244,7 @@ function dictSingletonValue<T>(xs: {[key: string]: T}): T | undefined {
   return undefined;
 }
 
-function renameKey<T>(xs: {[key: string]: T}, orig: string, rename: string): {[key: string]: T} {
+function renameKey<T>(xs: { [key: string]: T }, orig: string, rename: string): { [key: string]: T } {
   const ret = Object.assign({}, xs);
   if (orig in ret) {
     ret[rename] = ret[orig];

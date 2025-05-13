@@ -310,8 +310,11 @@ export class Pipeline extends Construct {
    *
    * @return The Shellable and the Action added to the pipeline.
    */
-  public addShellable(stageName: string, id: string, options: AddShellableOptions): {
-    shellable: Shellable; action: cpipeline_actions.CodeBuildAction;} {
+  public addShellable(
+    stageName: string,
+    id: string,
+    options: AddShellableOptions,
+  ): { shellable: Shellable; action: cpipeline_actions.CodeBuildAction } {
     const stage = this.getOrCreateStage(stageName);
 
     const sh = new Shellable(this, id, options);
@@ -328,7 +331,7 @@ export class Pipeline extends Construct {
     return { shellable: sh, action };
   }
 
-  public addTest(id: string, props: ShellableProps): {shellable: Shellable; action: cpipeline_actions.CodeBuildAction} {
+  public addTest(id: string, props: ShellableProps): { shellable: Shellable; action: cpipeline_actions.CodeBuildAction } {
     return this.addShellable(TEST_STAGE_NAME, id, {
       actionName: `Test${id}`,
       failureNotification: `Test ${id} failed`,

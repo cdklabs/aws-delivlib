@@ -419,7 +419,7 @@ export class Shellable extends Construct {
  */
 export enum PlatformType {
   Linux = 'Linux',
-  Windows = 'Windows'
+  Windows = 'Windows',
 }
 
 /**

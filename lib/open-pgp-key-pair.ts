@@ -35,7 +35,7 @@ export enum OpenPGPKeyPairRemovalPolicy {
    * Note that if you don't have a backup of this key somewhere,
    * this means it will be gone forever!
    */
-  DESTROY_IMMEDIATELY
+  DESTROY_IMMEDIATELY,
 }
 
 interface OpenPGPKeyPairProps {
