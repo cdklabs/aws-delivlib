@@ -54,7 +54,7 @@ export function renderEnvironmentVariables(env?: { [key: string]: string | undef
   return out;
 }
 
-export function noUndefined<T extends object>(xs: T): {[k in keyof T]: NonNullable<T[k]>} {
+export function noUndefined<T extends object>(xs: T): { [k in keyof T]: NonNullable<T[k]> } {
   const ret: any = {};
   for (const [k, v] of Object.entries(xs)) {
     if (v !== undefined) {
@@ -64,8 +64,8 @@ export function noUndefined<T extends object>(xs: T): {[k in keyof T]: NonNullab
   return ret;
 }
 
-export function mapValues<T, U>(xs: {[key: string]: T}, fn: (x: T) => U): {[key: string]: U} {
-  const ret: {[key: string]: U} = {};
+export function mapValues<T, U>(xs: { [key: string]: T }, fn: (x: T) => U): { [key: string]: U } {
+  const ret: { [key: string]: U } = {};
   for (const [k, v] of Object.entries(xs)) {
     ret[k] = fn(v);
   }
