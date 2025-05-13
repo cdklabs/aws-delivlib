@@ -310,7 +310,11 @@ export class Pipeline extends Construct {
    *
    * @return The Shellable and the Action added to the pipeline.
    */
-  public addShellable(stageName: string, id: string, options: AddShellableOptions): {
+  public addShellable(
+    stageName: string, 
+    id: string, 
+    options: AddShellableOptions
+  ): {
     shellable: Shellable; action: cpipeline_actions.CodeBuildAction;} {
     const stage = this.getOrCreateStage(stageName);
 
