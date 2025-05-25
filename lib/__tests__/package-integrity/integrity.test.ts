@@ -1,5 +1,5 @@
 import {
-  App, Stack,
+  App, Duration, Stack,
   aws_codebuild as codebuild,
   aws_secretsmanager as sm,
 } from 'aws-cdk-lib';
@@ -94,5 +94,30 @@ test('can pass environment variables to the integrity handler code build project
         },
       ]),
     },
+  });
+});
+
+test('can configure alarm properties', () => {
+  const stack = new Stack(new App(), 'TestStack');
+  const token = sm.Secret.fromSecretCompleteArn(stack, 'GitHubSecret', 'arn:aws:secretsmanager:us-east-1:123456789123:secret:github-token-000000');
+
+  new PackageIntegrityValidation(stack, 'Integrity', {
+    buildPlatform: new LinuxPlatform(codebuild.LinuxBuildImage.fromDockerRegistry('jsii/superchain:1-bullseye-slim-node14')),
+    githubTokenSecret: token,
+    repository: 'cdklabs/some-repo',
+    environment: {
+      FOO: 'bar',
+    },
+    environmentSecrets: {
+      SECRET: 'arn:aws:secretsmanager:us-east-1:123456789123:secret:super-secret-token-000000',
+    },
+    rate: Duration.seconds(60),
+    consecutiveFailuresToAlarm: 5,
+  });
+
+  const template = Template.fromStack(stack);
+  template.hasResourceProperties('AWS::CloudWatch::Alarm', {
+    EvaluationPeriods: 5,
+    Period: 60,
   });
 });
