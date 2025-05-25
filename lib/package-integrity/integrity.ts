@@ -42,7 +42,7 @@ export interface PackageIntegrityValidationProps {
   /**
    * How many consecutive failures should cause the monitor to go into alarm.
    *
-   * @default 1
+   * @default 3
    */
   readonly consecutiveFailuresToAlarm?: number;
 
@@ -128,7 +128,7 @@ export class PackageIntegrityValidation extends Construct {
         PACK_TASK: props.packTask,
       },
       alarmPeriod: rate,
-      alarmEvaluationPeriods: props.consecutiveFailuresToAlarm ?? 1,
+      alarmEvaluationPeriods: props.consecutiveFailuresToAlarm ?? 3,
     });
 
     if (props.githubTokenSecret) {
