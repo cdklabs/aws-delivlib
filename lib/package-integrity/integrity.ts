@@ -33,11 +33,18 @@ export interface PackageIntegrityValidationProps {
   readonly buildPlatform?: ShellPlatform;
 
   /**
-   * Run the validation on a schedule.
+   * How often to run the validation.
    *
    * @default - once a day.
    */
-  readonly schedule?: events.Schedule;
+  readonly rate?: Duration;
+
+  /**
+   * How many consecutive failures should cause the monitor to go into alarm.
+   *
+   * @default 3
+   */
+  readonly consecutiveFailuresToAlarm?: number;
 
   /**
    * Wether or not the environment should be privileged, necessary to run container images.
@@ -103,6 +110,8 @@ export class PackageIntegrityValidation extends Construct {
   constructor(scope: Construct, id: string, props: PackageIntegrityValidationProps) {
     super(scope, id);
 
+    const rate = props.rate ?? Duration.days(1);
+
     const shellable = new Shellable(this, 'Default', {
       scriptDirectory: path.join(__dirname, 'handler'),
       entrypoint: 'validate.sh',
@@ -118,6 +127,8 @@ export class PackageIntegrityValidation extends Construct {
         GITHUB_TOKEN_ARN: props.githubTokenSecret?.secretArn,
         PACK_TASK: props.packTask,
       },
+      alarmPeriod: rate,
+      alarmEvaluationPeriods: props.consecutiveFailuresToAlarm ?? 3,
     });
 
     if (props.githubTokenSecret) {
@@ -126,7 +137,7 @@ export class PackageIntegrityValidation extends Construct {
     }
 
     new events.Rule(this, 'ScheduledTrigger', {
-      schedule: props.schedule ?? events.Schedule.rate(Duration.days(1)),
+      schedule: events.Schedule.rate(rate),
       targets: [new targets.CodeBuildProject(shellable.project)],
     });
 
