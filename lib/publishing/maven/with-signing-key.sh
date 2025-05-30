@@ -6,15 +6,12 @@
 # 'true' or 'false'. If $KEY_AVAILABLE is 'true', the following
 # variables will be set as well:
 #
-#    $KEY_ID
-#    $KEY_PASSPHRASE
-#    $GPG_PASSPHRASE_FROM_STDIN
+#    $MAVEN_GPG_PRIVATE_KEY
+#    $MAVEN_GPG_PRIVATE_KEY_PASSPHRASE
 #
-# The environment variable KEY_PASSPHRASE will be set to
-# the key's passphrase, to pass in like so:
+# These will be used by `publib-maven`.
 #
-#    echo $KEY_PASSPHRASE | gpg ${GPG_PASSPHRASE_FROM_STDIN} \
-#        ...other gpg arguments...
+# See <https://github.com/cdklabs/publib?tab=readme-ov-file#maven>.
 set -euo pipefail
 
 if [[ "${1:-}" == "" ]]; then
@@ -39,31 +36,9 @@ else
         node -e "console.log(JSON.parse(require('fs').readFileSync('$tmpdir/secret.txt', { encoding: 'utf-8' })).$1)"
     }
 
-    export KEY_PASSPHRASE=$(value-from-secret Passphrase)
-
-    # GnuPG will occasionally bail out with "gpg: <whatever> failed: Inappropriate ioctl for device", the following attempts to fix
-    export GPG_TTY=$(tty)
-    export GNUPGHOME=$tmpdir
-
-    echo "Importing key..." >&2
-    gpg --allow-secret-key-import \
-        --batch --yes --no-tty \
-        --import <(value-from-secret PrivateKey)
-
-    export KEY_ID=$(gpg --list-keys --with-colons | grep pub | cut -d: -f5)
-
-    # Prepare environment variables with flags to GPG
-    #        --passphrase-fd 0 \
-    #        ${EXTRA_GPG_OPTS} \
-    GPG_PASSPHRASE_FROM_STDIN="--passphrase-fd 0"
-    if [[ "$(uname)" == "Darwin" ]]; then
-        # On Mac, we must pass this to disable a prompt for
-        # passphrase, but option is not recognized on Linux.
-        GPG_PASSPHRASE_FROM_STDIN="${GPG_PASSPHRASE_FROM_STDIN} --pinentry-mode loopback"
-    fi
-    export GPG_PASSPHRASE_FROM_STDIN
-
     export KEY_AVAILABLE=true
+    export MAVEN_GPG_PRIVATE_KEY=$(value-from-secret Passphrase)
+    export MAVEN_GPG_PRIVATE_KEY_PASSPHRASE=$(value-from-secret Passphrase)
 fi
 
 # Execute remaining commands

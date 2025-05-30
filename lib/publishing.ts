@@ -62,6 +62,21 @@ export interface PublishToMavenProjectProps {
   mavenEndpoint?: string;
 
   /**
+   * The server ID
+   *
+   * The only sensible value here is `central-ossrh`, which will use the new
+   * publishing endpoint that is mandatory starting June 30th.
+   *
+   * Any other value can `central-ossrh` will cause the underlying publishing
+   * library `publib` to assume publishing to a custom Nexus server, but this
+   * action currently doesn't have a way of specifying that Nexus server's
+   * endpoint.
+   *
+   * @default - Use legacy OSSRH server
+   */
+  serverId?: string;
+
+  /**
    * The build image to do the publishing in
    *
    * Needs to have Maven preinstalled.
@@ -110,6 +125,7 @@ export class PublishToMavenProject extends Construct implements IPublisher {
         FOR_REAL: forReal,
         MAVEN_LOGIN_SECRET: props.mavenLoginSecret.secretArn,
         MAVEN_ENDPOINT: props.mavenEndpoint || 'https://oss.sonatype.org',
+        MAVEN_SERVER_ID: props.serverId,
         SSM_PREFIX: props.ssmPrefix,
       }),
     });
