@@ -114,6 +114,10 @@ export class PublishToMavenProject extends Construct implements IPublisher {
 
     const forReal = props.dryRun === undefined ? 'false' : (!props.dryRun).toString();
 
+    // When using `serverId`, we shouldn't try to guess a MAVEN_ENDPOINT; but keep the old
+    // behavior for backwards compatibility.
+    const mavenEndpointDefault = props.serverId !== undefined ? 'https://oss.sonatype.org' : undefined;
+
     const shellable = new Shellable(this, 'Default', {
       description: props.description,
       platform: new LinuxPlatform(props.buildImage ?? cbuild.LinuxBuildImage.fromDockerRegistry(DEFAULT_SUPERCHAIN_IMAGE)),
@@ -124,7 +128,7 @@ export class PublishToMavenProject extends Construct implements IPublisher {
         SIGNING_KEY_ARN: props.signingKey.credential.secretArn,
         FOR_REAL: forReal,
         MAVEN_LOGIN_SECRET: props.mavenLoginSecret.secretArn,
-        MAVEN_ENDPOINT: props.mavenEndpoint || 'https://oss.sonatype.org',
+        MAVEN_ENDPOINT: props.mavenEndpoint ?? mavenEndpointDefault,
         MAVEN_SERVER_ID: props.serverId,
         SSM_PREFIX: props.ssmPrefix,
       }),
