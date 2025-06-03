@@ -37,7 +37,7 @@ else
     }
 
     export KEY_AVAILABLE=true
-    export MAVEN_GPG_PRIVATE_KEY=$(value-from-secret Passphrase)
+    export MAVEN_GPG_PRIVATE_KEY=$(value-from-secret PrivateKey)
     export MAVEN_GPG_PRIVATE_KEY_PASSPHRASE=$(value-from-secret Passphrase)
 fi
 
