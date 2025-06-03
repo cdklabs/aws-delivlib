@@ -116,7 +116,7 @@ export class PublishToMavenProject extends Construct implements IPublisher {
 
     // When using `serverId`, we shouldn't try to guess a MAVEN_ENDPOINT; but keep the old
     // behavior for backwards compatibility.
-    const mavenEndpointDefault = props.serverId !== undefined ? 'https://oss.sonatype.org' : undefined;
+    const mavenEndpointDefault = props.serverId === undefined ? 'https://oss.sonatype.org' : undefined;
 
     const shellable = new Shellable(this, 'Default', {
       description: props.description,
