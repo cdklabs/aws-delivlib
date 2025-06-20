@@ -2696,10 +2696,10 @@ aws-cdk-lib@2.187.0:
     table "^6.9.0"
     yaml "1.10.2"
 
-aws-cdk@2.1018.1:
-  version "2.1018.1"
-  resolved "https://registry.yarnpkg.com/aws-cdk/-/aws-cdk-2.1018.1.tgz#1941f44bba0290afcdd62cfeb95fde2430a28714"
-  integrity sha512-kFPRox5kSm+ktJ451o0ng9rD+60p5Kt1CZIWw8kXnvqbsxN2xv6qbmyWSXw7sGVXVwqrRKVj+71/JeDr+LMAZw==
+aws-cdk@2.1019.1:
+  version "2.1019.1"
+  resolved "https://registry.yarnpkg.com/aws-cdk/-/aws-cdk-2.1019.1.tgz#bfe17975a41afa7e60f0a5b65c8f952c8fbc30d2"
+  integrity sha512-G2jxKuTsYTrYZX80CDApCrKcZ+AuFxxd+b0dkb0KEkfUsela7RqrDGLm5wOzSCIc3iH6GocR8JDVZuJ+0nNuKg==
   optionalDependencies:
     fsevents "2.3.2"
 
@@ -3591,9 +3591,9 @@ ejs@^3.1.10:
     jake "^10.8.5"
 
 electron-to-chromium@^1.5.160:
-  version "1.5.170"
-  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.5.170.tgz#9f6697de4339e24da8b234e4492a9ecb91f5989c"
-  integrity sha512-GP+M7aeluQo9uAyiTCxgIj/j+PrWhMlY7LFVj8prlsPljd0Fdg9AprlfUi+OCSFWy9Y5/2D/Jrj9HS8Z4rpKWA==
+  version "1.5.171"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.5.171.tgz#e552b4fd73d4dd941ee4c70ae288a8a39f818726"
+  integrity sha512-scWpzXEJEMrGJa4Y6m/tVotb0WuvNmasv3wWVzUAeCgKU0ToFOhUW6Z+xWnRQANMYGxN4ngJXIThgBJOqzVPCQ==
 
 emittery@^0.13.1:
   version "0.13.1"
