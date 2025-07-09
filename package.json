@@ -57,7 +57,7 @@
     "aws-cdk-lib": "2.187.0",
     "commit-and-tag-version": "^12",
     "constructs": "10.1.31",
-    "esbuild": "^0.25.5",
+    "esbuild": "^0.25.6",
     "eslint": "^9",
     "eslint-import-resolver-typescript": "^2.7.1",
     "eslint-plugin-import": "^2.32.0",
