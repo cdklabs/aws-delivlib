@@ -37,11 +37,11 @@
     "organization": false
   },
   "devDependencies": {
-    "@aws-sdk/client-cloudwatch": "^3.846.0",
-    "@aws-sdk/client-codepipeline": "^3.846.0",
-    "@aws-sdk/client-s3": "^3.846.0",
-    "@aws-sdk/client-secrets-manager": "^3.846.0",
-    "@aws-sdk/client-ssm": "^3.846.0",
+    "@aws-sdk/client-cloudwatch": "^3.848.0",
+    "@aws-sdk/client-codepipeline": "^3.848.0",
+    "@aws-sdk/client-s3": "^3.848.0",
+    "@aws-sdk/client-secrets-manager": "^3.848.0",
+    "@aws-sdk/client-ssm": "^3.848.0",
     "@stylistic/eslint-plugin": "^2",
     "@types/adm-zip": "^0.5.7",
     "@types/aws-lambda": "^8.10.150",
