@@ -27,14 +27,17 @@
     "test:watch": "npx projen test:watch",
     "unbump": "npx projen unbump",
     "upgrade": "npx projen upgrade",
+    "upgrade-cdklabs-projen-project-types": "npx projen upgrade-cdklabs-projen-project-types",
+    "upgrade-dev-deps": "npx projen upgrade-dev-deps",
     "watch": "npx projen watch",
     "projen": "npx projen",
     "cdk": "npx cdk"
   },
   "author": {
     "name": "Amazon Web Services",
+    "email": "aws-cdk-dev@amazon.com",
     "url": "https://aws.amazon.com",
-    "organization": false
+    "organization": true
   },
   "devDependencies": {
     "@aws-sdk/client-cloudwatch": "^3.859.0",
@@ -55,6 +58,7 @@
     "adm-zip": "^0.5.16",
     "aws-cdk": "2.1023.0",
     "aws-cdk-lib": "2.187.0",
+    "cdklabs-projen-project-types": "^0.3.1",
     "commit-and-tag-version": "^12",
     "constructs": "10.1.31",
     "esbuild": "^0.25.8",
