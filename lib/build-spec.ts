@@ -76,11 +76,24 @@ export class BuildSpec {
         'parameter-store': mergeDict(a['parameter-store'], b['parameter-store'], equalObjects),
         'variables': mergeDict(a.variables, b.variables, equalObjects),
       })),
-      'phases': mergeDict(this.spec.phases, other.spec.phases, (a, b) => ({
-        'run-as': mergeObj(this.spec['run-as'], other.spec['run-as'], equalObjects),
-        'commands': mergeList(a.commands, b.commands)!,
-        'finally': mergeList(a.finally, b.finally),
-      })),
+      'phases': mergeDict(this.spec.phases, other.spec.phases, (a, b, phase) => {
+        const merged: PhaseStruct = {
+          'run-as': mergeObj(a['run-as'], b['run-as'], equalObjects),
+          'on-failure': mergeObj(a['on-failure'], b['on-failure'], equalObjects),
+          'commands': mergeList(a.commands, b.commands)!,
+          'finally': mergeList(a.finally, b.finally),
+        };
+
+        if (phase === 'install') {
+          (merged as InstallPhaseStruct)['runtime-versions'] = mergeDict(
+            (a as InstallPhaseStruct)['runtime-versions'],
+            (b as InstallPhaseStruct)['runtime-versions'],
+            equalObjects,
+          );
+        }
+
+        return noUndefined(merged);
+      }),
       'artifacts': mergeObj(this.spec.artifacts, other.spec.artifacts, mergeArtifacts),
       'cache': mergeObj(this.spec.cache, other.spec.cache, (a, b) => ({
         paths: mergeList(a.paths, b.paths)!,
@@ -119,12 +132,12 @@ export class BuildSpec {
       return fn(a, b);
     }
 
-    function mergeDict<T>(as: { [k: string]: T } | undefined, bs: { [k: string]: T } | undefined, fn: (a: T, b: T) => T) {
+    function mergeDict<T>(as: { [k: string]: T } | undefined, bs: { [k: string]: T } | undefined, fn: (a: T, b: T, k: string) => T) {
       return mergeObj(as, bs, (a, b) => {
         const ret = Object.assign({}, a);
         for (const [k, v] of Object.entries(b)) {
           if (ret[k]) {
-            ret[k] = fn(ret[k], v);
+            ret[k] = fn(ret[k], v, k);
           } else {
             ret[k] = v;
           }
@@ -182,7 +195,12 @@ export interface BuildSpecStruct {
   'version': '0.2';
   'run-as'?: string;
   'env'?: EnvStruct;
-  'phases'?: { [key: string]: PhaseStruct };
+  'phases'?: {
+    install?: InstallPhaseStruct;
+    pre_build?: PhaseStruct;
+    build?: PhaseStruct;
+    post_build?: PhaseStruct;
+  };
   'artifacts'?: PrimaryArtifactStruct;
   'cache'?: CacheStruct;
   'reports'?: { [key: string]: ReportStruct };
@@ -196,8 +214,13 @@ export interface EnvStruct {
 
 export interface PhaseStruct {
   'run-as'?: string;
+  'on-failure'?: string;
   'commands': string[];
   'finally'?: string[];
+}
+
+export interface InstallPhaseStruct extends PhaseStruct {
+  'runtime-versions'?: { [key: string]: string };
 }
 
 export interface ReportStruct {
