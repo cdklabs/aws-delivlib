@@ -1,7 +1,8 @@
-import { typescript } from 'projen';
+import { CdklabsTypeScriptProject } from 'cdklabs-projen-project-types';
 
-const project = new typescript.TypeScriptProject({
+const project = new CdklabsTypeScriptProject({
   name: 'aws-delivlib',
+  private: false,
   projenrcTs: true,
   description: 'A fabulous library for defining continuous pipelines for building, testing and releasing code libraries.',
   repository: 'https://github.com/cdklabs/aws-delivlib.git',
@@ -9,7 +10,6 @@ const project = new typescript.TypeScriptProject({
   authorName: 'Amazon Web Services',
   authorUrl: 'https://aws.amazon.com',
   minNodeVersion: '18.12.0',
-  workflowNodeVersion: '18.x',
   keywords: [
     'aws-cdk',
     'continuous-delivery',
@@ -45,7 +45,7 @@ const project = new typescript.TypeScriptProject({
     'adm-zip',
     'JSONStream',
     'follow-redirects',
-    'minipass@3.2.1', // temporary (hopefully) workaround for https://github.com/DefinitelyTyped/DefinitelyTyped/discussions/60901
+    'minipass@3.2.1', // temporary (hopefully) workaround for https://github.com/DefinitelyTyped/DefinitelyTyped/discussions/60901s
   ],
   peerDeps: [
     'constructs',
@@ -61,10 +61,7 @@ const project = new typescript.TypeScriptProject({
   },
   autoApproveUpgrades: true,
   releaseToNpm: true,
-  githubOptions: {
-    mergify: false,
-    mergeQueue: true,
-  },
+  enablePRAutoMerge: true,
 });
 
 // trick projen so that it doesn't override the version in package.json

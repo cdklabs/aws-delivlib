@@ -3,7 +3,6 @@
 !/.projen/tasks.json
 !/.projen/deps.json
 !/.projen/files.json
-!/.github/workflows/auto-queue.yml
 !/.github/workflows/pull-request-lint.yml
 !/.github/workflows/auto-approve.yml
 !/package.json
@@ -39,7 +38,6 @@ junit.xml
 /dist/changelog.md
 /dist/version.txt
 !/.github/workflows/release.yml
-!/.github/workflows/upgrade-main.yml
 !/lib/__tests__/
 !/tsconfig.json
 !/tsconfig.dev.json
@@ -50,6 +48,10 @@ junit.xml
 /dist/
 !/.projen/jest-snapshot-resolver.js
 !/.eslintrc.json
+!/.github/workflows/auto-queue.yml
+!/.github/workflows/upgrade-cdklabs-projen-project-types-main.yml
+!/.github/workflows/upgrade-main.yml
+!/.github/workflows/upgrade-dev-deps-main.yml
 cdk.out
 pipeline/*.js
 pipeline/*.d.ts

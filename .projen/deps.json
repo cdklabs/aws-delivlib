@@ -77,6 +77,10 @@
       "type": "build"
     },
     {
+      "name": "cdklabs-projen-project-types",
+      "type": "build"
+    },
+    {
       "name": "commit-and-tag-version",
       "version": "^12",
       "type": "build"
