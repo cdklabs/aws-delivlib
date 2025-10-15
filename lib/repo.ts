@@ -136,6 +136,7 @@ export class GitHubRepo implements IRepo {
       owner: this.owner,
       repo: this.repo,
       output: sourceOutput,
+      variablesNamespace: 'GitHub',
     }));
     return sourceOutput;
   }
