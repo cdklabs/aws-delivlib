@@ -48,6 +48,7 @@ junit.xml
 /dist/
 !/.projen/jest-snapshot-resolver.js
 !/.eslintrc.json
+!/.github/workflows/retry-automerge.yml
 !/.github/workflows/auto-queue.yml
 !/.github/workflows/upgrade-cdklabs-projen-project-types-main.yml
 !/.github/workflows/upgrade-main.yml
