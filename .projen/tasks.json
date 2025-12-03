@@ -299,7 +299,7 @@
       },
       "steps": [
         {
-          "exec": "npx npm-check-updates@16 --upgrade --target=minor --peer --no-deprecated --dep=prod --filter=changelog-parser"
+          "exec": "npx npm-check-updates@18 --upgrade --target=minor --peer --no-deprecated --dep=prod --filter=changelog-parser"
         },
         {
           "exec": "yarn install --check-files"
@@ -323,7 +323,7 @@
       },
       "steps": [
         {
-          "exec": "npx npm-check-updates@16 --upgrade --target=latest --peer --no-deprecated --dep=dev,peer,prod,optional --filter=cdklabs-projen-project-types,projen"
+          "exec": "npx npm-check-updates@18 --upgrade --target=latest --peer --no-deprecated --dep=dev,peer,prod,optional --filter=cdklabs-projen-project-types,projen"
         },
         {
           "exec": "yarn install --check-files"
@@ -347,7 +347,7 @@
       },
       "steps": [
         {
-          "exec": "npx npm-check-updates@16 --upgrade --target=minor --peer --no-deprecated --dep=dev --filter=@aws-sdk/client-cloudwatch,@aws-sdk/client-codepipeline,@aws-sdk/client-s3,@aws-sdk/client-secrets-manager,@aws-sdk/client-ssm,@types/adm-zip,@types/aws-lambda,@types/follow-redirects,@types/fs-extra,@types/jest,@types/tar,adm-zip,aws-cdk,aws-cdk-lib,esbuild,eslint-import-resolver-typescript,eslint-plugin-import,follow-redirects,fs-extra,jest,JSONStream,rrule,standard-version,tar,ts-jest,ts-node,typescript"
+          "exec": "npx npm-check-updates@18 --upgrade --target=minor --peer --no-deprecated --dep=dev --filter=@aws-sdk/client-cloudwatch,@aws-sdk/client-codepipeline,@aws-sdk/client-s3,@aws-sdk/client-secrets-manager,@aws-sdk/client-ssm,@types/adm-zip,@types/aws-lambda,@types/follow-redirects,@types/fs-extra,@types/jest,@types/tar,adm-zip,aws-cdk,aws-cdk-lib,esbuild,eslint-import-resolver-typescript,eslint-plugin-import,follow-redirects,fs-extra,jest,JSONStream,rrule,standard-version,tar,ts-jest,ts-node"
         },
         {
           "exec": "yarn install --check-files"
