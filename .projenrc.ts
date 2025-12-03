@@ -10,6 +10,7 @@ const project = new CdklabsTypeScriptProject({
   authorName: 'Amazon Web Services',
   authorUrl: 'https://aws.amazon.com',
   minNodeVersion: '18.12.0',
+  typescriptVersion: '~5.0.0',
   keywords: [
     'aws-cdk',
     'continuous-delivery',
@@ -31,7 +32,7 @@ const project = new CdklabsTypeScriptProject({
     'aws-cdk-lib',
     'standard-version',
     'ts-jest',
-    'typescript',
+    'typescript@~5.0.0',
     '@aws-sdk/client-s3',
     '@aws-sdk/client-ssm',
     '@aws-sdk/client-secrets-manager',
