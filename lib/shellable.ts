@@ -546,7 +546,18 @@ export class LinuxPlatform extends ShellPlatform {
 export class WindowsPlatform extends ShellPlatform {
   public readonly platformType = PlatformType.Windows;
 
+  constructor(
+    buildImage: cbuild.IBuildImage,
+    private readonly upgradeNodeWithChocolatey: boolean = true,
+  ) {
+    super(buildImage);
+  }
+
   public installCommands(): string[] | undefined {
+    if (!this.upgradeNodeWithChocolatey) {
+      return undefined;
+    }
+
     return [
       // Update the image's nodejs to the latest LTS release.
       'Import-Module "C:\\ProgramData\\chocolatey\\helpers\\chocolateyProfile.psm1"',
