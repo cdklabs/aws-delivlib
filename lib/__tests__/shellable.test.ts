@@ -1,7 +1,8 @@
 import * as path from 'path';
 import * as cdk from 'aws-cdk-lib';
 import { Template, Match } from 'aws-cdk-lib/assertions';
-import { Shellable, ShellPlatform } from '../../lib';
+import * as codebuild from 'aws-cdk-lib/aws-codebuild';
+import { Shellable, ShellPlatform, WindowsPlatform } from '../../lib';
 
 
 // tslint:disable:max-line-length
@@ -587,4 +588,22 @@ test('can exclude files from scriptDirectory', () => {
       ],
     },
   });
+});
+
+
+test('WindowsPlatform installs node via chocolatey by default', () => {
+  const platform = new WindowsPlatform(codebuild.WindowsBuildImage.WIN_SERVER_CORE_2019_BASE);
+
+  expect(platform.installCommands()).toEqual([
+    'Import-Module "C:\\ProgramData\\chocolatey\\helpers\\chocolateyProfile.psm1"',
+    'C:\\ProgramData\\chocolatey\\bin\\choco.exe upgrade nodejs-lts -y',
+  ]);
+});
+
+test('WindowsPlatform can disable chocolatey node upgrade', () => {
+  const platform = new WindowsPlatform(codebuild.WindowsBuildImage.WIN_SERVER_CORE_2019_BASE, {
+    upgradeNodeWithChocolatey: false,
+  });
+
+  expect(platform.installCommands()).toBeUndefined();
 });

@@ -541,16 +541,27 @@ export class LinuxPlatform extends ShellPlatform {
 }
 
 /**
+ * Options for WindowsPlatform
+ */
+export interface WindowsPlatformOptions {
+  /**
+   * Whether to upgrade Node.js using Chocolatey during the install phase.
+   *
+   * @default true
+   */
+  readonly upgradeNodeWithChocolatey?: boolean;
+}
+
+/**
  * A Windows Platform
  */
 export class WindowsPlatform extends ShellPlatform {
   public readonly platformType = PlatformType.Windows;
+  private readonly upgradeNodeWithChocolatey: boolean;
 
-  constructor(
-    buildImage: cbuild.IBuildImage,
-    private readonly upgradeNodeWithChocolatey: boolean = true,
-  ) {
+  constructor(buildImage: cbuild.IBuildImage, options: WindowsPlatformOptions = {}) {
     super(buildImage);
+    this.upgradeNodeWithChocolatey = options.upgradeNodeWithChocolatey ?? true;
   }
 
   public installCommands(): string[] | undefined {
