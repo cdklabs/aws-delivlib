@@ -541,12 +541,34 @@ export class LinuxPlatform extends ShellPlatform {
 }
 
 /**
+ * Options for WindowsPlatform
+ */
+export interface WindowsPlatformOptions {
+  /**
+   * Whether to upgrade Node.js using Chocolatey during the install phase.
+   *
+   * @default true
+   */
+  readonly upgradeNodeWithChocolatey?: boolean;
+}
+
+/**
  * A Windows Platform
  */
 export class WindowsPlatform extends ShellPlatform {
   public readonly platformType = PlatformType.Windows;
+  private readonly upgradeNodeWithChocolatey: boolean;
+
+  constructor(buildImage: cbuild.IBuildImage, options: WindowsPlatformOptions = {}) {
+    super(buildImage);
+    this.upgradeNodeWithChocolatey = options.upgradeNodeWithChocolatey ?? true;
+  }
 
   public installCommands(): string[] | undefined {
+    if (!this.upgradeNodeWithChocolatey) {
+      return undefined;
+    }
+
     return [
       // Update the image's nodejs to the latest LTS release.
       'Import-Module "C:\\ProgramData\\chocolatey\\helpers\\chocolateyProfile.psm1"',
