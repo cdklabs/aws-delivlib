@@ -347,13 +347,13 @@
       },
       "steps": [
         {
-          "exec": "npx npm-check-updates@18 --upgrade --target=minor --peer --no-deprecated --dep=dev --filter=@aws-sdk/client-cloudwatch,@aws-sdk/client-codepipeline,@aws-sdk/client-s3,@aws-sdk/client-secrets-manager,@aws-sdk/client-ssm,@types/adm-zip,@types/aws-lambda,@types/follow-redirects,@types/fs-extra,@types/jest,@types/tar,adm-zip,aws-cdk,aws-cdk-lib,esbuild,eslint-import-resolver-typescript,eslint-plugin-import,follow-redirects,fs-extra,jest,JSONStream,rrule,standard-version,tar,ts-jest,ts-node"
+          "exec": "npx npm-check-updates@18 --upgrade --target=minor --peer --no-deprecated --dep=dev --filter=@aws-sdk/client-cloudwatch,@aws-sdk/client-codepipeline,@aws-sdk/client-s3,@aws-sdk/client-secrets-manager,@aws-sdk/client-ssm,@babel/plugin-transform-modules-commonjs,@types/adm-zip,@types/aws-lambda,@types/follow-redirects,@types/fs-extra,@types/jest,@types/tar,adm-zip,aws-cdk,aws-cdk-lib,esbuild,eslint-import-resolver-typescript,eslint-plugin-import,follow-redirects,fs-extra,jest,JSONStream,rrule,standard-version,tar,ts-jest,ts-node"
         },
         {
           "exec": "yarn install --check-files"
         },
         {
-          "exec": "yarn upgrade @aws-sdk/client-cloudwatch @aws-sdk/client-codepipeline @aws-sdk/client-s3 @aws-sdk/client-secrets-manager @aws-sdk/client-ssm @stylistic/eslint-plugin @types/adm-zip @types/aws-lambda @types/follow-redirects @types/fs-extra @types/jest @types/node @types/tar @typescript-eslint/eslint-plugin @typescript-eslint/parser adm-zip aws-cdk aws-cdk-lib commit-and-tag-version constructs esbuild eslint-import-resolver-typescript eslint-plugin-import eslint follow-redirects fs-extra jest jest-junit JSONStream minipass node-ical rrule standard-version tar ts-jest ts-node typescript"
+          "exec": "yarn upgrade @aws-sdk/client-cloudwatch @aws-sdk/client-codepipeline @aws-sdk/client-s3 @aws-sdk/client-secrets-manager @aws-sdk/client-ssm @babel/plugin-transform-modules-commonjs @stylistic/eslint-plugin @types/adm-zip @types/aws-lambda @types/follow-redirects @types/fs-extra @types/jest @types/node @types/tar @typescript-eslint/eslint-plugin @typescript-eslint/parser adm-zip aws-cdk aws-cdk-lib commit-and-tag-version constructs esbuild eslint-import-resolver-typescript eslint-plugin-import eslint follow-redirects fs-extra jest jest-junit JSONStream minipass node-ical rrule standard-version tar ts-jest ts-node typescript"
         },
         {
           "exec": "npx projen"

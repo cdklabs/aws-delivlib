@@ -21,6 +21,10 @@
       "type": "build"
     },
     {
+      "name": "@babel/plugin-transform-modules-commonjs",
+      "type": "build"
+    },
+    {
       "name": "@stylistic/eslint-plugin",
       "version": "^2",
       "type": "build"

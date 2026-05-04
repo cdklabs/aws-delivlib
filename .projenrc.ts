@@ -22,6 +22,7 @@ const project = new CdklabsTypeScriptProject({
     exclude: ['aws-cdk-lib', 'constructs'],
   },
   devDeps: [
+    '@babel/plugin-transform-modules-commonjs',
     '@types/aws-lambda',
     '@types/fs-extra',
     '@types/tar',
@@ -141,5 +142,13 @@ project.npmignore?.exclude(
   'cdk.out/',
   'cdk.json',
 );
+
+// Allow Jest to transform ESM-only dependencies
+project.jest!.config.transformIgnorePatterns = [
+  'node_modules/(?!(@nodable/entities)/)',
+];
+project.jest!.config.transform = {
+  'node_modules/@nodable/entities/.+\\.js$': ['babel-jest', { plugins: ['@babel/plugin-transform-modules-commonjs'] }],
+};
 
 project.synth();
