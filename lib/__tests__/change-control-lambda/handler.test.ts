@@ -1,5 +1,4 @@
-import * as transitions from '../../change-control-lambda/disable-transition';
-import * as timeWindow from '../../change-control-lambda/time-window';
+import type * as timeWindow from '../../change-control-lambda/time-window';
 
 // _____                                _   _
 // |  __ \                              | | (_)
@@ -25,24 +24,29 @@ jest.mock('@aws-sdk/client-s3', () => {
 jest.mock('../../change-control-lambda/disable-transition');
 jest.mock('../../change-control-lambda/time-window');
 
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const transitions = require('../../change-control-lambda/disable-transition');
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const timeWindowModule = require('../../change-control-lambda/time-window');
+
 const mockEnableTransition =
   jest.fn((_pipeline: string, _stage: string) => Promise.resolve(undefined))
     .mockName('enableTransition');
-(transitions as any).enableTransition = mockEnableTransition;
 
 const mockDisableTransition =
   jest.fn((_pipeline: string, _stage: string, _reason: string) => Promise.resolve(undefined))
     .mockName('disableTransition');
-(transitions as any).disableTransition = mockDisableTransition;
 
 const mockShouldBlockPipeline = jest.fn((_icsData: string | Buffer, _now?: Date): timeWindow.CalendarEvent | undefined => undefined)
   .mockName('shouldBlockPipeline');
-(timeWindow as any).shouldBlockPipeline = mockShouldBlockPipeline;
 
 const initialEnv = process.env;
 beforeEach(() => {
   jest.restoreAllMocks();
   process.env = { ...testEnv };
+  transitions.enableTransition = mockEnableTransition;
+  transitions.disableTransition = mockDisableTransition;
+  timeWindowModule.shouldBlockPipeline = mockShouldBlockPipeline;
 });
 
 const mockConsoleLog = jest.fn().mockName('console.log');
