@@ -2859,7 +2859,7 @@ chalk@^4.0.0, chalk@^4.1.2:
 
 changelog-parser@^2.8.1:
   version "2.8.1"
-  resolved "https://registry.npmjs.org/changelog-parser/-/changelog-parser-2.8.1.tgz"
+  resolved "https://registry.yarnpkg.com/changelog-parser/-/changelog-parser-2.8.1.tgz#1428998c275e4f7c0a855026dc60c66cde36bb87"
   integrity sha512-tNUYFRCEeWTXmwLqoNtOEzx9wcytg72MmGQqsEs14ClYwIDln7sbQw7FJj/dulXgSlsxkemc9gpPQhZYZx1TPw==
   dependencies:
     line-reader "^0.2.4"
@@ -5233,7 +5233,7 @@ levn@^0.4.1:
 
 line-reader@^0.2.4:
   version "0.2.4"
-  resolved "https://registry.npmjs.org/line-reader/-/line-reader-0.2.4.tgz"
+  resolved "https://registry.yarnpkg.com/line-reader/-/line-reader-0.2.4.tgz#c4392b587dea38580c9678570e6e8e49fce52622"
   integrity sha512-342xzyZZS9uTiKwHJcMacopVl/WjrMMCZS1Qg4Uhl/WBknWRrGFdKOIS1Kec6SaiTcZMtmuxWvvIbPXj/+FMjA==
 
 lines-and-columns@^1.1.6:
@@ -6045,7 +6045,7 @@ regexp.prototype.flags@^1.5.4:
 
 remove-markdown@^0.2.2:
   version "0.2.2"
-  resolved "https://registry.npmjs.org/remove-markdown/-/remove-markdown-0.2.2.tgz"
+  resolved "https://registry.yarnpkg.com/remove-markdown/-/remove-markdown-0.2.2.tgz#66b0ceeba9fb77ca9636bb1b0307ce21a32a12a6"
   integrity sha512-jwgEf3Yh/xi4WodWi/vPlasa9C9pMv1kz5ITOIAGjBW7PeZ/CHZCdBfJzQnn2VX2cBvf1xCuJv0tUJqn/FCMNA==
 
 repeat-string@^1.6.1:
