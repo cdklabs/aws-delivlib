@@ -1,4 +1,5 @@
 import {
+  Duration,
   SecretValue,
   aws_codebuild as codebuild,
   aws_iam as iam,
@@ -70,6 +71,13 @@ export interface AutoBuildOptions {
    * ARTIFACTS
    */
   readonly artifacts?: codebuild.IArtifacts;
+
+  /**
+   * The number of minutes after which the build times out.
+   *
+   * @default Duration.hours(1)
+   */
+  readonly timeout?: Duration;
 }
 
 export interface AutoBuildProps extends AutoBuildOptions {
@@ -119,6 +127,7 @@ export class AutoBuild extends Construct {
       buildSpec: props.buildSpec,
       artifacts: props.artifacts,
       ssmSessionPermissions: true,
+      timeout: props.timeout,
     });
     this.project.role!.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonElasticContainerRegistryPublicReadOnly'));
 
