@@ -1,4 +1,4 @@
-import { App, Stack } from 'aws-cdk-lib';
+import { App, Duration, Stack } from 'aws-cdk-lib';
 import { Template } from 'aws-cdk-lib/assertions';
 import { Artifacts } from 'aws-cdk-lib/aws-codebuild';
 import { Bucket } from 'aws-cdk-lib/aws-s3';
@@ -151,5 +151,20 @@ test('can enable artifacts', () => {
       Packaging: 'ZIP',
       Type: 'S3',
     },
+  });
+});
+
+test('can configure timeout', () => {
+  new AutoBuild(stack, 'AutoBuild', {
+    repo: new GitHubRepo({
+      repository: 'some-owner/some-repo',
+      tokenSecretArn: 'arn:aws:secretsmanager:someregion:someaccount:secret:sometoken',
+    }),
+    timeout: Duration.hours(4),
+  });
+  const template = Template.fromStack(stack);
+
+  template.hasResourceProperties('AWS::CodeBuild::Project', {
+    TimeoutInMinutes: 240,
   });
 });
