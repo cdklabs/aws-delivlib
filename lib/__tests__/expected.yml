@@ -1169,7 +1169,7 @@ Resources:
         Fn::GetAtt:
           - CodeCommitPipelinePipelineWatcherPollerServiceRole0A1D8005
           - Arn
-      Runtime: nodejs20.x
+      Runtime: nodejs22.x
     DependsOn:
       - CodeCommitPipelinePipelineWatcherPollerServiceRoleDefaultPolicyE2104AD1
       - CodeCommitPipelinePipelineWatcherPollerServiceRole0A1D8005
@@ -4418,7 +4418,7 @@ Resources:
         Fn::GetAtt:
           - CodeCommitPipelineChangeControllerFunctionServiceRoleF02841DB
           - Arn
-      Runtime: nodejs20.x
+      Runtime: nodejs22.x
       Timeout: 300
     DependsOn:
       - CodeCommitPipelineChangeControllerFunctionServiceRoleDefaultPolicy315F7AF5
@@ -4802,7 +4802,7 @@ Resources:
         Fn::GetAtt:
           - CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092
           - Arn
-      Runtime: nodejs20.x
+      Runtime: nodejs22.x
       Description:
         Fn::Join:
           - ""
