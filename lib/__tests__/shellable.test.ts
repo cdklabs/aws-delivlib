@@ -185,18 +185,107 @@ test('assume role with global endpoints', () => {
 
 });
 
-test('assume role not supported on windows', () => {
+test('assume role on windows uses powershell to export credentials', () => {
   const stack = new cdk.Stack(new cdk.App(), 'TestStack');
 
-  expect(() => new Shellable(stack, 'MyShellable', {
-    scriptDirectory: path.join(__dirname, 'delivlib-tests/linux'),
+  new Shellable(stack, 'MyShellable', {
+    scriptDirectory: path.join(__dirname, 'delivlib-tests/windows'),
     platform: ShellPlatform.Windows,
-    entrypoint: 'test.sh',
+    entrypoint: 'test.ps1',
     assumeRole: {
       roleArn: 'arn:aws:role:to:assume',
       sessionName: 'my-session-name',
     },
-  })).toThrow('assumeRole is not supported on Windows');
+    useRegionalStsEndpoints: false,
+  });
+
+  const template = Template.fromStack(stack);
+  template.hasResourceProperties('AWS::CodeBuild::Project', {
+    Source: {
+      BuildSpec: Match.serializedJson({
+        version: '0.2',
+        phases: Match.objectLike({
+          pre_build: {
+            commands: Match.arrayWith([
+              '$env:AWS_STS_REGIONAL_ENDPOINTS = "legacy"',
+              '$assumedRole = aws sts assume-role --role-arn "arn:aws:role:to:assume" --role-session-name "my-session-name" | ConvertFrom-Json',
+              '$env:AWS_ACCESS_KEY_ID = $assumedRole.Credentials.AccessKeyId',
+              '$env:AWS_SECRET_ACCESS_KEY = $assumedRole.Credentials.SecretAccessKey',
+              '$env:AWS_SESSION_TOKEN = $assumedRole.Credentials.SessionToken',
+            ]),
+          },
+        }),
+      }),
+    },
+  });
+});
+
+test('assume role on windows with regional endpoints and external id', () => {
+  const stack = new cdk.Stack(new cdk.App(), 'TestStack');
+
+  new Shellable(stack, 'MyShellable', {
+    scriptDirectory: path.join(__dirname, 'delivlib-tests/windows'),
+    platform: ShellPlatform.Windows,
+    entrypoint: 'test.ps1',
+    assumeRole: {
+      roleArn: 'arn:aws:role:to:assume',
+      sessionName: 'my-session-name',
+      externalId: 'my-external-id',
+    },
+    useRegionalStsEndpoints: true,
+  });
+
+  const template = Template.fromStack(stack);
+  template.hasResourceProperties('AWS::CodeBuild::Project', {
+    Source: {
+      BuildSpec: Match.serializedJson({
+        version: '0.2',
+        phases: Match.objectLike({
+          pre_build: {
+            commands: Match.arrayWith([
+              '$env:AWS_STS_REGIONAL_ENDPOINTS = "regional"',
+              '$assumedRole = aws sts assume-role --role-arn "arn:aws:role:to:assume" --role-session-name "my-session-name" --external-id "my-external-id" | ConvertFrom-Json',
+            ]),
+          },
+        }),
+      }),
+    },
+  });
+});
+
+test('assume role on windows with refresh writes a shared config profile', () => {
+  const stack = new cdk.Stack(new cdk.App(), 'TestStack');
+
+  new Shellable(stack, 'MyShellable', {
+    scriptDirectory: path.join(__dirname, 'delivlib-tests/windows'),
+    platform: ShellPlatform.Windows,
+    entrypoint: 'test.ps1',
+    assumeRole: {
+      roleArn: 'arn:aws:role:to:assume',
+      sessionName: 'my-session-name',
+      refresh: true,
+    },
+  });
+
+  const template = Template.fromStack(stack);
+  template.hasResourceProperties('AWS::CodeBuild::Project', {
+    Source: {
+      BuildSpec: Match.serializedJson({
+        version: '0.2',
+        phases: Match.objectLike({
+          pre_build: {
+            commands: Match.arrayWith([
+              'Add-Content -Path $env:USERPROFILE\\.aws\\config -Value "[profile long-running-profile]"',
+              'Add-Content -Path $env:USERPROFILE\\.aws\\config -Value "credential_source = EcsContainer"',
+              'Add-Content -Path $env:USERPROFILE\\.aws\\config -Value "role_arn = arn:aws:role:to:assume"',
+              '$env:AWS_PROFILE = "long-running-profile"',
+              '$env:AWS_SDK_LOAD_CONFIG = "1"',
+            ]),
+          },
+        }),
+      }),
+    },
+  });
 });
 
 test('alarm options - defaults', () => {
