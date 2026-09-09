@@ -54,7 +54,7 @@ export class TestStack extends Stack {
     });
 
     // This test takes a lot of time (~10 minutes), which is annoying during testing
-    const WINDOWS = false;
+    const WINDOWS = true;
     if (WINDOWS) {
       // add a test that runs on Windows
       pipeline.addTest('HelloWindows', {
@@ -83,6 +83,26 @@ export class TestStack extends Stack {
         EXPECTED_ROLE_NAME: role.roleName,
       },
     });
+
+    // Windows equivalent of the AssumeRole test above. Gated behind the same
+    // WINDOWS flag as HelloWindows because Windows CodeBuild is slow (~10 min).
+    // Flip WINDOWS to true and run `yarn integ:update` to verify that assumeRole
+    // credentials set in pre_build propagate into the build phase on Windows.
+    if (WINDOWS) {
+      pipeline.addTest('AssumeRoleWindows', {
+        platform: delivlib.ShellPlatform.Windows,
+        entrypoint: 'test.ps1',
+        scriptDirectory: path.join(testDir, 'assume-role'),
+        assumeRole: {
+          roleArn: role.roleArn,
+          sessionName: 'assume-role-test-windows',
+          externalId,
+        },
+        environment: {
+          EXPECTED_ROLE_NAME: role.roleName,
+        },
+      });
+    }
 
     const action = pipeline.addShellable('Test', 'GenerateTwoArtifacts', {
       entrypoint: 'void.sh',

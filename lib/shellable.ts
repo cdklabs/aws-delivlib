@@ -576,17 +576,53 @@ export class WindowsPlatform extends ShellPlatform {
     ];
   }
 
-  public prebuildCommands(assumeRole?: AssumeRole, _useRegionalStsEndpoints?: boolean): string[] {
+  public prebuildCommands(assumeRole?: AssumeRole, useRegionalStsEndpoints?: boolean): string[] {
+    const lines = new Array<string>();
+
     if (assumeRole) {
-      throw new Error('assumeRole is not supported on Windows: https://github.com/cdklabs/aws-delivlib/issues/57');
+
+      if (assumeRole.refresh) {
+
+        // Configure a named profile in the shared config file and delegate credential
+        // refreshing to the SDK/CLI. This mirrors the Linux `credential_source` approach
+        // and supports sessions longer than a single `sts assume-role` call.
+        const awsHome = '$env:USERPROFILE\\.aws';
+        const configPath = `${awsHome}\\config`;
+        const profileName = assumeRole.profileName ?? 'long-running-profile';
+
+        lines.push(`New-Item -ItemType Directory -Force -Path ${awsHome} | Out-Null`);
+        lines.push(`New-Item -ItemType File -Force -Path ${awsHome}\\credentials | Out-Null`);
+        lines.push(`Add-Content -Path ${configPath} -Value "[profile ${profileName}]"`);
+        lines.push(`Add-Content -Path ${configPath} -Value "credential_source = EcsContainer"`);
+        lines.push(`Add-Content -Path ${configPath} -Value "role_session_name = ${assumeRole.sessionName}"`);
+        lines.push(`Add-Content -Path ${configPath} -Value "role_arn = ${assumeRole.roleArn}"`);
+
+        if (assumeRole.externalId) {
+          lines.push(`Add-Content -Path ${configPath} -Value "external_id = ${assumeRole.externalId}"`);
+        }
+
+        // let the application code know which role is being used.
+        lines.push(`$env:AWS_PROFILE = "${profileName}"`);
+
+        // force the AWS SDK for JavaScript to actually load the config file (do automatically so users don't forget)
+        lines.push('$env:AWS_SDK_LOAD_CONFIG = "1"');
+
+      } else {
+
+        const externalId = assumeRole.externalId ? ` --external-id "${assumeRole.externalId}"` : '';
+        const stsEndpoints = useRegionalStsEndpoints ? 'regional' : 'legacy';
+
+        // PowerShell has native JSON parsing, so we can assume the role and read the
+        // credentials off the parsed object rather than grepping a temp file.
+        lines.push(`$env:AWS_STS_REGIONAL_ENDPOINTS = "${stsEndpoints}"`);
+        lines.push(`$assumedRole = aws sts assume-role --role-arn "${assumeRole.roleArn}" --role-session-name "${assumeRole.sessionName}"${externalId} | ConvertFrom-Json`);
+        lines.push('$env:AWS_ACCESS_KEY_ID = $assumedRole.Credentials.AccessKeyId');
+        lines.push('$env:AWS_SECRET_ACCESS_KEY = $assumedRole.Credentials.SecretAccessKey');
+        lines.push('$env:AWS_SESSION_TOKEN = $assumedRole.Credentials.SessionToken');
+      }
     }
 
-    return [
-      // Would love to do downloading here and executing in the next step,
-      // but I don't know how to propagate the value of $TEMPDIR.
-      //
-      // Punting for someone who knows PowerShell well enough.
-    ];
+    return lines;
   }
 
   public buildCommands(entrypoint: string, args?: string[]): string[] {
