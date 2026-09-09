@@ -54,7 +54,7 @@ export class TestStack extends Stack {
     });
 
     // This test takes a lot of time (~10 minutes), which is annoying during testing
-    const WINDOWS = false;
+    const WINDOWS = true;
     if (WINDOWS) {
       // add a test that runs on Windows
       pipeline.addTest('HelloWindows', {
