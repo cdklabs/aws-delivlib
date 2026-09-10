@@ -14,6 +14,9 @@ import { renderEnvironmentVariables } from './util';
 const S3_BUCKET_ENV = 'SCRIPT_S3_BUCKET';
 const S3_KEY_ENV = 'SCRIPT_S3_KEY';
 
+const WINDOWS_BASE_DIR = 'C:\\delivlib';
+const WINDOWS_SCRIPT_DIR = `${WINDOWS_BASE_DIR}\\scriptdir`;
+
 export interface ShellableOptions {
   /**
    * Description for the CodeBuild Project
@@ -579,6 +582,12 @@ export class WindowsPlatform extends ShellPlatform {
   public prebuildCommands(assumeRole?: AssumeRole, useRegionalStsEndpoints?: boolean): string[] {
     const lines = new Array<string>();
 
+    // Download and unpack the script bundle before any assume-role step below.
+    lines.push(`echo "Downloading scripts from s3://$env:${S3_BUCKET_ENV}/$env:${S3_KEY_ENV}"`);
+    lines.push(`New-Item -ItemType Directory -Force -Path ${WINDOWS_BASE_DIR} | Out-Null`);
+    lines.push(`aws s3 cp s3://$env:${S3_BUCKET_ENV}/$env:${S3_KEY_ENV} ${WINDOWS_BASE_DIR}\\scripts.zip`);
+    lines.push(`Expand-Archive -Path ${WINDOWS_BASE_DIR}\\scripts.zip -DestinationPath ${WINDOWS_SCRIPT_DIR} -Force`);
+
     if (assumeRole) {
 
       if (assumeRole.refresh) {
@@ -591,7 +600,7 @@ export class WindowsPlatform extends ShellPlatform {
         const profileName = assumeRole.profileName ?? 'long-running-profile';
 
         lines.push(`New-Item -ItemType Directory -Force -Path ${awsHome} | Out-Null`);
-        lines.push(`New-Item -ItemType File -Force -Path ${awsHome}\\credentials | Out-Null`);
+        lines.push(`if (-not (Test-Path ${awsHome}\\credentials)) { New-Item -ItemType File -Path ${awsHome}\\credentials | Out-Null }`);
         lines.push(`Add-Content -Path ${configPath} -Value "[profile ${profileName}]"`);
         lines.push(`Add-Content -Path ${configPath} -Value "credential_source = EcsContainer"`);
         lines.push(`Add-Content -Path ${configPath} -Value "role_session_name = ${assumeRole.sessionName}"`);
@@ -627,12 +636,9 @@ export class WindowsPlatform extends ShellPlatform {
 
   public buildCommands(entrypoint: string, args?: string[]): string[] {
     return [
-      'Set-Variable -Name TEMPDIR -Value (New-TemporaryFile).DirectoryName',
-      `aws s3 cp s3://$env:${S3_BUCKET_ENV}/$env:${S3_KEY_ENV} $TEMPDIR\\scripts.zip`,
-      'New-Item -ItemType Directory -Path $TEMPDIR\\scriptdir',
-      'Expand-Archive -Path $TEMPDIR/scripts.zip -DestinationPath $TEMPDIR\\scriptdir',
-      '$env:SCRIPT_DIR = "$TEMPDIR\\scriptdir"',
-      `& $TEMPDIR\\scriptdir\\${entrypoint} ${(args ?? []).join(' ')}`.trimRight(),
+      `$env:SCRIPT_DIR = "${WINDOWS_SCRIPT_DIR}"`,
+      `echo "Running ${entrypoint}"`,
+      `& ${WINDOWS_SCRIPT_DIR}\\${entrypoint} ${(args ?? []).join(' ')}`.trimRight(),
     ];
   }
 }

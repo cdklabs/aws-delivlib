@@ -200,19 +200,25 @@ test('assume role on windows uses powershell to export credentials', () => {
   });
 
   const template = Template.fromStack(stack);
+  // Asserts the pre_build sequence: download and unpack the script bundle, then the
+  // assume-role credential switch.
   template.hasResourceProperties('AWS::CodeBuild::Project', {
     Source: {
       BuildSpec: Match.serializedJson({
         version: '0.2',
         phases: Match.objectLike({
           pre_build: {
-            commands: Match.arrayWith([
+            commands: [
+              'echo "Downloading scripts from s3://$env:SCRIPT_S3_BUCKET/$env:SCRIPT_S3_KEY"',
+              'New-Item -ItemType Directory -Force -Path C:\\delivlib | Out-Null',
+              'aws s3 cp s3://$env:SCRIPT_S3_BUCKET/$env:SCRIPT_S3_KEY C:\\delivlib\\scripts.zip',
+              'Expand-Archive -Path C:\\delivlib\\scripts.zip -DestinationPath C:\\delivlib\\scriptdir -Force',
               '$env:AWS_STS_REGIONAL_ENDPOINTS = "legacy"',
               '$assumedRole = aws sts assume-role --role-arn "arn:aws:role:to:assume" --role-session-name "my-session-name" | ConvertFrom-Json',
               '$env:AWS_ACCESS_KEY_ID = $assumedRole.Credentials.AccessKeyId',
               '$env:AWS_SECRET_ACCESS_KEY = $assumedRole.Credentials.SecretAccessKey',
               '$env:AWS_SESSION_TOKEN = $assumedRole.Credentials.SessionToken',
-            ]),
+            ],
           },
         }),
       }),
