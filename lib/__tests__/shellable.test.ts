@@ -210,9 +210,9 @@ test('assume role on windows uses powershell to export credentials', () => {
           pre_build: {
             commands: [
               'echo "Downloading scripts from s3://$env:SCRIPT_S3_BUCKET/$env:SCRIPT_S3_KEY"',
-              'New-Item -ItemType Directory -Force -Path C:\\delivlib\\scriptdir | Out-Null',
-              'aws s3 cp s3://$env:SCRIPT_S3_BUCKET/$env:SCRIPT_S3_KEY C:\\delivlib\\scriptdir\\scripts.zip',
-              'Expand-Archive -Path C:\\delivlib\\scriptdir\\scripts.zip -DestinationPath C:\\delivlib\\scriptdir -Force',
+              'New-Item -ItemType Directory -Force -Path C:\\delivlib | Out-Null',
+              'aws s3 cp s3://$env:SCRIPT_S3_BUCKET/$env:SCRIPT_S3_KEY C:\\delivlib\\scripts.zip',
+              'Expand-Archive -Path C:\\delivlib\\scripts.zip -DestinationPath C:\\delivlib\\scriptdir -Force',
               '$env:AWS_STS_REGIONAL_ENDPOINTS = "legacy"',
               '$assumedRole = aws sts assume-role --role-arn "arn:aws:role:to:assume" --role-session-name "my-session-name" | ConvertFrom-Json',
               '$env:AWS_ACCESS_KEY_ID = $assumedRole.Credentials.AccessKeyId',
