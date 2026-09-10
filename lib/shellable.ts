@@ -14,6 +14,11 @@ import { renderEnvironmentVariables } from './util';
 const S3_BUCKET_ENV = 'SCRIPT_S3_BUCKET';
 const S3_KEY_ENV = 'SCRIPT_S3_KEY';
 
+// Fixed location on Windows where the script bundle is downloaded and unpacked.
+// Using a fixed path (instead of a dynamic temp dir) lets us download in the
+// pre_build phase and execute in the build phase, since the path is known to both.
+const WINDOWS_SCRIPT_DIR = 'C:\\delivlib\\scriptdir';
+
 export interface ShellableOptions {
   /**
    * Description for the CodeBuild Project
@@ -579,6 +584,15 @@ export class WindowsPlatform extends ShellPlatform {
   public prebuildCommands(assumeRole?: AssumeRole, useRegionalStsEndpoints?: boolean): string[] {
     const lines = new Array<string>();
 
+    // Download and unpack the script bundle here, BEFORE any assume-role step below.
+    // This must run as the CodeBuild project role (which is granted read on the asset
+    // bucket via `asset.grantRead`); the assumed role is typically a cross-account role
+    // without access to that bucket. This mirrors the Linux ordering.
+    lines.push(`echo "Downloading scripts from s3://$env:${S3_BUCKET_ENV}/$env:${S3_KEY_ENV}"`);
+    lines.push(`New-Item -ItemType Directory -Force -Path ${WINDOWS_SCRIPT_DIR} | Out-Null`);
+    lines.push(`aws s3 cp s3://$env:${S3_BUCKET_ENV}/$env:${S3_KEY_ENV} ${WINDOWS_SCRIPT_DIR}\\scripts.zip`);
+    lines.push(`Expand-Archive -Path ${WINDOWS_SCRIPT_DIR}\\scripts.zip -DestinationPath ${WINDOWS_SCRIPT_DIR} -Force`);
+
     if (assumeRole) {
 
       if (assumeRole.refresh) {
@@ -626,13 +640,12 @@ export class WindowsPlatform extends ShellPlatform {
   }
 
   public buildCommands(entrypoint: string, args?: string[]): string[] {
+    // The script bundle was already downloaded and unpacked to WINDOWS_SCRIPT_DIR
+    // during the pre_build phase (see prebuildCommands), so we just execute it here.
     return [
-      'Set-Variable -Name TEMPDIR -Value (New-TemporaryFile).DirectoryName',
-      `aws s3 cp s3://$env:${S3_BUCKET_ENV}/$env:${S3_KEY_ENV} $TEMPDIR\\scripts.zip`,
-      'New-Item -ItemType Directory -Path $TEMPDIR\\scriptdir',
-      'Expand-Archive -Path $TEMPDIR/scripts.zip -DestinationPath $TEMPDIR\\scriptdir',
-      '$env:SCRIPT_DIR = "$TEMPDIR\\scriptdir"',
-      `& $TEMPDIR\\scriptdir\\${entrypoint} ${(args ?? []).join(' ')}`.trimRight(),
+      `$env:SCRIPT_DIR = "${WINDOWS_SCRIPT_DIR}"`,
+      `echo "Running ${entrypoint}"`,
+      `& ${WINDOWS_SCRIPT_DIR}\\${entrypoint} ${(args ?? []).join(' ')}`.trimRight(),
     ];
   }
 }
