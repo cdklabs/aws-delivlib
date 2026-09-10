@@ -200,9 +200,8 @@ test('assume role on windows uses powershell to export credentials', () => {
   });
 
   const template = Template.fromStack(stack);
-  // Assert the FULL ordered pre_build sequence: the script bundle must be downloaded
-  // (as the CodeBuild role) BEFORE the assume-role credential switch. Otherwise the
-  // download would run as the assumed (cross-account) role, which lacks bucket access.
+  // Asserts the pre_build sequence: download and unpack the script bundle, then the
+  // assume-role credential switch.
   template.hasResourceProperties('AWS::CodeBuild::Project', {
     Source: {
       BuildSpec: Match.serializedJson({

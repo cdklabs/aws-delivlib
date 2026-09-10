@@ -14,7 +14,6 @@ import { renderEnvironmentVariables } from './util';
 const S3_BUCKET_ENV = 'SCRIPT_S3_BUCKET';
 const S3_KEY_ENV = 'SCRIPT_S3_KEY';
 
-// Fixed location on Windows where the script bundle is downloaded and unpacked.
 const WINDOWS_SCRIPT_DIR = 'C:\\delivlib\\scriptdir';
 
 export interface ShellableOptions {
@@ -635,7 +634,6 @@ export class WindowsPlatform extends ShellPlatform {
   }
 
   public buildCommands(entrypoint: string, args?: string[]): string[] {
-    // The script bundle was downloaded and unpacked to WINDOWS_SCRIPT_DIR in pre_build.
     return [
       `$env:SCRIPT_DIR = "${WINDOWS_SCRIPT_DIR}"`,
       `echo "Running ${entrypoint}"`,
