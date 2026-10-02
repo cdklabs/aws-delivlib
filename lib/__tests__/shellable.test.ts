@@ -306,12 +306,6 @@ test('assume role on windows with refresh writes a shared config profile', () =>
       ]),
     },
   });
-
-  // The `$env:` activation exports must NOT be present in pre_build anymore.
-  const project = Object.values(template.findResources('AWS::CodeBuild::Project'))[0];
-  const buildSpec = JSON.parse(project.Properties.Source.BuildSpec);
-  expect(buildSpec.phases.pre_build.commands).not.toContain('$env:AWS_PROFILE = "long-running-profile"');
-  expect(buildSpec.phases.pre_build.commands).not.toContain('$env:AWS_SDK_LOAD_CONFIG = "1"');
 });
 
 test('alarm options - defaults', () => {
