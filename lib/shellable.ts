@@ -637,14 +637,6 @@ export class WindowsPlatform extends ShellPlatform {
         if (assumeRole.externalId) {
           lines.push(`Add-Content -Path ${configPath} -Value "external_id = ${assumeRole.externalId}"`);
         }
-
-        // NOTE: AWS_PROFILE and AWS_SDK_LOAD_CONFIG (which activate this profile) are NOT
-        // exported here. On the Windows image, environment set in pre_build does not carry
-        // into the build phase where the script runs, so a `$env:` export would be lost.
-        // They are set as project-level environment variables in the Shellable construct
-        // instead (see renderAssumeRoleEnvironmentVariables), which the CodeBuild agent
-        // injects into every phase.
-
       } else {
 
         const externalId = assumeRole.externalId ? ` --external-id "${assumeRole.externalId}"` : '';
