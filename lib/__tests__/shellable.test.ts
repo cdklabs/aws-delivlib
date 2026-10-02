@@ -49,6 +49,13 @@ test('can assume a refreshable role', () => {
       }),
     },
   });
+
+  // Linux activates the profile via pre_build shell exports (unchanged), NOT via
+  // project-level environment variables. That mechanism is Windows-only.
+  const project = Object.values(template.findResources('AWS::CodeBuild::Project'))[0];
+  const envVars: Array<{ Name: string }> = project.Properties.Environment.EnvironmentVariables ?? [];
+  expect(envVars.find((e) => e.Name === 'AWS_PROFILE')).toBeUndefined();
+  expect(envVars.find((e) => e.Name === 'AWS_SDK_LOAD_CONFIG')).toBeUndefined();
 });
 
 test('minimal configuration', () => {
@@ -284,12 +291,19 @@ test('assume role on windows with refresh writes a shared config profile', () =>
               'Add-Content -Path $env:USERPROFILE\\.aws\\config -Value "[profile long-running-profile]"',
               'Add-Content -Path $env:USERPROFILE\\.aws\\config -Value "credential_source = EcsContainer"',
               'Add-Content -Path $env:USERPROFILE\\.aws\\config -Value "role_arn = arn:aws:role:to:assume"',
-              '$env:AWS_PROFILE = "long-running-profile"',
-              '$env:AWS_SDK_LOAD_CONFIG = "1"',
             ]),
           },
         }),
       }),
+    },
+    // On Windows, environment set in pre_build does not survive into the build phase, so
+    // the profile is activated via project-level environment variables instead of a
+    // `$env:` export. These are injected into every phase by the CodeBuild agent.
+    Environment: {
+      EnvironmentVariables: Match.arrayWith([
+        { Name: 'AWS_PROFILE', Type: 'PLAINTEXT', Value: 'long-running-profile' },
+        { Name: 'AWS_SDK_LOAD_CONFIG', Type: 'PLAINTEXT', Value: '1' },
+      ]),
     },
   });
 });
