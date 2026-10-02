@@ -324,6 +324,8 @@ export class Shellable extends Construct {
 
     const environmentSecretsAsSecretNames = this.convertEnvironmentSecretArnsToSecretNames(props.environmentSecrets);
 
+    const assumeRoleEnv = this.renderAssumeRoleEnvironmentVariables(props.assumeRole);
+
     this.project = new cbuild.Project(this, 'Resource', {
       projectName: props.buildProjectName,
       description: props.description,
@@ -337,6 +339,7 @@ export class Shellable extends Construct {
       environmentVariables: {
         [S3_BUCKET_ENV]: { value: asset.s3BucketName },
         [S3_KEY_ENV]: { value: asset.s3ObjectKey },
+        ...assumeRoleEnv,
         ...renderEnvironmentVariables(props.environment),
         ...renderEnvironmentVariables(environmentSecretsAsSecretNames, cbuild.BuildEnvironmentVariableType.SECRETS_MANAGER),
         ...renderEnvironmentVariables(props.environmentParameters, cbuild.BuildEnvironmentVariableType.PARAMETER_STORE),
@@ -414,6 +417,22 @@ export class Shellable extends Construct {
       out[name] = secret.secretName;
     });
     return out;
+  }
+
+  /**
+   * Project-level environment variables that activate the shared-config profile written by
+   * the `refresh` assume-role prebuild commands.
+   */
+  private renderAssumeRoleEnvironmentVariables(assumeRole?: AssumeRole) {
+    if (!assumeRole?.refresh) {
+      return undefined;
+    }
+
+    const profileName = assumeRole.profileName ?? 'long-running-profile';
+    return renderEnvironmentVariables({
+      AWS_PROFILE: profileName,
+      AWS_SDK_LOAD_CONFIG: '1',
+    });
   }
 }
 
@@ -512,11 +531,11 @@ export class LinuxPlatform extends ShellPlatform {
           lines.push(`echo external_id = ${assumeRole.externalId} >> $config`);
         }
 
-        // let the application code know which role is being used.
-        lines.push(`export AWS_PROFILE=${profileName}`);
-
-        // force the AWS SDK for JavaScript to actually load the config file (do automatically so users don't forget)
-        lines.push('export AWS_SDK_LOAD_CONFIG=1');
+        // AWS_PROFILE and AWS_SDK_LOAD_CONFIG (which activate this profile) are set as
+        // project-level environment variables in the Shellable construct, so they are
+        // present in the build phase where the user script runs. They are intentionally
+        // NOT exported here, because environment set in the pre_build phase is not
+        // guaranteed to survive into the build phase across all platforms.
 
       } else {
 
@@ -610,11 +629,12 @@ export class WindowsPlatform extends ShellPlatform {
           lines.push(`Add-Content -Path ${configPath} -Value "external_id = ${assumeRole.externalId}"`);
         }
 
-        // let the application code know which role is being used.
-        lines.push(`$env:AWS_PROFILE = "${profileName}"`);
-
-        // force the AWS SDK for JavaScript to actually load the config file (do automatically so users don't forget)
-        lines.push('$env:AWS_SDK_LOAD_CONFIG = "1"');
+        // AWS_PROFILE and AWS_SDK_LOAD_CONFIG (which activate this profile) are set as
+        // project-level environment variables in the Shellable construct, NOT exported
+        // here. On the Windows (PowerShell) image, environment set in the pre_build phase
+        // does not carry into the build phase where the script runs, so a `$env:` export
+        // here would be lost. Project-level variables are injected into every phase by the
+        // CodeBuild agent, so the profile is active when the script runs.
 
       } else {
 

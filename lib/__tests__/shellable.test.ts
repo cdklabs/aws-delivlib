@@ -41,14 +41,26 @@ test('can assume a refreshable role', () => {
               'echo credential_source = EcsContainer >> ${config}',
               'echo role_session_name = session >> ${config}',
               'echo role_arn = arn >> $config',
-              'export AWS_PROFILE=profile',
-              'export AWS_SDK_LOAD_CONFIG=1',
             ]),
           },
         }),
       }),
     },
+    // The profile is activated via project-level environment variables (injected into
+    // every phase), not via shell exports in pre_build.
+    Environment: {
+      EnvironmentVariables: Match.arrayWith([
+        { Name: 'AWS_PROFILE', Type: 'PLAINTEXT', Value: 'profile' },
+        { Name: 'AWS_SDK_LOAD_CONFIG', Type: 'PLAINTEXT', Value: '1' },
+      ]),
+    },
   });
+
+  // The old shell-export activation must NOT be present in pre_build.
+  const project = Object.values(template.findResources('AWS::CodeBuild::Project'))[0];
+  const buildSpec = JSON.parse(project.Properties.Source.BuildSpec);
+  expect(buildSpec.phases.pre_build.commands).not.toContain('export AWS_PROFILE=profile');
+  expect(buildSpec.phases.pre_build.commands).not.toContain('export AWS_SDK_LOAD_CONFIG=1');
 });
 
 test('minimal configuration', () => {
@@ -284,14 +296,27 @@ test('assume role on windows with refresh writes a shared config profile', () =>
               'Add-Content -Path $env:USERPROFILE\\.aws\\config -Value "[profile long-running-profile]"',
               'Add-Content -Path $env:USERPROFILE\\.aws\\config -Value "credential_source = EcsContainer"',
               'Add-Content -Path $env:USERPROFILE\\.aws\\config -Value "role_arn = arn:aws:role:to:assume"',
-              '$env:AWS_PROFILE = "long-running-profile"',
-              '$env:AWS_SDK_LOAD_CONFIG = "1"',
             ]),
           },
         }),
       }),
     },
+    // On Windows, environment set in pre_build does not survive into the build phase, so
+    // the profile is activated via project-level environment variables instead of a
+    // `$env:` export. These are injected into every phase by the CodeBuild agent.
+    Environment: {
+      EnvironmentVariables: Match.arrayWith([
+        { Name: 'AWS_PROFILE', Type: 'PLAINTEXT', Value: 'long-running-profile' },
+        { Name: 'AWS_SDK_LOAD_CONFIG', Type: 'PLAINTEXT', Value: '1' },
+      ]),
+    },
   });
+
+  // The `$env:` activation exports must NOT be present in pre_build anymore.
+  const project = Object.values(template.findResources('AWS::CodeBuild::Project'))[0];
+  const buildSpec = JSON.parse(project.Properties.Source.BuildSpec);
+  expect(buildSpec.phases.pre_build.commands).not.toContain('$env:AWS_PROFILE = "long-running-profile"');
+  expect(buildSpec.phases.pre_build.commands).not.toContain('$env:AWS_SDK_LOAD_CONFIG = "1"');
 });
 
 test('alarm options - defaults', () => {
