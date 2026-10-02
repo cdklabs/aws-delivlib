@@ -530,13 +530,6 @@ export class LinuxPlatform extends ShellPlatform {
         if (assumeRole.externalId) {
           lines.push(`echo external_id = ${assumeRole.externalId} >> $config`);
         }
-
-        // AWS_PROFILE and AWS_SDK_LOAD_CONFIG (which activate this profile) are set as
-        // project-level environment variables in the Shellable construct, so they are
-        // present in the build phase where the user script runs. They are intentionally
-        // NOT exported here, because environment set in the pre_build phase is not
-        // guaranteed to survive into the build phase across all platforms.
-
       } else {
 
         const externalId = assumeRole.externalId ? `--external-id "${assumeRole.externalId}"` : '';
@@ -628,14 +621,6 @@ export class WindowsPlatform extends ShellPlatform {
         if (assumeRole.externalId) {
           lines.push(`Add-Content -Path ${configPath} -Value "external_id = ${assumeRole.externalId}"`);
         }
-
-        // AWS_PROFILE and AWS_SDK_LOAD_CONFIG (which activate this profile) are set as
-        // project-level environment variables in the Shellable construct, NOT exported
-        // here. On the Windows (PowerShell) image, environment set in the pre_build phase
-        // does not carry into the build phase where the script runs, so a `$env:` export
-        // here would be lost. Project-level variables are injected into every phase by the
-        // CodeBuild agent, so the profile is active when the script runs.
-
       } else {
 
         const externalId = assumeRole.externalId ? ` --external-id "${assumeRole.externalId}"` : '';
