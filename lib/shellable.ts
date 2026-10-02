@@ -422,9 +422,18 @@ export class Shellable extends Construct {
   /**
    * Project-level environment variables that activate the shared-config profile written by
    * the `refresh` assume-role prebuild commands.
+   *
+   * This is Windows-only. On the Windows (PowerShell) image, environment set in the
+   * `pre_build` phase does not seem to carry into the `build` phase where the user script runs, so
+   * a `$env:` export of AWS_PROFILE / AWS_SDK_LOAD_CONFIG in pre_build would be lost and the
+   * profile never activated. Project-level variables are injected into every phase by the
+   * CodeBuild agent, so they are present when the script runs. Linux behavior is
+   * unchanged.
+   *
+   * Only emitted for the `refresh` path, which is the one that configures a named profile.
    */
   private renderAssumeRoleEnvironmentVariables(assumeRole?: AssumeRole) {
-    if (!assumeRole?.refresh) {
+    if (!assumeRole?.refresh || this.platform.platformType !== PlatformType.Windows) {
       return undefined;
     }
 
@@ -530,6 +539,13 @@ export class LinuxPlatform extends ShellPlatform {
         if (assumeRole.externalId) {
           lines.push(`echo external_id = ${assumeRole.externalId} >> $config`);
         }
+
+        // let the application code know which role is being used.
+        lines.push(`export AWS_PROFILE=${profileName}`);
+
+        // force the AWS SDK for JavaScript to actually load the config file (do automatically so users don't forget)
+        lines.push('export AWS_SDK_LOAD_CONFIG=1');
+
       } else {
 
         const externalId = assumeRole.externalId ? `--external-id "${assumeRole.externalId}"` : '';
@@ -621,6 +637,14 @@ export class WindowsPlatform extends ShellPlatform {
         if (assumeRole.externalId) {
           lines.push(`Add-Content -Path ${configPath} -Value "external_id = ${assumeRole.externalId}"`);
         }
+
+        // NOTE: AWS_PROFILE and AWS_SDK_LOAD_CONFIG (which activate this profile) are NOT
+        // exported here. On the Windows image, environment set in pre_build does not carry
+        // into the build phase where the script runs, so a `$env:` export would be lost.
+        // They are set as project-level environment variables in the Shellable construct
+        // instead (see renderAssumeRoleEnvironmentVariables), which the CodeBuild agent
+        // injects into every phase.
+
       } else {
 
         const externalId = assumeRole.externalId ? ` --external-id "${assumeRole.externalId}"` : '';

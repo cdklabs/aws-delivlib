@@ -41,26 +41,21 @@ test('can assume a refreshable role', () => {
               'echo credential_source = EcsContainer >> ${config}',
               'echo role_session_name = session >> ${config}',
               'echo role_arn = arn >> $config',
+              'export AWS_PROFILE=profile',
+              'export AWS_SDK_LOAD_CONFIG=1',
             ]),
           },
         }),
       }),
     },
-    // The profile is activated via project-level environment variables (injected into
-    // every phase), not via shell exports in pre_build.
-    Environment: {
-      EnvironmentVariables: Match.arrayWith([
-        { Name: 'AWS_PROFILE', Type: 'PLAINTEXT', Value: 'profile' },
-        { Name: 'AWS_SDK_LOAD_CONFIG', Type: 'PLAINTEXT', Value: '1' },
-      ]),
-    },
   });
 
-  // The old shell-export activation must NOT be present in pre_build.
+  // Linux activates the profile via pre_build shell exports (unchanged), NOT via
+  // project-level environment variables. That mechanism is Windows-only.
   const project = Object.values(template.findResources('AWS::CodeBuild::Project'))[0];
-  const buildSpec = JSON.parse(project.Properties.Source.BuildSpec);
-  expect(buildSpec.phases.pre_build.commands).not.toContain('export AWS_PROFILE=profile');
-  expect(buildSpec.phases.pre_build.commands).not.toContain('export AWS_SDK_LOAD_CONFIG=1');
+  const envVars: Array<{ Name: string }> = project.Properties.Environment.EnvironmentVariables ?? [];
+  expect(envVars.find((e) => e.Name === 'AWS_PROFILE')).toBeUndefined();
+  expect(envVars.find((e) => e.Name === 'AWS_SDK_LOAD_CONFIG')).toBeUndefined();
 });
 
 test('minimal configuration', () => {
