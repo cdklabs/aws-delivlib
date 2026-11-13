@@ -200,8 +200,9 @@ test('assume role on windows uses powershell to export credentials', () => {
   });
 
   const template = Template.fromStack(stack);
-  // Asserts the pre_build sequence: download and unpack the script bundle, then the
-  // assume-role credential switch.
+  // pre_build only downloads and unpacks the script bundle. The credential switch
+  // happens in the same (single) build command as the entrypoint, because Windows
+  // CodeBuild does not carry environment variables between commands.
   template.hasResourceProperties('AWS::CodeBuild::Project', {
     Source: {
       BuildSpec: Match.serializedJson({
@@ -213,11 +214,51 @@ test('assume role on windows uses powershell to export credentials', () => {
               'New-Item -ItemType Directory -Force -Path C:\\delivlib | Out-Null',
               'aws s3 cp s3://$env:SCRIPT_S3_BUCKET/$env:SCRIPT_S3_KEY C:\\delivlib\\scripts.zip',
               'Expand-Archive -Path C:\\delivlib\\scripts.zip -DestinationPath C:\\delivlib\\scriptdir -Force',
-              '$env:AWS_STS_REGIONAL_ENDPOINTS = "legacy"',
-              '$assumedRole = aws sts assume-role --role-arn "arn:aws:role:to:assume" --role-session-name "my-session-name" | ConvertFrom-Json',
-              '$env:AWS_ACCESS_KEY_ID = $assumedRole.Credentials.AccessKeyId',
-              '$env:AWS_SECRET_ACCESS_KEY = $assumedRole.Credentials.SecretAccessKey',
-              '$env:AWS_SESSION_TOKEN = $assumedRole.Credentials.SessionToken',
+            ],
+          },
+          build: {
+            commands: [
+              [
+                '$env:AWS_STS_REGIONAL_ENDPOINTS = "legacy"',
+                '$assumedRole = aws sts assume-role --role-arn "arn:aws:role:to:assume" --role-session-name "my-session-name" | ConvertFrom-Json',
+                'if ($LASTEXITCODE -ne 0) { throw "sts assume-role failed with exit code $LASTEXITCODE" }',
+                '$env:AWS_ACCESS_KEY_ID = $assumedRole.Credentials.AccessKeyId',
+                '$env:AWS_SECRET_ACCESS_KEY = $assumedRole.Credentials.SecretAccessKey',
+                '$env:AWS_SESSION_TOKEN = $assumedRole.Credentials.SessionToken',
+                '$env:SCRIPT_DIR = "C:\\delivlib\\scriptdir"',
+                'echo "Running test.ps1"',
+                '& C:\\delivlib\\scriptdir\\test.ps1',
+              ].join('\n'),
+            ],
+          },
+        }),
+      }),
+    },
+  });
+});
+
+test('windows without assume role runs the entrypoint in a single build command', () => {
+  const stack = new cdk.Stack(new cdk.App(), 'TestStack');
+
+  new Shellable(stack, 'MyShellable', {
+    scriptDirectory: path.join(__dirname, 'delivlib-tests/windows'),
+    platform: ShellPlatform.Windows,
+    entrypoint: 'test.ps1',
+  });
+
+  const template = Template.fromStack(stack);
+  template.hasResourceProperties('AWS::CodeBuild::Project', {
+    Source: {
+      BuildSpec: Match.serializedJson({
+        version: '0.2',
+        phases: Match.objectLike({
+          build: {
+            commands: [
+              [
+                '$env:SCRIPT_DIR = "C:\\delivlib\\scriptdir"',
+                'echo "Running test.ps1"',
+                '& C:\\delivlib\\scriptdir\\test.ps1',
+              ].join('\n'),
             ],
           },
         }),
@@ -247,11 +288,13 @@ test('assume role on windows with regional endpoints and external id', () => {
       BuildSpec: Match.serializedJson({
         version: '0.2',
         phases: Match.objectLike({
-          pre_build: {
-            commands: Match.arrayWith([
-              '$env:AWS_STS_REGIONAL_ENDPOINTS = "regional"',
-              '$assumedRole = aws sts assume-role --role-arn "arn:aws:role:to:assume" --role-session-name "my-session-name" --external-id "my-external-id" | ConvertFrom-Json',
-            ]),
+          build: {
+            commands: [
+              Match.stringLikeRegexp([
+                '\\$env:AWS_STS_REGIONAL_ENDPOINTS = "regional"\\n',
+                '\\$assumedRole = aws sts assume-role --role-arn "arn:aws:role:to:assume" --role-session-name "my-session-name" --external-id "my-external-id" \\| ConvertFrom-Json\\n',
+              ].join('')),
+            ],
           },
         }),
       }),
@@ -279,14 +322,25 @@ test('assume role on windows with refresh writes a shared config profile', () =>
       BuildSpec: Match.serializedJson({
         version: '0.2',
         phases: Match.objectLike({
+          // The config file persists on disk, so it can be written in pre_build.
           pre_build: {
             commands: Match.arrayWith([
               'Add-Content -Path $env:USERPROFILE\\.aws\\config -Value "[profile long-running-profile]"',
               'Add-Content -Path $env:USERPROFILE\\.aws\\config -Value "credential_source = EcsContainer"',
               'Add-Content -Path $env:USERPROFILE\\.aws\\config -Value "role_arn = arn:aws:role:to:assume"',
-              '$env:AWS_PROFILE = "long-running-profile"',
-              '$env:AWS_SDK_LOAD_CONFIG = "1"',
             ]),
+          },
+          // Environment variables must be set in the same command as the entrypoint.
+          build: {
+            commands: [
+              [
+                '$env:AWS_PROFILE = "long-running-profile"',
+                '$env:AWS_SDK_LOAD_CONFIG = "1"',
+                '$env:SCRIPT_DIR = "C:\\delivlib\\scriptdir"',
+                'echo "Running test.ps1"',
+                '& C:\\delivlib\\scriptdir\\test.ps1',
+              ].join('\n'),
+            ],
           },
         }),
       }),

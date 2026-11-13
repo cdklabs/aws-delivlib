@@ -319,7 +319,7 @@ export class Shellable extends Construct {
     this.buildSpec = BuildSpec.simple({
       install: this.platform.installCommands(),
       preBuild: this.platform.prebuildCommands(props.assumeRole, props.useRegionalStsEndpoints),
-      build: this.platform.buildCommands(props.entrypoint, props.args),
+      build: this.platform.buildCommands(props.entrypoint, props.args, props.assumeRole, props.useRegionalStsEndpoints),
     }).merge(props.buildSpec || BuildSpec.empty());
 
     const environmentSecretsAsSecretNames = this.convertEnvironmentSecretArnsToSecretNames(props.environmentSecrets);
@@ -460,8 +460,12 @@ export abstract class ShellPlatform {
 
   /**
    * Return commands to start the entrypoint script
+   *
+   * `assumeRole` and `useRegionalStsEndpoints` are passed for platforms where
+   * environment variables do not persist between buildspec commands (Windows),
+   * so credentials must be set up in the same command as the entrypoint.
    */
-  public abstract buildCommands(entrypoint: string, args?: string[]): string[];
+  public abstract buildCommands(entrypoint: string, args?: string[], assumeRole?: AssumeRole, useRegionalStsEndpoints?: boolean): string[];
 
   /**
    * Type of platform
@@ -579,7 +583,7 @@ export class WindowsPlatform extends ShellPlatform {
     ];
   }
 
-  public prebuildCommands(assumeRole?: AssumeRole, useRegionalStsEndpoints?: boolean): string[] {
+  public prebuildCommands(assumeRole?: AssumeRole, _useRegionalStsEndpoints?: boolean): string[] {
     const lines = new Array<string>();
 
     // Download and unpack the script bundle before any assume-role step below.
@@ -588,30 +592,42 @@ export class WindowsPlatform extends ShellPlatform {
     lines.push(`aws s3 cp s3://$env:${S3_BUCKET_ENV}/$env:${S3_KEY_ENV} ${WINDOWS_BASE_DIR}\\scripts.zip`);
     lines.push(`Expand-Archive -Path ${WINDOWS_BASE_DIR}\\scripts.zip -DestinationPath ${WINDOWS_SCRIPT_DIR} -Force`);
 
+    // Configure a named profile in the shared config file and delegate credential
+    // refreshing to the SDK/CLI. This mirrors the Linux `credential_source` approach
+    // and supports sessions longer than a single `sts assume-role` call.
+    //
+    // Only file-system changes happen here: on Windows, CodeBuild runs each buildspec
+    // command in a separate PowerShell process, so environment variables set here
+    // would be lost. The `$env:` setup happens in `buildCommands` instead.
+    if (assumeRole?.refresh) {
+      const awsHome = '$env:USERPROFILE\\.aws';
+      const configPath = `${awsHome}\\config`;
+      const profileName = assumeRole.profileName ?? 'long-running-profile';
+
+      lines.push(`New-Item -ItemType Directory -Force -Path ${awsHome} | Out-Null`);
+      lines.push(`if (-not (Test-Path ${awsHome}\\credentials)) { New-Item -ItemType File -Path ${awsHome}\\credentials | Out-Null }`);
+      lines.push(`Add-Content -Path ${configPath} -Value "[profile ${profileName}]"`);
+      lines.push(`Add-Content -Path ${configPath} -Value "credential_source = EcsContainer"`);
+      lines.push(`Add-Content -Path ${configPath} -Value "role_session_name = ${assumeRole.sessionName}"`);
+      lines.push(`Add-Content -Path ${configPath} -Value "role_arn = ${assumeRole.roleArn}"`);
+
+      if (assumeRole.externalId) {
+        lines.push(`Add-Content -Path ${configPath} -Value "external_id = ${assumeRole.externalId}"`);
+      }
+    }
+
+    return lines;
+  }
+
+  public buildCommands(entrypoint: string, args?: string[], assumeRole?: AssumeRole, useRegionalStsEndpoints?: boolean): string[] {
+    const lines = new Array<string>();
+
     if (assumeRole) {
 
       if (assumeRole.refresh) {
 
-        // Configure a named profile in the shared config file and delegate credential
-        // refreshing to the SDK/CLI. This mirrors the Linux `credential_source` approach
-        // and supports sessions longer than a single `sts assume-role` call.
-        const awsHome = '$env:USERPROFILE\\.aws';
-        const configPath = `${awsHome}\\config`;
-        const profileName = assumeRole.profileName ?? 'long-running-profile';
-
-        lines.push(`New-Item -ItemType Directory -Force -Path ${awsHome} | Out-Null`);
-        lines.push(`if (-not (Test-Path ${awsHome}\\credentials)) { New-Item -ItemType File -Path ${awsHome}\\credentials | Out-Null }`);
-        lines.push(`Add-Content -Path ${configPath} -Value "[profile ${profileName}]"`);
-        lines.push(`Add-Content -Path ${configPath} -Value "credential_source = EcsContainer"`);
-        lines.push(`Add-Content -Path ${configPath} -Value "role_session_name = ${assumeRole.sessionName}"`);
-        lines.push(`Add-Content -Path ${configPath} -Value "role_arn = ${assumeRole.roleArn}"`);
-
-        if (assumeRole.externalId) {
-          lines.push(`Add-Content -Path ${configPath} -Value "external_id = ${assumeRole.externalId}"`);
-        }
-
         // let the application code know which role is being used.
-        lines.push(`$env:AWS_PROFILE = "${profileName}"`);
+        lines.push(`$env:AWS_PROFILE = "${assumeRole.profileName ?? 'long-running-profile'}"`);
 
         // force the AWS SDK for JavaScript to actually load the config file (do automatically so users don't forget)
         lines.push('$env:AWS_SDK_LOAD_CONFIG = "1"');
@@ -625,20 +641,20 @@ export class WindowsPlatform extends ShellPlatform {
         // credentials off the parsed object rather than grepping a temp file.
         lines.push(`$env:AWS_STS_REGIONAL_ENDPOINTS = "${stsEndpoints}"`);
         lines.push(`$assumedRole = aws sts assume-role --role-arn "${assumeRole.roleArn}" --role-session-name "${assumeRole.sessionName}"${externalId} | ConvertFrom-Json`);
+        lines.push('if ($LASTEXITCODE -ne 0) { throw "sts assume-role failed with exit code $LASTEXITCODE" }');
         lines.push('$env:AWS_ACCESS_KEY_ID = $assumedRole.Credentials.AccessKeyId');
         lines.push('$env:AWS_SECRET_ACCESS_KEY = $assumedRole.Credentials.SecretAccessKey');
         lines.push('$env:AWS_SESSION_TOKEN = $assumedRole.Credentials.SessionToken');
       }
     }
 
-    return lines;
-  }
+    lines.push(`$env:SCRIPT_DIR = "${WINDOWS_SCRIPT_DIR}"`);
+    lines.push(`echo "Running ${entrypoint}"`);
+    lines.push(`& ${WINDOWS_SCRIPT_DIR}\\${entrypoint} ${(args ?? []).join(' ')}`.trimRight());
 
-  public buildCommands(entrypoint: string, args?: string[]): string[] {
-    return [
-      `$env:SCRIPT_DIR = "${WINDOWS_SCRIPT_DIR}"`,
-      `echo "Running ${entrypoint}"`,
-      `& ${WINDOWS_SCRIPT_DIR}\\${entrypoint} ${(args ?? []).join(' ')}`.trimRight(),
-    ];
+    // On Windows, CodeBuild runs each buildspec command in a separate PowerShell
+    // process, so environment variables do not carry over between commands. Emit
+    // a single multi-line command so the env setup is visible to the entrypoint.
+    return [lines.join('\n')];
   }
 }
