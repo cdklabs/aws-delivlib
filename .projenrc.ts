@@ -1,4 +1,5 @@
 import { CdklabsTypeScriptProject } from 'cdklabs-projen-project-types';
+import { TaskShell } from 'projen';
 
 const project = new CdklabsTypeScriptProject({
   name: 'aws-delivlib',
@@ -122,7 +123,7 @@ project.preCompileTask.exec(`for a in lib/publishing/*/update-ssm.sh; do
       exit 1
     fi
   done
-done`);
+done`, { shell: TaskShell.system() }); // needs a real shell: projen's built-in shell has no for/if
 
 // The npmignore file includes original source files, which is undesirable.
 project.npmignore?.exclude(

@@ -1,4 +1,9 @@
 {
+  "manifestVersion": 3,
+  "env": {
+    "PATH": "$(npx -c \"node --print process.env.PATH\")",
+    "RELEASE": "1"
+  },
   "tasks": {
     "build": {
       "name": "build",
@@ -46,15 +51,36 @@
         "BUMPFILE": "dist/version.txt",
         "RELEASETAG": "dist/releasetag.txt",
         "RELEASE_TAG_PREFIX": "",
-        "BUMP_PACKAGE": "commit-and-tag-version@^12",
-        "RELEASABLE_COMMITS": "git log --no-merges --oneline $LATEST_TAG..HEAD -E --grep \"^(feat|fix){1}(\\([^()[:space:]]+\\))?(!)?:[[:blank:]]+.+\""
+        "BUMP_PACKAGE": "commit-and-tag-version@^13"
       },
       "steps": [
         {
-          "builtin": "release/bump-version"
+          "builtin": "release/resolve-latest-tag",
+          "outputEnv": "LATEST_TAG"
+        },
+        {
+          "spawn": "bump:releasable-commits",
+          "outputEnv": "RELEASABLE_COMMITS",
+          "condition": "git rev-parse --verify --quiet \"refs/tags/$LATEST_TAG\""
+        },
+        {
+          "builtin": "release/suggest-version-bump",
+          "outputEnv": "SUGGESTED_BUMP"
+        },
+        {
+          "builtin": "release/apply-version-bump"
         }
       ],
-      "condition": "git log --oneline -1 | grep -qv \"chore(release):\""
+      "condition": "git log --oneline -1 | grep -v \"chore(release):\" > /dev/null"
+    },
+    "bump:releasable-commits": {
+      "name": "bump:releasable-commits",
+      "description": "Print the releasable commits since the latest release",
+      "steps": [
+        {
+          "exec": "git log --no-merges --oneline $LATEST_TAG..HEAD -E --grep '^(feat|fix){1}(\\([^()[:space:]]+\\))?(!)?:[[:blank:]]+.+'"
+        }
+      ]
     },
     "bundle:package-integrity": {
       "name": "bundle:package-integrity",
@@ -69,30 +95,39 @@
       "name": "clobber",
       "description": "hard resets to HEAD of origin and cleans the local repo",
       "env": {
-        "BRANCH": "$(git branch --show-current)"
+        "BRANCH": "$(git branch --show-current)",
+        "HEAD_COMMIT": "$(git rev-parse --short HEAD)"
       },
       "steps": [
         {
-          "exec": "git checkout -b scratch",
-          "name": "save current HEAD in \"scratch\" branch"
+          "exec": "git checkout -B \"scratch-$HEAD_COMMIT\"",
+          "name": "save current HEAD in a \"scratch-<commit>\" branch"
         },
         {
-          "exec": "git checkout $BRANCH"
+          "exec": "git checkout \"$BRANCH\""
         },
         {
-          "exec": "git fetch origin",
+          "execArgs": [
+            "git",
+            "fetch",
+            "origin"
+          ],
           "name": "fetch latest changes from origin"
         },
         {
-          "exec": "git reset --hard origin/$BRANCH",
+          "exec": "git reset --hard \"origin/$BRANCH\"",
           "name": "hard reset to origin commit"
         },
         {
-          "exec": "git clean -fdx",
+          "execArgs": [
+            "git",
+            "clean",
+            "-fdx"
+          ],
           "name": "clean all untracked files"
         },
         {
-          "say": "ready to rock! (unpushed commits are under the \"scratch\" branch)"
+          "say": "ready to rock! (unpushed commits are under a \"scratch-<commit>\" branch)"
         }
       ],
       "condition": "git diff --exit-code > /dev/null"
@@ -108,7 +143,10 @@
           "spawn": "build:publishing/github"
         },
         {
-          "exec": "tsc --build"
+          "execArgs": [
+            "tsc",
+            "--build"
+          ]
         },
         {
           "spawn": "bundle:package-integrity"
@@ -128,7 +166,12 @@
       "description": "Synthesize project files",
       "steps": [
         {
-          "exec": "ts-node --project tsconfig.dev.json .projenrc.ts"
+          "execArgs": [
+            "ts-node",
+            "--project",
+            "projenrc/tsconfig.json",
+            ".projenrc.ts"
+          ]
         }
       ]
     },
@@ -153,7 +196,19 @@
       },
       "steps": [
         {
-          "exec": "eslint --ext .ts,.tsx --fix --no-error-on-unmatched-pattern $@ lib lib/__tests__ build-tools projenrc .projenrc.ts",
+          "execArgs": [
+            "eslint",
+            "--ext",
+            ".ts,.tsx",
+            "--fix",
+            "--no-error-on-unmatched-pattern",
+            "$@",
+            "lib",
+            "lib/__tests__",
+            "build-tools",
+            "projenrc",
+            ".projenrc.ts"
+          ],
           "receiveArgs": true
         }
       ]
@@ -197,10 +252,19 @@
       "description": "Creates the distribution package",
       "steps": [
         {
-          "exec": "mkdir -p dist/js"
+          "execArgs": [
+            "mkdir",
+            "-p",
+            "dist/js"
+          ]
         },
         {
-          "exec": "npm pack --pack-destination dist/js"
+          "execArgs": [
+            "npm",
+            "pack",
+            "--pack-destination",
+            "dist/js"
+          ]
         }
       ]
     },
@@ -217,7 +281,8 @@
       "description": "Prepare the project for compilation",
       "steps": [
         {
-          "exec": "for a in lib/publishing/*/update-ssm.sh; do\n  for b in lib/publishing/*/update-ssm.sh; do\n    if ! diff $a $b; then\n      echo \"Files should be the same but are not:\n- $a\n- $b\"\n      exit 1\n    fi\n  done\ndone"
+          "exec": "for a in lib/publishing/*/update-ssm.sh; do\n  for b in lib/publishing/*/update-ssm.sh; do\n    if ! diff $a $b; then\n      echo \"Files should be the same but are not:\n- $a\n- $b\"\n      exit 1\n    fi\n  done\ndone",
+          "shell": "system"
         }
       ]
     },
@@ -229,7 +294,11 @@
       },
       "steps": [
         {
-          "exec": "rm -fr dist"
+          "execArgs": [
+            "rm",
+            "-fr",
+            "dist"
+          ]
         },
         {
           "spawn": "bump"
@@ -243,7 +312,8 @@
         {
           "exec": "git diff --ignore-space-at-eol --exit-code"
         }
-      ]
+      ],
+      "condition": "git log --oneline -1 | grep -v \"chore(release):\" > /dev/null"
     },
     "test": {
       "name": "test",
@@ -253,7 +323,11 @@
       },
       "steps": [
         {
-          "exec": "jest --passWithNoTests --updateSnapshot",
+          "execArgs": [
+            "jest",
+            "--passWithNoTests",
+            "--updateSnapshot"
+          ],
           "receiveArgs": true
         },
         {
@@ -269,7 +343,10 @@
       "description": "Run jest in watch mode",
       "steps": [
         {
-          "exec": "jest --watch"
+          "execArgs": [
+            "jest",
+            "--watch"
+          ]
         }
       ]
     },
@@ -282,8 +359,7 @@
         "BUMPFILE": "dist/version.txt",
         "RELEASETAG": "dist/releasetag.txt",
         "RELEASE_TAG_PREFIX": "",
-        "BUMP_PACKAGE": "commit-and-tag-version@^12",
-        "RELEASABLE_COMMITS": "git log --no-merges --oneline $LATEST_TAG..HEAD -E --grep \"^(feat|fix){1}(\\([^()[:space:]]+\\))?(!)?:[[:blank:]]+.+\""
+        "BUMP_PACKAGE": "commit-and-tag-version@^13"
       },
       "steps": [
         {
@@ -299,13 +375,26 @@
       },
       "steps": [
         {
-          "exec": "npx npm-check-updates@18 --upgrade --target=minor --peer --no-deprecated --dep=prod --filter=changelog-parser"
+          "execArgs": [
+            "npx",
+            "npm-check-updates@20",
+            "--upgrade",
+            "--target=minor",
+            "--peer",
+            "--no-deprecated",
+            "--dep=prod",
+            "--filter=changelog-parser"
+          ]
         },
         {
           "exec": "yarn install --check-files"
         },
         {
-          "exec": "yarn upgrade changelog-parser"
+          "execArgs": [
+            "yarn",
+            "upgrade",
+            "changelog-parser"
+          ]
         },
         {
           "exec": "npx projen"
@@ -323,13 +412,27 @@
       },
       "steps": [
         {
-          "exec": "npx npm-check-updates@18 --upgrade --target=latest --peer --no-deprecated --dep=dev,peer,prod,optional --filter=cdklabs-projen-project-types,projen"
+          "execArgs": [
+            "npx",
+            "npm-check-updates@20",
+            "--upgrade",
+            "--target=latest",
+            "--peer",
+            "--no-deprecated",
+            "--dep=dev,prod,peer,optional",
+            "--filter=cdklabs-projen-project-types,projen"
+          ]
         },
         {
           "exec": "yarn install --check-files"
         },
         {
-          "exec": "yarn upgrade cdklabs-projen-project-types projen"
+          "execArgs": [
+            "yarn",
+            "upgrade",
+            "cdklabs-projen-project-types",
+            "projen"
+          ]
         },
         {
           "exec": "npx projen"
@@ -347,13 +450,63 @@
       },
       "steps": [
         {
-          "exec": "npx npm-check-updates@18 --upgrade --target=minor --peer --no-deprecated --dep=dev --filter=@aws-sdk/client-cloudwatch,@aws-sdk/client-codepipeline,@aws-sdk/client-s3,@aws-sdk/client-secrets-manager,@aws-sdk/client-ssm,@babel/plugin-transform-modules-commonjs,@types/adm-zip,@types/aws-lambda,@types/follow-redirects,@types/fs-extra,@types/jest,@types/tar,adm-zip,aws-cdk,aws-cdk-lib,esbuild,eslint-import-resolver-typescript,eslint-plugin-import,follow-redirects,fs-extra,jest,JSONStream,rrule,standard-version,tar,ts-jest,ts-node"
+          "execArgs": [
+            "npx",
+            "npm-check-updates@20",
+            "--upgrade",
+            "--target=minor",
+            "--peer",
+            "--no-deprecated",
+            "--dep=dev",
+            "--filter=@aws-sdk/client-cloudwatch,@aws-sdk/client-codepipeline,@aws-sdk/client-s3,@aws-sdk/client-secrets-manager,@aws-sdk/client-ssm,@babel/plugin-transform-modules-commonjs,@types/adm-zip,@types/aws-lambda,@types/follow-redirects,@types/fs-extra,@types/jest,@types/tar,adm-zip,aws-cdk,aws-cdk-lib,esbuild,eslint-import-resolver-typescript,eslint-plugin-import,follow-redirects,fs-extra,jest,JSONStream,rrule,standard-version,tar,ts-jest,ts-node"
+          ]
         },
         {
           "exec": "yarn install --check-files"
         },
         {
-          "exec": "yarn upgrade @aws-sdk/client-cloudwatch @aws-sdk/client-codepipeline @aws-sdk/client-s3 @aws-sdk/client-secrets-manager @aws-sdk/client-ssm @babel/plugin-transform-modules-commonjs @stylistic/eslint-plugin @types/adm-zip @types/aws-lambda @types/follow-redirects @types/fs-extra @types/jest @types/node @types/tar @typescript-eslint/eslint-plugin @typescript-eslint/parser adm-zip aws-cdk aws-cdk-lib commit-and-tag-version constructs esbuild eslint-import-resolver-typescript eslint-plugin-import eslint follow-redirects fs-extra jest jest-junit JSONStream minipass node-ical rrule standard-version tar ts-jest ts-node typescript"
+          "execArgs": [
+            "yarn",
+            "upgrade",
+            "@aws-sdk/client-cloudwatch",
+            "@aws-sdk/client-codepipeline",
+            "@aws-sdk/client-s3",
+            "@aws-sdk/client-secrets-manager",
+            "@aws-sdk/client-ssm",
+            "@babel/plugin-transform-modules-commonjs",
+            "@stylistic/eslint-plugin",
+            "@types/adm-zip",
+            "@types/aws-lambda",
+            "@types/follow-redirects",
+            "@types/fs-extra",
+            "@types/jest",
+            "@types/node",
+            "@types/tar",
+            "@typescript-eslint/eslint-plugin",
+            "@typescript-eslint/parser",
+            "adm-zip",
+            "aws-cdk",
+            "aws-cdk-lib",
+            "commit-and-tag-version",
+            "constructs",
+            "esbuild",
+            "eslint-import-resolver-typescript",
+            "eslint-plugin-import",
+            "eslint",
+            "follow-redirects",
+            "fs-extra",
+            "jest",
+            "jest-junit",
+            "JSONStream",
+            "minipass",
+            "node-ical",
+            "rrule",
+            "standard-version",
+            "tar",
+            "ts-jest",
+            "ts-node",
+            "typescript"
+          ]
         },
         {
           "exec": "npx projen"
@@ -368,14 +521,14 @@
       "description": "Watch & compile in the background",
       "steps": [
         {
-          "exec": "tsc --build -w"
+          "execArgs": [
+            "tsc",
+            "--build",
+            "-w"
+          ]
         }
       ]
     }
-  },
-  "env": {
-    "PATH": "$(npx -c \"node --print process.env.PATH\")",
-    "RELEASE": "1"
   },
   "//": "~~ Generated by projen. To modify, edit .projenrc.ts and run \"npx projen\"."
 }
