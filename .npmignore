@@ -6,7 +6,6 @@ junit.xml
 permissions-backup.acl
 /dist/changelog.md
 /dist/version.txt
-/tsconfig.dev.json
 !/lib/
 !/lib/**/*.js
 dist
@@ -16,6 +15,7 @@ dist
 /.idea/
 /.projenrc.js
 /.eslintrc.json
+/projenrc/tsconfig.json
 /lib/**/*.ts
 !/lib/**/*.d.ts
 !/lib/**/node_modules/**
