@@ -25,12 +25,22 @@
     "strictNullChecks": true,
     "strictPropertyInitialization": true,
     "stripInternal": true,
-    "target": "ES2020"
+    "target": "ES2020",
+    "types": [
+      "adm-zip",
+      "aws-lambda",
+      "follow-redirects",
+      "fs-extra",
+      "jest",
+      "node",
+      "tar"
+    ]
   },
   "include": [
     "lib/**/*.ts"
   ],
   "exclude": [
+    "node_modules",
     "lib/publishing/github"
   ],
   "references": [
