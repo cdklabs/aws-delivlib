@@ -33,7 +33,15 @@ function generateProject(fixture: string): string {
 
   // we need CI=false since projen defaults to CI=true in a GitHub
   // environment, and project generation normally happens outside of CI.
-  const projen = () => shell(`CI=false ${path.join(require.resolve('projen'), '..', '..', 'bin', 'projen')}`);
+  // Fixtures only have a .projenrc.js and newer projen CLIs can't bootstrap from that,
+  // so link in our projen and run the rc file directly (what old projen did).
+  const projen = () => {
+    const link = path.join(repoDir, 'node_modules', 'projen');
+    if (!fs.existsSync(link)) {
+      fs.ensureSymlinkSync(path.join(require.resolve('projen'), '..', '..'), link);
+    }
+    shell('CI=false node .projenrc.js');
+  };
 
   const isProjen = fs.existsSync(path.join(repoDir, '.projenrc.js'));
 
